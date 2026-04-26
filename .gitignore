@@ -1,0 +1,48 @@
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.suo
+*.user
+*.userossc
+*.sln.docstates
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Node / package managers
+node_modules/
+
+# Build output
+dist/
+build/
+coverage/
+
+# Local exports and captures
+screenshots/
+captures/
+recordings/
+exports/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.orig
+
+# Python cache, if tools/scripts are added later
+__pycache__/
+*.pyc
