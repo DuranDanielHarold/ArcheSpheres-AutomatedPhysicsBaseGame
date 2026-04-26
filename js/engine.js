@@ -5,6 +5,74 @@
 // NoiseTrap, and Shuriken. They are kept here to preserve the original code order.
 
 const _audioPoolCache = new Map();
+const _audioStorageKey = 'archeSpheresAudioState';
+let _bgmAudio = null;
+let _audioState = {
+ masterVolume: AUDIO_SETTINGS_DEFAULTS.masterVolume,
+ sfxVolume: AUDIO_SETTINGS_DEFAULTS.sfxVolume,
+ bgmVolume: AUDIO_SETTINGS_DEFAULTS.bgmVolume,
+ muted: AUDIO_SETTINGS_DEFAULTS.muted,
+};
+
+function _saveAudioState(){
+ try{localStorage.setItem(_audioStorageKey,JSON.stringify(_audioState));}catch(_err){}
+}
+
+function _loadAudioState(){
+ try{
+  const raw=localStorage.getItem(_audioStorageKey);
+  if(!raw)return;
+  const parsed=JSON.parse(raw);
+  if(typeof parsed.masterVolume==='number')_audioState.masterVolume=Math.max(0,Math.min(1,parsed.masterVolume));
+  if(typeof parsed.sfxVolume==='number')_audioState.sfxVolume=Math.max(0,Math.min(1,parsed.sfxVolume));
+  if(typeof parsed.bgmVolume==='number')_audioState.bgmVolume=Math.max(0,Math.min(1,parsed.bgmVolume));
+  if(typeof parsed.muted==='boolean')_audioState.muted=parsed.muted;
+ }catch(_err){}
+}
+
+function _resolveAudioVolume(key, slot, channel='sfx'){
+ const bucket=channel==='bgm' ? (AUDIO_VOLUMES.arena||{}) : (AUDIO_VOLUMES[key]||{});
+ const base=(bucket[slot] ?? AUDIO_VOLUMES.default?.[slot] ?? 0.65);
+ const channelVolume=channel==='bgm' ? _audioState.bgmVolume : _audioState.sfxVolume;
+ if(_audioState.muted)return 0;
+ return Math.max(0,Math.min(1,base*_audioState.masterVolume*channelVolume));
+}
+
+function _updateAudioUi(){
+ const muteBtn=document.getElementById('mute-btn');
+ const sfxSlider=document.getElementById('sfx-vol');
+ const bgmSlider=document.getElementById('bgm-vol');
+ if(muteBtn)muteBtn.textContent=_audioState.muted?'SOUND OFF':'SOUND ON';
+ if(sfxSlider)sfxSlider.value=Math.round(_audioState.sfxVolume*100);
+ if(bgmSlider)bgmSlider.value=Math.round(_audioState.bgmVolume*100);
+}
+
+function _syncArenaBgm(forceRestart=false){
+ const path=ARENA_AUDIO?.bgm;
+ if(!path){
+  if(_bgmAudio){_bgmAudio.pause();_bgmAudio=null;}
+  return;
+ }
+ if(!_bgmAudio||_bgmAudio.src.indexOf(path)===-1){
+  if(_bgmAudio)_bgmAudio.pause();
+  _bgmAudio=new Audio(path);
+  _bgmAudio.preload='auto';
+  _bgmAudio.loop=true;
+  _bgmAudio.load();
+ }
+ _bgmAudio.volume=_resolveAudioVolume('arena','bgm','bgm');
+ if(_audioState.muted||_bgmAudio.volume<=0){
+  _bgmAudio.pause();
+  return;
+ }
+ if(forceRestart){
+  try{_bgmAudio.currentTime=0;}catch(_err){}
+ }
+ if(_bgmAudio.paused){
+  const playAttempt=_bgmAudio.play();
+  if(playAttempt&&typeof playAttempt.catch==='function')playAttempt.catch(()=>{});
+ }
+}
 
 function _primeAudioPath(path, poolSize=1){
  if(!path)return;
@@ -32,6 +100,7 @@ function _preloadConfiguredAudio(){
 
 function _playAudioPath(path, volume=0.65){
  if(!path)return;
+ if(volume<=0)return;
  let pool=_audioPoolCache.get(path);
  if(!pool){
   _primeAudioPath(path,2);
@@ -50,11 +119,34 @@ function _playAudioPath(path, volume=0.65){
  if(playAttempt&&typeof playAttempt.catch==='function')playAttempt.catch(()=>{});
 }
 
-function _playSphereAudio(key, slot, volume=0.65){
+function _playSphereAudio(key, slot, volume){
  if(!SPHERE_AUDIO||!SPHERE_AUDIO[key])return;
  const path=SPHERE_AUDIO[key][slot];
- _playAudioPath(path,volume);
+ const finalVolume=typeof volume==='number'?volume:_resolveAudioVolume(key,slot,'sfx');
+ _playAudioPath(path,finalVolume);
 }
+
+window.toggleAudioMute=function(){
+ _audioState.muted=!_audioState.muted;
+ _saveAudioState();
+ _updateAudioUi();
+ _syncArenaBgm();
+};
+
+window.setAudioVolume=function(channel, value){
+ const normalized=Math.max(0,Math.min(1,Number(value)/100));
+ if(channel==='sfx')_audioState.sfxVolume=normalized;
+ if(channel==='bgm')_audioState.bgmVolume=normalized;
+ _saveAudioState();
+ _updateAudioUi();
+ _syncArenaBgm();
+};
+
+window.initAudioUi=function(){
+ _loadAudioState();
+ _updateAudioUi();
+ _syncArenaBgm();
+};
 
 function resolveAll(){
  for(let i=0;i<spheres.length;i++){
@@ -582,8 +674,8 @@ function _weaponClash(a,b){
  a.weaponHitCD=0.28;b.weaponHitCD=0.28;
  const mx=(clashPtA.x+clashPtB.x)/2,my=(clashPtA.y+clashPtB.y)/2;
  // Play one clash sound from the first sphere that has a configured weaponCollision asset.
- if(SPHERE_AUDIO[a.key]&&SPHERE_AUDIO[a.key].weaponCollision)_playSphereAudio(a.key,'weaponCollision',0.72);
- else if(SPHERE_AUDIO[b.key]&&SPHERE_AUDIO[b.key].weaponCollision)_playSphereAudio(b.key,'weaponCollision',0.72);
+ if(SPHERE_AUDIO[a.key]&&SPHERE_AUDIO[a.key].weaponCollision)_playSphereAudio(a.key,'weaponCollision');
+ else if(SPHERE_AUDIO[b.key]&&SPHERE_AUDIO[b.key].weaponCollision)_playSphereAudio(b.key,'weaponCollision');
  spawnSpark(mx,my,'#ffe066',10);spawnSpark(mx,my,'#fff',6);
  spawnImpactBurst(mx,my,'#ffe066','#fff');
  const bx=b.x-a.x,by2=b.y-a.y,bd=Math.hypot(bx,by2)||1;

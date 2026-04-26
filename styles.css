@@ -322,7 +322,22 @@ body {
 #controls {
   display: flex;
   gap: 5px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
   flex-shrink: 0;
+}
+
+#audio-panel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  background: rgba(26, 35, 64, .9);
+  border: 2px solid var(--goldd);
+  box-shadow: 2px 2px 0 #000;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .pbtn {
@@ -350,4 +365,24 @@ body {
 
 .pbtn.new:active {
   box-shadow: 1px 1px 0 #7a0000, 2px 2px 0 #000;
+}
+
+.pbtn.audio {
+  background: var(--navy);
+  color: var(--goldl);
+  box-shadow: 3px 3px 0 var(--goldsh), 4px 4px 0 #000;
+}
+
+.avol {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #ccddf0;
+  font-size: clamp(5px, 1.4vw, 7px);
+}
+
+.avol input[type="range"] {
+  width: 72px;
+  accent-color: var(--goldl);
+  cursor: pointer;
 }

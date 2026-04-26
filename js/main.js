@@ -1,5 +1,5 @@
 'use strict';
-// ▓▓▓ SECTION:MAIN — Canvas setup, global state, selector init, newBattle, resize, event listeners ▓▓▓
+// SECTION:MAIN - Canvas setup, global state, selector init, newBattle, resize, event listeners
 
 const canvas=document.getElementById('gc'),ctx=canvas.getContext('2d');
 ctx.imageSmoothingEnabled=false;
@@ -45,15 +45,15 @@ let gameMode='1v1';
  };
  buildSelRow();
 })();
-// ▓▓▓ END:DATA ▓▓▓
 
 function newBattle(){
  cancelAnimationFrame(animId);
  document.getElementById('winner').classList.remove('show');
  winDone=false;paused=false;
- document.getElementById('pbtn').textContent='⏸ PAUSE';
+ document.getElementById('pbtn').textContent='PAUSE';
  spheres=[];particles=[];projectiles=[];afterimages=[];noiseTraps=[];slowZones=[];thornPatches=[];skeletons=[];dmgNums=[];bloodSplats=[];miasmaClouds=[];
  if(typeof _preloadConfiguredAudio==='function')_preloadConfiguredAudio();
+ if(typeof _syncArenaBgm==='function')_syncArenaBgm();
  resize();
  function dvdVel(key){
   let a=Math.random()*Math.PI*2;
@@ -76,15 +76,18 @@ function newBattle(){
  spheres.push(new Sphere(bk,1,W/2+bd+Math.random()*(W/2-bd*3),bd*2+Math.random()*(H-bd*4),v1.vx,v1.vy));
  lastTime=performance.now();animId=requestAnimationFrame(loop);
 }
-function togglePause(){paused=!paused;document.getElementById('pbtn').textContent=paused?'▶ RESUME':'⏸ PAUSE';if(!paused)lastTime=performance.now();}
+
+function togglePause(){paused=!paused;document.getElementById('pbtn').textContent=paused?'RESUME':'PAUSE';if(!paused)lastTime=performance.now();}
+
 function resize(){
  const rect=canvas.getBoundingClientRect();
  W=canvas.width=Math.max(1,Math.floor(rect.width));
  H=canvas.height=Math.max(1,Math.floor(rect.height));
  ctx.imageSmoothingEnabled=false;
 }
+
 if(window.ResizeObserver){
  new ResizeObserver(()=>{resize();}).observe(document.getElementById('arena-border'));
 }
 window.addEventListener('orientationchange',()=>setTimeout(()=>{resize();},150));
-window.addEventListener('load',()=>{resize();});
+window.addEventListener('load',()=>{resize();if(typeof initAudioUi==='function')initAudioUi();});
