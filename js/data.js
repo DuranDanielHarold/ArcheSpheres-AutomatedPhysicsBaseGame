@@ -62,22 +62,22 @@ const SPHERE_AUDIO = {
     ability: '', // add audio file path here, example: 'audio/samurai/ability.wav'
   },
   viking: {
-    weaponCollision: '', // add audio file path here
+    weaponCollision: 'audio/viking/weaponCollision.wav', // shared clash audio
     damage: '', // add audio file path here
     ability: '', // add audio file path here
   },
   barbarian: {
-    weaponCollision: '', // add audio file path here
+    weaponCollision: 'audio/barbarian/weaponCollision.wav', // shared clash audio
     damage: '', // add audio file path here
     ability: '', // add audio file path here
   },
   paladin: {
-    weaponCollision: '', // add audio file path here
+    weaponCollision: 'audio/paladin/weaponCollision.wav', // shared clash audio
     damage: '', // add audio file path here
     ability: '', // add audio file path here
   },
   ninja: {
-    weaponCollision: '', // add audio file path here
+    weaponCollision: 'audio/ninja/weaponCollision.wav', // shared clash audio
     damage: '', // add audio file path here
     ability: '', // add audio file path here
   },
@@ -89,142 +89,142 @@ const SPHERE_AUDIO = {
     projectileHit: 'audio/wizard/projectileHit.wav', // wizard projectile hit audio
   },
   berserker: {
-    weaponCollision: '', // add audio file path here
+    weaponCollision: 'audio/berserker/weaponCollision.wav', // shared clash audio
     damage: '', // add audio file path here
     ability: '', // add audio file path here
   },
   ranger: {
-    weaponCollision: '', // add audio file path here
+    weaponCollision: 'audio/ranger/weaponCollision.wav', // shared clash audio
     damage: '', // add audio file path here
     ability: '', // add audio file path here
   },
   templar: {
-    weaponCollision: '', // add audio file path here
+    weaponCollision: 'audio/templar/weaponCollision.wav', // shared clash audio
     damage: '', // add audio file path here
     ability: '', // add audio file path here
   },
   rogue: {
-    weaponCollision: '', // add audio file path here
+    weaponCollision: 'audio/rogue/weaponCollision.wav', // shared clash audio
     damage: '', // add audio file path here
     ability: '', // add audio file path here
   },
   warlord: {
-    weaponCollision: '', // add audio file path here
+    weaponCollision: 'audio/warlord/weaponCollision.wav', // shared clash audio
     damage: '', // add audio file path here
     ability: '', // add audio file path here
   },
   druid: {
-    weaponCollision: '', // add audio file path here
+    weaponCollision: 'audio/druid/weaponCollision.wav', // shared clash audio
     damage: '', // add audio file path here
     ability: '', // add audio file path here
   },
   necromancer: {
-    weaponCollision: '', // add audio file path here
+    weaponCollision: 'audio/necromancer/weaponCollision.wav', // shared clash audio
     damage: '', // add audio file path here
     ability: '', // add audio file path here
   },
   pirate: {
-    weaponCollision: '', // add audio file path here
+    weaponCollision: 'audio/pirate/weaponCollision.wav', // shared clash audio
     damage: '', // add audio file path here
     ability: '', // add audio file path here
   },
   jester: {
-    weaponCollision: '', // add audio file path here
+    weaponCollision: 'audio/jester/weaponCollision.wav', // shared clash audio
     damage: '', // add audio file path here
     ability: '', // add audio file path here
   },
   golem: {
-    weaponCollision: '', // add audio file path here
+    weaponCollision: 'audio/golem/weaponCollision.wav', // shared clash audio
     damage: '', // add audio file path here
     ability: '', // add audio file path here
   },
   phoenix: {
-    weaponCollision: '', // add audio file path here
+    weaponCollision: 'audio/phoenix/weaponCollision.wav', // shared clash audio
     damage: '', // add audio file path here
     ability: '', // add audio file path here
   },
   guardian: {
-    weaponCollision: '', // add audio file path here
+    weaponCollision: 'audio/guardian/weaponCollision.wav', // shared clash audio
     damage: '', // add audio file path here
     ability: '', // add audio file path here
   },
   trickster: {
-    weaponCollision: '', // add audio file path here
+    weaponCollision: 'audio/trickster/weaponCollision.wav', // shared clash audio
     damage: '', // add audio file path here
     ability: '', // add audio file path here
   },
   sheriff: {
-    weaponCollision: '', // add audio file path here
+    weaponCollision: 'audio/sheriff/weaponCollision.wav', // shared clash audio
     damage: '', // add audio file path here
     ability: '', // add audio file path here
   },
   priest: {
-    weaponCollision: '', // add audio file path here
+    weaponCollision: 'audio/priest/weaponCollision.wav', // shared clash audio
     damage: '', // add audio file path here
     ability: '', // add audio file path here
   },
   inquisitor: {
-    weaponCollision: '', // add audio file path here
+    weaponCollision: 'audio/inquisitor/weaponCollision.wav', // shared clash audio
     damage: '', // add audio file path here
     ability: '', // add audio file path here
   },
   vampire: {
-    weaponCollision: '', // add audio file path here
+    weaponCollision: 'audio/vampire/weaponCollision.wav', // shared clash audio
     damage: '', // add audio file path here
     ability: '', // add audio file path here
   },
   monk: {
-    weaponCollision: '', // add audio file path here
+    weaponCollision: 'audio/monk/weaponCollision.wav', // shared clash audio
     damage: '', // add audio file path here
     ability: '', // add audio file path here
   },
   alchemist: {
-    weaponCollision: '', // add audio file path here
+    weaponCollision: 'audio/alchemist/weaponCollision.wav', // shared clash audio
     damage: '', // add audio file path here
     ability: '', // add audio file path here
   },
   dragoon: {
-    weaponCollision: '', // add audio file path here
+    weaponCollision: 'audio/dragoon/weaponCollision.wav', // shared clash audio
     damage: '', // add audio file path here
     ability: '', // add audio file path here
   },
   bard: {
-    weaponCollision: '', // add audio file path here
+    weaponCollision: 'audio/bard/weaponCollision.wav', // shared clash audio
     damage: '', // add audio file path here
     ability: '', // add audio file path here
   },
   plague: {
-    weaponCollision: '', // add audio file path here
+    weaponCollision: 'audio/plague/weaponCollision.wav', // shared clash audio
     damage: '', // add audio file path here
     ability: '', // add audio file path here
   },
   tidecaller: {
-    weaponCollision: '', // add audio file path here
+    weaponCollision: 'audio/tidecaller/weaponCollision.wav', // shared clash audio
     damage: '', // add audio file path here
     ability: '', // add audio file path here
   },
   crusader: {
-    weaponCollision: '', // add audio file path here
+    weaponCollision: 'audio/crusader/weaponCollision.wav', // shared clash audio
     damage: '', // add audio file path here
     ability: '', // add audio file path here
   },
   mimic: {
-    weaponCollision: '', // add audio file path here
+    weaponCollision: 'audio/mimic/weaponCollision.wav', // shared clash audio
     damage: '', // add audio file path here
     ability: '', // add audio file path here
   },
   stormbringer: {
-    weaponCollision: '', // add audio file path here
+    weaponCollision: 'audio/stormbringer/weaponCollision.wav', // shared clash audio
     damage: '', // add audio file path here
     ability: '', // add audio file path here
   },
   voidwalker: {
-    weaponCollision: '', // add audio file path here
+    weaponCollision: 'audio/voidwalker/weaponCollision.wav', // shared clash audio
     damage: '', // add audio file path here
     ability: '', // add audio file path here
   },
   whelpling: {
-    weaponCollision: '', // add audio file path here
+    weaponCollision: 'audio/whelpling/weaponCollision.wav', // shared clash audio
     damage: '', // add audio file path here
     ability: '', // add audio file path here
   },
