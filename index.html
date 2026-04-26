@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Medieval Spheres — Base 44</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="mode-row">
+  <button class="mtab active" onclick="setMode('1v1')">⚔ 1v1</button>
+</div>
+<div id="sel-row"></div>
+<div id="card" class="mode-1v1">
+  <div id="titlebar">
+    <div id="title-text"><span id="t-red">—</span><span id="t-vs"> VS </span><span id="t-blue">—</span></div>
+  </div>
+  <div id="arena-outer">
+    <div id="arena-border">
+      <div class="corner tl"></div><div class="corner tr"></div>
+      <div class="corner bl"></div><div class="corner br"></div>
+      <canvas id="gc"></canvas>
+      <div id="winner"><div id="wt">—</div><div id="ws">TAP TO REPLAY</div></div>
+    </div>
+  </div>
+  <div id="abilitybar">
+    <span class="abn r" id="abn-r">—</span>
+    <div class="acd"><div class="acd-f" id="acd-r"></div></div>
+    <div class="acd"><div class="acd-f" id="acd-b"></div></div>
+    <span class="abn b" id="abn-b">—</span>
+  </div>
+  <div id="divider"></div>
+  <div id="stats">
+    <div class="sc">
+      <div class="sn r" id="wn-r">—</div>
+      <div class="sr">HP&nbsp;&nbsp; <span id="shp-r">—</span></div>
+      <div class="sr">DMG&nbsp; <span id="sd-r">—</span></div>
+      <div class="sr">ARM&nbsp; <span id="sa-r">—</span></div>
+      <div class="sr">MDEF <span id="smd-r">—</span></div>
+      <div class="sr">ω&nbsp;&nbsp;&nbsp;&nbsp; <span class="hl" id="so-r">—</span></div>
+      <div class="sr">STKS <span id="sst-r">—</span></div>
+    </div>
+    <div class="sdiv"></div>
+    <div class="sc">
+      <div class="sn b" id="wn-b">—</div>
+      <div class="sr">HP&nbsp;&nbsp; <span id="shp-b">—</span></div>
+      <div class="sr">DMG&nbsp; <span id="sd-b">—</span></div>
+      <div class="sr">ARM&nbsp; <span id="sa-b">—</span></div>
+      <div class="sr">MDEF <span id="smd-b">—</span></div>
+      <div class="sr">ω&nbsp;&nbsp;&nbsp;&nbsp; <span class="hl" id="so-b">—</span></div>
+      <div class="sr">STKS <span id="sst-b">—</span></div>
+    </div>
+  </div>
+</div>
+<div id="controls">
+  <button class="pbtn" id="pbtn" onclick="togglePause()">⏸ PAUSE</button>
+  <button class="pbtn new" onclick="window.startPicker(gameMode)">⚔ REPICK</button>
+</div>
+
+<!--
+  SCRIPT LOAD ORDER — each file depends on the ones above it.
+
+  1. data.js      — Pure data: DEF, RANGED_KEYS, CLASS_ROLE, ROLE_COLOR, CLASS_DESC
+  2. weapons.js   — WEAPONS render functions (reads DEF)
+  3. entities.js  — SlowZone, ThornPatch, all Projectile classes, Skeleton, Afterimage,
+                    SonicProjectile, NoiseTrap, Shuriken, and the main Sphere class
+                    (reads DEF, WEAPONS, GRAVITY, WALL_REST, particle/effect helpers,
+                     and the global arrays defined in main.js — resolved at call-time)
+  4. engine.js    — resolveAll, _weaponHit, _weaponClash, _skeletonWeaponHit,
+                    _sphereHitSkeleton, all spawn* helpers, particle/blood update & draw,
+                    drawBg, updateAbBar, fillStats, loop, showWinner
+  5. ui.js        — injectPickerStyles, showStartScreen, startPicker, renderPickerGrid,
+                    renderDetailPanel, launchBattle, showCountdown
+  6. main.js      — Canvas/ctx setup, global mutable arrays, gameMode, buildSelRow,
+                    setMode, newBattle, togglePause, resize, ResizeObserver,
+                    window.onload → showStartScreen
+-->
+<script src="js/data.js"></script>
+<script src="js/weapons.js"></script>
+<script src="js/entities.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
