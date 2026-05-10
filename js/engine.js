@@ -962,7 +962,7 @@ function updateAbBar(){
  for(const[fi,fid,side]of[[0,'acd-r','r'],[1,'acd-b','b']]){
    const s=spheres.find(sp=>sp.faction===fi);if(!s)continue;
    const fill=document.getElementById(fid);
-   const thresh=s.key==='trickster'?2:s.key==='vampire'?6:['samurai','barbarian','rogue','templar','druid','necromancer','phoenix','alchemist','dragoon','bard','plague','tidecaller','crusader','mimic','stormbringer','voidwalker','whelpling'].includes(s.key)?3:s.key==='wizard'||s.key==='ranger'?4:s.key==='priest'?8:s.key==='sheriff'?2:5;
+    const thresh=getStackThreshold(s.key);
    const pct=s.key==='sheriff'?Math.min(1,s.sheriffHitCount/2):Math.min(1,s.stacks/thresh);
    fill.style.width=(pct*100)+'%';
    fill.style.background=pct>=1?'#ff4400':pct>=0.6?`hsl(${30+pct*30},95%,55%)`:'#e8b430';
@@ -1012,7 +1012,7 @@ function fillStats(key,side){
  const d=DEF[key];
  const fac=side==='r'?0:1;
  const s=spheres.find(sp=>sp.faction===fac)||null;
- const thresh=key==='trickster'?2:key==='vampire'?6:['samurai','barbarian','rogue','templar','druid','necromancer','phoenix','alchemist','dragoon','bard','plague','tidecaller','crusader','mimic','stormbringer','voidwalker','whelpling'].includes(key)?3:key==='wizard'||key==='ranger'?4:key==='priest'?8:key==='sheriff'?2:5;
+ const thresh=getStackThreshold(key);
  document.getElementById(`wn-${side}`).textContent=d.weapon;
  const hpEl=document.getElementById(`shp-${side}`);
  if(hpEl){hpEl.textContent=(s?Math.ceil(s.hp):d.hp)+'/'+(s?s.maxHp:d.hp);hpEl.style.color='#44ee66';}

@@ -439,4 +439,32 @@ const CLASS_DESC = {
   },
 };
 
+const STACK_THRESHOLD = {
+  trickster: 2,
+  sheriff: 2,
+  vampire: 6,
+  wizard: 4,
+  ranger: 4,
+  priest: 8,
+  samurai: 3,
+  barbarian: 3,
+  rogue: 3,
+  templar: 3,
+  druid: 3,
+  necromancer: 3,
+  phoenix: 3,
+  alchemist: 3,
+  dragoon: 3,
+  bard: 3,
+  plague: 3,
+  tidecaller: 3,
+  crusader: 3,
+  mimic: 3,
+  stormbringer: 3,
+  voidwalker: 3,
+  whelpling: 3,
+};
+function getStackThreshold(key){
+  return STACK_THRESHOLD[key] ?? 5;
+}
 // ▓▓▓ END:DATA ▓▓▓

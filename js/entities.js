@@ -547,10 +547,12 @@ class HolyOrb{
    if(!isAlly||!s.alive||s.dying)continue;
    if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+this.r){
        s.d=Object.assign({},s.d);
-    s.d.dmg+=2;
-    s.blessDmgT=8.0;
-    s.blessDmgAdded=(s.blessDmgAdded||0)+2;
-    spawnHolyShieldBurst(s.x,s.y);
+     s.d.dmg+=2;
+     s.blessDmgT=8.0;
+     s.blessDmgAdded=(s.blessDmgAdded||0)+2;
+     s.priestShieldStacks=Math.min(10,s.priestShieldStacks+1);
+     s.priestShieldT=8.0;
+     spawnHolyShieldBurst(s.x,s.y);
     spawnHealNum(s.x,s.y-s.radius,2);
     this.alive=false;return;
    }
@@ -1310,6 +1312,8 @@ class Sphere{
   this.bolaFloating=false;
   this.bolaSlowT=0;
   this.sheriffSwitching=false;this.sheriffSwitchT=0; // buckshot swap animation
+  this.sheriffPiercingTimer=0;
+  this.sheriffPiercingTarget=null;
   this._sheriffArmPen=false;
   this.priestShieldStacks=0;  // 0-10, each stack = 2 HP absorption
   this.priestShieldT=0;
@@ -1379,7 +1383,8 @@ class Sphere{
  }
  gainStack(){
   if(this.key==='monk'&&this.nirvanaActive)return; // no stack gain during Nirvana
-  const cap=this.key==='priest'?8:this.key==='vampire'?6:['alchemist','samurai','barbarian','rogue','templar','druid','necromancer','phoenix','dragoon','bard','plague','tidecaller','crusader','mimic','stormbringer','voidwalker','whelpling'].includes(this.key)?3:this.key==='trickster'?2:5;  if(this.key==='druid'){
+  const cap=getStackThreshold(this.key);
+  if(this.key==='druid'){
    this.stacks=Math.min(cap,this.stacks+2);
   } else {
    this.stacks=Math.min(cap,this.stacks+1);
@@ -2871,7 +2876,7 @@ class Sphere{
   this._drawBody();
   this._drawPowerOverlay();
   if(this.stacks>0&&!this.dying&&this.key!=='sheriff'){
-   const total=this.key==='trickster'?2:this.key==='vampire'?6:['samurai','barbarian','rogue','templar','druid','necromancer','phoenix','alchemist','dragoon','bard','plague','tidecaller','crusader','mimic','stormbringer','voidwalker','whelpling'].includes(this.key)?3:this.key==='wizard'||this.key==='ranger'?4:this.key==='priest'?8:5;
+   const total=getStackThreshold(this.key);
    const pip=4,gap=6;
    const startX=this.x-(total*gap)/2;
    for(let i=0;i<total;i++){ctx.fillStyle=i<this.stacks?this.d.rim:'#334';ctx.beginPath();ctx.arc(startX+i*gap,this.y+this.radius+15,pip/2,0,Math.PI*2);ctx.fill();}
@@ -2934,7 +2939,7 @@ class Sphere{
   if(this.crescendoActive){ctx.shadowColor='#e040fb';ctx.shadowBlur=18;ctx.beginPath();ctx.arc(this.x,this.y,r+8,0,Math.PI*2);ctx.strokeStyle=`rgba(224,64,251,${0.7+p*0.3})`;ctx.lineWidth=3.5;ctx.stroke();ctx.shadowBlur=0;}
   // Knight — Stalwart stacks: dim blue aura building up
   if(this.stalwartStacks>0){const sf=this.stalwartStacks/30;ctx.beginPath();ctx.arc(this.x,this.y,r+3,0,Math.PI*2);ctx.strokeStyle=`rgba(216,234,248,${0.2+sf*0.5})`;ctx.lineWidth=1.5+sf*2;ctx.stroke();}
-  const stackThresh=this.key==='trickster'?2:this.key==='vampire'?6:['samurai','barbarian','rogue','templar','druid','necromancer','alchemist','dragoon','bard'].includes(this.key)?3:this.key==='wizard'||this.key==='ranger'?4:this.key==='priest'?8:5;
+   const stackThresh=getStackThreshold(this.key);
   if(this.key!=='sheriff'&&this.stacks>=stackThresh){ctx.shadowColor=this.d.rim;ctx.shadowBlur=22;ctx.beginPath();ctx.arc(this.x,this.y,r+9,0,Math.PI*2);ctx.strokeStyle=`${this.d.rim}cc`;ctx.lineWidth=5;ctx.stroke();ctx.shadowBlur=0;}
   if(this.slowFieldActive){ctx.beginPath();ctx.arc(this.x,this.y,r*3,0,Math.PI*2);ctx.strokeStyle='rgba(255,230,80,.22)';ctx.lineWidth=2;ctx.setLineDash([5,5]);ctx.stroke();ctx.setLineDash([]);ctx.shadowBlur=0;}
   if(this.snareActive){ctx.beginPath();ctx.arc(this.x,this.y,r+6,0,Math.PI*2);ctx.strokeStyle='rgba(105,240,174,.7)';ctx.lineWidth=3;ctx.stroke();ctx.shadowBlur=0;}
