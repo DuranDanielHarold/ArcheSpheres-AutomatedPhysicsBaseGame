@@ -23,7 +23,7 @@ const DEF = {
   pirate:     {label:'Pirate',    weapon:'Cutlass',         ab:'Boarding Action', color:'#3e2723',dark:'#1c1008',rim:'#ff7043',out:'#120a04',wcol:'#ffcc02',wdrk:'#e6a800', mass:7.5, spd:240, hp:520, om:8.0, dmg:4.4, arm:95,  magDef:30, rest:.74, reach:2.9, tipR:0.24, wt:'cutlass'},
   jester:     {label:'Jester',    weapon:'Jingle Flail',    ab:'Chaos Lurch',     color:'#e91e63',dark:'#880e4f',rim:'#ffd740',out:'#4a0025',wcol:'#ffd740',wdrk:'#c8a000', mass:5,   spd:256, hp:400, om:13.0,dmg:3.5, arm:65,  magDef:28, rest:.86, reach:2.6, tipR:0.28, wt:'jingleflail'},
   golem:      {label:'Golem',     weapon:'Stone Slab',      ab:'Fortify',         color:'#607d8b',dark:'#37474f',rim:'#b0bec5',out:'#1c2a30',wcol:'#b0bec5',wdrk:'#78909c', mass:12,  spd:155, hp:480, om:3.0, dmg:5.5, arm:120, magDef:30, rest:.42, reach:1.9, tipR:0.65, wt:'stoneslab'},
-  phoenix:    {label:'Phoenix',   weapon:'Flame Talon',     ab:'Rebirth',         color:'#e65100',dark:'#bf360c',rim:'#ffcc02',out:'#6d1900',wcol:'#ffcc02',wdrk:'#f9a825', mass:6.5, spd:252, hp:420, om:7.5, dmg:4.5, arm:85,  magDef:42, rest:.76, reach:3.1, tipR:0.30, wt:'talon'},
+  phoenix:    {label:'Phoenix',   weapon:'Ashwing Talons',  ab:'Cinder Wing',     color:'#e65100',dark:'#bf360c',rim:'#ffcc02',out:'#6d1900',wcol:'#ffcc02',wdrk:'#f9a825', mass:6.5, spd:252, hp:420, om:7.5, dmg:4.5, arm:85,  magDef:42, rest:.76, reach:3.1, tipR:0.30, wt:'talon'},
   guardian:   {label:'Guardian',  weapon:'Tower Shield',    ab:'Phalanx',         color:'#37474f',dark:'#1c272c',rim:'#80cbc4',out:'#0d1214',wcol:'#80cbc4',wdrk:'#00897b', mass:7,   spd:204, hp:320, om:4.3, dmg:2.8, arm:90,  magDef:25, rest:.58, reach:2.0, tipR:0.58, wt:'towershield'},
   trickster:  {label:'Trickster', weapon:'Illusory Blade',  ab:'Phase Out',       color:'#00bcd4',dark:'#006064',rim:'#e0f7fa',out:'#002025',wcol:'#e0f7fa',wdrk:'#80deea', mass:5,   spd:284, hp:390, om:9.0, dmg:3.0, arm:70,  magDef:35, rest:.80, reach:3.3, tipR:0.20, wt:'illusoryblade'},
   sheriff:    {label:'Sheriff',   weapon:'.44 Magnum',      ab:'Bola & Buckshot', color:'#5c4a2a',dark:'#2e2210',rim:'#d4a83a',out:'#1a1008',wcol:'#d4a83a',wdrk:'#8a6010', mass:6,   spd:235, hp:460, om:5.5, dmg:5.0, arm:88,  magDef:30, rest:.74, reach:3.0, tipR:0.10, wt:'magnum'},
@@ -366,8 +366,8 @@ const CLASS_DESC = {
     passive:'Receives only 65% physical damage. Hardest hitting melee (10.0 DMG). Enormous mass makes it nearly immovable from collision.'
   },
   phoenix:{
-    ability:'Rebirth (once per match) — When HP would reach 0, triggers automatically: restores to 35% HP and grants 1.2s of full invincibility with a burst of particles.',
-    passive:'Flame Talons orbit visually. High base speed (202) with moderate mass makes it a fast bruiser.'
+    ability:'Cinder Wing (3 stacks) — Ignites the Ashwing Talons for 2.2s, granting +18% speed, +35% spin, and a burst of Ember charge.',
+    passive:'Kindling Flight — Speed and wall bounces build Ember. At full Ember, the next weapon hit releases a compact flame burst for bonus damage. Once per match, lethal damage triggers Rebirth: 35% HP, 1.2s invincibility, full Ember, and a short knockback flare.'
   },
   guardian:{
     ability:'Phalanx (2+ stacks) — While holding 2+ stacks: spin doubles, incoming knockback is reduced by 30%, and physical damage taken drops to 45%.',
@@ -434,7 +434,7 @@ const CLASS_DESC = {
     passive:'Void Tears — Wall bounces leave lingering void tears for 3s. Enemies passing through a tear are briefly slowed and take a burst of magic damage.'
   },
   whelpling:{
-    ability:'Firebreath (3 stacks) — Sprays a cone of fire forward (3 flames) that lingers as a burning zone for 3s. Enemies inside take 2 true dmg/tick (once per 0.5s, no zone stacking) and gain Burning.',
+    ability:'Firebreath (3 stacks) — Sprays a cone of fire forward (3 flames) that lingers as a burning zone for 3s. Enemies inside take 2 true dmg/tick (once per 0.5s, no zone stacking) and gain faster Burning that ticks every 0.75s.',
     passive:'Growing Menace — Every 5 seconds, the Whelpling\'s mass, radius, and max HP all grow slightly (+1 mass, +2 radius, +15 maxHP) — becoming harder and harder to launch.'
   },
 };

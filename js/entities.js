@@ -2,6 +2,8 @@
 // ▓▓▓ SECTION:ENTITIES — SlowZone, ThornPatch, Projectiles, Skeleton, Afterimage, Sphere, etc. ▓▓▓
 
 // ▓▓▓ SECTION:ENGINE — Projectile classes, terrain, Sphere, physics, particles, game loop ▓▓▓
+const DEFAULT_BURN_TICK_INTERVAL=1.5;
+const WHELPLING_BURN_TICK_INTERVAL=0.75;
 class SlowZone{
  constructor(x,y,r,dur,owner){this.x=x;this.y=y;this.r=r;this.life=dur;this.maxLife=dur;this.owner=owner;}
  update(dt){this.life-=dt;}
@@ -732,8 +734,8 @@ class FlameBolt{
     if(this.rodType===0){
      s.electrified=true;s.electrifiedT=1.0;
      spawnSpark(s.x,s.y,'#ffee00',8);
-    } else if(this.rodType===1){// Fire: 3 true dmg ticks over 3s
-     s.burning=true;s.burnT=3.0;s.burnTickT=1.0;
+     } else if(this.rodType===1){// Fire: 3 true dmg ticks over 3s
+      s.burning=true;s.burnT=3.0;s.burnTickInterval=DEFAULT_BURN_TICK_INTERVAL;s.burnTickT=1.0;
      spawnFlameExplosion(s.x,s.y);
     } else if(this.rodType===2){// Water: slow stacking up to 2 in 2s
      s.waterSlow=Math.min(2,s.waterSlow+1);s.waterSlowT=2.0;
@@ -955,7 +957,7 @@ class BreathFlame{
    if(s===this.owner||!s.alive||s.dying)continue;
    if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+this.r){
     s.receiveDamage(this.dmg);
-    s.burning=true;s.burnT=2.0;s.burnTickT=1.5;
+     s.burning=true;s.burnT=2.0;s.burnTickInterval=WHELPLING_BURN_TICK_INTERVAL;s.burnTickT=WHELPLING_BURN_TICK_INTERVAL;
     this.owner.gainStack();this.owner._applyHitBuff();
     if(!this.hasSpawnedZone){this.hasSpawnedZone=true;thornPatches.push(new FireBreathZone(this.x,this.y,this.owner));}
     spawnFlameExplosion(s.x,s.y);
@@ -1001,7 +1003,7 @@ class FireBreathZone{
    if(s._fireZoneHitTime&&now-s._fireZoneHitTime<450)continue;
    s._fireZoneHitTime=now;
    s.receiveDamage(2);
-   s.burning=true;s.burnT=Math.max(s.burnT||0,2.0);s.burnTickT=1.5;
+    s.burning=true;s.burnT=Math.max(s.burnT||0,2.0);s.burnTickInterval=WHELPLING_BURN_TICK_INTERVAL;s.burnTickT=Math.min(s.burnTickT||WHELPLING_BURN_TICK_INTERVAL,WHELPLING_BURN_TICK_INTERVAL);
    spawnSpark(s.x,s.y,'#ff4400',3);
   }
  }
@@ -1145,7 +1147,7 @@ class LingeringMiasma{
     spawnDmgNum(s.x,s.y-s.radius*1.6,'BLIND','#ffee44');
    } else {
     // Green: burn + blind
-    s.burning=true;s.burnT=Math.max(s.burnT||0,4.5);s.burnTickT=0;
+     s.burning=true;s.burnT=Math.max(s.burnT||0,4.5);s.burnTickInterval=DEFAULT_BURN_TICK_INTERVAL;s.burnTickT=0;
     s.blinded=true;s.blindT=Math.max(s.blindT||0,2.0);
     spawnSpark(s.x,s.y,cfg.spark,6);
     spawnDmgNum(s.x,s.y-s.radius*1.6,cfg.label,cfg.labelCol);
@@ -1265,6 +1267,7 @@ class Sphere{
   this.fortified=false;
   this.golemFortifyActive=false;
   this.rebirthDone=false;
+  this.phoenixEmber=0;this.phoenixEmberFlash=0;this.ashwingActive=false;this.ashwingT=0;
   this.deathMarkTicks=0;this.deathMarkTimer=0;this.deathMarkDmg=0;this.deathMarkDoTHits=0;
   this.woundT=0;
   this.pulseTimer=0;this.pulseWave=null;
@@ -1287,7 +1290,7 @@ class Sphere{
   this.rodActive=false; // rod effect window active
   this.rodT=0;
   this.electrified=false;this.electrifiedT=0;  // lightning: -1 dmg per hit for 1s
-  this.burning=false;this.burnT=0;this.burnTickT=0; // fire: 3 true dmg ticks over 3s
+  this.burning=false;this.burnT=0;this.burnTickT=0;this.burnTickInterval=DEFAULT_BURN_TICK_INTERVAL; // fire: 3 true dmg ticks over 3s
   this.blinded=false;this.blindT=0;                 // green vial: 30% miss chance on attacks
   this.waterSlow=0;this.waterSlowT=0;          // water: slow stacking up to 2 in 2s
   this.stunned=false;this.stunnedT=0;          // earth: 0.3s freeze
@@ -1376,7 +1379,7 @@ class Sphere{
  }
  gainStack(){
   if(this.key==='monk'&&this.nirvanaActive)return; // no stack gain during Nirvana
-  const cap=this.key==='priest'?8:this.key==='vampire'?6:['alchemist','samurai','barbarian','rogue','templar','druid','necromancer','dragoon','bard','plague','tidecaller','crusader','mimic','stormbringer','voidwalker','whelpling'].includes(this.key)?3:this.key==='trickster'?2:5;  if(this.key==='druid'){
+  const cap=this.key==='priest'?8:this.key==='vampire'?6:['alchemist','samurai','barbarian','rogue','templar','druid','necromancer','phoenix','dragoon','bard','plague','tidecaller','crusader','mimic','stormbringer','voidwalker','whelpling'].includes(this.key)?3:this.key==='trickster'?2:5;  if(this.key==='druid'){
    this.stacks=Math.min(cap,this.stacks+2);
   } else {
    this.stacks=Math.min(cap,this.stacks+1);
@@ -1557,7 +1560,16 @@ class Sphere{
     this.dmgMult=1+(this.stacks/5)*0.4;
     this.golemFortifyActive=this.fortified;
     break;
-   case 'phoenix': break;
+   case 'phoenix':
+    if(this.stacks>=3){
+     this.stacks=0;
+     this.ashwingActive=true;this.ashwingT=2.2;
+     this._phoenixAddEmber(40);
+     this.targetSpd=this.baseSpd*1.18;
+     this.omegaCur=this.d.om*1.35*Math.sign(this.omegaCur||1);
+     spawnBurst(this.x,this.y,'#ffcc02','#ff4400',18);
+     spawnPulse(this.x,this.y,'#ffcc02');
+    } break;
    case 'inquisitor':
     if(this.stacks>=4){
      this.stacks=0;
@@ -2050,9 +2062,9 @@ class Sphere{
    if(this.burnTickT<=0){
     this.receiveDamage(2);
     spawnSpark(this.x,this.y,'#ff4400',4);
-    this.burnTickT=1.5;
+    this.burnTickT=this.burnTickInterval||DEFAULT_BURN_TICK_INTERVAL;
    }
-   if(this.burnT<=0){this.burning=false;}
+   if(this.burnT<=0){this.burning=false;this.burnTickInterval=DEFAULT_BURN_TICK_INTERVAL;}
   }
   if(this.waterSlowT>0){
    this.waterSlowT-=dt;
@@ -2118,7 +2130,7 @@ class Sphere{
   if(this.key==='dragoon'&&this.isLeaping)return; // suspended during leap — no gravity/walls/movement
   if(!this.bolaFloating)this.vy+=GRAVITY*dt;
   const baseOm=this.d.om*Math.sign(this.omegaCur||1);
-  if(!this.invincible&&!this.orbitActive&&!this.warlordSpinT&&!this.slowFieldActive&&!this.phalanxActive&&!this.fortified){
+  if(!this.invincible&&!this.orbitActive&&!this.warlordSpinT&&!this.slowFieldActive&&!this.phalanxActive&&!this.fortified&&!this.ashwingActive){
    this.omegaCur+=(baseOm-this.omegaCur)*Math.min(1,dt*2.5);
   }
   const waterSlowMult=this.waterSlow>0?(1-Math.min(0.7,this.waterSlow*0.35)):1;
@@ -2137,6 +2149,7 @@ class Sphere{
   if(this.x-R<0){this.x=R;this.vx=Math.max(Math.abs(this.vx)*WALL_REST,tgt*0.5);this.impactVx=0;this.vy+=(Math.random()-.5)*tgt*.12;
    if(this.ramActive)this.vx=Math.min(this.vx,this.targetSpd*1.2);
    if(this.key==='monk'){this.vx*=1.1;this.vy*=1.1;spawnSpark(this.x,this.y,'#ffe0a0',4);}
+   if(this.key==='phoenix'){this._phoenixAddEmber(16);spawnSpark(this.x,this.y,'#ffcc02',4);}
    if(this.key==='ninja')this._shadowStepBounce();
    if(this.virulenceStacks>0&&this.virulenceWallHitCD<=0){this.virulenceWallHitCD=1.0;const _lpo=spheres.find(s=>s!==this&&s.alive);if(_lpo){thornPatches.push(new ThornPatch(this.x,this.y,R*1.5,4.0,_lpo));}spawnDmgNum(this.x,this.y-R-10,'SMEAR!','#aadd44');}
    if(this.key==='voidwalker'){noiseTraps.push(new VoidTear(this.x,this.y,this));this.voidTearCount=(this.voidTearCount||0)+1;}
@@ -2144,6 +2157,7 @@ class Sphere{
   if(this.x+R>W){this.x=W-R;this.vx=-Math.max(Math.abs(this.vx)*WALL_REST,tgt*0.5);this.impactVx=0;this.vy+=(Math.random()-.5)*tgt*.12;
    if(this.ramActive)this.vx=Math.max(this.vx,-this.targetSpd*1.2);
    if(this.key==='monk'){this.vx*=1.1;this.vy*=1.1;spawnSpark(this.x,this.y,'#ffe0a0',4);}
+   if(this.key==='phoenix'){this._phoenixAddEmber(16);spawnSpark(this.x,this.y,'#ffcc02',4);}
    if(this.key==='ninja')this._shadowStepBounce();
    if(this.virulenceStacks>0&&this.virulenceWallHitCD<=0){this.virulenceWallHitCD=1.0;const _vpo=spheres.find(s=>s!==this&&s.alive);if(_vpo){const _vtp=new ThornPatch(this.x,this.y,R*1.5,4.0,_vpo);thornPatches.push(_vtp);}spawnDmgNum(this.x,this.y-R-10,'SMEAR!','#aadd44');}
    if(this.key==='voidwalker'){noiseTraps.push(new VoidTear(this.x,this.y,this));this.voidTearCount=(this.voidTearCount||0)+1;}
@@ -2151,6 +2165,7 @@ class Sphere{
   if(this.y-R<0){this.y=R;this.vy=Math.max(Math.abs(this.vy)*WALL_REST,tgt*0.5);this.impactVy=0;this.vx+=(Math.random()-.5)*tgt*.12;
    if(this.ramActive)this.vy=Math.min(this.vy,this.targetSpd*1.2);
    if(this.key==='monk'){this.vx*=1.1;this.vy*=1.1;spawnSpark(this.x,this.y,'#ffe0a0',4);}
+   if(this.key==='phoenix'){this._phoenixAddEmber(16);spawnSpark(this.x,this.y,'#ffcc02',4);}
    if(this.key==='ninja')this._shadowStepBounce();
    if(this.virulenceStacks>0&&this.virulenceWallHitCD<=0){this.virulenceWallHitCD=1.0;const _tvpo=spheres.find(s=>s!==this&&s.alive);if(_tvpo){thornPatches.push(new ThornPatch(this.x,this.y,R*1.5,4.0,_tvpo));}spawnDmgNum(this.x,this.y+R+10,'SMEAR!','#aadd44');}
    if(this.key==='voidwalker'){noiseTraps.push(new VoidTear(this.x,this.y,this));this.voidTearCount=(this.voidTearCount||0)+1;}
@@ -2158,6 +2173,7 @@ class Sphere{
   if(this.y+R>H){this.y=H-R;this.vy=-Math.max(Math.abs(this.vy)*WALL_REST,tgt*0.5);this.impactVy=0;this.vx+=(Math.random()-.5)*tgt*.12;
    if(this.ramActive)this.vy=Math.max(this.vy,-this.targetSpd*1.2);
    if(this.key==='monk'){this.vx*=1.1;this.vy*=1.1;spawnSpark(this.x,this.y,'#ffe0a0',4);}
+   if(this.key==='phoenix'){this._phoenixAddEmber(16);spawnSpark(this.x,this.y,'#ffcc02',4);}
    if(this.key==='ninja')this._shadowStepBounce();
    if(this.virulenceStacks>0&&this.virulenceWallHitCD<=0){this.virulenceWallHitCD=1.0;const _bvpo=spheres.find(s=>s!==this&&s.alive);if(_bvpo){thornPatches.push(new ThornPatch(this.x,this.y,R*1.5,4.0,_bvpo));}spawnDmgNum(this.x,this.y-R-10,'SMEAR!','#aadd44');}
    if(this.key==='voidwalker'){noiseTraps.push(new VoidTear(this.x,this.y,this));this.voidTearCount=(this.voidTearCount||0)+1;}
@@ -2269,7 +2285,28 @@ class Sphere{
      }
     }
     this._applyKite(dt); break;
-   case 'phoenix': break; // rebirth handled in receiveDamage
+   case 'phoenix': {
+    const speed=Math.hypot(this.vx,this.vy);
+    const speedRatio=this.baseSpd>0?speed/this.baseSpd:1;
+    const chargeRate=(this.ashwingActive?18:8)+Math.max(0,speedRatio-0.95)*(this.ashwingActive?28:16);
+    this._phoenixAddEmber(chargeRate*dt);
+    if(this.phoenixEmberFlash>0)this.phoenixEmberFlash=Math.max(0,this.phoenixEmberFlash-dt);
+    if(this.ashwingActive){
+     this.ashwingT-=dt;
+     this.targetSpd=this.baseSpd*1.18;
+     this.omegaCur=this.d.om*1.35*Math.sign(this.omegaCur||1);
+     const a=this.abTimer*8;
+     const orb=this.radius*(1.15+0.08*Math.sin(this.abTimer*10));
+     particles.push({x:this.x+Math.cos(a)*orb,y:this.y+Math.sin(a)*orb,
+      vx:(Math.random()-.5)*28,vy:(Math.random()-.5)*28-10,
+      life:1,maxL:.18+Math.random()*.12,sz:2+Math.random()*3,
+      col:Math.random()<0.5?'#ffcc02':'#ff4400',sq:false});
+     if(this.ashwingT<=0){
+      this.ashwingActive=false;this.ashwingT=0;
+      this.targetSpd=this.baseSpd;
+     }
+    }
+   } break; // rebirth handled in receiveDamage
    case 'vampire': break; // Sanguine Thirst handled directly in _weaponHit
    case 'monk':
     if(this.nirvanaActive){
@@ -2614,10 +2651,10 @@ class Sphere{
   const note=new SonicProjectile(tip.x,tip.y,wx*spd,wy*spd,this.d.dmg*this.dmgMult,this);
   projectiles.push(note);
  }
- _shadowStepBounce(){
-  if(this.shadowStepCD>0)return;
-  this.shadowStepCD=8.0;
-  this.shadowStepActive=true;this.shadowStepT=0.35;
+  _shadowStepBounce(){
+   if(this.shadowStepCD>0)return;
+   this.shadowStepCD=8.0;
+   this.shadowStepActive=true;this.shadowStepT=0.35;
   this.untargetable=true;
   spawnBurst(this.x,this.y,this.d.rim,'#1a1a2e',10);
   // fire 2 shurikens toward nearest enemy
@@ -2631,13 +2668,58 @@ class Sphere{
     const vx=(dx/dist*ca-dy/dist*sa)*spd;
     const vy=(dx/dist*sa+dy/dist*ca)*spd;
     projectiles.push(new Shuriken(this.x,this.y,vx,vy,this.d.dmg*1.2,this));
+    }
    }
   }
- }
- getTip(){
-  const reach=this.radius*this.d.reach;
-  return{x:this.x+Math.cos(this.angle)*reach,y:this.y+Math.sin(this.angle)*reach};
- }
+  _phoenixAddEmber(amount){
+   if(this.key!=='phoenix'||!isFinite(amount)||amount<=0)return;
+   const before=this.phoenixEmber||0;
+   this.phoenixEmber=Math.min(100,before+amount);
+   if(before<100&&this.phoenixEmber>=100){
+    this.phoenixEmberFlash=0.75;
+    spawnDmgNum(this.x,this.y-this.radius*1.6,'EMBER','#ffcc02');
+    spawnSpark(this.x,this.y,'#ffcc02',8);
+   }
+  }
+  _releasePhoenixEmber(target,hx,hy){
+   if(this.key!=='phoenix'||(this.phoenixEmber||0)<100)return false;
+   if(!target||!target.alive||target.dying)return false;
+   this.phoenixEmber=0;this.phoenixEmberFlash=0.35;
+   const dx=target.x-this.x,dy=target.y-this.y,dist=Math.hypot(dx,dy)||1;
+   const burstDmg=(this.ashwingActive?9:7);
+   target.receiveDamage(burstDmg);
+   target.applyImpact((dx/dist)*135,(dy/dist)*135);
+   spawnBurst(hx,hy,'#ffcc02','#ff4400',16);
+   spawnDmgNum(target.x,target.y-target.radius*1.6,'EMBER','#ffcc02');
+   return true;
+  }
+  _triggerPhoenixRebirth(){
+   if(this.key!=='phoenix'||this.rebirthDone)return false;
+   this.rebirthDone=true;
+   this.hp=this.maxHp*0.35;
+   this.invincible=true;this.invincibleT=1.2;
+   this.ashwingActive=true;this.ashwingT=1.4;
+   this.phoenixEmber=100;this.phoenixEmberFlash=0.75;
+   this.targetSpd=this.baseSpd*1.18;
+   this.omegaCur=this.d.om*1.35*Math.sign(this.omegaCur||1);
+   spawnBurst(this.x,this.y,'#ffcc02','#ff4400',36);
+   spawnPulse(this.x,this.y,'#ffcc02');
+   spawnDmgNum(this.x,this.y-this.radius*1.7,'REBIRTH','#ffcc02');
+   const flareR=this.radius*3.0;
+   for(const s of spheres){
+    if(s===this||!s.alive||s.dying)continue;
+    const dx=s.x-this.x,dy=s.y-this.y,dist=Math.hypot(dx,dy)||1;
+    if(dist>flareR+s.radius)continue;
+    s.applyImpact((dx/dist)*260,(dy/dist)*260);
+    s.receiveDamage(6);
+    spawnSpark(s.x,s.y,'#ffcc02',5);
+   }
+   return true;
+  }
+  getTip(){
+   const reach=this.radius*this.d.reach;
+   return{x:this.x+Math.cos(this.angle)*reach,y:this.y+Math.sin(this.angle)*reach};
+  }
  getBladePoints(){
   const pts=[];const steps=5;
   for(let i=1;i<=steps;i++){
@@ -2701,14 +2783,7 @@ class Sphere{
    this._applyLowHpBuff();
   }
   if(this.hp<=0&&!this.dying){
-   if(this.key==='phoenix'&&!this.rebirthDone){
-    this.rebirthDone=true;
-    this.hp=this.maxHp*0.35;
-    this.invincible=true;this.invincibleT=1.2; // brief invincibility on rebirth
-    spawnBurst(this.x,this.y,this.d.rim,this.d.color,32);
-    spawnPulse(this.x,this.y,this.d.rim);
-    return; // don't die
-   }
+   if(this._triggerPhoenixRebirth())return; // don't die
    this.alive=false;this.dying=true;spawnBurst(this.x,this.y,this.d.rim,this.d.color,28);}
  }
  receiveMagicDamage(dmg){
@@ -2749,12 +2824,7 @@ class Sphere{
    this.lowHpBuffApplied=true;this._applyLowHpBuff();
   }
   if(this.hp<=0&&!this.dying){
-   if(this.key==='phoenix'&&!this.rebirthDone){
-    this.rebirthDone=true;this.hp=this.maxHp*0.35;
-    this.invincible=true;this.invincibleT=1.2;
-    spawnBurst(this.x,this.y,this.d.rim,this.d.color,32);
-    spawnPulse(this.x,this.y,this.d.rim);return;
-   }
+   if(this._triggerPhoenixRebirth())return;
    this.alive=false;this.dying=true;spawnBurst(this.x,this.y,this.d.rim,this.d.color,28);
   }
  }
@@ -2801,7 +2871,7 @@ class Sphere{
   this._drawBody();
   this._drawPowerOverlay();
   if(this.stacks>0&&!this.dying&&this.key!=='sheriff'){
-   const total=this.key==='trickster'?2:this.key==='vampire'?6:['samurai','barbarian','rogue','templar','druid','necromancer','alchemist','dragoon','bard','plague','tidecaller','crusader','mimic','stormbringer','voidwalker','whelpling'].includes(this.key)?3:this.key==='wizard'||this.key==='ranger'?4:this.key==='priest'?8:5;
+   const total=this.key==='trickster'?2:this.key==='vampire'?6:['samurai','barbarian','rogue','templar','druid','necromancer','phoenix','alchemist','dragoon','bard','plague','tidecaller','crusader','mimic','stormbringer','voidwalker','whelpling'].includes(this.key)?3:this.key==='wizard'||this.key==='ranger'?4:this.key==='priest'?8:5;
    const pip=4,gap=6;
    const startX=this.x-(total*gap)/2;
    for(let i=0;i<total;i++){ctx.fillStyle=i<this.stacks?this.d.rim:'#334';ctx.beginPath();ctx.arc(startX+i*gap,this.y+this.radius+15,pip/2,0,Math.PI*2);ctx.fill();}
@@ -2833,6 +2903,19 @@ class Sphere{
   if(this.phalanxActive){ctx.shadowColor='#80cbc4';ctx.shadowBlur=10;ctx.beginPath();ctx.arc(this.x,this.y,r+7,0,Math.PI*2);ctx.strokeStyle='rgba(128,203,196,.75)';ctx.lineWidth=3;ctx.stroke();ctx.shadowBlur=0;}
   if(this.fortified){ctx.beginPath();ctx.arc(this.x,this.y,r+8,0,Math.PI*2);ctx.strokeStyle=`rgba(176,190,197,${.6+p*.3})`;ctx.lineWidth=4;ctx.stroke();ctx.shadowBlur=0;}
   if(this.rebirthDone){ctx.shadowColor=this.d.rim;ctx.shadowBlur=18;ctx.beginPath();ctx.arc(this.x,this.y,r+5,0,Math.PI*2);ctx.strokeStyle=`rgba(255,200,0,${.55+p*.4})`;ctx.lineWidth=4;ctx.stroke();ctx.shadowBlur=0;}
+  if(this.key==='phoenix'){
+   const ep=Math.min(1,(this.phoenixEmber||0)/100);
+   if(ep>0){
+    ctx.beginPath();ctx.arc(this.x,this.y,r+7,-Math.PI/2,-Math.PI/2+Math.PI*2*ep);
+    ctx.strokeStyle=`rgba(255,${Math.round(90+ep*150)},0,${0.25+ep*0.55})`;ctx.lineWidth=2+ep*2;ctx.stroke();
+   }
+   if(this.ashwingActive||ep>=1){
+    ctx.shadowColor='#ffcc02';ctx.shadowBlur=14+(this.phoenixEmberFlash||0)*10;
+    ctx.beginPath();ctx.arc(this.x,this.y,r+11+p*3,0,Math.PI*2);
+    ctx.strokeStyle=`rgba(255,204,2,${0.45+p*0.35})`;ctx.lineWidth=this.ashwingActive?3.5:2.5;ctx.stroke();
+    ctx.shadowBlur=0;
+   }
+  }
   // Samurai — Iaijutsu ready: golden flash ring
   if(this.iaijutsuReady){ctx.shadowColor='#c8c0a8';ctx.shadowBlur=14;ctx.beginPath();ctx.arc(this.x,this.y,r+6,0,Math.PI*2);ctx.strokeStyle=`rgba(200,192,168,${0.7+p*0.3})`;ctx.lineWidth=3;ctx.stroke();ctx.shadowBlur=0;
    ctx.font=`bold ${Math.max(4,r*.18)}px 'Press Start 2P',monospace`;ctx.textAlign='center';ctx.textBaseline='bottom';

@@ -565,8 +565,8 @@ function _weaponHit(att,def){
    else def.receiveDamage(dmg);
    att.gainStack();
    att._applyHitBuff();
-   // Whelpling — snap mouth open on bite contact, then close
-   if(att.key==='whelpling'&&att.mouthOpenMode!==2){att.mouthOpenTimer=0.35;att.mouthOpenMode=1;}
+    // Whelpling: open the upper jaw, lunge forward, then clamp shut.
+    if(att.key==='whelpling'&&att.mouthOpenMode!==2){att.mouthOpenTimer=0.42;att.mouthOpenMode=1;}
    if(att.key==='vampire'&&!att.ghostMode){
     att.receiveHeal(dmg*0.25);
     spawnSpark(att.x,att.y,'#cc0044',3);
@@ -605,9 +605,10 @@ function _weaponHit(att,def){
     def.bleedT=1.8;
     if(def.bleedTickT<=0)def.bleedTickT=0.5;
     spawnSpark(hx,hy,'#e74c3c',4);
-   }
-   spawnSpark(hx,hy,att.d.rim,7);
-   spawnImpactBurst(hx,hy,att.d.rim,def.d.color);
+    }
+    spawnSpark(hx,hy,att.d.rim,7);
+    spawnImpactBurst(hx,hy,att.d.rim,def.d.color);
+    if(att.key==='phoenix')att._releasePhoenixEmber(def,hx,hy);
    // Plague Doctor — Attrition: permanently reduce enemy max HP
    if(att.key==='plague'){
     const drain=3;
@@ -961,7 +962,7 @@ function updateAbBar(){
  for(const[fi,fid,side]of[[0,'acd-r','r'],[1,'acd-b','b']]){
    const s=spheres.find(sp=>sp.faction===fi);if(!s)continue;
    const fill=document.getElementById(fid);
-   const thresh=s.key==='trickster'?2:s.key==='vampire'?6:['samurai','barbarian','rogue','templar','druid','necromancer','alchemist','dragoon','bard','plague','tidecaller','crusader','mimic','stormbringer','voidwalker','whelpling'].includes(s.key)?3:s.key==='wizard'||s.key==='ranger'?4:s.key==='priest'?8:s.key==='sheriff'?2:5;
+   const thresh=s.key==='trickster'?2:s.key==='vampire'?6:['samurai','barbarian','rogue','templar','druid','necromancer','phoenix','alchemist','dragoon','bard','plague','tidecaller','crusader','mimic','stormbringer','voidwalker','whelpling'].includes(s.key)?3:s.key==='wizard'||s.key==='ranger'?4:s.key==='priest'?8:s.key==='sheriff'?2:5;
    const pct=s.key==='sheriff'?Math.min(1,s.sheriffHitCount/2):Math.min(1,s.stacks/thresh);
    fill.style.width=(pct*100)+'%';
    fill.style.background=pct>=1?'#ff4400':pct>=0.6?`hsl(${30+pct*30},95%,55%)`:'#e8b430';
@@ -1011,7 +1012,7 @@ function fillStats(key,side){
  const d=DEF[key];
  const fac=side==='r'?0:1;
  const s=spheres.find(sp=>sp.faction===fac)||null;
- const thresh=key==='trickster'?2:key==='vampire'?6:['samurai','barbarian','rogue','templar','druid','necromancer','alchemist','dragoon','bard','plague','tidecaller','crusader','mimic','stormbringer','voidwalker','whelpling'].includes(key)?3:key==='wizard'||key==='ranger'?4:key==='priest'?8:key==='sheriff'?2:5;
+ const thresh=key==='trickster'?2:key==='vampire'?6:['samurai','barbarian','rogue','templar','druid','necromancer','phoenix','alchemist','dragoon','bard','plague','tidecaller','crusader','mimic','stormbringer','voidwalker','whelpling'].includes(key)?3:key==='wizard'||key==='ranger'?4:key==='priest'?8:key==='sheriff'?2:5;
  document.getElementById(`wn-${side}`).textContent=d.weapon;
  const hpEl=document.getElementById(`shp-${side}`);
  if(hpEl){hpEl.textContent=(s?Math.ceil(s.hp):d.hp)+'/'+(s?s.maxHp:d.hp);hpEl.style.color='#44ee66';}

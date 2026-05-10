@@ -125,8 +125,8 @@ const CLASS_DESC_UNUSED={
   passive:'Receives only 65% physical damage. Hardest hitting melee (10.0 DMG). Enormous mass makes it nearly immovable from collision.'
  },
  phoenix:{
-  ability:'Rebirth (once per match) — When HP would reach 0, triggers automatically: restores to 35% HP and grants 1.2s of full invincibility with a burst of particles.',
-  passive:'Flame Talons orbit visually. High base speed (202) with moderate mass makes it a fast bruiser.'
+  ability:'Cinder Wing (3 stacks) — Ignites the Ashwing Talons for 2.2s, granting +18% speed, +35% spin, and a burst of Ember charge.',
+  passive:'Kindling Flight — Speed and wall bounces build Ember. At full Ember, the next weapon hit releases a compact flame burst for bonus damage. Once per match, lethal damage triggers Rebirth: 35% HP, 1.2s invincibility, full Ember, and a short knockback flare.'
  },
  guardian:{
   ability:'Phalanx (2+ stacks) — While holding 2+ stacks: spin doubles, incoming knockback is reduced by 30%, and physical damage taken drops to 45%.',
@@ -193,7 +193,7 @@ const CLASS_DESC_UNUSED={
   passive:'Void Tears — Wall bounces leave lingering void tears for 3s. Enemies passing through a tear are briefly slowed and take a burst of magic damage.'
  },
  whelpling:{
-  ability:'Firebreath (3 stacks) — Sprays a cone of fire forward (3 flames) that lingers as a burning zone for 3s. Enemies inside take 2 true dmg/tick (once per 0.5s, no zone stacking) and gain Burning.',
+  ability:'Firebreath (3 stacks) — Sprays a cone of fire forward (3 flames) that lingers as a burning zone for 3s. Enemies inside take 2 true dmg/tick (once per 0.5s, no zone stacking) and gain faster Burning that ticks every 0.75s.',
   passive:'Growing Menace — Every 5 seconds, the Whelpling\'s mass, radius, and max HP all grow slightly (+1 mass, +2 radius, +15 maxHP) — becoming harder and harder to launch.'
  },
 };
