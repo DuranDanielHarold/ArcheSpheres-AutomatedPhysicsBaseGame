@@ -12,7 +12,7 @@ let gameMode='1v1';
    const o=document.createElement('option');
    o.value=k;o.textContent=DEF[k].label;
    if(k===defaultKey)o.selected=true;
-   sel.appendChild(o);
+   sel.appendChild(o);  
   });
   sel.addEventListener('change',newBattle);
   return sel;

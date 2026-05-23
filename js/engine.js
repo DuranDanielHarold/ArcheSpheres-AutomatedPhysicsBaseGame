@@ -4,6 +4,17 @@
 // before resolveAll() in the original source: Afterimage, SonicProjectile,
 // NoiseTrap, and Shuriken. They are kept here to preserve the original code order.
 
+function sameFaction(a,b){
+ return a&&b&&a.faction!==undefined&&b.faction!==undefined&&a.faction===b.faction;
+}
+function getFactionDisplaySphere(faction){
+ return spheres.find(s=>s.faction===faction&&s.alive&&!s.dying&&!s.isReplica)
+  ||spheres.find(s=>s.faction===faction&&s.alive&&!s.dying)
+  ||spheres.find(s=>s.faction===faction&&!s.isReplica)
+  ||spheres.find(s=>s.faction===faction)
+  ||null;
+}
+
 const _audioPoolCache = new Map();
 const _audioStorageKey = 'archeSpheresAudioState';
 let _bgmAudio = null;
@@ -151,9 +162,10 @@ window.initAudioUi=function(){
 function resolveAll(){
  for(let i=0;i<spheres.length;i++){
   for(let j=i+1;j<spheres.length;j++){
-   const a=spheres[i],b=spheres[j];
-   if(!a.alive||!b.alive||a.dying||b.dying)continue;
-   // Ghost vampire passes through bodies but can still swing claws
+    const a=spheres[i],b=spheres[j];
+    if(!a.alive||!b.alive||a.dying||b.dying)continue;
+    if(sameFaction(a,b))continue;
+    // Ghost vampire passes through bodies but can still swing claws
    const aGhost=a.untargetable,bGhost=b.untargetable;
    if(!aGhost&&!bGhost){
     // Normal body collision — only when neither is a ghost
@@ -495,8 +507,10 @@ class Shuriken{
  }
 }
 function _weaponHit(att,def){
+ if(sameFaction(att,def))return;
  if(def.untargetable)return; // vampire ghost mode — weapons pass through ghost vampire
  // Note: att.untargetable is intentionally NOT checked — ghost vampire can still deal bat damage
+ const traits=att.canTriggerTraits!==false;
  if(RANGED_KEYS.has(att.key)){
   if(att.weaponHitCD>0)return;
   const tip=att.getTip();
@@ -506,8 +520,6 @@ function _weaponHit(att,def){
    const bluntDmg=(att.d.dmg*0.35*att.dmgMult)/(def.d.arm*0.004+1);
    if(bluntDmg>0.1){
     def.receiveDamage(bluntDmg);
-    att.gainStack();
-    att._applyHitBuff();
     att.omegaCur*=-1;
     const nx=(def.x-att.x)||1,ny=(def.y-att.y)||0;
     const nd=Math.hypot(nx,ny)||1;
@@ -545,39 +557,38 @@ function _weaponHit(att,def){
   const tipSpd=Math.hypot(tvx,tvy);
   const weaponWeight=att.mass*0.35;
   let dmg=(tipSpd*att.d.dmg*0.010+weaponWeight*0.12)*att.dmgMult/(def.d.arm*0.004+1);
-  if(att.key==='pirate'&&att.draining){
+   if(traits&&att.key==='pirate'&&att.draining){
    att.receiveHeal(dmg*0.15);
    const pullX=att.x-def.x,pullY=att.y-def.y,pullD=Math.hypot(pullX,pullY)||1;
    def.applyImpact((pullX/pullD)*120,(pullY/pullD)*120);
   }
-  if(att.key==='necromancer'){
+   if(traits&&att.key==='necromancer'){
    def.woundT=Math.max(def.woundT||0, 4.0);
   }
-  if(att.key==='guardian')dmg*=1.22;
-  if(def.key==='guardian'){
+   if(traits&&att.key==='guardian')dmg*=1.22;
+   if(def.canTriggerTraits!==false&&def.key==='guardian'){
    def.impactVx*=0.7;def.impactVy*=0.7; // reduce knockback taken
   }
-  if(att.key==='rogue'&&att.backstabCharged){dmg*=2;att.backstabCharged=false;att.backstabT=0;att.dmgMult=1;}
+   if(traits&&att.key==='rogue'&&att.backstabCharged){dmg*=2;att.backstabCharged=false;att.backstabT=0;att.dmgMult=1;}
   // Samurai — Iaijutsu: first hit after spin reversal deals 2× dmg
-  if(att.key==='samurai'&&att.iaijutsuReady){dmg*=2;att.iaijutsuReady=false;att.iaijutsuCD=3.0;spawnDmgNum(att.x,att.y-att.radius*1.5,'IAIJUTSU','#8a1f28');}
+  if(traits&&att.key==='samurai'&&att.iaijutsuReady){dmg*=2;att.iaijutsuReady=false;att.iaijutsuCD=3.0;spawnDmgNum(att.x,att.y-att.radius*1.5,'IAIJUTSU','#8a1f28');}
   if(isFinite(dmg)&&dmg>0.2){
    if(att.key==='alchemist')def.receiveMagicDamage(dmg);
    else def.receiveDamage(dmg);
-   att.gainStack();
-   att._applyHitBuff();
+    if(traits){att.gainStack();att._applyHitBuff();}
     // Whelpling: open the upper jaw, lunge forward, then clamp shut.
     if(att.key==='whelpling'&&att.mouthOpenMode!==2){att.mouthOpenTimer=0.42;att.mouthOpenMode=1;}
-   if(att.key==='vampire'&&!att.ghostMode){
+    if(traits&&att.key==='vampire'&&!att.ghostMode){
     att.receiveHeal(dmg*0.25);
     spawnSpark(att.x,att.y,'#cc0044',3);
    }
-   if(att.key==='monk'&&att.nirvanaActive){
+    if(traits&&att.key==='monk'&&att.nirvanaActive){
     const nx2=(def.x-att.x)||1,ny2=(def.y-att.y)||0;
     const nd2=Math.hypot(nx2,ny2)||1;
     def.applyImpact((nx2/nd2)*520,(ny2/nd2)*520);
     spawnSpark(hx,hy,'#ffe0a0',6);
    }
-   if(att.key==='alchemist'){
+    if(traits&&att.key==='alchemist'){
     def.corrosionStacks=Math.min(6,(def.corrosionStacks||0)+1);
     if(def.corrosionT<=0)def.corrosionT=1.2; // start decay timer if not already ticking
     def.d=Object.assign({},def.d);
@@ -586,7 +597,7 @@ function _weaponHit(att,def){
     spawnSpark(hx,hy,'#66ff44',4);
    }
    // Knight — Stalwart: permanent micro-buff per hit (capped at 30 stacks)
-   if(att.key==='knight'&&att.stalwartStacks<30){
+    if(traits&&att.key==='knight'&&att.stalwartStacks<30){
     att.stalwartStacks++;
     att.d=Object.assign({},att.d);
     att.d.dmg*=1.006;att.d.arm=Math.round(att.d.arm*1.006);att.d.om*=1.006;
@@ -594,13 +605,13 @@ function _weaponHit(att,def){
     if(att.stalwartStacks%5===0)spawnDmgNum(att.x,att.y-att.radius*1.5,'STALWART','#d8eaf8');
    }
    // Barbarian — Bloodlust: +6 speed per hit, max +60, decays slowly
-   if(att.key==='barbarian'){
+    if(traits&&att.key==='barbarian'){
     att.bloodlustBonus=Math.min(60,att.bloodlustBonus+6);
     att.targetSpd=att.baseSpd+att.bloodlustBonus;
     spawnSpark(att.x,att.y,'#b04010',3);
    }
    // Rogue — Hemorrhage: apply/refresh bleed stacks on target (max 3)
-   if(att.key==='rogue'){
+    if(traits&&att.key==='rogue'){
     def.bleedStacks=Math.min(3,(def.bleedStacks||0)+1);
     def.bleedT=1.8;
     if(def.bleedTickT<=0)def.bleedTickT=0.5;
@@ -608,9 +619,9 @@ function _weaponHit(att,def){
     }
     spawnSpark(hx,hy,att.d.rim,7);
     spawnImpactBurst(hx,hy,att.d.rim,def.d.color);
-    if(att.key==='phoenix')att._releasePhoenixEmber(def,hx,hy);
+     if(traits&&att.key==='phoenix')att._releasePhoenixEmber(def,hx,hy);
    // Plague Doctor — Attrition: permanently reduce enemy max HP
-   if(att.key==='plague'){
+    if(traits&&att.key==='plague'){
     const drain=3;
     def.maxHp=Math.max(80,def.maxHp-drain);
     def.hp=Math.min(def.hp,def.maxHp);
@@ -618,7 +629,7 @@ function _weaponHit(att,def){
     if(att.plagueMaxHpDrain%15===0)spawnDmgNum(def.x,def.y-def.radius*1.8,`-${att.plagueMaxHpDrain}MAX`,'#aadd44');
    }
    // Mimic — Essence Drain: steal DMG permanently
-   if(att.key==='mimic'&&att.mimicDmgStolen<3.0){
+    if(traits&&att.key==='mimic'&&att.mimicDmgStolen<3.0){
     const steal=0.04;
     att.mimicDmgStolen=Math.min(3.0,(att.mimicDmgStolen||0)+steal);
     def.d=Object.assign({},def.d);
@@ -628,7 +639,7 @@ function _weaponHit(att,def){
     if(Math.round(att.mimicDmgStolen*10)%5===0)spawnDmgNum(att.x,att.y-att.radius*1.5,`DRAIN ${att.mimicDmgStolen.toFixed(1)}`,'#cc88ff');
    }
    // Stormbringer — discharge static charge on hit
-   if(att.key==='stormbringer'&&att.staticCharge>0){
+    if(traits&&att.key==='stormbringer'&&att.staticCharge>0){
     const trueDmg=att.staticCharge*0.6;
     def.hp=Math.max(0,def.hp-trueDmg);
     def.hitFlash=1;
@@ -637,13 +648,14 @@ function _weaponHit(att,def){
     if(def.hp<=0&&!def.dying){def.alive=false;def.dying=true;spawnBurst(def.x,def.y,def.d.rim,def.d.color,28);}
    }
    // Crusader — Retribution: discharge on hit, then reset
-   if(att.key==='crusader'&&att.retributionCounter>0){
-    const rdmg=att.retributionCounter*0.5/(def.d.arm*0.004+1);
-    if(rdmg>0.1){def.receiveDamage(rdmg);spawnDmgNum(att.x,att.y-att.radius*1.5,rdmg,'#fffacc');}
-    att.retributionCounter=0;
+    if(traits&&att.key==='crusader'&&att.retributionCounter>0){
+     const rdmg=att.retributionCounter*0.5/(def.d.arm*0.004+1);
+     if(rdmg>0.1){def.receiveDamage(rdmg);spawnDmgNum(att.x,att.y-att.radius*1.5,rdmg,'#fffacc');}
+     att.retributionCounter=0;
+    }
+    if(att.replicaKind==='phase')att._destroyReplica('HIT');
    }
   }
- }
  const bladeStillInside=pts.some(pt=>Math.hypot(pt.x-def.x,pt.y-def.y)<def.radius+tipR);
  if(!bladeStillInside)att.hasHitThisSwing=false;
 }
@@ -735,9 +747,10 @@ function _sphereHitSkeleton(att,sk){
    spawnDmgNum(sk.x,sk.y-sk.radius*0.5,dmg,dmg>=10?'#ff4444':dmg>=4?'#ffaa22':'#ffffff');
    const nx=(sk.x-tip.x)/dist||1,ny=(sk.y-tip.y)/dist||1;
    sk.applyImpact(nx*100,ny*100);
-   att.omegaCur*=-1;
-   if(sk.hp<=0){sk.alive=false;spawnToxicCloud(sk.x,sk.y);spawnBurst(sk.x,sk.y,'#7c4dff','#c8c0a0',14);}
-  }
+    att.omegaCur*=-1;
+    if(att.replicaKind==='phase')att._destroyReplica('HIT');
+    if(sk.hp<=0){sk.alive=false;spawnToxicCloud(sk.x,sk.y);spawnBurst(sk.x,sk.y,'#7c4dff','#c8c0a0',14);}
+   }
  }
 }
 function spawnVialShatter(x,y,vialType){
@@ -960,10 +973,11 @@ function drawBg(){
 }
 function updateAbBar(){
  for(const[fi,fid,side]of[[0,'acd-r','r'],[1,'acd-b','b']]){
-   const s=spheres.find(sp=>sp.faction===fi);if(!s)continue;
+   const s=getFactionDisplaySphere(fi);if(!s)continue;
    const fill=document.getElementById(fid);
-    const thresh=getStackThreshold(s.key);
-   const pct=s.key==='sheriff'?Math.min(1,s.sheriffHitCount/2):Math.min(1,s.stacks/thresh);
+    const thresh=getStackDisplayThreshold(s.key);
+   const stackValue=s.key==='sheriff'?s.sheriffHitCount:s.stacks;
+   const pct=Math.min(1,stackValue/thresh);
    fill.style.width=(pct*100)+'%';
    fill.style.background=pct>=1?'#ff4400':pct>=0.6?`hsl(${30+pct*30},95%,55%)`:'#e8b430';
    const hpPct=s.hp/s.maxHp;
@@ -993,26 +1007,17 @@ function updateAbBar(){
    }
    const stkEl=document.getElementById(`sst-${side}`);
    if(stkEl){
-    if(s.key==='ranger'){
-     const pct=Math.round((s.critChance||0)*100);
-     stkEl.textContent=`CRIT ${pct}%`;
-     stkEl.style.color=pct>=60?'#ff4400':pct>=30?'#ffaa22':'#88cc44';
-    } else if(s.key==='wizard'){
-     const bonus=s.wizardDmgBonusTotal||0;
-     stkEl.textContent=bonus>0?`EXILE +${bonus}`:`${s.stacks}/${thresh}`;
-     stkEl.style.color=bonus>0?'#cc88ff':s.stacks>=thresh?'#ff4400':s.stacks>0?'#e8b430':'#556677';
-    } else {
-     stkEl.textContent=s.stacks+'/'+thresh;
-     stkEl.style.color=s.stacks>=thresh?'#ff4400':s.stacks>0?'#e8b430':'#556677';
-    }
+    const stackShown=Math.min(stackValue,thresh);
+    stkEl.textContent=stackShown+'/'+thresh;
+    stkEl.style.color=stackValue>=thresh?'#ff4400':stackValue>0?'#e8b430':'#556677';
    }
   }
  }
 function fillStats(key,side){
  const d=DEF[key];
  const fac=side==='r'?0:1;
- const s=spheres.find(sp=>sp.faction===fac)||null;
- const thresh=getStackThreshold(key);
+ const s=getFactionDisplaySphere(fac);
+ const thresh=getStackDisplayThreshold(key);
  document.getElementById(`wn-${side}`).textContent=d.weapon;
  const hpEl=document.getElementById(`shp-${side}`);
  if(hpEl){hpEl.textContent=(s?Math.ceil(s.hp):d.hp)+'/'+(s?s.maxHp:d.hp);hpEl.style.color='#44ee66';}
@@ -1042,13 +1047,20 @@ function loop(ts){
  thornPatches=thornPatches.filter(p=>{p.update(dt);return p.life>0;});
  miasmaClouds=miasmaClouds.filter(m=>{m.update(dt);return m.life>0;});
  afterimages=afterimages.filter(a=>{a.update(dt);return a.alive;});
- noiseTraps=noiseTraps.filter(n=>{n.update(dt);return n.alive;});
- skeletons=skeletons.filter(sk=>{sk.update(dt);return sk.alive;});
- projectiles=projectiles.filter(p=>p.alive);
- if(!winDone){
-  const alive=spheres.filter(s=>s.alive&&!s.dying);
-  if(alive.length<2&&spheres.length>=2){winDone=true;showWinner(alive[0]||null);}
- }
+  noiseTraps=noiseTraps.filter(n=>{n.update(dt);return n.alive;});
+  skeletons=skeletons.filter(sk=>{sk.update(dt);return sk.alive;});
+  projectiles=projectiles.filter(p=>p.alive);
+  spheres=spheres.filter(s=>!s.isReplica||s.alive||s.dyingT<=0.8);
+  if(!winDone){
+   const alive=spheres.filter(s=>s.alive&&!s.dying);
+   const factions=[...new Set(alive.map(s=>s.faction))];
+   if(factions.length<2&&spheres.length>=2){
+    winDone=true;
+    const winnerFaction=factions[0];
+    const winner=winnerFaction===undefined?null:(alive.find(s=>s.faction===winnerFaction&&!s.isReplica)||alive.find(s=>s.faction===winnerFaction)||null);
+    showWinner(winner);
+   }
+  }
  drawBg();
  drawBloodSplats();
  for(const z of slowZones)z.draw();

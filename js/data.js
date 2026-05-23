@@ -374,8 +374,8 @@ const CLASS_DESC = {
     passive:'Tower Shield extends from both sides. Extremely high armor (200) and low restitution — absorbs hits instead of deflecting them.'
   },
   trickster:{
-    ability:'Phase Out (2 stacks) — Turns semi-transparent, reverses direction at 1.4× speed, and grants 0.5s full invincibility.',
-    passive:'Afterimage — Every Phase Out leaves a ghostly decoy at the departure point. The decoy lingers for 1.2s and absorbs the next weapon hit that connects with it, flashing cyan and showing DECOY! on absorption. Baits enemies into swinging at thin air.'
+    ability:'Phase Out (2 stacks) - Turns semi-transparent, reverses direction at 1.4x speed, and gains 0.5s invincibility. Also leaves a fragile 1 HP replica with no ARM/MDEF that can damage enemies, then vanishes when it hits or takes damage.',
+    passive:'Mirror Break - The first time Trickster falls below 40% HP, creates an 80% stat replica of its current combat state. Replicas can fight, but cannot trigger abilities, passives, or further clones.'
   },
   sheriff:{
     ability:'Bola & Buckshot (2 outgoing hits) — Fires a bola that roots the target for 1s (gravity suspended). Immediately follows with a piercing gold laser dealing 30 true damage + armor penetration bonus. Weapon swaps visually to a shotgun during the sequence.',
@@ -452,7 +452,6 @@ const STACK_THRESHOLD = {
   templar: 3,
   druid: 3,
   necromancer: 3,
-  phoenix: 3,
   alchemist: 3,
   dragoon: 3,
   bard: 3,
@@ -466,5 +465,17 @@ const STACK_THRESHOLD = {
 };
 function getStackThreshold(key){
   return STACK_THRESHOLD[key] ?? 5;
+}
+const STACK_DISPLAY_THRESHOLD = Object.assign({}, STACK_THRESHOLD, {
+  guardian: 2,
+  pirate: 3,
+  jester: 3,
+  golem: 3,
+  phoenix: 3,
+  inquisitor: 4,
+  monk: 3,
+});
+function getStackDisplayThreshold(key){
+  return STACK_DISPLAY_THRESHOLD[key] ?? getStackThreshold(key);
 }
 // ▓▓▓ END:DATA ▓▓▓
