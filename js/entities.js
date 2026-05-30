@@ -716,7 +716,7 @@ class FlameBolt{
   this.dmg=dmg;this.owner=owner;
   this.alive=true;this.life=2.5;this.trail=[];
   this.t=0;this.r=9;
-  this.rodType=null;this.rodCol=null; // set externally when rod is active
+  this.rodType=null;this.rodCol=null;this.effectPower=0; // set externally when rod is active
  }
  update(dt){
   this.t+=dt;
@@ -733,26 +733,27 @@ class FlameBolt{
    const isEnemy=s!==this.owner;
    if(!isEnemy||!s.alive||s.dying)continue;
    if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+this.r+3){
+    const power=this.effectPower||0;
     const nx=(s.x-this.x)/Math.hypot(s.x-this.x,s.y-this.y)||1;
     const ny=(s.y-this.y)/Math.hypot(s.x-this.x,s.y-this.y)||0;
     if(this.rodType===0){
-     s.electrified=true;s.electrifiedT=1.0;
+     s.electrified=true;s.electrifiedT=1.0+power*0.2;
      spawnSpark(s.x,s.y,'#ffee00',8);
      } else if(this.rodType===1){// Fire: 3 true dmg ticks over 3s
-      s.burning=true;s.burnT=3.0;s.burnTickInterval=DEFAULT_BURN_TICK_INTERVAL;s.burnTickT=1.0;
+      s.burning=true;s.burnT=3.0+power*0.5;s.burnTickInterval=Math.max(0.75,DEFAULT_BURN_TICK_INTERVAL-power*0.1);s.burnTickT=Math.min(1.0,s.burnTickInterval);
      spawnFlameExplosion(s.x,s.y);
     } else if(this.rodType===2){// Water: slow stacking up to 2 in 2s
-     s.waterSlow=Math.min(2,s.waterSlow+1);s.waterSlowT=2.0;
+     s.waterSlow=Math.min(2+power*0.25,s.waterSlow+1+power*0.15);s.waterSlowT=2.0+power*0.25;
      spawnRingBurst(s.x,s.y,'#44aaff');
     } else if(this.rodType===3){// Wind: knockback + particles
-     s.applyImpact(nx*180,ny*180);
+     s.applyImpact(nx*(180+power*20),ny*(180+power*20));
      for(let i=0;i<8;i++){const a=Math.random()*Math.PI*2;particles.push({x:s.x,y:s.y,vx:Math.cos(a)*120,vy:Math.sin(a)*120,life:1,maxL:.25,sz:3,col:'#ffffff',sq:false});}
     } else if(this.rodType===4){
-     s.stunned=true;s.stunnedT=0.3;
-     s.applyImpact(nx*220,ny*220);
+     s.stunned=true;s.stunnedT=0.3+power*0.04;
+     s.applyImpact(nx*(220+power*25),ny*(220+power*25));
      spawnBurst(s.x,s.y,'#886633','#554422',12);
     }
-   const baseKB=this.rodType===3?40:90;
+   const baseKB=(this.rodType===3?40:90)+power*8;
    s.applyImpact(nx*baseKB,ny*baseKB);
    let finalDmg=this.dmg;
    if(s.electrifiedT>0)finalDmg=Math.max(0,finalDmg-1);
@@ -831,10 +832,10 @@ class SkullOrb{
     this.owner._applyHitBuff();
     if(s.deathMarkTicks<=0){
      s.deathMarkTicks=7;
-     s.deathMarkTimer=0.6;
-     s.deathMarkDmg=this.dmg*0.70;
+     s.deathMarkTimer=0.18;
+     s.deathMarkDmg=this.dmg*0.70+1;
     } else {
-     s.deathMarkDmg=this.dmg*0.70;
+     s.deathMarkDmg=this.dmg*0.70+1;
      s.deathMarkDoTHits=(s.deathMarkDoTHits||0)+7; // credit a full sequence
     }
     s.woundT=Math.max(s.woundT, 7*0.3+2.0);
@@ -1295,6 +1296,7 @@ class Sphere{
   this.lastShotWasCrit=false;
   this.wizardHpThreshold=90;
   this.wizardDmgBonusTotal=0;
+  this.wizardStaffPower=0;
   this.kiteCD=0;
   this.rodType=Math.floor(Math.random()*5);
   this.rodActive=false; // rod effect window active
@@ -1313,7 +1315,7 @@ class Sphere{
   this.hitBuffStacks=0;      // increments on each successful hit
   this.lowHpBuffApplied=false;
   this.sheriffHitCount=0;
-  this.sheriffReloading=false;this.sheriffReloadT=0;
+  this.sheriffReloading=false;this.sheriffReloadT=0;this.sheriffReloadDuration=0.75;
   this.sheriffCylinder=6;    // shots remaining in cylinder
   this.cylinderRot=0;        // visual cylinder rotation
   this.bolaRootT=0;
@@ -1464,13 +1466,15 @@ class Sphere{
     if(this.stacks>=4){
      this.stacks=0;
      this.rodType=(this.rodType+1)%5;
-     this.rodActive=true;this.rodT=8.0;
+     this.wizardStaffPower=(this.wizardStaffPower||0)+1;
+     const staffPower=this.wizardStaffPower;
+     this.rodActive=true;this.rodT=8.0+staffPower;
      const tip5=this.getTip();
      const ROD_COLORS=['#ffee00','#ff4400','#44aaff','#ffffff','#886633'];
      for(let i=0;i<3;i++){
       const a=(i/3)*Math.PI*2+this.angle;
-      const bolt=new FlameBolt(tip5.x,tip5.y,Math.cos(a)*420,Math.sin(a)*420,this.d.dmg*this.dmgMult,this);
-      bolt.rodType=this.rodType;bolt.rodCol=ROD_COLORS[this.rodType];
+      const bolt=new FlameBolt(tip5.x,tip5.y,Math.cos(a)*420,Math.sin(a)*420,(this.d.dmg+2+staffPower)*this.dmgMult,this);
+      bolt.rodType=this.rodType;bolt.rodCol=ROD_COLORS[this.rodType];bolt.effectPower=staffPower;
       projectiles.push(bolt);
      }
      spawnBurst(this.x,this.y,ROD_COLORS[this.rodType],'#fff',14);
@@ -1522,7 +1526,7 @@ class Sphere{
     if(this.stacks>=3){
      this.stacks=0;
      const enNec=spheres.find(s=>(s!==this)&&s.alive&&!s.dying);
-     if(enNec&&enNec.deathMarkTicks===0){enNec.deathMarkTicks=7;enNec.deathMarkTimer=0.5;enNec.deathMarkDmg=this.d.dmg*0.70;}
+     if(enNec&&enNec.deathMarkTicks===0){enNec.deathMarkTicks=7;enNec.deathMarkTimer=0.18;enNec.deathMarkDmg=this.d.dmg*0.70+1;}
     } break;
     case 'trickster':
     if(this.stacks>=2){
@@ -1635,7 +1639,7 @@ class Sphere{
      // Fire SonicProjectile along weapon tip angle — player aims by spinning
      const bTip=this.getTip();
      const bwx=Math.cos(this.angle),bwy=Math.sin(this.angle);
-     projectiles.push(new SonicProjectile(bTip.x,bTip.y,bwx*480,bwy*480,this.d.dmg*2.2*this.dmgMult,this));
+     projectiles.push(new SonicProjectile(bTip.x,bTip.y,bwx*480,bwy*480,(this.d.dmg+2)*2.2*this.dmgMult,this));
      spawnBurst(this.x,this.y,this.d.rim,'#e040fb',16);
      spawnPulse(this.x,this.y,'#e040fb');
     } break;
@@ -1757,7 +1761,7 @@ class Sphere{
     if(this.stacks>=8){
      this.stacks=0;
      this.benedictionActive=true;this.benedictionT=10.0;
-     const preBenedictDmg=this.d.dmg*this.dmgMult;
+     const preBenedictDmg=(this.d.dmg+2)*this.dmgMult;
      for(let i=0;i<8;i++){
       const a=(i/8)*Math.PI*2;
       const orb=new HolyOrb(this.x,this.y,Math.cos(a)*260,Math.sin(a)*260,preBenedictDmg,this,true);
@@ -1864,7 +1868,7 @@ class Sphere{
     spawnToxicCloud(this.x,this.y);
     this.deathMarkDoTHits=(this.deathMarkDoTHits||0)+1;
     this.deathMarkTicks--;
-    this.deathMarkTimer=0.3;
+    this.deathMarkTimer=0.18;
     if(this.deathMarkTicks<=0){
      if(this.deathMarkDoTHits>=7){
       this.deathMarkDoTHits=0; // reset for next skeleton
@@ -2239,7 +2243,9 @@ class Sphere{
      }
     } break;
    case 'ranger':
-    this.critChance=Math.min(0.60,Math.max(0,(this.maxHp>0?(1-(this.hp/this.maxHp)):0)));
+    const rangerHpLost=this.maxHp>0?Math.max(0,1-(this.hp/this.maxHp)):0;
+    this.critChance=Math.min(0.60,rangerHpLost);
+    this.critDamageBonus=Math.min(0.20,rangerHpLost);
     this.drawCharge=Math.min(1,this.drawCharge+(dt/0.13));
     if(!this.volleyActive&&this.drawCharge>=1&&this.shotCD<=0){
      this.drawCharge=0;this.shotCD=0.14;
@@ -2292,6 +2298,8 @@ class Sphere{
      if(this.sheriffSwitchT<=0)this.sheriffSwitching=false;
     }
     if(this.sheriffReloading){
+     const hpLossPct=this.maxHp>0?Math.max(0,(1-this.hp/this.maxHp)*100):0;
+     this.sheriffReloadDuration=Math.max(0.35,0.75-Math.min(0.4,hpLossPct*0.05));
      this.sheriffReloadT-=dt;
      if(this.sheriffReloadT<=0){
       this.sheriffReloading=false;this.sheriffCylinder=6;
@@ -2303,7 +2311,9 @@ class Sphere{
      this.sheriffCylinder--;
      this.cylinderRot+=(Math.PI*2/6);
      if(this.sheriffCylinder<=0){
-      this.sheriffReloading=true;this.sheriffReloadT=0.75;
+      const hpLossPct=this.maxHp>0?Math.max(0,(1-this.hp/this.maxHp)*100):0;
+      this.sheriffReloadDuration=Math.max(0.35,0.75-Math.min(0.4,hpLossPct*0.05));
+      this.sheriffReloading=true;this.sheriffReloadT=this.sheriffReloadDuration;
       spawnPulse(this.x,this.y,'#d4a83a');
      }
     }
@@ -2667,7 +2677,8 @@ class Sphere{
   const wx=Math.cos(this.angle),wy=Math.sin(this.angle);
   const isCrit=Math.random()<(this.critChance||0);
   const bonus=this.volleyDmgBonus||0;
-  const spd=470,dmg=(this.d.dmg+bonus)*this.dmgMult*(isCrit?2:1);
+  const critMult=isCrit?2+(this.critDamageBonus||0):1;
+  const spd=470,dmg=(this.d.dmg+2+bonus)*this.dmgMult*critMult;
   if(!isFinite(dmg)||dmg<=0)return; // NaN/Infinity guard
   const arr=new Arrow(tip.x,tip.y,wx*spd,wy*spd,dmg,this);
   arr.isCrit=isCrit;
@@ -2679,7 +2690,8 @@ class Sphere{
   const wx=Math.cos(this.angle),wy=Math.sin(this.angle);
   const isCrit=Math.random()<(this.critChance||0);
   const bonus=this.volleyDmgBonus||0;
-  const spd=470,dmg=(this.d.dmg+bonus)*this.dmgMult*(isCrit?2:1);
+  const critMult=isCrit?2+(this.critDamageBonus||0):1;
+  const spd=470,dmg=(this.d.dmg+2+bonus)*this.dmgMult*critMult;
   if(!isFinite(dmg)||dmg<=0)return; // NaN/Infinity guard
   const angles=[0,-0.22,0.22,-0.44,0.44];
   for(const a of angles){
@@ -2696,8 +2708,8 @@ class Sphere{
   const tip=this.getTip();
   const wx=Math.cos(this.angle),wy=Math.sin(this.angle);
   const ROD_COLORS=['#ffee00','#ff4400','#44aaff','#ffffff','#886633'];
-  const bolt=new FlameBolt(tip.x,tip.y,wx*420,wy*420,this.d.dmg*this.dmgMult,this);
-  if(this.rodActive){bolt.rodType=this.rodType;bolt.rodCol=ROD_COLORS[this.rodType];}
+  const bolt=new FlameBolt(tip.x,tip.y,wx*420,wy*420,(this.d.dmg+2)*this.dmgMult,this);
+  if(this.rodActive){bolt.rodType=this.rodType;bolt.rodCol=ROD_COLORS[this.rodType];bolt.effectPower=this.wizardStaffPower||0;}
   projectiles.push(bolt);
   // Wizard-only projectile cast audio.
   if(this.key==='wizard')_playSphereAudio(this.key,'projectileThrow');
@@ -2706,7 +2718,7 @@ class Sphere{
   const en=spheres.find(s=>(s!==this)&&s.alive&&!s.dying);if(!en)return;
   const tip=this.getTip();
   const wx=Math.cos(this.angle),wy=Math.sin(this.angle);
-  projectiles.push(new SkullOrb(tip.x,tip.y,wx*450,wy*450,this.d.dmg*this.dmgMult,this));
+  projectiles.push(new SkullOrb(tip.x,tip.y,wx*450,wy*450,(this.d.dmg+2)*this.dmgMult,this));
  }
  _fireGrapplingHook(){
   const tip=this.getTip();
@@ -2733,7 +2745,7 @@ class Sphere{
  _fireSheriffBullet(){
   const tip=this.getTip();
   const wx=Math.cos(this.angle),wy=Math.sin(this.angle);
-  projectiles.push(new SheriffBullet(tip.x,tip.y,wx*580,wy*580,this.d.dmg*this.dmgMult,this));
+  projectiles.push(new SheriffBullet(tip.x,tip.y,wx*580,wy*580,(this.d.dmg+2)*this.dmgMult,this));
  }
  _firePiercingShot(target){
   if(target){
@@ -2750,7 +2762,7 @@ class Sphere{
    owner.angle=Math.atan2(dy,dx);
    const tip=owner.getTip();
    const dist=Math.hypot(dx,dy)||1;
-   projectiles.push(new PiercingBullet(tip.x,tip.y,(dx/dist)*700,(dy/dist)*700,owner,target,30));
+   projectiles.push(new PiercingBullet(tip.x,tip.y,(dx/dist)*700,(dy/dist)*700,owner,target,32));
    spawnSpark(tip.x,tip.y,'#c8b840',8);
   };
   setTimeout(doFire,220);
@@ -2759,13 +2771,13 @@ class Sphere{
   const tip=this.getTip();
   const wx=Math.cos(this.angle),wy=Math.sin(this.angle);
   const spd=200; // starts slow — homing will guide it
-  projectiles.push(new HolyOrb(tip.x,tip.y,wx*spd,wy*spd,this.d.dmg*this.dmgMult,this,false));
+  projectiles.push(new HolyOrb(tip.x,tip.y,wx*spd,wy*spd,(this.d.dmg+2)*this.dmgMult,this,false));
  }
  _fireMusicNote(){
   const tip=this.getTip();
   const wx=Math.cos(this.angle),wy=Math.sin(this.angle);
   const spd=340;
-  const note=new SonicProjectile(tip.x,tip.y,wx*spd,wy*spd,this.d.dmg*this.dmgMult,this);
+  const note=new SonicProjectile(tip.x,tip.y,wx*spd,wy*spd,(this.d.dmg+2)*this.dmgMult,this);
   projectiles.push(note);
  }
   _shadowStepBounce(){
@@ -3173,7 +3185,7 @@ class Sphere{
     ctx.strokeStyle='#000';ctx.lineWidth=0.5;ctx.stroke();
    }
    if(this.sheriffReloading){
-    const pct=1-(this.sheriffReloadT/0.75);
+    const pct=1-(this.sheriffReloadT/(this.sheriffReloadDuration||0.75));
     ctx.shadowColor='#d4a83a';ctx.shadowBlur=10;
     ctx.beginPath();ctx.arc(this.x,this.y,r+8,-(Math.PI/2),(Math.PI*2*pct)-(Math.PI/2));
     ctx.strokeStyle='rgba(212,168,58,0.8)';ctx.lineWidth=3;ctx.stroke();
