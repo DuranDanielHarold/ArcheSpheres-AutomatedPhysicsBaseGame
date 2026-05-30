@@ -16,7 +16,7 @@ const DEF = {
   berserker:  {label:'Berserker', weapon:'Blood Maul',      ab:'Orbit Frenzy',    color:'#8b0000',dark:'#5a0000',rim:'#ff4444',out:'#3a0000',wcol:'#cc2200',wdrk:'#880000', mass:9,   spd:195, hp:450, om:7.0, dmg:4.5, arm:45,  magDef:25, rest:.80, reach:2.4, tipR:0.55, wt:'maul'},
   ranger:     {label:'Ranger',    weapon:'Longbow',         ab:'Volley Shot',     color:'#2d5a1b',dark:'#1a3610',rim:'#88cc44',out:'#0f1f0a',wcol:'#88cc44',wdrk:'#557733', mass:6,   spd:216, hp:440, om:5.0, dmg:5.5, arm:90,  magDef:33, rest:.72, reach:3.2, tipR:0.12, wt:'longbow'},
   templar:    {label:'Templar',   weapon:'Sacred Warhammer',ab:'Slow Field',      color:'#daa520',dark:'#b8860b',rim:'#ffe680',out:'#8b6914',wcol:'#ffe680',wdrk:'#ccaa00', mass:9,   spd:196, hp:380, om:3.8, dmg:3.2, arm:100, magDef:28, rest:.52, reach:2.2, tipR:0.48, wt:'warhammer'},
-  rogue:      {label:'Rogue',     weapon:'Twin Daggers',    ab:'Backstab',        color:'#2c3e50',dark:'#1a252f',rim:'#e74c3c',out:'#0d1117',wcol:'#e74c3c',wdrk:'#c0392b', mass:4.5, spd:290, hp:360, om:10.5,dmg:2.8, arm:55,  magDef:28, rest:.82, reach:2.0, tipR:0.22, wt:'daggers'},
+  rogue:      {label:'Rogue',     weapon:'Twin Daggers',    ab:'Backstab',        color:'#2c3e50',dark:'#1a252f',rim:'#e74c3c',out:'#0d1117',wcol:'#e74c3c',wdrk:'#c0392b', mass:4.5, spd:290, hp:360, om:10.5,dmg:2.8, arm:55,  magDef:28, rest:.82, reach:1.6, tipR:0.22, wt:'daggers'},
   warlord:    {label:'Warlord',   weapon:'Doom Halberd',    ab:'Earthquake',      color:'#5d4037',dark:'#3e2723',rim:'#ff8a65',out:'#1c0d0a',wcol:'#ff8a65',wdrk:'#d4622f', mass:16,  spd:200, hp:580, om:4.2, dmg:8.0, arm:140, magDef:40, rest:.56, reach:3.4, tipR:0.28, wt:'halberd'},
   druid:      {label:'Druid',     weapon:'Thornwhip',       ab:'Thorn Patch',     color:'#1b5e20',dark:'#0d3310',rim:'#69f0ae',out:'#081a08',wcol:'#69f0ae',wdrk:'#2e7d32', mass:7,   spd:192, hp:480, om:4.5, dmg:3.8, arm:130, magDef:45, rest:.64, reach:3.9, tipR:0.20, wt:'thornwhip'},
   necromancer:{label:'Necro',     weapon:'Soul Scythe',     ab:'Death Mark',      color:'#1a0a2e',dark:'#0d0518',rim:'#7c4dff',out:'#080310',wcol:'#7c4dff',wdrk:'#512da8', mass:6,   spd:196, hp:450, om:5.5, dmg:6.2, arm:85,  magDef:55, rest:.70, reach:4.1, tipR:0.24, wt:'scythe'},
@@ -306,8 +306,8 @@ const CLASS_DESC = {
     passive:'Iaijutsu — The first weapon hit after a spin-direction reversal deals 2× damage. 3s cooldown between procs. A pulsing silver ring shows when Iaijutsu is ready. Rewards momentum control and deliberate bouncing.'
   },
   viking:{
-    ability:'Rage Spin (passive stacks) — Each hit builds rage, increasing spin speed (+4.0ω max) and damage (up to 1.4×). Rage decays if no hit lands for 2.5s.',
-    passive:'Battle Axe tip radius is large — hits connect even at slight angles. Rage resets decay timer on every hit.'
+    ability:'Rage Spin (4 stacks) — Enters Berserker mode for 6s: spin locks at max rage, damage becomes 1.6×, and collision knockback dealt is doubled.',
+    passive:'Last Stand — When Viking would die, he instead becomes invulnerable for 6s. During Last Stand, full rage automatically triggers Rage Spin without spending stacks. After the 6s stand, he falls.'
   },
   barbarian:{
     ability:'Ram Charge (3 stacks) — Blasts toward the nearest enemy at 3.5× speed for 0.7s with 2× damage. Direction locks on target at cast.',
@@ -319,19 +319,19 @@ const CLASS_DESC = {
   },
   ninja:{
     ability:'Blink Strike (5 stacks) — Teleports instantly behind the enemy with a burst of particles.',
-    passive:'Shadow Step — On wall bounce (8s CD), fires 2 shurikens (3- or 4-pointed, random) toward the enemy and briefly becomes untargetable for 0.35s. Purple dashed ring marks the active dodge window.'
+    passive:'Shadow Step — On wall bounce (3s CD), fires 2 shurikens (3- or 4-pointed, random) toward the enemy and briefly becomes untargetable for 0.35s. Purple dashed ring marks the active dodge window.'
   },
   wizard:{
-    ability:'Rod Cycle (4 stacks) — Advances to the next elemental rod, activating it for 8s and firing 3 bolts. Rods cycle: ⚡Lightning (−1 enemy DMG for 1s) → 🔥Fire (3 true dmg/tick over 3s) → 💧Water (stacking 35% slow) → 🌀Wind (heavy knockback) → 🌍Earth (0.3s stun + massive knockback).',
-    passive:'Continuously fires elemental bolts. Wind rod boosts own speed and spin while active. Ranged kiting behavior keeps distance from enemies.'
+    ability:'Rod Cycle (4 stacks) — Advances to the next elemental rod, activating it for 8s plus staff power and firing 3 +2 damage bolts. Each staff cycle permanently increases rod duration, bolt damage, and elemental effect strength. Rods cycle: ⚡Lightning (longer weaken) → 🔥Fire (stronger burn) → 💧Water (stronger slow) → 🌀Wind (heavier knockback) → 🌍Earth (longer stun + heavier knockback).',
+    passive:'Continuously fires +2 damage elemental bolts. Active staff power strengthens every rod effect, and Wind rod boosts own speed and spin while active. Ranged kiting behavior keeps distance from enemies.'
   },
   berserker:{
     ability:'Orbit Frenzy (5 stacks) — Locks onto enemy and orbits at 3× speed for 2.5s with 1.1× damage boost.',
     passive:'Iron Will — When HP drops below 40%, automatically triggers 0.8s of full knockback immunity (red pulsing shield). 6s cooldown. Lets the Berserker keep swinging at death\'s door instead of being launched away.'
   },
   ranger:{
-    ability:'Volley Shot (4 stacks) — Fires 3 bursts of 5 spread arrows (center + 4 flanking) over 10s with +2 bonus damage each. Single shots suppressed during volley.',
-    passive:'Continuously fires single arrows. Each arrow applies momentum to the target on hit. Kites away from close enemies.'
+    ability:'Volley Shot (4 stacks) — Fires 3 bursts of 5 spread arrows (center + 4 flanking) over 10s with +2 volley bonus damage each. Single shots suppressed during volley.',
+    passive:'Continuously fires +2 damage arrows. Each arrow applies momentum to the target on hit. Kites away from close enemies. Missing HP increases crit damage by 1% per lost HP%, capped at +20%.'
   },
   templar:{
     ability:'Slow Field (3 stacks) — Drops a slow zone at current position for 3s with 2.5× sphere radius. Enemies inside are heavily decelerated each frame. Templar spins 2× while active.',
@@ -346,12 +346,12 @@ const CLASS_DESC = {
     passive:'Doom Halberd has the longest reach (3.4×) of all melee weapons. High mass amplifies collision physics.'
   },
   druid:{
-    ability:'Thorn Patch (3 stacks) — Drops a 4s thorn zone at current position. Enemies inside are near-frozen and take DoT every 0.8s based on Druid\'s DMG. Druid gains 2 stacks per hit for faster ramp.',
+    ability:'Thorn Patch (3 stacks) — Drops a 7s thorn zone at current position. Enemies inside are near-frozen and take DoT every 0.8s based on Druid\'s DMG. Druid gains 2 stacks per hit for faster ramp.',
     passive:'Auto whip AoE every 4s hits all enemies in reach range for 0.4× DMG, building stacks passively.'
   },
   necromancer:{
-    ability:'Death Mark (3 stacks) — Applies 7 delayed damage ticks (0.7× projectile DMG each, every 0.6s) to the nearest enemy.',
-    passive:'Skull Orbs apply Death Mark + Wound (halves healing) on hit. Scythe applies Wound. Summons Skeletons after full mark sequences. Kites away from melee.'
+    ability:'Death Mark (3 stacks) — Applies 7 fast delayed damage ticks (0.7× projectile DMG +1 each, every 0.18s) to the nearest enemy.',
+    passive:'Skull Orbs gain +2 damage and apply faster Death Mark + Wound (halves healing) on hit. Scythe applies Wound. Summons Skeletons after full mark sequences. Kites away from melee.'
   },
   pirate:{
     ability:'Boarding Action (3 stacks) — Fires a grappling hook that yanks the enemy toward the Pirate with 380 force, dealing 1.5× DMG on contact.',
@@ -374,16 +374,16 @@ const CLASS_DESC = {
     passive:'Tower Shield extends from both sides. Extremely high armor (200) and low restitution — absorbs hits instead of deflecting them.'
   },
   trickster:{
-    ability:'Phase Out (2 stacks) - Turns semi-transparent, reverses direction at 1.4x speed, and gains 0.5s invincibility. Also leaves a fragile 1 HP replica with no ARM/MDEF that can damage enemies, then vanishes when it hits or takes damage.',
+    ability:'Phase Out (2 stacks) - Turns semi-transparent, reverses direction at 1.4x speed, and gains 0.5s invincibility. After Phase Out ends, leaves a fragile 1 HP replica with no ARM/MDEF that can damage enemies, then vanishes when it hits or takes damage.',
     passive:'Mirror Break - The first time Trickster falls below 40% HP, creates an 80% stat replica of its current combat state. Replicas can fight, but cannot trigger abilities, passives, or further clones.'
   },
   sheriff:{
-    ability:'Bola & Buckshot (2 outgoing hits) — Fires a bola that roots the target for 1s (gravity suspended). Immediately follows with a piercing gold laser dealing 30 true damage + armor penetration bonus. Weapon swaps visually to a shotgun during the sequence.',
-    passive:'Fires 6 rapid .44 rounds per cylinder (0.16s CD) then reloads for 1.8s. Reload smoke visible on cylinder. Kites away from melee.'
+    ability:'Bola & Buckshot (2 outgoing hits) — Fires a bola that roots the target for 1s (gravity suspended). Immediately follows with a piercing gold laser dealing 32 true damage + armor penetration bonus. Weapon swaps visually to a shotgun during the sequence.',
+    passive:'Fires 6 rapid +2 damage .44 rounds per cylinder (0.16s CD) then reloads. Every lost HP% reduces reload time by 0.05s, capped at 0.4s faster. Reload smoke visible on cylinder. Kites away from melee.'
   },
   priest:{
     ability:'Benediction (4 stacks) — Fires 8 homing Holy Orbs in all directions. Orbs begin homing after 0.18s with a sharp turn rate. Also grants +8 DMG for 10s.',
-    passive:'Continuously fires fast homing Holy Orbs (every 0.35s). Enemy hits: deal magic damage and permanently reduce target MDEF by 5 (capped at −30). Ally hits: grant +2 DMG buff for 8s. Builds shield stacks that absorb incoming damage (each stack = 2 HP).'
+    passive:'Continuously fires fast +2 damage homing Holy Orbs (every 0.35s). Enemy hits: deal magic damage and permanently reduce target MDEF by 5 (capped at −30). Ally hits: grant +2 DMG buff for 8s. Builds shield stacks that absorb incoming damage (each stack = 2 HP).'
   },
   inquisitor:{
     ability:"Heretic's Pyre (4 stacks) — Ignites a 4s burning aura around the Inquisitor. Enemies inside take heavy DoT every 0.4s. Armor grows by +8 every second the pyre burns — judgment tempers iron.",
@@ -406,19 +406,19 @@ const CLASS_DESC = {
     passive:"Wyrmscale (Magic Mitigation) — The dragoon is clad in dragon scales that absorb one incoming magic hit completely. After absorbing a hit, the shield recharges over 8 seconds. The Dragon Lance has the longest reach in the game (4.8×) but a narrow tip — precision over sweep."
   },
   bard:{
-    ability:'Crescendo Blast (3 stacks) — Fires a SonicProjectile that accelerates with every wall bounce (×1.3 speed per bounce, capped at 1100). On enemy hit: minimal magic damage but a massive knockback force (300 + 120 per bounce). More bounces = more devastation.',
-    passive:'Discordant Echo — Every standard lute shot plants a NoiseTrap (♩) at the Bard\'s feet (3.5s CD). The trap lasts 3s. When an enemy steps on it: spin (ω) is instantly zeroed for 2s (disabling melee threat). If the enemy is ranged, their fire rate is also slowed to 35% for 3s (SILENCED!). Kites away from melee.'
+    ability:'Crescendo Blast (3 stacks) — Fires a +2 damage SonicProjectile that accelerates with every wall bounce (×1.3 speed per bounce, capped at 1100). On enemy hit: minimal magic damage but a massive knockback force (300 + 120 per bounce). More bounces = more devastation.',
+    passive:'Discordant Echo — Every standard +2 damage lute shot plants a larger, longer-lived NoiseTrap (♩) at the Bard\'s feet (3.5s CD). The trap lasts 5s. When an enemy steps on it: spin (ω) is instantly zeroed for 2s (disabling melee threat). If the enemy is ranged, their fire rate is also slowed to 35% for 3s (SILENCED!). Kites away from melee.'
   },
   plague:{
-    ability:'Virulence Inject (3 stacks) — Injects a Virulence stack into the enemy. Each hit on a wall by a Virulently infected enemy leaves a Toxic Smear that lingers for 4s, dealing DoT to anyone passing through it.',
-    passive:'Attrition — Every weapon hit permanently reduces the enemy\'s max HP by 3 for the rest of the match (capped at -120). Watching the enemy\'s ceiling collapse over time.'
+    ability:'Virulence Inject (3 stacks) — Injects a Virulence stack into the enemy. Each hit on a wall by a Virulently infected enemy leaves a permanent Toxic Smear for the rest of the match, dealing DoT to anyone passing through it.',
+    passive:'Sepsis — Weapon hits on the same enemy build a counter, resetting when switching targets. At 5 hits, the enemy bursts, takes DoT totaling 8% of current HP, and becomes Weakened to take +15% damage for 5s. The counter then resets.'
   },
   tidecaller:{
     ability:'Riptide (3 stacks) — Fires a water bolt that yanks the enemy violently toward the nearest wall. Wall impact deals bonus damage scaled by the speed of impact.',
     passive:'Tidal Momentum — Movement speed scales by 1.4× near walls (within 60px) and 0.85× near the arena center. Favors the edges.'
   },
   crusader:{
-    ability:'Holy Charge (3 stacks) — Locks current direction and becomes immune to knockback for 1.5s while dealing 1.8× collision damage. Unstoppable on the charge.',
+    ability:'Holy Charge (3 stacks) — Starts at 1.5s and becomes immune to knockback while dealing 2.0× collision damage. Each collision extends the charge by 0.4s, capped at 3.5s total.',
     passive:'Retribution — Incoming damage charges a Retribution counter. The next weapon hit discharges all stored damage as a bonus, then resets. Big hits pay dividends.'
   },
   mimic:{
@@ -457,6 +457,7 @@ const STACK_THRESHOLD = {
   bard: 3,
   plague: 3,
   tidecaller: 3,
+  viking: 4,
   crusader: 3,
   mimic: 3,
   stormbringer: 3,
