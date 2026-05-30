@@ -1530,8 +1530,6 @@ class Sphere{
      this.stacks=0;this.phaseOut=true;this.phaseOutT=0.9;
      this.preinvincibleDmgMult=this.dmgMult;
      this.invincible=true;this.invincibleT=0.5;this.phaseInvincible=true;
-      // Phase Out leaves a fragile combat replica at the departure point.
-      this._spawnTricksterPhaseReplica();
      const randAngle=(Math.random()-0.5)*Math.PI*0.8;
      const spd=Math.hypot(this.vx,this.vy)||this.targetSpd;
      const curA=Math.atan2(this.vy,this.vx)+Math.PI+randAngle;
@@ -1848,7 +1846,14 @@ class Sphere{
   if(this.key==='guardian')this.phalanxActive=this.stacks>=2;
   if(this.fortified){this.omegaCur=this.d.om*2*Math.sign(this.omegaCur||1);}    
   if(this.snareActive){this.snareT+=dt;if(this.snareT>0.5)this.snareActive=false;}
-  if(this.phaseOut){this.phaseOutT-=dt;if(this.phaseOutT<=0)this.phaseOut=false;}
+  if(this.phaseOut){
+   this.phaseOutT-=dt;
+   if(this.phaseOutT<=0){
+    this.phaseOut=false;
+    // Phase Out leaves its fragile combat replica after the retreat finishes.
+    this._spawnTricksterPhaseReplica();
+   }
+  }
   if(this.jesterLurchT>0){
    this.jesterLurchT-=dt;
    if(this.jesterLurchT<=0){this.jesterLurchT=0;if(this.dmgMult===2.0)this.dmgMult=1;}

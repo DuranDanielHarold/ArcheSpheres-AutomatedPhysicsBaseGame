@@ -374,7 +374,7 @@ const CLASS_DESC = {
     passive:'Tower Shield extends from both sides. Extremely high armor (200) and low restitution — absorbs hits instead of deflecting them.'
   },
   trickster:{
-    ability:'Phase Out (2 stacks) - Turns semi-transparent, reverses direction at 1.4x speed, and gains 0.5s invincibility. Also leaves a fragile 1 HP replica with no ARM/MDEF that can damage enemies, then vanishes when it hits or takes damage.',
+    ability:'Phase Out (2 stacks) - Turns semi-transparent, reverses direction at 1.4x speed, and gains 0.5s invincibility. After Phase Out ends, leaves a fragile 1 HP replica with no ARM/MDEF that can damage enemies, then vanishes when it hits or takes damage.',
     passive:'Mirror Break - The first time Trickster falls below 40% HP, creates an 80% stat replica of its current combat state. Replicas can fight, but cannot trigger abilities, passives, or further clones.'
   },
   sheriff:{
