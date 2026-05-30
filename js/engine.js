@@ -390,8 +390,8 @@ class SonicProjectile{
 class NoiseTrap{
  constructor(x,y,owner){
   this.x=x;this.y=y;this.owner=owner;
-  this.life=3.0;this.maxLife=3.0;
-  this.alive=true;this.r=18;this.t=0;
+  this.life=5.0;this.maxLife=5.0;
+  this.alive=true;this.r=34;this.t=0;
  }
  update(dt){
   if(!this.alive)return;
