@@ -181,12 +181,16 @@ function resolveAll(){
       a.vx-=(imp/a.mass)*nx;a.vy-=(imp/a.mass)*ny;
       b.vx+=(imp/b.mass)*nx;b.vy+=(imp/b.mass)*ny;
       const pushF=Math.abs(vRel)*0.12;
-      a.applyImpact(-nx*pushF*b.mass,-ny*pushF*b.mass);
-      b.applyImpact( nx*pushF*a.mass, ny*pushF*a.mass);
+      const pushToA=pushF*b.mass*(b.vikingRageSpinActive?2:1);
+      const pushToB=pushF*a.mass*(a.vikingRageSpinActive?2:1);
+      a.applyImpact(-nx*pushToA,-ny*pushToA);
+      b.applyImpact( nx*pushToB, ny*pushToB);
      }
      const ov=(bodyMin-dist)*0.85,tot=a.mass+b.mass;
      a.x-=nx*ov*(b.mass/tot);a.y-=ny*ov*(b.mass/tot);
      b.x+=nx*ov*(a.mass/tot);b.y+=ny*ov*(a.mass/tot);
+     if(a.holyChargeActive)a._onHolyChargeCollision(b,nx,ny);
+     if(b.holyChargeActive)b._onHolyChargeCollision(a,-nx,-ny);
      spawnSpark((a.x+b.x)/2,(a.y+b.y)/2,'#fff',3);
     }
    }
@@ -620,13 +624,18 @@ function _weaponHit(att,def){
     spawnSpark(hx,hy,att.d.rim,7);
     spawnImpactBurst(hx,hy,att.d.rim,def.d.color);
      if(traits&&att.key==='phoenix')att._releasePhoenixEmber(def,hx,hy);
-   // Plague Doctor — Attrition: permanently reduce enemy max HP
+   // Plague Doctor — Sepsis: repeated hits on one enemy burst into DOT + weaken.
     if(traits&&att.key==='plague'){
-    const drain=3;
-    def.maxHp=Math.max(80,def.maxHp-drain);
-    def.hp=Math.min(def.hp,def.maxHp);
-    att.plagueMaxHpDrain=(att.plagueMaxHpDrain||0)+drain;
-    if(att.plagueMaxHpDrain%15===0)spawnDmgNum(def.x,def.y-def.radius*1.8,`-${att.plagueMaxHpDrain}MAX`,'#aadd44');
+    if(att.plagueSepsisTarget!==def){att.plagueSepsisTarget=def;att.plagueSepsisCount=0;}
+    att.plagueSepsisCount=(att.plagueSepsisCount||0)+1;
+    spawnDmgNum(def.x,def.y-def.radius*1.8,`SEPSIS ${att.plagueSepsisCount}/5`,'#aadd44');
+    if(att.plagueSepsisCount>=5){
+     att.plagueSepsisCount=0;
+     def.sepsisWeakenedT=5.0;
+     def.sepsisDotTicks=4;def.sepsisDotTimer=0.5;def.sepsisDotDmg=Math.max(1,def.hp*0.08/4);
+     spawnBurst(def.x,def.y,'#aadd44','#2a3a1a',18);
+     spawnDmgNum(def.x,def.y-def.radius*2.1,'WEAKENED','#aadd44');
+    }
    }
    // Mimic — Essence Drain: steal DMG permanently
     if(traits&&att.key==='mimic'&&att.mimicDmgStolen<3.0){

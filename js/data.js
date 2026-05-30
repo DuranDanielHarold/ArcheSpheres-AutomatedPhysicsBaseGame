@@ -306,8 +306,8 @@ const CLASS_DESC = {
     passive:'Iaijutsu — The first weapon hit after a spin-direction reversal deals 2× damage. 3s cooldown between procs. A pulsing silver ring shows when Iaijutsu is ready. Rewards momentum control and deliberate bouncing.'
   },
   viking:{
-    ability:'Rage Spin (passive stacks) — Each hit builds rage, increasing spin speed (+4.0ω max) and damage (up to 1.4×). Rage decays if no hit lands for 2.5s.',
-    passive:'Battle Axe tip radius is large — hits connect even at slight angles. Rage resets decay timer on every hit.'
+    ability:'Rage Spin (4 stacks) — Enters Berserker mode for 6s: spin locks at max rage, damage becomes 1.6×, and collision knockback dealt is doubled.',
+    passive:'Last Stand — When Viking would die, he instead becomes invulnerable for 6s. During Last Stand, full rage automatically triggers Rage Spin without spending stacks. After the 6s stand, he falls.'
   },
   barbarian:{
     ability:'Ram Charge (3 stacks) — Blasts toward the nearest enemy at 3.5× speed for 0.7s with 2× damage. Direction locks on target at cast.',
@@ -319,7 +319,7 @@ const CLASS_DESC = {
   },
   ninja:{
     ability:'Blink Strike (5 stacks) — Teleports instantly behind the enemy with a burst of particles.',
-    passive:'Shadow Step — On wall bounce (8s CD), fires 2 shurikens (3- or 4-pointed, random) toward the enemy and briefly becomes untargetable for 0.35s. Purple dashed ring marks the active dodge window.'
+    passive:'Shadow Step — On wall bounce (3s CD), fires 2 shurikens (3- or 4-pointed, random) toward the enemy and briefly becomes untargetable for 0.35s. Purple dashed ring marks the active dodge window.'
   },
   wizard:{
     ability:'Rod Cycle (4 stacks) — Advances to the next elemental rod, activating it for 8s plus staff power and firing 3 +2 damage bolts. Each staff cycle permanently increases rod duration, bolt damage, and elemental effect strength. Rods cycle: ⚡Lightning (longer weaken) → 🔥Fire (stronger burn) → 💧Water (stronger slow) → 🌀Wind (heavier knockback) → 🌍Earth (longer stun + heavier knockback).',
@@ -346,7 +346,7 @@ const CLASS_DESC = {
     passive:'Doom Halberd has the longest reach (3.4×) of all melee weapons. High mass amplifies collision physics.'
   },
   druid:{
-    ability:'Thorn Patch (3 stacks) — Drops a 4s thorn zone at current position. Enemies inside are near-frozen and take DoT every 0.8s based on Druid\'s DMG. Druid gains 2 stacks per hit for faster ramp.',
+    ability:'Thorn Patch (3 stacks) — Drops a 7s thorn zone at current position. Enemies inside are near-frozen and take DoT every 0.8s based on Druid\'s DMG. Druid gains 2 stacks per hit for faster ramp.',
     passive:'Auto whip AoE every 4s hits all enemies in reach range for 0.4× DMG, building stacks passively.'
   },
   necromancer:{
@@ -418,7 +418,7 @@ const CLASS_DESC = {
     passive:'Tidal Momentum — Movement speed scales by 1.4× near walls (within 60px) and 0.85× near the arena center. Favors the edges.'
   },
   crusader:{
-    ability:'Holy Charge (3 stacks) — Locks current direction and becomes immune to knockback for 1.5s while dealing 1.8× collision damage. Unstoppable on the charge.',
+    ability:'Holy Charge (3 stacks) — Starts at 1.5s and becomes immune to knockback while dealing 2.0× collision damage. Each collision extends the charge by 0.4s, capped at 3.5s total.',
     passive:'Retribution — Incoming damage charges a Retribution counter. The next weapon hit discharges all stored damage as a bonus, then resets. Big hits pay dividends.'
   },
   mimic:{
@@ -457,6 +457,7 @@ const STACK_THRESHOLD = {
   bard: 3,
   plague: 3,
   tidecaller: 3,
+  viking: 4,
   crusader: 3,
   mimic: 3,
   stormbringer: 3,

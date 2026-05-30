@@ -1284,6 +1284,8 @@ class Sphere{
   this.pulseTimer=0;this.pulseWave=null;
   this.warlordSpinT=0; // spin window after earthquake
   this.rageDecayT=0;
+  this.vikingRageSpinActive=false;this.vikingRageSpinT=0;
+  this.vikingLastStandActive=false;this.vikingLastStandT=0;this.vikingLastStandUsed=false;
   this.jesterLurchT=0;
   this.thornAoeTimer=0; // passive whip AoE sweep cooldown
   this.draining=false;
@@ -1353,7 +1355,7 @@ class Sphere{
   this.iaijutsuReady=false;this.iaijutsuCD=0;this.lastOmegaSign=Math.sign(d.om)*(faction===0?1:-1);
   // Barbarian — Bloodlust: +6 speed per hit landed (max +60), resets on taking a hit
   this.bloodlustBonus=0;
-  // Ninja — Shadow Step: wall bounce fires shuriken at enemy + brief untargetable (8s CD)
+  // Ninja — Shadow Step: wall bounce fires shuriken at enemy + brief untargetable (3s CD)
   this.shadowStepCD=0;this.shadowStepActive=false;this.shadowStepT=0;
   // Berserker — Iron Will: below 40% HP, ignore knockback for 0.8s (6s CD)
   this.ironWillActive=false;this.ironWillT=0;this.ironWillCD=0;
@@ -1367,11 +1369,12 @@ class Sphere{
   this.discordFireRateT=0; // ranged fire rate penalty from NoiseTrap
   // Plague Doctor state
   this.virulenceStacks=0;this.virulenceWallHitCD=0;
-  this.plagueMaxHpDrain=0; // accumulated passive max HP reduction on ENEMY
+  this.plagueSepsisTarget=null;this.plagueSepsisCount=0;
+  this.sepsisWeakenedT=0;this.sepsisDotTicks=0;this.sepsisDotTimer=0;this.sepsisDotDmg=0;
   // Tidecaller state
   this.riptideCharged=false;
   // Crusader state
-  this.holyChargeActive=false;this.holyChargeT=0;this.holyChargeCD=0;
+  this.holyChargeActive=false;this.holyChargeT=0;this.holyChargeElapsed=0;this.holyChargeCD=0;this.holyChargeCollisionCD=0;
   this.retributionCounter=0;
   // Mimic state
   this.perfectCopyActive=false;this.perfectCopyT=0;
@@ -1479,6 +1482,12 @@ class Sphere{
      }
      spawnBurst(this.x,this.y,ROD_COLORS[this.rodType],'#fff',14);
     } break;
+   case 'viking':
+    if(this.stacks>=4&&!this.vikingRageSpinActive){
+     if(!this.vikingLastStandActive)this.stacks=0;
+     this._startVikingRageSpin();
+    }
+    break;
    case 'berserker':
     if(this.stacks>=5){
      this.stacks=0;this.orbitActive=true;this.orbitT=2.5;
@@ -1519,7 +1528,7 @@ class Sphere{
    case 'druid':
     if(this.stacks>=3){
      this.stacks=0;this.snareActive=true;this.snareT=0;
-     thornPatches.push(new ThornPatch(this.x,this.y,this.radius*2.2,4.0,this));
+     thornPatches.push(new ThornPatch(this.x,this.y,this.radius*2.2,7.0,this));
      spawnBurst(this.x,this.y,this.d.rim,'#1b5e20',10);
     } break;
    case 'necromancer':
@@ -1544,8 +1553,10 @@ class Sphere{
     else{this.phalanxActive=false;}
     break;
     case 'viking':
-    this.omegaCur=(this.d.om+4.0*(this.stacks/5))*Math.sign(this.omegaCur||1);
-    this.dmgMult=1+0.4*(this.stacks/5);
+    if(this.vikingRageSpinActive){
+     this.omegaCur=(this.d.om+4.0)*Math.sign(this.omegaCur||1);
+     this.dmgMult=1.6;
+    }
     break;
    case 'ranger':
     if(this.stacks>=4){
@@ -1670,10 +1681,10 @@ class Sphere{
    case 'crusader':
     if(this.stacks>=3&&this.holyChargeCD<=0){
      this.stacks=0;
-     this.holyChargeActive=true;this.holyChargeT=1.5;
+     this.holyChargeActive=true;this.holyChargeT=1.5;this.holyChargeElapsed=0;this.holyChargeCollisionCD=0;
      this.holyChargeCD=8.0;
      this.invincible=true;this.invincibleT=1.5;
-     this.dmgMult=1.8;
+     this.dmgMult=2.0;
      spawnBurst(this.x,this.y,'#fffacc','#c8b870',20);
      spawnPulse(this.x,this.y,'#fffacc');
     } break;
@@ -2002,10 +2013,41 @@ class Sphere{
     }
    }
   }
-  if(this.key==='viking'&&this.stacks>0){
-   this.rageDecayT+=dt;
-   const decayInterval=2.5;
-   if(this.rageDecayT>=decayInterval){this.rageDecayT=0;this.stacks=Math.max(0,this.stacks-1);}
+  if(this.key==='viking'){
+   if(this.vikingLastStandActive){
+    this.vikingLastStandT-=dt;
+    if(this.stacks>=4&&!this.vikingRageSpinActive)this._startVikingRageSpin();
+    if(this.vikingLastStandT<=0){
+     this.vikingLastStandActive=false;this.vikingRageSpinActive=false;
+     this.hp=0;this.alive=false;this.dying=true;spawnBurst(this.x,this.y,this.d.rim,this.d.color,28);return;
+    }
+   }
+   if(this.vikingRageSpinActive){
+    this.vikingRageSpinT-=dt;
+    this.omegaCur=(this.d.om+4.0)*Math.sign(this.omegaCur||1);
+    this.dmgMult=1.6;
+    if(this.vikingRageSpinT<=0){this.vikingRageSpinActive=false;if(!this.vikingLastStandActive)this.dmgMult=1;}
+   } else if(this.stacks>0&&!this.vikingLastStandActive){
+    this.rageDecayT+=dt;
+    const decayInterval=2.5;
+    if(this.rageDecayT>=decayInterval){this.rageDecayT=0;this.stacks=Math.max(0,this.stacks-1);}
+   }
+  }
+  if(this.sepsisWeakenedT>0)this.sepsisWeakenedT=Math.max(0,this.sepsisWeakenedT-dt);
+  if(this.sepsisDotTicks>0){
+   this.sepsisDotTimer-=dt;
+   if(this.sepsisDotTimer<=0){
+    const sdmg=this.sepsisDotDmg;
+    this.hp=Math.max(0,this.hp-sdmg);this.hitFlash=1;
+    spawnDmgNum(this.x,this.y-this.radius*1.2,sdmg,'#aadd44');
+    spawnToxicCloud(this.x,this.y);
+    this.sepsisDotTicks--;this.sepsisDotTimer=0.5;
+    if(this.hp<=0&&!this.dying){
+     if(this._triggerPhoenixRebirth())return;
+     if(this._triggerVikingLastStand())return;
+     this.alive=false;this.dying=true;spawnBurst(this.x,this.y,this.d.rim,this.d.color,28);return;
+    }
+   }
   }
   if(this.priestShieldT>0){
    this.priestShieldT-=dt;
@@ -2456,8 +2498,11 @@ class Sphere{
     break;}
    case 'crusader':
     this.holyChargeCD=Math.max(0,this.holyChargeCD-dt);
+    this.holyChargeCollisionCD=Math.max(0,this.holyChargeCollisionCD-dt);
     if(this.holyChargeActive){
+     this.holyChargeElapsed+=dt;
      this.holyChargeT-=dt;
+     this.invincible=true;this.invincibleT=Math.max(this.invincibleT,this.holyChargeT);
      if(this.holyChargeT<=0){
       this.holyChargeActive=false;
       this.dmgMult=1;
@@ -2782,7 +2827,7 @@ class Sphere{
  }
   _shadowStepBounce(){
    if(this.shadowStepCD>0)return;
-   this.shadowStepCD=8.0;
+   this.shadowStepCD=3.0;
    this.shadowStepActive=true;this.shadowStepT=0.35;
   this.untargetable=true;
   spawnBurst(this.x,this.y,this.d.rim,'#1a1a2e',10);
@@ -2821,6 +2866,33 @@ class Sphere{
    spawnBurst(hx,hy,'#ffcc02','#ff4400',16);
    spawnDmgNum(target.x,target.y-target.radius*1.6,'EMBER','#ffcc02');
    return true;
+  }
+  _startVikingRageSpin(){
+   this.vikingRageSpinActive=true;this.vikingRageSpinT=6.0;
+   this.dmgMult=1.6;
+   this.omegaCur=(this.d.om+4.0)*Math.sign(this.omegaCur||1);
+   spawnBurst(this.x,this.y,this.d.rim,'#c8a030',18);
+   spawnDmgNum(this.x,this.y-this.radius*1.6,'RAGE SPIN','#c8a030');
+  }
+  _triggerVikingLastStand(){
+   if(this.key!=='viking'||this.vikingLastStandUsed)return false;
+   this.vikingLastStandUsed=true;this.vikingLastStandActive=true;this.vikingLastStandT=6.0;
+   this.hp=1;this.stacks=Math.max(this.stacks,4);
+   this._startVikingRageSpin();
+   spawnBurst(this.x,this.y,'#c8a030',this.d.rim,26);
+   spawnDmgNum(this.x,this.y-this.radius*1.8,'LAST STAND','#c8a030');
+   return true;
+  }
+  _onHolyChargeCollision(target,nx,ny){
+   if(!this.holyChargeActive||this.holyChargeCollisionCD>0||!target||!target.alive||target.dying)return;
+   this.holyChargeCollisionCD=0.25;
+   const remainingCap=Math.max(0,3.5-(this.holyChargeElapsed||0));
+   this.holyChargeT=Math.min(remainingCap,this.holyChargeT+0.4);
+   this.invincible=true;this.invincibleT=Math.max(this.invincibleT,this.holyChargeT);
+   target.receiveDamage(this.d.dmg*2.0);
+   target.applyImpact(nx*260,ny*260);
+   spawnBurst(target.x,target.y,'#fffacc','#c8b870',10);
+   spawnDmgNum(this.x,this.y-this.radius*1.4,'+0.4s','#fffacc');
   }
   _triggerPhoenixRebirth(){
    if(this.key!=='phoenix'||this.rebirthDone)return false;
@@ -2877,6 +2949,7 @@ class Sphere{
  receiveDamage(dmg){
   if(this.dying)return;
   if(this.invincible)return; // knight bubble
+  if(this.vikingLastStandActive)return;
   if(this.untargetable)return; // vampire ghost mode
   if(!isFinite(dmg)||dmg<=0)return;
   if(this.replicaKind==='phase'){this._destroyReplica('POOF');return;}
@@ -2884,6 +2957,7 @@ class Sphere{
   if(this.key==='templar')fd*=0.65;
   if(this.key==='golem')fd*=0.65;
   if(this.key==='guardian'&&this.phalanxActive)fd*=0.45;
+  if(this.sepsisWeakenedT>0)fd*=1.15;
   if(this.priestShieldStacks>0&&fd>0){
    const shieldHP=this.priestShieldStacks*2;
    if(fd<=shieldHP){
@@ -2914,11 +2988,13 @@ class Sphere{
   }
   if(this.hp<=0&&!this.dying){
    if(this._triggerPhoenixRebirth())return; // don't die
+   if(this._triggerVikingLastStand())return;
    this.alive=false;this.dying=true;spawnBurst(this.x,this.y,this.d.rim,this.d.color,28);}
  }
  receiveMagicDamage(dmg){
   if(this.dying)return;
   if(this.invincible)return;
+  if(this.vikingLastStandActive)return;
   if(this.untargetable)return; // vampire ghost mode / dragoon leap
   if(!isFinite(dmg)||dmg<=0)return;
   if(this.replicaKind==='phase'){this._destroyReplica('POOF');return;}
@@ -2931,6 +3007,7 @@ class Sphere{
    return;
   }
   let fd=dmg/(this.d.magDef*0.004+1);
+  if(this.sepsisWeakenedT>0)fd*=1.15;
   if(this.priestShieldStacks>0&&fd>0){
    const shieldHP=this.priestShieldStacks*2;
    if(fd<=shieldHP){
@@ -2956,6 +3033,7 @@ class Sphere{
   }
   if(this.hp<=0&&!this.dying){
    if(this._triggerPhoenixRebirth())return;
+   if(this._triggerVikingLastStand())return;
    this.alive=false;this.dying=true;spawnBurst(this.x,this.y,this.d.rim,this.d.color,28);
   }
  }
@@ -3411,10 +3489,10 @@ class Sphere{
     ctx.textAlign='center';ctx.textBaseline='bottom';
     ctx.fillStyle='#aadd44';ctx.fillText(`INFECT x${Math.ceil(this.virulenceStacks)}`,this.x,this.y-r-14);
    }
-   if((this.plagueMaxHpDrain||0)>0){
+   if((this.plagueSepsisCount||0)>0){
     ctx.font=`bold ${Math.max(4,r*.18)}px 'Press Start 2P',monospace`;
     ctx.textAlign='center';ctx.textBaseline='bottom';
-    ctx.fillStyle='#669922';ctx.fillText(`-${this.plagueMaxHpDrain}MAX`,this.x,this.y-r-26);
+    ctx.fillStyle='#669922';ctx.fillText(`SEPSIS ${this.plagueSepsisCount}/5`,this.x,this.y-r-26);
    }
   }
   // ── Crusader overlays
