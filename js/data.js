@@ -410,8 +410,8 @@ const CLASS_DESC = {
     passive:'Discordant Echo — Every standard +2 damage lute shot plants a larger, longer-lived NoiseTrap (♩) at the Bard\'s feet (3.5s CD). The trap lasts 5s. When an enemy steps on it: spin (ω) is instantly zeroed for 2s (disabling melee threat). If the enemy is ranged, their fire rate is also slowed to 35% for 3s (SILENCED!). Kites away from melee.'
   },
   plague:{
-    ability:'Virulence Inject (3 stacks) — Injects a Virulence stack into the enemy. Each hit on a wall by a Virulently infected enemy leaves a Toxic Smear that lingers for 4s, dealing DoT to anyone passing through it.',
-    passive:'Attrition — Every weapon hit permanently reduces the enemy\'s max HP by 3 for the rest of the match (capped at -120). Watching the enemy\'s ceiling collapse over time.'
+    ability:'Virulence Inject (3 stacks) — Injects a Virulence stack into the enemy. Each hit on a wall by a Virulently infected enemy leaves a permanent Toxic Smear for the rest of the match, dealing DoT to anyone passing through it.',
+    passive:'Sepsis — Weapon hits on the same enemy build a counter, resetting when switching targets. At 5 hits, the enemy bursts, takes DoT totaling 8% of current HP, and becomes Weakened to take +15% damage for 5s. The counter then resets.'
   },
   tidecaller:{
     ability:'Riptide (3 stacks) — Fires a water bolt that yanks the enemy violently toward the nearest wall. Wall impact deals bonus damage scaled by the speed of impact.',

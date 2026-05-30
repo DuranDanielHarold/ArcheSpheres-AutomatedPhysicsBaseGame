@@ -73,6 +73,67 @@ class ThornPatch{
   ctx.setLineDash([]);ctx.restore();
  }
 }
+class ToxicSmear{
+ constructor(x,y,r,owner){
+  this.x=x;this.y=y;this.r=r;this.owner=owner;
+  this.life=Infinity;this.maxLife=Infinity;this.dotTimer=0;this.t=0;
+  this.seed=Math.random()*Math.PI*2;
+ }
+ update(dt){
+  this.t+=dt;this.dotTimer+=dt;
+  for(const s of spheres){
+   const isEnemy=!this.owner||s!==this.owner;
+   if(!isEnemy||!s.alive||s.dying||s.hp<=0)continue;
+   const d=Math.hypot(s.x-this.x,s.y-this.y);
+   if(d<this.r+s.radius){
+    s.vx*=Math.pow(0.78,dt);s.vy*=Math.pow(0.78,dt);
+    s.impactVx*=Math.pow(0.72,dt);s.impactVy*=Math.pow(0.72,dt);
+    if(this.dotTimer>=0.8&&this.owner&&this.owner.d){
+     s.receiveDamage(this.owner.d.dmg*0.55);
+     spawnSpark(s.x,s.y,'#aadd44',4);
+    }
+   }
+  }
+  if(this.dotTimer>=0.8)this.dotTimer=0;
+ }
+ draw(){
+  const pulse=0.5+0.5*Math.sin(this.t*2.4+this.seed);
+  ctx.save();
+  ctx.globalAlpha=0.78;
+  const g=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r);
+  g.addColorStop(0,`rgba(190,255,70,${0.28+pulse*0.10})`);
+  g.addColorStop(0.36,'rgba(90,150,22,0.42)');
+  g.addColorStop(0.72,'rgba(35,70,16,0.34)');
+  g.addColorStop(1,'rgba(8,18,4,0)');
+  ctx.fillStyle=g;ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle=`rgba(170,221,68,${0.50+pulse*0.25})`;ctx.lineWidth=2;
+  ctx.setLineDash([7,5]);
+  ctx.beginPath();
+  const lobes=18;
+  for(let i=0;i<=lobes;i++){
+   const a=this.seed+(i/lobes)*Math.PI*2;
+   const wob=0.80+0.15*Math.sin(i*1.7+this.t*1.3)+0.08*Math.cos(i*2.9+this.seed);
+   const px=this.x+Math.cos(a)*this.r*wob;
+   const py=this.y+Math.sin(a)*this.r*wob;
+   if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+  }
+  ctx.closePath();ctx.stroke();ctx.setLineDash([]);
+  for(let i=0;i<7;i++){
+   const a=this.seed+i*0.92+this.t*0.22;
+   const rr=this.r*(0.18+0.55*((i*37)%100)/100);
+   const bx=this.x+Math.cos(a)*rr,by=this.y+Math.sin(a)*rr*0.72;
+   const br=this.r*(0.045+0.025*((i*19)%7));
+   ctx.fillStyle=`rgba(190,255,85,${0.13+pulse*0.10})`;
+   ctx.beginPath();ctx.arc(bx,by,br,0,Math.PI*2);ctx.fill();
+   ctx.strokeStyle='rgba(220,255,120,0.35)';ctx.lineWidth=1;ctx.stroke();
+  }
+  ctx.shadowColor='#aadd44';ctx.shadowBlur=10+pulse*10;
+  ctx.strokeStyle=`rgba(220,255,110,${0.35+pulse*0.35})`;ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.arc(this.x,this.y,this.r*(0.42+pulse*0.08),0,Math.PI*2);ctx.stroke();
+  ctx.shadowBlur=0;
+  ctx.restore();
+ }
+}
 class BoneArrow{
  constructor(x,y,vx,vy,owner){
   this.x=x;this.y=y;this.vx=vx;this.vy=vy;
@@ -2219,7 +2280,7 @@ class Sphere{
    if(this.key==='monk'){this.vx*=1.1;this.vy*=1.1;spawnSpark(this.x,this.y,'#ffe0a0',4);}
    if(this.key==='phoenix'){this._phoenixAddEmber(16);spawnSpark(this.x,this.y,'#ffcc02',4);}
    if(this.key==='ninja')this._shadowStepBounce();
-   if(this.virulenceStacks>0&&this.virulenceWallHitCD<=0){this.virulenceWallHitCD=1.0;const _lpo=spheres.find(s=>s!==this&&s.alive);if(_lpo){thornPatches.push(new ThornPatch(this.x,this.y,R*1.5,4.0,_lpo));}spawnDmgNum(this.x,this.y-R-10,'SMEAR!','#aadd44');}
+   if(this.virulenceStacks>0&&this.virulenceWallHitCD<=0){this.virulenceWallHitCD=1.0;const _lpo=spheres.find(s=>s!==this&&s.alive);if(_lpo){thornPatches.push(new ToxicSmear(this.x,this.y,R*1.5,_lpo));}spawnDmgNum(this.x,this.y-R-10,'SMEAR!','#aadd44');}
    if(this.key==='voidwalker'){noiseTraps.push(new VoidTear(this.x,this.y,this));this.voidTearCount=(this.voidTearCount||0)+1;}
   }
   if(this.x+R>W){this.x=W-R;this.vx=-Math.max(Math.abs(this.vx)*WALL_REST,tgt*0.5);this.impactVx=0;this.vy+=(Math.random()-.5)*tgt*.12;
@@ -2227,7 +2288,7 @@ class Sphere{
    if(this.key==='monk'){this.vx*=1.1;this.vy*=1.1;spawnSpark(this.x,this.y,'#ffe0a0',4);}
    if(this.key==='phoenix'){this._phoenixAddEmber(16);spawnSpark(this.x,this.y,'#ffcc02',4);}
    if(this.key==='ninja')this._shadowStepBounce();
-   if(this.virulenceStacks>0&&this.virulenceWallHitCD<=0){this.virulenceWallHitCD=1.0;const _vpo=spheres.find(s=>s!==this&&s.alive);if(_vpo){const _vtp=new ThornPatch(this.x,this.y,R*1.5,4.0,_vpo);thornPatches.push(_vtp);}spawnDmgNum(this.x,this.y-R-10,'SMEAR!','#aadd44');}
+   if(this.virulenceStacks>0&&this.virulenceWallHitCD<=0){this.virulenceWallHitCD=1.0;const _vpo=spheres.find(s=>s!==this&&s.alive);if(_vpo){const _vtp=new ToxicSmear(this.x,this.y,R*1.5,_vpo);thornPatches.push(_vtp);}spawnDmgNum(this.x,this.y-R-10,'SMEAR!','#aadd44');}
    if(this.key==='voidwalker'){noiseTraps.push(new VoidTear(this.x,this.y,this));this.voidTearCount=(this.voidTearCount||0)+1;}
   }
   if(this.y-R<0){this.y=R;this.vy=Math.max(Math.abs(this.vy)*WALL_REST,tgt*0.5);this.impactVy=0;this.vx+=(Math.random()-.5)*tgt*.12;
@@ -2235,7 +2296,7 @@ class Sphere{
    if(this.key==='monk'){this.vx*=1.1;this.vy*=1.1;spawnSpark(this.x,this.y,'#ffe0a0',4);}
    if(this.key==='phoenix'){this._phoenixAddEmber(16);spawnSpark(this.x,this.y,'#ffcc02',4);}
    if(this.key==='ninja')this._shadowStepBounce();
-   if(this.virulenceStacks>0&&this.virulenceWallHitCD<=0){this.virulenceWallHitCD=1.0;const _tvpo=spheres.find(s=>s!==this&&s.alive);if(_tvpo){thornPatches.push(new ThornPatch(this.x,this.y,R*1.5,4.0,_tvpo));}spawnDmgNum(this.x,this.y+R+10,'SMEAR!','#aadd44');}
+   if(this.virulenceStacks>0&&this.virulenceWallHitCD<=0){this.virulenceWallHitCD=1.0;const _tvpo=spheres.find(s=>s!==this&&s.alive);if(_tvpo){thornPatches.push(new ToxicSmear(this.x,this.y,R*1.5,_tvpo));}spawnDmgNum(this.x,this.y+R+10,'SMEAR!','#aadd44');}
    if(this.key==='voidwalker'){noiseTraps.push(new VoidTear(this.x,this.y,this));this.voidTearCount=(this.voidTearCount||0)+1;}
   }
   if(this.y+R>H){this.y=H-R;this.vy=-Math.max(Math.abs(this.vy)*WALL_REST,tgt*0.5);this.impactVy=0;this.vx+=(Math.random()-.5)*tgt*.12;
@@ -2243,7 +2304,7 @@ class Sphere{
    if(this.key==='monk'){this.vx*=1.1;this.vy*=1.1;spawnSpark(this.x,this.y,'#ffe0a0',4);}
    if(this.key==='phoenix'){this._phoenixAddEmber(16);spawnSpark(this.x,this.y,'#ffcc02',4);}
    if(this.key==='ninja')this._shadowStepBounce();
-   if(this.virulenceStacks>0&&this.virulenceWallHitCD<=0){this.virulenceWallHitCD=1.0;const _bvpo=spheres.find(s=>s!==this&&s.alive);if(_bvpo){thornPatches.push(new ThornPatch(this.x,this.y,R*1.5,4.0,_bvpo));}spawnDmgNum(this.x,this.y-R-10,'SMEAR!','#aadd44');}
+   if(this.virulenceStacks>0&&this.virulenceWallHitCD<=0){this.virulenceWallHitCD=1.0;const _bvpo=spheres.find(s=>s!==this&&s.alive);if(_bvpo){thornPatches.push(new ToxicSmear(this.x,this.y,R*1.5,_bvpo));}spawnDmgNum(this.x,this.y-R-10,'SMEAR!','#aadd44');}
    if(this.key==='voidwalker'){noiseTraps.push(new VoidTear(this.x,this.y,this));this.voidTearCount=(this.voidTearCount||0)+1;}
   }
   if(this.pulseWave){this.pulseWave.r+=dt*250;this.pulseWave.life-=dt*2;if(this.pulseWave.life<=0)this.pulseWave=null;}
