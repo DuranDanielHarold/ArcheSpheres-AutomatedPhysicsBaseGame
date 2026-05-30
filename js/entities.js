@@ -716,7 +716,7 @@ class FlameBolt{
   this.dmg=dmg;this.owner=owner;
   this.alive=true;this.life=2.5;this.trail=[];
   this.t=0;this.r=9;
-  this.rodType=null;this.rodCol=null; // set externally when rod is active
+  this.rodType=null;this.rodCol=null;this.effectPower=0; // set externally when rod is active
  }
  update(dt){
   this.t+=dt;
@@ -733,26 +733,27 @@ class FlameBolt{
    const isEnemy=s!==this.owner;
    if(!isEnemy||!s.alive||s.dying)continue;
    if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+this.r+3){
+    const power=this.effectPower||0;
     const nx=(s.x-this.x)/Math.hypot(s.x-this.x,s.y-this.y)||1;
     const ny=(s.y-this.y)/Math.hypot(s.x-this.x,s.y-this.y)||0;
     if(this.rodType===0){
-     s.electrified=true;s.electrifiedT=1.0;
+     s.electrified=true;s.electrifiedT=1.0+power*0.2;
      spawnSpark(s.x,s.y,'#ffee00',8);
      } else if(this.rodType===1){// Fire: 3 true dmg ticks over 3s
-      s.burning=true;s.burnT=3.0;s.burnTickInterval=DEFAULT_BURN_TICK_INTERVAL;s.burnTickT=1.0;
+      s.burning=true;s.burnT=3.0+power*0.5;s.burnTickInterval=Math.max(0.75,DEFAULT_BURN_TICK_INTERVAL-power*0.1);s.burnTickT=Math.min(1.0,s.burnTickInterval);
      spawnFlameExplosion(s.x,s.y);
     } else if(this.rodType===2){// Water: slow stacking up to 2 in 2s
-     s.waterSlow=Math.min(2,s.waterSlow+1);s.waterSlowT=2.0;
+     s.waterSlow=Math.min(2+power*0.25,s.waterSlow+1+power*0.15);s.waterSlowT=2.0+power*0.25;
      spawnRingBurst(s.x,s.y,'#44aaff');
     } else if(this.rodType===3){// Wind: knockback + particles
-     s.applyImpact(nx*180,ny*180);
+     s.applyImpact(nx*(180+power*20),ny*(180+power*20));
      for(let i=0;i<8;i++){const a=Math.random()*Math.PI*2;particles.push({x:s.x,y:s.y,vx:Math.cos(a)*120,vy:Math.sin(a)*120,life:1,maxL:.25,sz:3,col:'#ffffff',sq:false});}
     } else if(this.rodType===4){
-     s.stunned=true;s.stunnedT=0.3;
-     s.applyImpact(nx*220,ny*220);
+     s.stunned=true;s.stunnedT=0.3+power*0.04;
+     s.applyImpact(nx*(220+power*25),ny*(220+power*25));
      spawnBurst(s.x,s.y,'#886633','#554422',12);
     }
-   const baseKB=this.rodType===3?40:90;
+   const baseKB=(this.rodType===3?40:90)+power*8;
    s.applyImpact(nx*baseKB,ny*baseKB);
    let finalDmg=this.dmg;
    if(s.electrifiedT>0)finalDmg=Math.max(0,finalDmg-1);
@@ -831,10 +832,10 @@ class SkullOrb{
     this.owner._applyHitBuff();
     if(s.deathMarkTicks<=0){
      s.deathMarkTicks=7;
-     s.deathMarkTimer=0.6;
-     s.deathMarkDmg=this.dmg*0.70;
+     s.deathMarkTimer=0.18;
+     s.deathMarkDmg=this.dmg*0.70+1;
     } else {
-     s.deathMarkDmg=this.dmg*0.70;
+     s.deathMarkDmg=this.dmg*0.70+1;
      s.deathMarkDoTHits=(s.deathMarkDoTHits||0)+7; // credit a full sequence
     }
     s.woundT=Math.max(s.woundT, 7*0.3+2.0);
@@ -1257,7 +1258,6 @@ class Sphere{
   this.isReplica=!!opts.isReplica;
   this.replicaKind=opts.replicaKind||null;
   this.replicaOwner=opts.replicaOwner||null;
-  this.replicaLife=opts.replicaLife||0;
   this.canTriggerTraits=opts.canTriggerTraits===false?false:!this.isReplica;
   this.impactVx=0;this.impactVy=0;this.impactDecay=0;
   this.hasHitThisSwing=false;
@@ -1284,6 +1284,8 @@ class Sphere{
   this.pulseTimer=0;this.pulseWave=null;
   this.warlordSpinT=0; // spin window after earthquake
   this.rageDecayT=0;
+  this.vikingRageSpinActive=false;this.vikingRageSpinT=0;
+  this.vikingLastStandActive=false;this.vikingLastStandT=0;this.vikingLastStandUsed=false;
   this.jesterLurchT=0;
   this.thornAoeTimer=0; // passive whip AoE sweep cooldown
   this.draining=false;
@@ -1296,6 +1298,7 @@ class Sphere{
   this.lastShotWasCrit=false;
   this.wizardHpThreshold=90;
   this.wizardDmgBonusTotal=0;
+  this.wizardStaffPower=0;
   this.kiteCD=0;
   this.rodType=Math.floor(Math.random()*5);
   this.rodActive=false; // rod effect window active
@@ -1314,7 +1317,7 @@ class Sphere{
   this.hitBuffStacks=0;      // increments on each successful hit
   this.lowHpBuffApplied=false;
   this.sheriffHitCount=0;
-  this.sheriffReloading=false;this.sheriffReloadT=0;
+  this.sheriffReloading=false;this.sheriffReloadT=0;this.sheriffReloadDuration=0.75;
   this.sheriffCylinder=6;    // shots remaining in cylinder
   this.cylinderRot=0;        // visual cylinder rotation
   this.bolaRootT=0;
@@ -1352,7 +1355,7 @@ class Sphere{
   this.iaijutsuReady=false;this.iaijutsuCD=0;this.lastOmegaSign=Math.sign(d.om)*(faction===0?1:-1);
   // Barbarian — Bloodlust: +6 speed per hit landed (max +60), resets on taking a hit
   this.bloodlustBonus=0;
-  // Ninja — Shadow Step: wall bounce fires shuriken at enemy + brief untargetable (8s CD)
+  // Ninja — Shadow Step: wall bounce fires shuriken at enemy + brief untargetable (3s CD)
   this.shadowStepCD=0;this.shadowStepActive=false;this.shadowStepT=0;
   // Berserker — Iron Will: below 40% HP, ignore knockback for 0.8s (6s CD)
   this.ironWillActive=false;this.ironWillT=0;this.ironWillCD=0;
@@ -1366,11 +1369,12 @@ class Sphere{
   this.discordFireRateT=0; // ranged fire rate penalty from NoiseTrap
   // Plague Doctor state
   this.virulenceStacks=0;this.virulenceWallHitCD=0;
-  this.plagueMaxHpDrain=0; // accumulated passive max HP reduction on ENEMY
+  this.plagueSepsisTarget=null;this.plagueSepsisCount=0;
+  this.sepsisWeakenedT=0;this.sepsisDotTicks=0;this.sepsisDotTimer=0;this.sepsisDotDmg=0;
   // Tidecaller state
   this.riptideCharged=false;
   // Crusader state
-  this.holyChargeActive=false;this.holyChargeT=0;this.holyChargeCD=0;
+  this.holyChargeActive=false;this.holyChargeT=0;this.holyChargeElapsed=0;this.holyChargeCD=0;this.holyChargeCollisionCD=0;
   this.retributionCounter=0;
   // Mimic state
   this.perfectCopyActive=false;this.perfectCopyT=0;
@@ -1465,17 +1469,25 @@ class Sphere{
     if(this.stacks>=4){
      this.stacks=0;
      this.rodType=(this.rodType+1)%5;
-     this.rodActive=true;this.rodT=8.0;
+     this.wizardStaffPower=(this.wizardStaffPower||0)+1;
+     const staffPower=this.wizardStaffPower;
+     this.rodActive=true;this.rodT=8.0+staffPower;
      const tip5=this.getTip();
      const ROD_COLORS=['#ffee00','#ff4400','#44aaff','#ffffff','#886633'];
      for(let i=0;i<3;i++){
       const a=(i/3)*Math.PI*2+this.angle;
-      const bolt=new FlameBolt(tip5.x,tip5.y,Math.cos(a)*420,Math.sin(a)*420,this.d.dmg*this.dmgMult,this);
-      bolt.rodType=this.rodType;bolt.rodCol=ROD_COLORS[this.rodType];
+      const bolt=new FlameBolt(tip5.x,tip5.y,Math.cos(a)*420,Math.sin(a)*420,(this.d.dmg+2+staffPower)*this.dmgMult,this);
+      bolt.rodType=this.rodType;bolt.rodCol=ROD_COLORS[this.rodType];bolt.effectPower=staffPower;
       projectiles.push(bolt);
      }
      spawnBurst(this.x,this.y,ROD_COLORS[this.rodType],'#fff',14);
     } break;
+   case 'viking':
+    if(this.stacks>=4&&!this.vikingRageSpinActive){
+     if(!this.vikingLastStandActive)this.stacks=0;
+     this._startVikingRageSpin();
+    }
+    break;
    case 'berserker':
     if(this.stacks>=5){
      this.stacks=0;this.orbitActive=true;this.orbitT=2.5;
@@ -1516,22 +1528,20 @@ class Sphere{
    case 'druid':
     if(this.stacks>=3){
      this.stacks=0;this.snareActive=true;this.snareT=0;
-     thornPatches.push(new ThornPatch(this.x,this.y,this.radius*2.2,4.0,this));
+     thornPatches.push(new ThornPatch(this.x,this.y,this.radius*2.2,7.0,this));
      spawnBurst(this.x,this.y,this.d.rim,'#1b5e20',10);
     } break;
    case 'necromancer':
     if(this.stacks>=3){
      this.stacks=0;
      const enNec=spheres.find(s=>(s!==this)&&s.alive&&!s.dying);
-     if(enNec&&enNec.deathMarkTicks===0){enNec.deathMarkTicks=7;enNec.deathMarkTimer=0.5;enNec.deathMarkDmg=this.d.dmg*0.70;}
+     if(enNec&&enNec.deathMarkTicks===0){enNec.deathMarkTicks=7;enNec.deathMarkTimer=0.18;enNec.deathMarkDmg=this.d.dmg*0.70+1;}
     } break;
     case 'trickster':
     if(this.stacks>=2){
      this.stacks=0;this.phaseOut=true;this.phaseOutT=0.9;
      this.preinvincibleDmgMult=this.dmgMult;
      this.invincible=true;this.invincibleT=0.5;this.phaseInvincible=true;
-      // Phase Out leaves a fragile combat replica at the departure point.
-      this._spawnTricksterPhaseReplica();
      const randAngle=(Math.random()-0.5)*Math.PI*0.8;
      const spd=Math.hypot(this.vx,this.vy)||this.targetSpd;
      const curA=Math.atan2(this.vy,this.vx)+Math.PI+randAngle;
@@ -1543,8 +1553,10 @@ class Sphere{
     else{this.phalanxActive=false;}
     break;
     case 'viking':
-    this.omegaCur=(this.d.om+4.0*(this.stacks/5))*Math.sign(this.omegaCur||1);
-    this.dmgMult=1+0.4*(this.stacks/5);
+    if(this.vikingRageSpinActive){
+     this.omegaCur=(this.d.om+4.0)*Math.sign(this.omegaCur||1);
+     this.dmgMult=1.6;
+    }
     break;
    case 'ranger':
     if(this.stacks>=4){
@@ -1638,7 +1650,7 @@ class Sphere{
      // Fire SonicProjectile along weapon tip angle — player aims by spinning
      const bTip=this.getTip();
      const bwx=Math.cos(this.angle),bwy=Math.sin(this.angle);
-     projectiles.push(new SonicProjectile(bTip.x,bTip.y,bwx*480,bwy*480,this.d.dmg*2.2*this.dmgMult,this));
+     projectiles.push(new SonicProjectile(bTip.x,bTip.y,bwx*480,bwy*480,(this.d.dmg+2)*2.2*this.dmgMult,this));
      spawnBurst(this.x,this.y,this.d.rim,'#e040fb',16);
      spawnPulse(this.x,this.y,'#e040fb');
     } break;
@@ -1669,10 +1681,10 @@ class Sphere{
    case 'crusader':
     if(this.stacks>=3&&this.holyChargeCD<=0){
      this.stacks=0;
-     this.holyChargeActive=true;this.holyChargeT=1.5;
+     this.holyChargeActive=true;this.holyChargeT=1.5;this.holyChargeElapsed=0;this.holyChargeCollisionCD=0;
      this.holyChargeCD=8.0;
      this.invincible=true;this.invincibleT=1.5;
-     this.dmgMult=1.8;
+     this.dmgMult=2.0;
      spawnBurst(this.x,this.y,'#fffacc','#c8b870',20);
      spawnPulse(this.x,this.y,'#fffacc');
     } break;
@@ -1760,7 +1772,7 @@ class Sphere{
     if(this.stacks>=8){
      this.stacks=0;
      this.benedictionActive=true;this.benedictionT=10.0;
-     const preBenedictDmg=this.d.dmg*this.dmgMult;
+     const preBenedictDmg=(this.d.dmg+2)*this.dmgMult;
      for(let i=0;i<8;i++){
       const a=(i/8)*Math.PI*2;
       const orb=new HolyOrb(this.x,this.y,Math.cos(a)*260,Math.sin(a)*260,preBenedictDmg,this,true);
@@ -1775,10 +1787,6 @@ class Sphere{
  }
  update(dt){
   if(this.dying){this.dyingT+=dt;return;}
-  if(this.replicaLife>0){
-   this.replicaLife-=dt;
-   if(this.replicaLife<=0){this._destroyReplica();return;}
-  }
   if(this.key==='trickster'&&this.canTriggerTraits!==false)this._checkTricksterMirrorPassive();
   this.hitFlash=Math.max(0,this.hitFlash-dt*5);
   this.abTimer+=dt;
@@ -1848,7 +1856,14 @@ class Sphere{
   if(this.key==='guardian')this.phalanxActive=this.stacks>=2;
   if(this.fortified){this.omegaCur=this.d.om*2*Math.sign(this.omegaCur||1);}    
   if(this.snareActive){this.snareT+=dt;if(this.snareT>0.5)this.snareActive=false;}
-  if(this.phaseOut){this.phaseOutT-=dt;if(this.phaseOutT<=0)this.phaseOut=false;}
+  if(this.phaseOut){
+   this.phaseOutT-=dt;
+   if(this.phaseOutT<=0){
+    this.phaseOut=false;
+    // Phase Out leaves its fragile combat replica after the retreat finishes.
+    this._spawnTricksterPhaseReplica();
+   }
+  }
   if(this.jesterLurchT>0){
    this.jesterLurchT-=dt;
    if(this.jesterLurchT<=0){this.jesterLurchT=0;if(this.dmgMult===2.0)this.dmgMult=1;}
@@ -1864,7 +1879,7 @@ class Sphere{
     spawnToxicCloud(this.x,this.y);
     this.deathMarkDoTHits=(this.deathMarkDoTHits||0)+1;
     this.deathMarkTicks--;
-    this.deathMarkTimer=0.3;
+    this.deathMarkTimer=0.18;
     if(this.deathMarkTicks<=0){
      if(this.deathMarkDoTHits>=7){
       this.deathMarkDoTHits=0; // reset for next skeleton
@@ -1998,10 +2013,41 @@ class Sphere{
     }
    }
   }
-  if(this.key==='viking'&&this.stacks>0){
-   this.rageDecayT+=dt;
-   const decayInterval=2.5;
-   if(this.rageDecayT>=decayInterval){this.rageDecayT=0;this.stacks=Math.max(0,this.stacks-1);}
+  if(this.key==='viking'){
+   if(this.vikingLastStandActive){
+    this.vikingLastStandT-=dt;
+    if(this.stacks>=4&&!this.vikingRageSpinActive)this._startVikingRageSpin();
+    if(this.vikingLastStandT<=0){
+     this.vikingLastStandActive=false;this.vikingRageSpinActive=false;
+     this.hp=0;this.alive=false;this.dying=true;spawnBurst(this.x,this.y,this.d.rim,this.d.color,28);return;
+    }
+   }
+   if(this.vikingRageSpinActive){
+    this.vikingRageSpinT-=dt;
+    this.omegaCur=(this.d.om+4.0)*Math.sign(this.omegaCur||1);
+    this.dmgMult=1.6;
+    if(this.vikingRageSpinT<=0){this.vikingRageSpinActive=false;if(!this.vikingLastStandActive)this.dmgMult=1;}
+   } else if(this.stacks>0&&!this.vikingLastStandActive){
+    this.rageDecayT+=dt;
+    const decayInterval=2.5;
+    if(this.rageDecayT>=decayInterval){this.rageDecayT=0;this.stacks=Math.max(0,this.stacks-1);}
+   }
+  }
+  if(this.sepsisWeakenedT>0)this.sepsisWeakenedT=Math.max(0,this.sepsisWeakenedT-dt);
+  if(this.sepsisDotTicks>0){
+   this.sepsisDotTimer-=dt;
+   if(this.sepsisDotTimer<=0){
+    const sdmg=this.sepsisDotDmg;
+    this.hp=Math.max(0,this.hp-sdmg);this.hitFlash=1;
+    spawnDmgNum(this.x,this.y-this.radius*1.2,sdmg,'#aadd44');
+    spawnToxicCloud(this.x,this.y);
+    this.sepsisDotTicks--;this.sepsisDotTimer=0.5;
+    if(this.hp<=0&&!this.dying){
+     if(this._triggerPhoenixRebirth())return;
+     if(this._triggerVikingLastStand())return;
+     this.alive=false;this.dying=true;spawnBurst(this.x,this.y,this.d.rim,this.d.color,28);return;
+    }
+   }
   }
   if(this.priestShieldT>0){
    this.priestShieldT-=dt;
@@ -2239,7 +2285,9 @@ class Sphere{
      }
     } break;
    case 'ranger':
-    this.critChance=Math.min(0.60,Math.max(0,(this.maxHp>0?(1-(this.hp/this.maxHp)):0)));
+    const rangerHpLost=this.maxHp>0?Math.max(0,1-(this.hp/this.maxHp)):0;
+    this.critChance=Math.min(0.60,rangerHpLost);
+    this.critDamageBonus=Math.min(0.20,rangerHpLost);
     this.drawCharge=Math.min(1,this.drawCharge+(dt/0.13));
     if(!this.volleyActive&&this.drawCharge>=1&&this.shotCD<=0){
      this.drawCharge=0;this.shotCD=0.14;
@@ -2292,6 +2340,8 @@ class Sphere{
      if(this.sheriffSwitchT<=0)this.sheriffSwitching=false;
     }
     if(this.sheriffReloading){
+     const hpLossPct=this.maxHp>0?Math.max(0,(1-this.hp/this.maxHp)*100):0;
+     this.sheriffReloadDuration=Math.max(0.35,0.75-Math.min(0.4,hpLossPct*0.05));
      this.sheriffReloadT-=dt;
      if(this.sheriffReloadT<=0){
       this.sheriffReloading=false;this.sheriffCylinder=6;
@@ -2303,7 +2353,9 @@ class Sphere{
      this.sheriffCylinder--;
      this.cylinderRot+=(Math.PI*2/6);
      if(this.sheriffCylinder<=0){
-      this.sheriffReloading=true;this.sheriffReloadT=0.75;
+      const hpLossPct=this.maxHp>0?Math.max(0,(1-this.hp/this.maxHp)*100):0;
+      this.sheriffReloadDuration=Math.max(0.35,0.75-Math.min(0.4,hpLossPct*0.05));
+      this.sheriffReloading=true;this.sheriffReloadT=this.sheriffReloadDuration;
       spawnPulse(this.x,this.y,'#d4a83a');
      }
     }
@@ -2446,8 +2498,11 @@ class Sphere{
     break;}
    case 'crusader':
     this.holyChargeCD=Math.max(0,this.holyChargeCD-dt);
+    this.holyChargeCollisionCD=Math.max(0,this.holyChargeCollisionCD-dt);
     if(this.holyChargeActive){
+     this.holyChargeElapsed+=dt;
      this.holyChargeT-=dt;
+     this.invincible=true;this.invincibleT=Math.max(this.invincibleT,this.holyChargeT);
      if(this.holyChargeT<=0){
       this.holyChargeActive=false;
       this.dmgMult=1;
@@ -2582,11 +2637,23 @@ class Sphere{
    spawnDmgNum(this.x,this.y-this.radius*1.7,'MIRROR','#e0f7fa');
   }
   _spawnTricksterPhaseReplica(){
-   const clone=new Sphere(this.key,this.faction,this.x,this.y,this.vx,this.vy,1,{
+   const speed=Math.hypot(this.vx,this.vy);
+   const baseA=speed>0.01?Math.atan2(this.vy,this.vx)+Math.PI:this.angle+Math.PI;
+   const gap=this.radius*2+4;
+   const margin=this.radius+4;
+   let cx=this.x,cy=this.y,bestDist=0;
+   for(let i=0;i<16;i++){
+    const a=baseA+(i%2===0?1:-1)*Math.ceil(i/2)*(Math.PI/8);
+    const tx=Math.max(margin,Math.min(W-margin,this.x+Math.cos(a)*gap));
+    const ty=Math.max(margin,Math.min(H-margin,this.y+Math.sin(a)*gap));
+    const d=Math.hypot(tx-this.x,ty-this.y);
+    if(d>bestDist){cx=tx;cy=ty;bestDist=d;}
+    if(d>=gap-0.5)break;
+   }
+   const clone=new Sphere(this.key,this.faction,cx,cy,this.vx,this.vy,1,{
     isReplica:true,
     replicaKind:'phase',
     replicaOwner:this,
-    replicaLife:1.2,
    });
    clone.d=Object.assign({},this.d);
    clone.d.hp=1;clone.d.arm=0;clone.d.magDef=0;
@@ -2606,7 +2673,7 @@ class Sphere{
    clone.invincible=false;clone.invincibleT=0;clone.phaseInvincible=false;clone.preinvincibleDmgMult=undefined;
    clone.phaseOut=false;clone.phaseOutT=0;clone.untargetable=false;
    spheres.push(clone);
-   spawnSpark(this.x,this.y,this.d.rim,8);
+   spawnSpark(clone.x,clone.y,this.d.rim,8);
   }
   _destroyReplica(label){
    if(!this.isReplica||this.dying)return;
@@ -2655,7 +2722,8 @@ class Sphere{
   const wx=Math.cos(this.angle),wy=Math.sin(this.angle);
   const isCrit=Math.random()<(this.critChance||0);
   const bonus=this.volleyDmgBonus||0;
-  const spd=470,dmg=(this.d.dmg+bonus)*this.dmgMult*(isCrit?2:1);
+  const critMult=isCrit?2+(this.critDamageBonus||0):1;
+  const spd=470,dmg=(this.d.dmg+2+bonus)*this.dmgMult*critMult;
   if(!isFinite(dmg)||dmg<=0)return; // NaN/Infinity guard
   const arr=new Arrow(tip.x,tip.y,wx*spd,wy*spd,dmg,this);
   arr.isCrit=isCrit;
@@ -2667,7 +2735,8 @@ class Sphere{
   const wx=Math.cos(this.angle),wy=Math.sin(this.angle);
   const isCrit=Math.random()<(this.critChance||0);
   const bonus=this.volleyDmgBonus||0;
-  const spd=470,dmg=(this.d.dmg+bonus)*this.dmgMult*(isCrit?2:1);
+  const critMult=isCrit?2+(this.critDamageBonus||0):1;
+  const spd=470,dmg=(this.d.dmg+2+bonus)*this.dmgMult*critMult;
   if(!isFinite(dmg)||dmg<=0)return; // NaN/Infinity guard
   const angles=[0,-0.22,0.22,-0.44,0.44];
   for(const a of angles){
@@ -2684,8 +2753,8 @@ class Sphere{
   const tip=this.getTip();
   const wx=Math.cos(this.angle),wy=Math.sin(this.angle);
   const ROD_COLORS=['#ffee00','#ff4400','#44aaff','#ffffff','#886633'];
-  const bolt=new FlameBolt(tip.x,tip.y,wx*420,wy*420,this.d.dmg*this.dmgMult,this);
-  if(this.rodActive){bolt.rodType=this.rodType;bolt.rodCol=ROD_COLORS[this.rodType];}
+  const bolt=new FlameBolt(tip.x,tip.y,wx*420,wy*420,(this.d.dmg+2)*this.dmgMult,this);
+  if(this.rodActive){bolt.rodType=this.rodType;bolt.rodCol=ROD_COLORS[this.rodType];bolt.effectPower=this.wizardStaffPower||0;}
   projectiles.push(bolt);
   // Wizard-only projectile cast audio.
   if(this.key==='wizard')_playSphereAudio(this.key,'projectileThrow');
@@ -2694,7 +2763,7 @@ class Sphere{
   const en=spheres.find(s=>(s!==this)&&s.alive&&!s.dying);if(!en)return;
   const tip=this.getTip();
   const wx=Math.cos(this.angle),wy=Math.sin(this.angle);
-  projectiles.push(new SkullOrb(tip.x,tip.y,wx*450,wy*450,this.d.dmg*this.dmgMult,this));
+  projectiles.push(new SkullOrb(tip.x,tip.y,wx*450,wy*450,(this.d.dmg+2)*this.dmgMult,this));
  }
  _fireGrapplingHook(){
   const tip=this.getTip();
@@ -2721,7 +2790,7 @@ class Sphere{
  _fireSheriffBullet(){
   const tip=this.getTip();
   const wx=Math.cos(this.angle),wy=Math.sin(this.angle);
-  projectiles.push(new SheriffBullet(tip.x,tip.y,wx*580,wy*580,this.d.dmg*this.dmgMult,this));
+  projectiles.push(new SheriffBullet(tip.x,tip.y,wx*580,wy*580,(this.d.dmg+2)*this.dmgMult,this));
  }
  _firePiercingShot(target){
   if(target){
@@ -2738,7 +2807,7 @@ class Sphere{
    owner.angle=Math.atan2(dy,dx);
    const tip=owner.getTip();
    const dist=Math.hypot(dx,dy)||1;
-   projectiles.push(new PiercingBullet(tip.x,tip.y,(dx/dist)*700,(dy/dist)*700,owner,target,30));
+   projectiles.push(new PiercingBullet(tip.x,tip.y,(dx/dist)*700,(dy/dist)*700,owner,target,32));
    spawnSpark(tip.x,tip.y,'#c8b840',8);
   };
   setTimeout(doFire,220);
@@ -2747,18 +2816,18 @@ class Sphere{
   const tip=this.getTip();
   const wx=Math.cos(this.angle),wy=Math.sin(this.angle);
   const spd=200; // starts slow — homing will guide it
-  projectiles.push(new HolyOrb(tip.x,tip.y,wx*spd,wy*spd,this.d.dmg*this.dmgMult,this,false));
+  projectiles.push(new HolyOrb(tip.x,tip.y,wx*spd,wy*spd,(this.d.dmg+2)*this.dmgMult,this,false));
  }
  _fireMusicNote(){
   const tip=this.getTip();
   const wx=Math.cos(this.angle),wy=Math.sin(this.angle);
   const spd=340;
-  const note=new SonicProjectile(tip.x,tip.y,wx*spd,wy*spd,this.d.dmg*this.dmgMult,this);
+  const note=new SonicProjectile(tip.x,tip.y,wx*spd,wy*spd,(this.d.dmg+2)*this.dmgMult,this);
   projectiles.push(note);
  }
   _shadowStepBounce(){
    if(this.shadowStepCD>0)return;
-   this.shadowStepCD=8.0;
+   this.shadowStepCD=3.0;
    this.shadowStepActive=true;this.shadowStepT=0.35;
   this.untargetable=true;
   spawnBurst(this.x,this.y,this.d.rim,'#1a1a2e',10);
@@ -2797,6 +2866,33 @@ class Sphere{
    spawnBurst(hx,hy,'#ffcc02','#ff4400',16);
    spawnDmgNum(target.x,target.y-target.radius*1.6,'EMBER','#ffcc02');
    return true;
+  }
+  _startVikingRageSpin(){
+   this.vikingRageSpinActive=true;this.vikingRageSpinT=6.0;
+   this.dmgMult=1.6;
+   this.omegaCur=(this.d.om+4.0)*Math.sign(this.omegaCur||1);
+   spawnBurst(this.x,this.y,this.d.rim,'#c8a030',18);
+   spawnDmgNum(this.x,this.y-this.radius*1.6,'RAGE SPIN','#c8a030');
+  }
+  _triggerVikingLastStand(){
+   if(this.key!=='viking'||this.vikingLastStandUsed)return false;
+   this.vikingLastStandUsed=true;this.vikingLastStandActive=true;this.vikingLastStandT=6.0;
+   this.hp=1;this.stacks=Math.max(this.stacks,4);
+   this._startVikingRageSpin();
+   spawnBurst(this.x,this.y,'#c8a030',this.d.rim,26);
+   spawnDmgNum(this.x,this.y-this.radius*1.8,'LAST STAND','#c8a030');
+   return true;
+  }
+  _onHolyChargeCollision(target,nx,ny){
+   if(!this.holyChargeActive||this.holyChargeCollisionCD>0||!target||!target.alive||target.dying)return;
+   this.holyChargeCollisionCD=0.25;
+   const remainingCap=Math.max(0,3.5-(this.holyChargeElapsed||0));
+   this.holyChargeT=Math.min(remainingCap,this.holyChargeT+0.4);
+   this.invincible=true;this.invincibleT=Math.max(this.invincibleT,this.holyChargeT);
+   target.receiveDamage(this.d.dmg*2.0);
+   target.applyImpact(nx*260,ny*260);
+   spawnBurst(target.x,target.y,'#fffacc','#c8b870',10);
+   spawnDmgNum(this.x,this.y-this.radius*1.4,'+0.4s','#fffacc');
   }
   _triggerPhoenixRebirth(){
    if(this.key!=='phoenix'||this.rebirthDone)return false;
@@ -2853,6 +2949,7 @@ class Sphere{
  receiveDamage(dmg){
   if(this.dying)return;
   if(this.invincible)return; // knight bubble
+  if(this.vikingLastStandActive)return;
   if(this.untargetable)return; // vampire ghost mode
   if(!isFinite(dmg)||dmg<=0)return;
   if(this.replicaKind==='phase'){this._destroyReplica('POOF');return;}
@@ -2860,6 +2957,7 @@ class Sphere{
   if(this.key==='templar')fd*=0.65;
   if(this.key==='golem')fd*=0.65;
   if(this.key==='guardian'&&this.phalanxActive)fd*=0.45;
+  if(this.sepsisWeakenedT>0)fd*=1.15;
   if(this.priestShieldStacks>0&&fd>0){
    const shieldHP=this.priestShieldStacks*2;
    if(fd<=shieldHP){
@@ -2890,11 +2988,13 @@ class Sphere{
   }
   if(this.hp<=0&&!this.dying){
    if(this._triggerPhoenixRebirth())return; // don't die
+   if(this._triggerVikingLastStand())return;
    this.alive=false;this.dying=true;spawnBurst(this.x,this.y,this.d.rim,this.d.color,28);}
  }
  receiveMagicDamage(dmg){
   if(this.dying)return;
   if(this.invincible)return;
+  if(this.vikingLastStandActive)return;
   if(this.untargetable)return; // vampire ghost mode / dragoon leap
   if(!isFinite(dmg)||dmg<=0)return;
   if(this.replicaKind==='phase'){this._destroyReplica('POOF');return;}
@@ -2907,6 +3007,7 @@ class Sphere{
    return;
   }
   let fd=dmg/(this.d.magDef*0.004+1);
+  if(this.sepsisWeakenedT>0)fd*=1.15;
   if(this.priestShieldStacks>0&&fd>0){
    const shieldHP=this.priestShieldStacks*2;
    if(fd<=shieldHP){
@@ -2932,6 +3033,7 @@ class Sphere{
   }
   if(this.hp<=0&&!this.dying){
    if(this._triggerPhoenixRebirth())return;
+   if(this._triggerVikingLastStand())return;
    this.alive=false;this.dying=true;spawnBurst(this.x,this.y,this.d.rim,this.d.color,28);
   }
  }
@@ -3161,7 +3263,7 @@ class Sphere{
     ctx.strokeStyle='#000';ctx.lineWidth=0.5;ctx.stroke();
    }
    if(this.sheriffReloading){
-    const pct=1-(this.sheriffReloadT/0.75);
+    const pct=1-(this.sheriffReloadT/(this.sheriffReloadDuration||0.75));
     ctx.shadowColor='#d4a83a';ctx.shadowBlur=10;
     ctx.beginPath();ctx.arc(this.x,this.y,r+8,-(Math.PI/2),(Math.PI*2*pct)-(Math.PI/2));
     ctx.strokeStyle='rgba(212,168,58,0.8)';ctx.lineWidth=3;ctx.stroke();
@@ -3387,10 +3489,10 @@ class Sphere{
     ctx.textAlign='center';ctx.textBaseline='bottom';
     ctx.fillStyle='#aadd44';ctx.fillText(`INFECT x${Math.ceil(this.virulenceStacks)}`,this.x,this.y-r-14);
    }
-   if((this.plagueMaxHpDrain||0)>0){
+   if((this.plagueSepsisCount||0)>0){
     ctx.font=`bold ${Math.max(4,r*.18)}px 'Press Start 2P',monospace`;
     ctx.textAlign='center';ctx.textBaseline='bottom';
-    ctx.fillStyle='#669922';ctx.fillText(`-${this.plagueMaxHpDrain}MAX`,this.x,this.y-r-26);
+    ctx.fillStyle='#669922';ctx.fillText(`SEPSIS ${this.plagueSepsisCount}/5`,this.x,this.y-r-26);
    }
   }
   // ── Crusader overlays
