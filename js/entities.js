@@ -1257,7 +1257,6 @@ class Sphere{
   this.isReplica=!!opts.isReplica;
   this.replicaKind=opts.replicaKind||null;
   this.replicaOwner=opts.replicaOwner||null;
-  this.replicaLife=opts.replicaLife||0;
   this.canTriggerTraits=opts.canTriggerTraits===false?false:!this.isReplica;
   this.impactVx=0;this.impactVy=0;this.impactDecay=0;
   this.hasHitThisSwing=false;
@@ -1773,10 +1772,6 @@ class Sphere{
  }
  update(dt){
   if(this.dying){this.dyingT+=dt;return;}
-  if(this.replicaLife>0){
-   this.replicaLife-=dt;
-   if(this.replicaLife<=0){this._destroyReplica();return;}
-  }
   if(this.key==='trickster'&&this.canTriggerTraits!==false)this._checkTricksterMirrorPassive();
   this.hitFlash=Math.max(0,this.hitFlash-dt*5);
   this.abTimer+=dt;
@@ -2587,11 +2582,23 @@ class Sphere{
    spawnDmgNum(this.x,this.y-this.radius*1.7,'MIRROR','#e0f7fa');
   }
   _spawnTricksterPhaseReplica(){
-   const clone=new Sphere(this.key,this.faction,this.x,this.y,this.vx,this.vy,1,{
+   const speed=Math.hypot(this.vx,this.vy);
+   const baseA=speed>0.01?Math.atan2(this.vy,this.vx)+Math.PI:this.angle+Math.PI;
+   const gap=this.radius*2+4;
+   const margin=this.radius+4;
+   let cx=this.x,cy=this.y,bestDist=0;
+   for(let i=0;i<16;i++){
+    const a=baseA+(i%2===0?1:-1)*Math.ceil(i/2)*(Math.PI/8);
+    const tx=Math.max(margin,Math.min(W-margin,this.x+Math.cos(a)*gap));
+    const ty=Math.max(margin,Math.min(H-margin,this.y+Math.sin(a)*gap));
+    const d=Math.hypot(tx-this.x,ty-this.y);
+    if(d>bestDist){cx=tx;cy=ty;bestDist=d;}
+    if(d>=gap-0.5)break;
+   }
+   const clone=new Sphere(this.key,this.faction,cx,cy,this.vx,this.vy,1,{
     isReplica:true,
     replicaKind:'phase',
     replicaOwner:this,
-    replicaLife:1.2,
    });
    clone.d=Object.assign({},this.d);
    clone.d.hp=1;clone.d.arm=0;clone.d.magDef=0;
@@ -2611,7 +2618,7 @@ class Sphere{
    clone.invincible=false;clone.invincibleT=0;clone.phaseInvincible=false;clone.preinvincibleDmgMult=undefined;
    clone.phaseOut=false;clone.phaseOutT=0;clone.untargetable=false;
    spheres.push(clone);
-   spawnSpark(this.x,this.y,this.d.rim,8);
+   spawnSpark(clone.x,clone.y,this.d.rim,8);
   }
   _destroyReplica(label){
    if(!this.isReplica||this.dying)return;
