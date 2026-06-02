@@ -352,7 +352,8 @@ class GrapplingHook{
   this.x+=this.vx*dt;this.y+=this.vy*dt;
   this.vy+=GRAVITY*0.3*dt;
   this.life-=dt;
-  if(this.x<0||this.x>W||this.y>H+20||this.life<=0){this.alive=false;return;}
+  if(this.x<0||this.x>W||this.y<0||this.y>H){this._hookWall();return;}
+  if(this.life<=0){this.alive=false;return;}
   for(const s of spheres){
    const isEnemy=s!==this.owner;
    if(!isEnemy||!s.alive||s.dying)continue;
@@ -368,6 +369,21 @@ class GrapplingHook{
    }
   }
  }
+
+ _hookWall(){
+  const hx=Math.max(0,Math.min(W,this.x));
+  const hy=Math.max(0,Math.min(H,this.y));
+  this.x=hx;this.y=hy;
+  if(this.owner&&this.owner.alive&&!this.owner.dying){
+   const pullX=hx-this.owner.x,pullY=hy-this.owner.y;
+   const pullD=Math.hypot(pullX,pullY)||1;
+   this.owner.applyImpact((pullX/pullD)*380,(pullY/pullD)*380);
+   spawnBurst(hx,hy,'#ffcc02',this.owner.d.rim,10);
+   spawnDmgNum(hx,hy-14,'HOOK','#ffcc02');
+  }
+  this.alive=false;
+ }
+
  draw(){
   if(!this.alive)return;
   ctx.strokeStyle='#ffcc02';ctx.lineWidth=1.5;ctx.setLineDash([4,3]);
@@ -1024,7 +1040,7 @@ class BreathFlame{
    if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+this.r){
     s.receiveDamage(this.dmg);
      s.burning=true;s.burnT=2.0;s.burnTickInterval=WHELPLING_BURN_TICK_INTERVAL;s.burnTickT=WHELPLING_BURN_TICK_INTERVAL;
-    this.owner.gainStack();this.owner._applyHitBuff();
+    this.owner._applyHitBuff();
     if(!this.hasSpawnedZone){this.hasSpawnedZone=true;thornPatches.push(new FireBreathZone(this.x,this.y,this.owner));}
     spawnFlameExplosion(s.x,s.y);
     this.alive=false;return;
@@ -1054,7 +1070,7 @@ class FireBreathZone{
  constructor(x,y,owner){
   this.x=x;this.y=y;this.owner=owner;
   this.r=owner.radius*2.2;
-  this.life=3.0;this.maxLife=3.0;
+  this.life=5.0;this.maxLife=5.0;
   this.tickT=0;this.rot=0;
  }
  update(dt){
@@ -1481,7 +1497,7 @@ class Sphere{
    case 'paladin':
     if(this.stacks>=5){
      this.stacks=0;
-     this.wrathActive=true;this.wrathT=3.5;this.wrathAuraTimer=0;
+     this.wrathActive=true;this.wrathT=5.0;this.wrathAuraTimer=0;
      this.dmgMult=1.4;
      spawnBurst(this.x,this.y,'#f0c040','#fff',20);
      spawnPulse(this.x,this.y,'#f0c040');
@@ -1742,9 +1758,9 @@ class Sphere{
    case 'crusader':
     if(this.stacks>=3&&this.holyChargeCD<=0){
      this.stacks=0;
-     this.holyChargeActive=true;this.holyChargeT=1.5;this.holyChargeElapsed=0;this.holyChargeCollisionCD=0;
+     this.holyChargeActive=true;this.holyChargeT=2.2;this.holyChargeElapsed=0;this.holyChargeCollisionCD=0;
      this.holyChargeCD=8.0;
-     this.invincible=true;this.invincibleT=1.5;
+     this.invincible=true;this.invincibleT=2.2;
      this.dmgMult=2.0;
      spawnBurst(this.x,this.y,'#fffacc','#c8b870',20);
      spawnPulse(this.x,this.y,'#fffacc');
@@ -2611,12 +2627,12 @@ class Sphere{
        if(s===this||!s.alive||s.dying)continue;
        const sx=this.singularityX-s.x,sy=this.singularityY-s.y;
        const sd=Math.hypot(sx,sy)||1;
-       const pullStr=Math.min(1,60/sd)*320;
+       const pullStr=Math.min(1,60/sd)*360;
        s.impactVx+=(sx/sd)*pullStr*dt;
        s.impactVy+=(sy/sd)*pullStr*dt;
       }
-      // Tick damage once per 0.8s instead of random every frame
-      if(this._singularityTickT>=0.45){
+      // Tick damage every 0.35s instead of random every frame
+      if(this._singularityTickT>=0.35){
        this._singularityTickT=0;
        for(const s of spheres){
         if(s===this||!s.alive||s.dying)continue;
@@ -2632,9 +2648,9 @@ class Sphere{
     else this.mouthOpenMode=0;
     // Firebreath re-trigger cooldown
     if(this.whelplingFireCooldown>0)this.whelplingFireCooldown=Math.max(0,this.whelplingFireCooldown-dt);
-    // Growing Menace: every 5s grow
+    // Growing Menace: every 4s grow
     this.whelplingGrowTimer+=dt;
-    if(this.whelplingGrowTimer>=5.0){
+    if(this.whelplingGrowTimer>=4.0){
      this.whelplingGrowTimer=0;
      this.whelplingGrowth++;
      const prevR=this.radius;
@@ -2948,7 +2964,7 @@ class Sphere{
   _onHolyChargeCollision(target,nx,ny){
    if(!this.holyChargeActive||this.holyChargeCollisionCD>0||!target||!target.alive||target.dying)return;
    this.holyChargeCollisionCD=0.25;
-   const remainingCap=Math.max(0,3.5-(this.holyChargeElapsed||0));
+   const remainingCap=Math.max(0,5.0-(this.holyChargeElapsed||0));
    this.holyChargeT=Math.min(remainingCap,this.holyChargeT+0.4);
    this.invincible=true;this.invincibleT=Math.max(this.invincibleT,this.holyChargeT);
    target.receiveDamage(this.d.dmg*2.0);
