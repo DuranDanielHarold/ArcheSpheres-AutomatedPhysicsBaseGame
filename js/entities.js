@@ -798,23 +798,23 @@ class FlameBolt{
     const nx=(s.x-this.x)/Math.hypot(s.x-this.x,s.y-this.y)||1;
     const ny=(s.y-this.y)/Math.hypot(s.x-this.x,s.y-this.y)||0;
     if(this.rodType===0){
-     s.electrified=true;s.electrifiedT=1.0+power*0.2;
+     s.electrified=true;s.electrifiedT=1.4+power*0.3;
      spawnSpark(s.x,s.y,'#ffee00',8);
-     } else if(this.rodType===1){// Fire: 3 true dmg ticks over 3s
-      s.burning=true;s.burnT=3.0+power*0.5;s.burnTickInterval=Math.max(0.75,DEFAULT_BURN_TICK_INTERVAL-power*0.1);s.burnTickT=Math.min(1.0,s.burnTickInterval);
+     } else if(this.rodType===1){// Fire: longer, faster burn ticks
+      s.burning=true;s.burnT=4.0+power*0.65;s.burnTickInterval=Math.max(0.5,DEFAULT_BURN_TICK_INTERVAL-power*0.14);s.burnTickT=Math.min(0.75,s.burnTickInterval);
      spawnFlameExplosion(s.x,s.y);
-    } else if(this.rodType===2){// Water: slow stacking up to 2 in 2s
-     s.waterSlow=Math.min(2+power*0.25,s.waterSlow+1+power*0.15);s.waterSlowT=2.0+power*0.25;
+    } else if(this.rodType===2){// Water: stronger, longer slow stacking
+     s.waterSlow=Math.min(2.8+power*0.35,s.waterSlow+1.35+power*0.22);s.waterSlowT=2.6+power*0.35;
      spawnRingBurst(s.x,s.y,'#44aaff');
     } else if(this.rodType===3){// Wind: knockback + particles
-     s.applyImpact(nx*(180+power*20),ny*(180+power*20));
+     s.applyImpact(nx*(230+power*30),ny*(230+power*30));
      for(let i=0;i<8;i++){const a=Math.random()*Math.PI*2;particles.push({x:s.x,y:s.y,vx:Math.cos(a)*120,vy:Math.sin(a)*120,life:1,maxL:.25,sz:3,col:'#ffffff',sq:false});}
     } else if(this.rodType===4){
-     s.stunned=true;s.stunnedT=0.3+power*0.04;
-     s.applyImpact(nx*(220+power*25),ny*(220+power*25));
+     s.stunned=true;s.stunnedT=0.45+power*0.07;
+     s.applyImpact(nx*(280+power*35),ny*(280+power*35));
      spawnBurst(s.x,s.y,'#886633','#554422',12);
     }
-   const baseKB=(this.rodType===3?40:90)+power*8;
+   const baseKB=(this.rodType===3?55:110)+power*12;
    s.applyImpact(nx*baseKB,ny*baseKB);
    let finalDmg=this.dmg;
    if(s.electrifiedT>0)finalDmg=Math.max(0,finalDmg-1);
@@ -1537,7 +1537,7 @@ class Sphere{
      const ROD_COLORS=['#ffee00','#ff4400','#44aaff','#ffffff','#886633'];
      for(let i=0;i<3;i++){
       const a=(i/3)*Math.PI*2+this.angle;
-      const bolt=new FlameBolt(tip5.x,tip5.y,Math.cos(a)*420,Math.sin(a)*420,(this.d.dmg+2+staffPower)*this.dmgMult,this);
+      const bolt=new FlameBolt(tip5.x,tip5.y,Math.cos(a)*420,Math.sin(a)*420,(this.d.dmg+5+staffPower)*this.dmgMult,this);
       bolt.rodType=this.rodType;bolt.rodCol=ROD_COLORS[this.rodType];bolt.effectPower=staffPower;
       projectiles.push(bolt);
      }
@@ -2079,8 +2079,9 @@ class Sphere{
     this.vikingLastStandT-=dt;
     if(this.stacks>=4&&!this.vikingRageSpinActive)this._startVikingRageSpin();
     if(this.vikingLastStandT<=0){
-     this.vikingLastStandActive=false;this.vikingRageSpinActive=false;
-     this.hp=0;this.alive=false;this.dying=true;spawnBurst(this.x,this.y,this.d.rim,this.d.color,28);return;
+     this.vikingLastStandActive=false;this.vikingRageSpinActive=false;this.dmgMult=1;
+     this.hp=Math.max(1,this.hp);
+     spawnDmgNum(this.x,this.y-this.radius*1.6,'LAST STAND END','#c8a030');
     }
    }
    if(this.vikingRageSpinActive){
@@ -2167,7 +2168,7 @@ class Sphere{
    if(this.volleyBurstTimer<=0&&this.volleyBurstsLeft>0){
     this._fireVolleyBurst();
     this.volleyBurstsLeft--;
-    this.volleyBurstTimer=2.0;
+    this.volleyBurstTimer=0.6;
    }
    if(this.volleyBurstsLeft<=0||this.volleyWindowT<=0){
     this.volleyActive=false;this.volleyDmgBonus=0;this.volleyWindowT=0;
@@ -2348,7 +2349,7 @@ class Sphere{
    case 'ranger':
     const rangerHpLost=this.maxHp>0?Math.max(0,1-(this.hp/this.maxHp)):0;
     this.critChance=Math.min(0.60,rangerHpLost);
-    this.critDamageBonus=Math.min(0.20,rangerHpLost);
+    this.critDamageBonus=Math.min(0.30,rangerHpLost);
     this.drawCharge=Math.min(1,this.drawCharge+(dt/0.13));
     if(!this.volleyActive&&this.drawCharge>=1&&this.shotCD<=0){
      this.drawCharge=0;this.shotCD=0.14;
@@ -2784,7 +2785,7 @@ class Sphere{
   const isCrit=Math.random()<(this.critChance||0);
   const bonus=this.volleyDmgBonus||0;
   const critMult=isCrit?2+(this.critDamageBonus||0):1;
-  const spd=470,dmg=(this.d.dmg+2+bonus)*this.dmgMult*critMult;
+  const spd=470,dmg=(this.d.dmg+3+bonus)*this.dmgMult*critMult;
   if(!isFinite(dmg)||dmg<=0)return; // NaN/Infinity guard
   const arr=new Arrow(tip.x,tip.y,wx*spd,wy*spd,dmg,this);
   arr.isCrit=isCrit;
@@ -2797,7 +2798,7 @@ class Sphere{
   const isCrit=Math.random()<(this.critChance||0);
   const bonus=this.volleyDmgBonus||0;
   const critMult=isCrit?2+(this.critDamageBonus||0):1;
-  const spd=470,dmg=(this.d.dmg+2+bonus)*this.dmgMult*critMult;
+  const spd=470,dmg=(this.d.dmg+3+bonus)*this.dmgMult*critMult;
   if(!isFinite(dmg)||dmg<=0)return; // NaN/Infinity guard
   const angles=[0,-0.22,0.22,-0.44,0.44];
   for(const a of angles){
@@ -2814,7 +2815,7 @@ class Sphere{
   const tip=this.getTip();
   const wx=Math.cos(this.angle),wy=Math.sin(this.angle);
   const ROD_COLORS=['#ffee00','#ff4400','#44aaff','#ffffff','#886633'];
-  const bolt=new FlameBolt(tip.x,tip.y,wx*420,wy*420,(this.d.dmg+2)*this.dmgMult,this);
+  const bolt=new FlameBolt(tip.x,tip.y,wx*420,wy*420,(this.d.dmg+5)*this.dmgMult,this);
   if(this.rodActive){bolt.rodType=this.rodType;bolt.rodCol=ROD_COLORS[this.rodType];bolt.effectPower=this.wizardStaffPower||0;}
   projectiles.push(bolt);
   // Wizard-only projectile cast audio.
