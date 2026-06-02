@@ -17,14 +17,59 @@ class SlowZone{
   }
  }
  draw(){
-  const a=(this.life/this.maxLife)*0.28;
-  ctx.save();ctx.globalAlpha=a;
+  const pct=this.life/this.maxLife;
+  const pulse=0.5+0.5*Math.sin((1-pct)*Math.PI*8);
+  ctx.save();ctx.globalAlpha=0.18+pct*0.34;
   const g=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r);
-  g.addColorStop(0,'rgba(255,230,100,.5)');g.addColorStop(1,'rgba(255,230,100,0)');
+  g.addColorStop(0,'rgba(255,250,190,.58)');
+  g.addColorStop(0.45,'rgba(255,220,80,.30)');
+  g.addColorStop(1,'rgba(255,180,20,0)');
   ctx.fillStyle=g;ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='rgba(255,230,80,.5)';ctx.lineWidth=2;ctx.setLineDash([6,5]);
-  ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.stroke();
-  ctx.setLineDash([]);ctx.restore();
+  ctx.shadowColor='rgba(255,230,110,.9)';ctx.shadowBlur=8+pulse*10;
+  ctx.strokeStyle=`rgba(255,238,150,${0.45+pulse*0.25})`;ctx.lineWidth=2.5;ctx.setLineDash([8,5]);
+  ctx.beginPath();ctx.arc(this.x,this.y,this.r*(0.96+0.03*pulse),0,Math.PI*2);ctx.stroke();
+  ctx.setLineDash([]);ctx.shadowBlur=0;
+  ctx.strokeStyle='rgba(255,248,200,.38)';ctx.lineWidth=1.4;
+  for(let i=0;i<12;i++){
+   const a=i/12*Math.PI*2+(1-pct)*Math.PI;
+   const ir=this.r*0.42,or=this.r*(0.82+0.04*pulse);
+   ctx.beginPath();ctx.moveTo(this.x+Math.cos(a)*ir,this.y+Math.sin(a)*ir);
+   ctx.lineTo(this.x+Math.cos(a)*or,this.y+Math.sin(a)*or);ctx.stroke();
+  }
+  ctx.restore();
+ }
+}
+class GuardianSanctuaryZone{
+ constructor(owner){
+  this.owner=owner;this.x=owner.x;this.y=owner.y;this.r=owner.radius*2.4;
+  this.life=8.0;this.maxLife=8.0;this.consumed=false;this.t=0;
+ }
+ update(dt){this.life-=dt;this.t+=dt;}
+ apply(){}
+ contains(s){return !this.consumed&&this.life>0&&Math.hypot(s.x-this.x,s.y-this.y)<this.r+s.radius*0.25;}
+ consume(){this.consumed=true;this.life=0;}
+ draw(){
+  if(this.consumed)return;
+  const pct=Math.max(0,this.life/this.maxLife);
+  const pulse=0.5+0.5*Math.sin(this.t*7);
+  ctx.save();ctx.globalAlpha=0.22+pct*0.48;
+  const g=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r);
+  g.addColorStop(0,'rgba(128,203,196,.34)');
+  g.addColorStop(0.55,'rgba(80,220,210,.18)');
+  g.addColorStop(1,'rgba(0,137,123,0)');
+  ctx.fillStyle=g;ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fill();
+  ctx.shadowColor='#80cbc4';ctx.shadowBlur=12+pulse*8;
+  ctx.strokeStyle=`rgba(128,235,225,${0.56+pulse*0.22})`;ctx.lineWidth=3;
+  ctx.beginPath();
+  for(let i=0;i<6;i++){
+   const a=-Math.PI/2+i*Math.PI/3;
+   const px=this.x+Math.cos(a)*this.r*0.88,py=this.y+Math.sin(a)*this.r*0.88;
+   if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+  }
+  ctx.closePath();ctx.stroke();ctx.shadowBlur=0;
+  ctx.strokeStyle='rgba(224,247,250,.45)';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.arc(this.x,this.y,this.r*(0.42+0.05*pulse),0,Math.PI*2);ctx.stroke();
+  ctx.restore();
  }
 }
 class ThornPatch{
@@ -1069,7 +1114,7 @@ class BreathFlame{
 class FireBreathZone{
  constructor(x,y,owner){
   this.x=x;this.y=y;this.owner=owner;
-  this.r=owner.radius*2.2;
+  this.r=owner.radius*(2.2+(owner.whelplingGrowth||0)*0.08);
   this.life=5.0;this.maxLife=5.0;
   this.tickT=0;this.rot=0;
  }
@@ -1351,8 +1396,9 @@ class Sphere{
   this.slowFieldActive=false;this.slowFieldT=0;
   this.snareActive=false;this.snareT=0;
   this.spreadActive=false;
-  this.phalanxActive=false;
-  this.fortified=false;
+  this.phalanxActive=false;this.phalanxT=0;
+  this.guardianSanctuaryTimer=0;
+  this.fortified=false;this.golemFortifyT=0;
   this.golemFortifyActive=false;
   this.rebirthDone=false;
   this.phoenixEmber=0;this.phoenixEmberFlash=0;this.ashwingActive=false;this.ashwingT=0;
@@ -1626,8 +1672,10 @@ class Sphere{
      this.vy=Math.sin(curA)*spd*1.4;
     } break;
    case 'guardian':
-    if(this.stacks>=2){this.phalanxActive=true;}
-    else{this.phalanxActive=false;}
+    if(this.stacks>=2){
+     this.stacks=0;this.phalanxActive=true;this.phalanxT=3.5;
+     spawnBurst(this.x,this.y,'#80cbc4','#e0f7fa',14);
+    }
     break;
     case 'viking':
     if(this.vikingRageSpinActive){
@@ -1662,9 +1710,11 @@ class Sphere{
      this.jesterLurchT=1.5;
     } break;
    case 'golem':
-    this.fortified=this.stacks>=3;
-    this.dmgMult=1+(this.stacks/5)*0.4;
-    this.golemFortifyActive=this.fortified;
+    if(this.stacks>=3){
+     this.stacks=0;this.fortified=true;this.golemFortifyActive=true;this.golemFortifyT=4.0;
+     this.dmgMult=1.4;
+     spawnBurst(this.x,this.y,'#b0bec5','#607d8b',16);
+    }
     break;
    case 'phoenix':
     if(this.stacks>=3){
@@ -1929,9 +1979,16 @@ class Sphere{
    if(this.slowFieldT<=0){this.slowFieldActive=false;}
    else{this.omegaCur=this.d.om*2*Math.sign(this.omegaCur||1);}
   }
-  if(this.phalanxActive){this.omegaCur=this.d.om*2*Math.sign(this.omegaCur||1);}
-  if(this.key==='guardian')this.phalanxActive=this.stacks>=2;
-  if(this.fortified){this.omegaCur=this.d.om*2*Math.sign(this.omegaCur||1);}    
+  if(this.phalanxActive){
+   this.phalanxT-=dt;
+   if(this.phalanxT<=0){this.phalanxActive=false;this.phalanxT=0;}
+   else this.omegaCur=this.d.om*2*Math.sign(this.omegaCur||1);
+  }
+  if(this.fortified){
+   this.golemFortifyT-=dt;
+   if(this.golemFortifyT<=0){this.fortified=false;this.golemFortifyActive=false;this.golemFortifyT=0;this.dmgMult=1;}
+   else this.omegaCur=this.d.om*2*Math.sign(this.omegaCur||1);
+  }
   if(this.snareActive){this.snareT+=dt;if(this.snareT>0.5)this.snareActive=false;}
   if(this.phaseOut){
    this.phaseOutT-=dt;
@@ -2362,6 +2419,14 @@ class Sphere{
       spawnPulse(this.x,this.y,this.d.rim);
      }
     } break;
+   case 'guardian':
+    this.guardianSanctuaryTimer+=dt;
+    if(this.guardianSanctuaryTimer>=10.0){
+     this.guardianSanctuaryTimer=0;
+     slowZones.push(new GuardianSanctuaryZone(this));
+     spawnDmgNum(this.x,this.y-this.radius*1.5,'SANCTUARY','#80cbc4');
+    }
+    break;
    case 'ranger':
     const rangerHpLost=this.maxHp>0?Math.max(0,1-(this.hp/this.maxHp)):0;
     this.critChance=Math.min(0.60,rangerHpLost);
@@ -3024,12 +3089,22 @@ class Sphere{
   if(gained>=0.5)spawnHealNum(this.x,this.y-this.radius,gained);
   return gained;
  }
+ _consumeGuardianSanctuary(){
+  if(this.key!=='guardian')return false;
+  const zone=slowZones.find(z=>z instanceof GuardianSanctuaryZone&&z.owner===this&&z.contains(this));
+  if(!zone)return false;
+  zone.consume();
+  spawnBurst(this.x,this.y,'#80cbc4','#e0f7fa',18);
+  spawnDmgNum(this.x,this.y-this.radius*1.3,'SANCTUARY','#80cbc4');
+  return true;
+ }
  receiveDamage(dmg){
   if(this.dying)return;
   if(this.invincible)return; // knight bubble
   if(this.vikingLastStandActive)return;
   if(this.untargetable)return; // vampire ghost mode
   if(!isFinite(dmg)||dmg<=0)return;
+  if(this._consumeGuardianSanctuary())return;
   if(this.replicaKind==='phase'){this._destroyReplica('POOF');return;}
   let fd=dmg;
   if(this.key==='templar')fd*=0.65;
@@ -3075,6 +3150,7 @@ class Sphere{
   if(this.vikingLastStandActive)return;
   if(this.untargetable)return; // vampire ghost mode / dragoon leap
   if(!isFinite(dmg)||dmg<=0)return;
+  if(this._consumeGuardianSanctuary())return;
   if(this.replicaKind==='phase'){this._destroyReplica('POOF');return;}
   // Wyrmscale passive — absorb one magic hit completely
   if(this.key==='dragoon'&&this.magicShield){
