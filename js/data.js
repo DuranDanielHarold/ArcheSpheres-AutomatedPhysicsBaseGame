@@ -10,7 +10,7 @@ const DEF = {
   samurai:    {label:'Samurai',   weapon:'Nodachi',         ab:'Spiral Rush',     color:'#5a0f18',dark:'#320008',rim:'#8a1f28',out:'#200008',wcol:'#c8c0a8',wdrk:'#807050', mass:5.5, spd:268, hp:500, om:7.0, dmg:2.5, arm:88,  magDef:32, rest:.75, reach:4.3, tipR:0.16, wt:'nodachi'},
   viking:     {label:'Viking',    weapon:'Battle Axe',      ab:'Rage Spin',       color:'#3a5070',dark:'#1a2a40',rim:'#6080a8',out:'#102030',wcol:'#c8a030',wdrk:'#886010', mass:8.5, spd:220, hp:500, om:4.8, dmg:4.8, arm:120, magDef:35, rest:.66, reach:2.6, tipR:0.45, wt:'battleaxe'},
   barbarian:  {label:'Barbarian', weapon:'Skull Flail',     ab:'Ram Charge',      color:'#7a2800',dark:'#400c00',rim:'#b04010',out:'#280800',wcol:'#c0c0c0',wdrk:'#808080', mass:13,  spd:244, hp:500, om:6.0, dmg:5.5, arm:80,  magDef:28, rest:.78, reach:3.0, tipR:0.35, wt:'flail'},
-  paladin:    {label:'Paladin',   weapon:'Holy Morningstar',ab:'Sacred Wrath',    color:'#c0900a',dark:'#806000',rim:'#f0c040',out:'#503800',wcol:'#f0e090',wdrk:'#c0a040', mass:9,   spd:212, hp:500, om:4.3, dmg:3.8, arm:180, magDef:55, rest:.62, reach:2.8, tipR:0.40, wt:'morningstar'},
+  paladin:    {label:'Paladin',   weapon:'Holy Morningstar',ab:'Sacred Wrath',    color:'#c0900a',dark:'#806000',rim:'#f0c040',out:'#503800',wcol:'#f0e090',wdrk:'#c0a040', mass:9,   spd:212, hp:550, om:4.3, dmg:3.8, arm:180, magDef:55, rest:.62, reach:2.8, tipR:0.40, wt:'morningstar'},
   ninja:      {label:'Ninja',     weapon:'Kusarigama',      ab:'Blink Strike',    color:'#1a1a2e',dark:'#0d0d1a',rim:'#9b59b6',out:'#050510',wcol:'#9b59b6',wdrk:'#6c3483', mass:4,   spd:310, hp:380, om:10.0,dmg:2.0, arm:60,  magDef:30, rest:.84, reach:3.7, tipR:0.20, wt:'kusarigama'},
   wizard:     {label:'Wizard',    weapon:'Arcane Orb',      ab:'Rod Cycle',       color:'#4a0080',dark:'#2a0050',rim:'#cc88ff',out:'#1a0030',wcol:'#cc88ff',wdrk:'#884499', mass:5,   spd:180, hp:420, om:4.7, dmg:6.0, arm:70,  magDef:60, rest:.72, reach:2.8, tipR:0.30, wt:'orbstaff'},
   berserker:  {label:'Berserker', weapon:'Blood Maul',      ab:'Orbit Frenzy',    color:'#8b0000',dark:'#5a0000',rim:'#ff4444',out:'#3a0000',wcol:'#cc2200',wdrk:'#880000', mass:9,   spd:195, hp:450, om:7.0, dmg:4.5, arm:45,  magDef:25, rest:.80, reach:2.4, tipR:0.55, wt:'maul'},
@@ -22,9 +22,9 @@ const DEF = {
   necromancer:{label:'Necro',     weapon:'Soul Scythe',     ab:'Death Mark',      color:'#1a0a2e',dark:'#0d0518',rim:'#7c4dff',out:'#080310',wcol:'#7c4dff',wdrk:'#512da8', mass:6,   spd:196, hp:450, om:5.5, dmg:6.2, arm:85,  magDef:55, rest:.70, reach:4.1, tipR:0.24, wt:'scythe'},
   pirate:     {label:'Pirate',    weapon:'Cutlass',         ab:'Boarding Action', color:'#3e2723',dark:'#1c1008',rim:'#ff7043',out:'#120a04',wcol:'#ffcc02',wdrk:'#e6a800', mass:7.5, spd:240, hp:520, om:8.0, dmg:4.4, arm:95,  magDef:30, rest:.74, reach:2.9, tipR:0.24, wt:'cutlass'},
   jester:     {label:'Jester',    weapon:'Jingle Flail',    ab:'Chaos Lurch',     color:'#e91e63',dark:'#880e4f',rim:'#ffd740',out:'#4a0025',wcol:'#ffd740',wdrk:'#c8a000', mass:5,   spd:256, hp:400, om:13.0,dmg:3.5, arm:65,  magDef:28, rest:.86, reach:2.6, tipR:0.28, wt:'jingleflail'},
-  golem:      {label:'Golem',     weapon:'Stone Slab',      ab:'Fortify',         color:'#607d8b',dark:'#37474f',rim:'#b0bec5',out:'#1c2a30',wcol:'#b0bec5',wdrk:'#78909c', mass:12,  spd:155, hp:480, om:3.3, dmg:5.5, arm:120, magDef:30, rest:.42, reach:1.9, tipR:0.65, wt:'stoneslab'},
+  golem:      {label:'Golem',     weapon:'Stone Slab',      ab:'Fortify',         color:'#607d8b',dark:'#37474f',rim:'#b0bec5',out:'#1c2a30',wcol:'#b0bec5',wdrk:'#78909c', mass:14,  spd:155, hp:530, om:3.3, dmg:7.5, arm:140, magDef:30, rest:.42, reach:1.9, tipR:0.65, wt:'stoneslab'},
   phoenix:    {label:'Phoenix',   weapon:'Ashwing Talons',  ab:'Cinder Wing',     color:'#e65100',dark:'#bf360c',rim:'#ffcc02',out:'#6d1900',wcol:'#ffcc02',wdrk:'#f9a825', mass:6.5, spd:252, hp:420, om:7.5, dmg:4.5, arm:85,  magDef:42, rest:.76, reach:3.1, tipR:0.30, wt:'talon'},
-  guardian:   {label:'Guardian',  weapon:'Tower Shield',    ab:'Phalanx',         color:'#37474f',dark:'#1c272c',rim:'#80cbc4',out:'#0d1214',wcol:'#80cbc4',wdrk:'#00897b', mass:7,   spd:204, hp:320, om:4.6, dmg:2.8, arm:90,  magDef:25, rest:.58, reach:2.0, tipR:0.58, wt:'towershield'},
+  guardian:   {label:'Guardian',  weapon:'Tower Shield',    ab:'Phalanx',         color:'#37474f',dark:'#1c272c',rim:'#80cbc4',out:'#0d1214',wcol:'#80cbc4',wdrk:'#00897b', mass:7,   spd:204, hp:370, om:4.6, dmg:4.8, arm:90,  magDef:45, rest:.58, reach:2.0, tipR:0.58, wt:'towershield'},
   trickster:  {label:'Trickster', weapon:'Illusory Blade',  ab:'Phase Out',       color:'#00bcd4',dark:'#006064',rim:'#e0f7fa',out:'#002025',wcol:'#e0f7fa',wdrk:'#80deea', mass:5,   spd:284, hp:390, om:9.0, dmg:3.0, arm:70,  magDef:35, rest:.80, reach:3.3, tipR:0.20, wt:'illusoryblade'},
   sheriff:    {label:'Sheriff',   weapon:'.44 Magnum',      ab:'Bola & Buckshot', color:'#5c4a2a',dark:'#2e2210',rim:'#d4a83a',out:'#1a1008',wcol:'#d4a83a',wdrk:'#8a6010', mass:6,   spd:235, hp:460, om:5.5, dmg:5.0, arm:88,  magDef:30, rest:.74, reach:3.0, tipR:0.10, wt:'magnum'},
   priest:     {label:'Priest',    weapon:'Holy Censer',     ab:'Benediction',     color:'#e8e0d0',dark:'#b0a898',rim:'#fff8e8',out:'#888070',wcol:'#f0e8c8',wdrk:'#c8b880', mass:6.5, spd:204, hp:470, om:5.0, dmg:4.8, arm:105, magDef:70, rest:.70, reach:3.2, tipR:0.18, wt:'censer'},
@@ -314,24 +314,24 @@ const CLASS_DESC = {
     passive:'Bloodlust — Each landed hit adds +6 speed (max +60). Speed decays at 4/s when not hitting. Taking any damage resets all stacks. Glow orange ring brightens with stacks. Punishes passivity but shatters on being touched.'
   },
   paladin:{
-    ability:'Sacred Wrath (5 stacks) — 3.5s aura dealing 5 dmg/sec to nearby enemies with 1.4× weapon damage. After expiry, briefly slowed to 75% speed for 0.5s.',
-    passive:'Holy pulse every 3s: heals 8 HP, fires a 12-damage radial blast, and builds a stack toward Sacred Wrath.'
+    ability:'Sacred Wrath (5 stacks) — 5s aura dealing 5 dmg/sec to nearby enemies with 1.4× weapon damage. After expiry, briefly slowed to 75% speed for 0.5s.',
+    passive:'550 HP. Holy pulse every 3s: heals 8 HP, fires a 12-damage radial blast, and builds a stack toward Sacred Wrath.'
   },
   ninja:{
     ability:'Blink Strike (5 stacks) — Teleports instantly behind the enemy with a burst of particles.',
     passive:'Shadow Step — On wall bounce (3s CD), fires 2 shurikens (3- or 4-pointed, random) toward the enemy and briefly becomes untargetable for 0.35s. Purple dashed ring marks the active dodge window.'
   },
   wizard:{
-    ability:'Rod Cycle (4 stacks) — Advances to the next elemental rod, activating it for 8s plus staff power and firing 3 +2 damage bolts. Each staff cycle permanently increases rod duration, bolt damage, and elemental effect strength. Rods cycle: ⚡Lightning (longer weaken) → 🔥Fire (stronger burn) → 💧Water (stronger slow) → 🌀Wind (heavier knockback) → 🌍Earth (longer stun + heavier knockback).',
-    passive:'Continuously fires +2 damage elemental bolts. Active staff power strengthens every rod effect, and Wind rod boosts own speed and spin while active. Ranged kiting behavior keeps distance from enemies.'
+    ability:'Rod Cycle (4 stacks) — Advances to the next elemental rod, activating it for 8s plus staff power and firing 3 +5 damage bolts. Each staff cycle permanently increases rod duration, bolt damage, and stronger elemental effects. Rods cycle: ⚡Lightning (longer weaken) → 🔥Fire (longer, faster burn) → 💧Water (stronger, longer slow) → 🌀Wind (heavier knockback) → 🌍Earth (longer stun + heavier knockback).',
+    passive:'Continuously fires +5 damage elemental bolts. Active staff power strengthens every rod effect, and Wind rod boosts own speed and spin while active. Ranged kiting behavior keeps distance from enemies.'
   },
   berserker:{
     ability:'Orbit Frenzy (5 stacks) — Locks onto enemy and orbits at 3× speed for 2.5s with 1.1× damage boost.',
     passive:'Iron Will — When HP drops below 40%, automatically triggers 0.8s of full knockback immunity (red pulsing shield). 6s cooldown. Lets the Berserker keep swinging at death\'s door instead of being launched away.'
   },
   ranger:{
-    ability:'Volley Shot (4 stacks) — Fires 3 bursts of 5 spread arrows (center + 4 flanking) over 10s with +2 volley bonus damage each. Single shots suppressed during volley.',
-    passive:'Continuously fires +2 damage arrows. Each arrow applies momentum to the target on hit. Kites away from close enemies. Missing HP increases crit damage by 1% per lost HP%, capped at +20%.'
+    ability:'Volley Shot (4 stacks) — Rapidly fires 3 bursts of 5 spread arrows (center + 4 flanking) every 0.6s with +2 volley bonus damage each. Single shots suppressed during volley.',
+    passive:'Continuously fires +3 damage arrows. Each arrow applies momentum to the target on hit. Kites away from close enemies. Missing HP increases crit damage by 1% per lost HP%, capped at +30%.'
   },
   templar:{
     ability:'Slow Field (3 stacks) — Drops a slow zone at current position for 3s with 2.5× sphere radius. Enemies inside are heavily decelerated each frame. Templar spins 2× while active.',
@@ -354,7 +354,7 @@ const CLASS_DESC = {
     passive:'Skull Orbs gain +2 damage and apply faster Death Mark + Wound (halves healing) on hit. Scythe applies Wound. Summons Skeletons after full mark sequences. Kites away from melee.'
   },
   pirate:{
-    ability:'Boarding Action (3 stacks) — Fires a grappling hook that yanks the enemy toward the Pirate with 380 force, dealing 1.5× DMG on contact.',
+    ability:'Boarding Action (3 stacks) — Fires a grappling hook that yanks the enemy toward the Pirate with 380 force, dealing 1.5× DMG on contact. Wall hits hook the Pirate toward the wall.',
     passive:'While Draining (1+ stacks): heals 0.5 HP/sec passively and leeches 15% of melee damage dealt. Cutlass also pulls enemies on hit rather than pushing them.'
   },
   jester:{
@@ -362,16 +362,16 @@ const CLASS_DESC = {
     passive:'Spin accelerates with stacks (up to 2.5× base spin). Higher speed = wider bell swing = more chaotic hit angles.'
   },
   golem:{
-    ability:'Fortify (3+ stacks) — While fortified (3+ stacks held), gains 2× spin and up to 1.4× damage scaling with stacks. Stacks persist until discharged.',
-    passive:'Receives only 65% physical damage. Hardest hitting melee (10.0 DMG). Enormous mass makes it nearly immovable from collision.'
+    ability:'Fortify (3 stacks) — Consumes stacks to fortify for 4s, gaining 2× spin and 1.4× damage before the stone surge decays.',
+    passive:'Receives only 65% physical damage. Heavier mass, 530 HP, 7.5 DMG, and 140 ARM make it nearly immovable from collision.'
   },
   phoenix:{
     ability:'Cinder Wing (3 stacks) — Ignites the Ashwing Talons for 2.2s, granting +18% speed, +35% spin, and a burst of Ember charge.',
     passive:'Kindling Flight — Speed and wall bounces build Ember. At full Ember, the next weapon hit releases a compact flame burst for bonus damage. Once per match, lethal damage triggers Rebirth: 35% HP, 1.2s invincibility, full Ember, and a short knockback flare.'
   },
   guardian:{
-    ability:'Phalanx (2+ stacks) — While holding 2+ stacks: spin doubles, incoming knockback is reduced by 30%, and physical damage taken drops to 45%.',
-    passive:'Tower Shield extends from both sides. Extremely high armor (200) and low restitution — absorbs hits instead of deflecting them.'
+    ability:'Phalanx (2 stacks) — Consumes stacks to raise the tower shield for 3.5s: spin doubles, incoming knockback is reduced by 30%, and physical damage taken drops to 45%.',
+    passive:'Sanctuary — Every 10s, creates an 8s Heater Shield zone. Damage taken inside is completely negated once, consuming the shield. Tower Shield extends from both sides.'
   },
   trickster:{
     ability:'Phase Out (2 stacks) - Turns semi-transparent, reverses direction at 1.4x speed, and gains 0.5s invincibility. After Phase Out ends, leaves a fragile 1 HP replica with no ARM/MDEF that can damage enemies, then vanishes when it hits or takes damage.',
@@ -418,7 +418,7 @@ const CLASS_DESC = {
     passive:'Tidal Momentum — Movement speed scales by 1.4× near walls (within 60px) and 0.85× near the arena center. Favors the edges.'
   },
   crusader:{
-    ability:'Holy Charge (3 stacks) — Starts at 1.5s and becomes immune to knockback while dealing 2.0× collision damage. Each collision extends the charge by 0.4s, capped at 3.5s total.',
+    ability:'Holy Charge (3 stacks) — Starts at 2.2s and becomes immune to knockback while dealing 2.0× collision damage. Each collision extends the charge by 0.4s, capped at 5s total.',
     passive:'Retribution — Incoming damage charges a Retribution counter. The next weapon hit discharges all stored damage as a bonus, then resets. Big hits pay dividends.'
   },
   mimic:{
@@ -430,12 +430,12 @@ const CLASS_DESC = {
     passive:'Static Charge — The faster the Stormbringer moves, the more electric charge builds. Stored charge (up to 30) discharges as bonus true damage on the next weapon hit, then resets.'
   },
   voidwalker:{
-    ability:'Singularity (3 stacks) — Places a black hole at current position for 2.5s that continuously drags all enemies inward while dealing tick damage.',
+    ability:'Singularity (3 stacks) — Places a black hole at current position for 2.5s with stronger suction that continuously drags all enemies inward while dealing faster tick damage.',
     passive:'Void Tears — Wall bounces leave lingering void tears for 3s. Enemies passing through a tear are briefly slowed and take a burst of magic damage.'
   },
   whelpling:{
-    ability:'Firebreath (3 stacks) — Sprays a cone of fire forward (3 flames) that lingers as a burning zone for 3s. Enemies inside take 2 true dmg/tick (once per 0.5s, no zone stacking) and gain faster Burning that ticks every 0.75s.',
-    passive:'Growing Menace — Every 5 seconds, the Whelpling\'s mass, radius, and max HP all grow slightly (+1 mass, +2 radius, +15 maxHP) — becoming harder and harder to launch.'
+    ability:'Firebreath (3 stacks) — Sprays a cone of fire forward (3 flames) that lingers as a burning zone for 5s and grows slightly wider with each Growing Menace stack. Enemies inside take 2 true dmg/tick (once per 0.5s, no zone stacking) and gain faster Burning that ticks every 0.75s.',
+    passive:'Growing Menace — Every 4 seconds, the Whelpling\'s mass, radius, and max HP all grow slightly (+1 mass, +2 radius, +15 maxHP) — becoming harder and harder to launch.'
   },
 };
 
