@@ -352,7 +352,8 @@ class GrapplingHook{
   this.x+=this.vx*dt;this.y+=this.vy*dt;
   this.vy+=GRAVITY*0.3*dt;
   this.life-=dt;
-  if(this.x<0||this.x>W||this.y>H+20||this.life<=0){this.alive=false;return;}
+  if(this.x<0||this.x>W||this.y<0||this.y>H){this._hookWall();return;}
+  if(this.life<=0){this.alive=false;return;}
   for(const s of spheres){
    const isEnemy=s!==this.owner;
    if(!isEnemy||!s.alive||s.dying)continue;
@@ -368,6 +369,21 @@ class GrapplingHook{
    }
   }
  }
+
+ _hookWall(){
+  const hx=Math.max(0,Math.min(W,this.x));
+  const hy=Math.max(0,Math.min(H,this.y));
+  this.x=hx;this.y=hy;
+  if(this.owner&&this.owner.alive&&!this.owner.dying){
+   const pullX=hx-this.owner.x,pullY=hy-this.owner.y;
+   const pullD=Math.hypot(pullX,pullY)||1;
+   this.owner.applyImpact((pullX/pullD)*380,(pullY/pullD)*380);
+   spawnBurst(hx,hy,'#ffcc02',this.owner.d.rim,10);
+   spawnDmgNum(hx,hy-14,'HOOK','#ffcc02');
+  }
+  this.alive=false;
+ }
+
  draw(){
   if(!this.alive)return;
   ctx.strokeStyle='#ffcc02';ctx.lineWidth=1.5;ctx.setLineDash([4,3]);
@@ -798,23 +814,23 @@ class FlameBolt{
     const nx=(s.x-this.x)/Math.hypot(s.x-this.x,s.y-this.y)||1;
     const ny=(s.y-this.y)/Math.hypot(s.x-this.x,s.y-this.y)||0;
     if(this.rodType===0){
-     s.electrified=true;s.electrifiedT=1.0+power*0.2;
+     s.electrified=true;s.electrifiedT=1.4+power*0.3;
      spawnSpark(s.x,s.y,'#ffee00',8);
-     } else if(this.rodType===1){// Fire: 3 true dmg ticks over 3s
-      s.burning=true;s.burnT=3.0+power*0.5;s.burnTickInterval=Math.max(0.75,DEFAULT_BURN_TICK_INTERVAL-power*0.1);s.burnTickT=Math.min(1.0,s.burnTickInterval);
+     } else if(this.rodType===1){// Fire: longer, faster burn ticks
+      s.burning=true;s.burnT=4.0+power*0.65;s.burnTickInterval=Math.max(0.5,DEFAULT_BURN_TICK_INTERVAL-power*0.14);s.burnTickT=Math.min(0.75,s.burnTickInterval);
      spawnFlameExplosion(s.x,s.y);
-    } else if(this.rodType===2){// Water: slow stacking up to 2 in 2s
-     s.waterSlow=Math.min(2+power*0.25,s.waterSlow+1+power*0.15);s.waterSlowT=2.0+power*0.25;
+    } else if(this.rodType===2){// Water: stronger, longer slow stacking
+     s.waterSlow=Math.min(2.8+power*0.35,s.waterSlow+1.35+power*0.22);s.waterSlowT=2.6+power*0.35;
      spawnRingBurst(s.x,s.y,'#44aaff');
     } else if(this.rodType===3){// Wind: knockback + particles
-     s.applyImpact(nx*(180+power*20),ny*(180+power*20));
+     s.applyImpact(nx*(230+power*30),ny*(230+power*30));
      for(let i=0;i<8;i++){const a=Math.random()*Math.PI*2;particles.push({x:s.x,y:s.y,vx:Math.cos(a)*120,vy:Math.sin(a)*120,life:1,maxL:.25,sz:3,col:'#ffffff',sq:false});}
     } else if(this.rodType===4){
-     s.stunned=true;s.stunnedT=0.3+power*0.04;
-     s.applyImpact(nx*(220+power*25),ny*(220+power*25));
+     s.stunned=true;s.stunnedT=0.45+power*0.07;
+     s.applyImpact(nx*(280+power*35),ny*(280+power*35));
      spawnBurst(s.x,s.y,'#886633','#554422',12);
     }
-   const baseKB=(this.rodType===3?40:90)+power*8;
+   const baseKB=(this.rodType===3?55:110)+power*12;
    s.applyImpact(nx*baseKB,ny*baseKB);
    let finalDmg=this.dmg;
    if(s.electrifiedT>0)finalDmg=Math.max(0,finalDmg-1);
@@ -1024,7 +1040,7 @@ class BreathFlame{
    if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+this.r){
     s.receiveDamage(this.dmg);
      s.burning=true;s.burnT=2.0;s.burnTickInterval=WHELPLING_BURN_TICK_INTERVAL;s.burnTickT=WHELPLING_BURN_TICK_INTERVAL;
-    this.owner.gainStack();this.owner._applyHitBuff();
+    this.owner._applyHitBuff();
     if(!this.hasSpawnedZone){this.hasSpawnedZone=true;thornPatches.push(new FireBreathZone(this.x,this.y,this.owner));}
     spawnFlameExplosion(s.x,s.y);
     this.alive=false;return;
@@ -1054,7 +1070,7 @@ class FireBreathZone{
  constructor(x,y,owner){
   this.x=x;this.y=y;this.owner=owner;
   this.r=owner.radius*2.2;
-  this.life=3.0;this.maxLife=3.0;
+  this.life=5.0;this.maxLife=5.0;
   this.tickT=0;this.rot=0;
  }
  update(dt){
@@ -1481,7 +1497,7 @@ class Sphere{
    case 'paladin':
     if(this.stacks>=5){
      this.stacks=0;
-     this.wrathActive=true;this.wrathT=3.5;this.wrathAuraTimer=0;
+     this.wrathActive=true;this.wrathT=5.0;this.wrathAuraTimer=0;
      this.dmgMult=1.4;
      spawnBurst(this.x,this.y,'#f0c040','#fff',20);
      spawnPulse(this.x,this.y,'#f0c040');
@@ -1537,7 +1553,7 @@ class Sphere{
      const ROD_COLORS=['#ffee00','#ff4400','#44aaff','#ffffff','#886633'];
      for(let i=0;i<3;i++){
       const a=(i/3)*Math.PI*2+this.angle;
-      const bolt=new FlameBolt(tip5.x,tip5.y,Math.cos(a)*420,Math.sin(a)*420,(this.d.dmg+2+staffPower)*this.dmgMult,this);
+      const bolt=new FlameBolt(tip5.x,tip5.y,Math.cos(a)*420,Math.sin(a)*420,(this.d.dmg+5+staffPower)*this.dmgMult,this);
       bolt.rodType=this.rodType;bolt.rodCol=ROD_COLORS[this.rodType];bolt.effectPower=staffPower;
       projectiles.push(bolt);
      }
@@ -1742,9 +1758,9 @@ class Sphere{
    case 'crusader':
     if(this.stacks>=3&&this.holyChargeCD<=0){
      this.stacks=0;
-     this.holyChargeActive=true;this.holyChargeT=1.5;this.holyChargeElapsed=0;this.holyChargeCollisionCD=0;
+     this.holyChargeActive=true;this.holyChargeT=2.2;this.holyChargeElapsed=0;this.holyChargeCollisionCD=0;
      this.holyChargeCD=8.0;
-     this.invincible=true;this.invincibleT=1.5;
+     this.invincible=true;this.invincibleT=2.2;
      this.dmgMult=2.0;
      spawnBurst(this.x,this.y,'#fffacc','#c8b870',20);
      spawnPulse(this.x,this.y,'#fffacc');
@@ -2079,8 +2095,9 @@ class Sphere{
     this.vikingLastStandT-=dt;
     if(this.stacks>=4&&!this.vikingRageSpinActive)this._startVikingRageSpin();
     if(this.vikingLastStandT<=0){
-     this.vikingLastStandActive=false;this.vikingRageSpinActive=false;
-     this.hp=0;this.alive=false;this.dying=true;spawnBurst(this.x,this.y,this.d.rim,this.d.color,28);return;
+     this.vikingLastStandActive=false;this.vikingRageSpinActive=false;this.dmgMult=1;
+     this.hp=Math.max(1,this.hp);
+     spawnDmgNum(this.x,this.y-this.radius*1.6,'LAST STAND END','#c8a030');
     }
    }
    if(this.vikingRageSpinActive){
@@ -2167,7 +2184,7 @@ class Sphere{
    if(this.volleyBurstTimer<=0&&this.volleyBurstsLeft>0){
     this._fireVolleyBurst();
     this.volleyBurstsLeft--;
-    this.volleyBurstTimer=2.0;
+    this.volleyBurstTimer=0.6;
    }
    if(this.volleyBurstsLeft<=0||this.volleyWindowT<=0){
     this.volleyActive=false;this.volleyDmgBonus=0;this.volleyWindowT=0;
@@ -2348,7 +2365,7 @@ class Sphere{
    case 'ranger':
     const rangerHpLost=this.maxHp>0?Math.max(0,1-(this.hp/this.maxHp)):0;
     this.critChance=Math.min(0.60,rangerHpLost);
-    this.critDamageBonus=Math.min(0.20,rangerHpLost);
+    this.critDamageBonus=Math.min(0.30,rangerHpLost);
     this.drawCharge=Math.min(1,this.drawCharge+(dt/0.13));
     if(!this.volleyActive&&this.drawCharge>=1&&this.shotCD<=0){
      this.drawCharge=0;this.shotCD=0.14;
@@ -2610,12 +2627,12 @@ class Sphere{
        if(s===this||!s.alive||s.dying)continue;
        const sx=this.singularityX-s.x,sy=this.singularityY-s.y;
        const sd=Math.hypot(sx,sy)||1;
-       const pullStr=Math.min(1,60/sd)*320;
+       const pullStr=Math.min(1,60/sd)*360;
        s.impactVx+=(sx/sd)*pullStr*dt;
        s.impactVy+=(sy/sd)*pullStr*dt;
       }
-      // Tick damage once per 0.8s instead of random every frame
-      if(this._singularityTickT>=0.45){
+      // Tick damage every 0.35s instead of random every frame
+      if(this._singularityTickT>=0.35){
        this._singularityTickT=0;
        for(const s of spheres){
         if(s===this||!s.alive||s.dying)continue;
@@ -2631,9 +2648,9 @@ class Sphere{
     else this.mouthOpenMode=0;
     // Firebreath re-trigger cooldown
     if(this.whelplingFireCooldown>0)this.whelplingFireCooldown=Math.max(0,this.whelplingFireCooldown-dt);
-    // Growing Menace: every 5s grow
+    // Growing Menace: every 4s grow
     this.whelplingGrowTimer+=dt;
-    if(this.whelplingGrowTimer>=5.0){
+    if(this.whelplingGrowTimer>=4.0){
      this.whelplingGrowTimer=0;
      this.whelplingGrowth++;
      const prevR=this.radius;
@@ -2784,7 +2801,7 @@ class Sphere{
   const isCrit=Math.random()<(this.critChance||0);
   const bonus=this.volleyDmgBonus||0;
   const critMult=isCrit?2+(this.critDamageBonus||0):1;
-  const spd=470,dmg=(this.d.dmg+2+bonus)*this.dmgMult*critMult;
+  const spd=470,dmg=(this.d.dmg+3+bonus)*this.dmgMult*critMult;
   if(!isFinite(dmg)||dmg<=0)return; // NaN/Infinity guard
   const arr=new Arrow(tip.x,tip.y,wx*spd,wy*spd,dmg,this);
   arr.isCrit=isCrit;
@@ -2797,7 +2814,7 @@ class Sphere{
   const isCrit=Math.random()<(this.critChance||0);
   const bonus=this.volleyDmgBonus||0;
   const critMult=isCrit?2+(this.critDamageBonus||0):1;
-  const spd=470,dmg=(this.d.dmg+2+bonus)*this.dmgMult*critMult;
+  const spd=470,dmg=(this.d.dmg+3+bonus)*this.dmgMult*critMult;
   if(!isFinite(dmg)||dmg<=0)return; // NaN/Infinity guard
   const angles=[0,-0.22,0.22,-0.44,0.44];
   for(const a of angles){
@@ -2814,7 +2831,7 @@ class Sphere{
   const tip=this.getTip();
   const wx=Math.cos(this.angle),wy=Math.sin(this.angle);
   const ROD_COLORS=['#ffee00','#ff4400','#44aaff','#ffffff','#886633'];
-  const bolt=new FlameBolt(tip.x,tip.y,wx*420,wy*420,(this.d.dmg+2)*this.dmgMult,this);
+  const bolt=new FlameBolt(tip.x,tip.y,wx*420,wy*420,(this.d.dmg+5)*this.dmgMult,this);
   if(this.rodActive){bolt.rodType=this.rodType;bolt.rodCol=ROD_COLORS[this.rodType];bolt.effectPower=this.wizardStaffPower||0;}
   projectiles.push(bolt);
   // Wizard-only projectile cast audio.
@@ -2947,7 +2964,7 @@ class Sphere{
   _onHolyChargeCollision(target,nx,ny){
    if(!this.holyChargeActive||this.holyChargeCollisionCD>0||!target||!target.alive||target.dying)return;
    this.holyChargeCollisionCD=0.25;
-   const remainingCap=Math.max(0,3.5-(this.holyChargeElapsed||0));
+   const remainingCap=Math.max(0,5.0-(this.holyChargeElapsed||0));
    this.holyChargeT=Math.min(remainingCap,this.holyChargeT+0.4);
    this.invincible=true;this.invincibleT=Math.max(this.invincibleT,this.holyChargeT);
    target.receiveDamage(this.d.dmg*2.0);

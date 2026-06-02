@@ -314,7 +314,7 @@ const CLASS_DESC = {
     passive:'Bloodlust — Each landed hit adds +6 speed (max +60). Speed decays at 4/s when not hitting. Taking any damage resets all stacks. Glow orange ring brightens with stacks. Punishes passivity but shatters on being touched.'
   },
   paladin:{
-    ability:'Sacred Wrath (5 stacks) — 3.5s aura dealing 5 dmg/sec to nearby enemies with 1.4× weapon damage. After expiry, briefly slowed to 75% speed for 0.5s.',
+    ability:'Sacred Wrath (5 stacks) — 5s aura dealing 5 dmg/sec to nearby enemies with 1.4× weapon damage. After expiry, briefly slowed to 75% speed for 0.5s.',
     passive:'Holy pulse every 3s: heals 8 HP, fires a 12-damage radial blast, and builds a stack toward Sacred Wrath.'
   },
   ninja:{
@@ -322,16 +322,16 @@ const CLASS_DESC = {
     passive:'Shadow Step — On wall bounce (3s CD), fires 2 shurikens (3- or 4-pointed, random) toward the enemy and briefly becomes untargetable for 0.35s. Purple dashed ring marks the active dodge window.'
   },
   wizard:{
-    ability:'Rod Cycle (4 stacks) — Advances to the next elemental rod, activating it for 8s plus staff power and firing 3 +2 damage bolts. Each staff cycle permanently increases rod duration, bolt damage, and elemental effect strength. Rods cycle: ⚡Lightning (longer weaken) → 🔥Fire (stronger burn) → 💧Water (stronger slow) → 🌀Wind (heavier knockback) → 🌍Earth (longer stun + heavier knockback).',
-    passive:'Continuously fires +2 damage elemental bolts. Active staff power strengthens every rod effect, and Wind rod boosts own speed and spin while active. Ranged kiting behavior keeps distance from enemies.'
+    ability:'Rod Cycle (4 stacks) — Advances to the next elemental rod, activating it for 8s plus staff power and firing 3 +5 damage bolts. Each staff cycle permanently increases rod duration, bolt damage, and stronger elemental effects. Rods cycle: ⚡Lightning (longer weaken) → 🔥Fire (longer, faster burn) → 💧Water (stronger, longer slow) → 🌀Wind (heavier knockback) → 🌍Earth (longer stun + heavier knockback).',
+    passive:'Continuously fires +5 damage elemental bolts. Active staff power strengthens every rod effect, and Wind rod boosts own speed and spin while active. Ranged kiting behavior keeps distance from enemies.'
   },
   berserker:{
     ability:'Orbit Frenzy (5 stacks) — Locks onto enemy and orbits at 3× speed for 2.5s with 1.1× damage boost.',
     passive:'Iron Will — When HP drops below 40%, automatically triggers 0.8s of full knockback immunity (red pulsing shield). 6s cooldown. Lets the Berserker keep swinging at death\'s door instead of being launched away.'
   },
   ranger:{
-    ability:'Volley Shot (4 stacks) — Fires 3 bursts of 5 spread arrows (center + 4 flanking) over 10s with +2 volley bonus damage each. Single shots suppressed during volley.',
-    passive:'Continuously fires +2 damage arrows. Each arrow applies momentum to the target on hit. Kites away from close enemies. Missing HP increases crit damage by 1% per lost HP%, capped at +20%.'
+    ability:'Volley Shot (4 stacks) — Rapidly fires 3 bursts of 5 spread arrows (center + 4 flanking) every 0.6s with +2 volley bonus damage each. Single shots suppressed during volley.',
+    passive:'Continuously fires +3 damage arrows. Each arrow applies momentum to the target on hit. Kites away from close enemies. Missing HP increases crit damage by 1% per lost HP%, capped at +30%.'
   },
   templar:{
     ability:'Slow Field (3 stacks) — Drops a slow zone at current position for 3s with 2.5× sphere radius. Enemies inside are heavily decelerated each frame. Templar spins 2× while active.',
@@ -354,7 +354,7 @@ const CLASS_DESC = {
     passive:'Skull Orbs gain +2 damage and apply faster Death Mark + Wound (halves healing) on hit. Scythe applies Wound. Summons Skeletons after full mark sequences. Kites away from melee.'
   },
   pirate:{
-    ability:'Boarding Action (3 stacks) — Fires a grappling hook that yanks the enemy toward the Pirate with 380 force, dealing 1.5× DMG on contact.',
+    ability:'Boarding Action (3 stacks) — Fires a grappling hook that yanks the enemy toward the Pirate with 380 force, dealing 1.5× DMG on contact. Wall hits hook the Pirate toward the wall.',
     passive:'While Draining (1+ stacks): heals 0.5 HP/sec passively and leeches 15% of melee damage dealt. Cutlass also pulls enemies on hit rather than pushing them.'
   },
   jester:{
@@ -418,7 +418,7 @@ const CLASS_DESC = {
     passive:'Tidal Momentum — Movement speed scales by 1.4× near walls (within 60px) and 0.85× near the arena center. Favors the edges.'
   },
   crusader:{
-    ability:'Holy Charge (3 stacks) — Starts at 1.5s and becomes immune to knockback while dealing 2.0× collision damage. Each collision extends the charge by 0.4s, capped at 3.5s total.',
+    ability:'Holy Charge (3 stacks) — Starts at 2.2s and becomes immune to knockback while dealing 2.0× collision damage. Each collision extends the charge by 0.4s, capped at 5s total.',
     passive:'Retribution — Incoming damage charges a Retribution counter. The next weapon hit discharges all stored damage as a bonus, then resets. Big hits pay dividends.'
   },
   mimic:{
@@ -430,12 +430,12 @@ const CLASS_DESC = {
     passive:'Static Charge — The faster the Stormbringer moves, the more electric charge builds. Stored charge (up to 30) discharges as bonus true damage on the next weapon hit, then resets.'
   },
   voidwalker:{
-    ability:'Singularity (3 stacks) — Places a black hole at current position for 2.5s that continuously drags all enemies inward while dealing tick damage.',
+    ability:'Singularity (3 stacks) — Places a black hole at current position for 2.5s with stronger suction that continuously drags all enemies inward while dealing faster tick damage.',
     passive:'Void Tears — Wall bounces leave lingering void tears for 3s. Enemies passing through a tear are briefly slowed and take a burst of magic damage.'
   },
   whelpling:{
-    ability:'Firebreath (3 stacks) — Sprays a cone of fire forward (3 flames) that lingers as a burning zone for 3s. Enemies inside take 2 true dmg/tick (once per 0.5s, no zone stacking) and gain faster Burning that ticks every 0.75s.',
-    passive:'Growing Menace — Every 5 seconds, the Whelpling\'s mass, radius, and max HP all grow slightly (+1 mass, +2 radius, +15 maxHP) — becoming harder and harder to launch.'
+    ability:'Firebreath (3 stacks) — Sprays a cone of fire forward (3 flames) that lingers as a burning zone for 5s. Enemies inside take 2 true dmg/tick (once per 0.5s, no zone stacking) and gain faster Burning that ticks every 0.75s.',
+    passive:'Growing Menace — Every 4 seconds, the Whelpling\'s mass, radius, and max HP all grow slightly (+1 mass, +2 radius, +15 maxHP) — becoming harder and harder to launch.'
   },
 };
 
