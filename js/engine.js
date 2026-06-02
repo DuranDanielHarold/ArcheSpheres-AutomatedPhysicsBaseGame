@@ -510,6 +510,27 @@ class Shuriken{
   ctx.restore();
  }
 }
+
+function _unstickTricksterFromWeapon(att,def,pts,tipR){
+ if(def.key!=='trickster'&&!def.isReplica)return;
+ let pushX=0,pushY=0,total=0;
+ for(const pt of pts){
+  const dx=def.x-pt.x,dy=def.y-pt.y;
+  const dist=Math.hypot(dx,dy)||0.01;
+  const overlap=def.radius+tipR-dist;
+  if(overlap<=0)continue;
+  const weight=overlap+2;
+  pushX+=(dx/dist)*weight;pushY+=(dy/dist)*weight;total+=weight;
+ }
+ if(total<=0)return;
+ const mag=Math.hypot(pushX,pushY)||1;
+ const nx=pushX/mag,ny=pushY/mag;
+ const escape=Math.min(def.radius*0.6,total*0.22);
+ def.x+=nx*escape;def.y+=ny*escape;
+ def.applyImpact(nx*45,ny*45);
+ att.hasHitThisSwing=false;
+}
+
 function _weaponHit(att,def){
  if(sameFaction(att,def))return;
  if(def.untargetable)return; // vampire ghost mode — weapons pass through ghost vampire
@@ -541,6 +562,7 @@ function _weaponHit(att,def){
   if(d<def.radius+tipR&&d<hitDist){hit=true;hitPt=pt;hitDist=d;}
  }
  const tip=att.getTip();
+ if(hit)_unstickTricksterFromWeapon(att,def,pts,tipR);
  if(hit&&!att.hasHitThisSwing){
   att.hasHitThisSwing=true;
   if(att.blinded&&Math.random()<0.30){spawnDmgNum(att.x,att.y-att.radius*1.4,'MISS','#ffee44');return;} // blind: 30% miss
