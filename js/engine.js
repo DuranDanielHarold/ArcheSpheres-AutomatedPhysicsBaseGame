@@ -528,7 +528,6 @@ function _unstickTricksterFromWeapon(att,def,pts,tipR){
  const escape=Math.min(def.radius*0.6,total*0.22);
  def.x+=nx*escape;def.y+=ny*escape;
  def.applyImpact(nx*45,ny*45);
- att.hasHitThisSwing=false;
 }
 
 function _weaponHit(att,def){
