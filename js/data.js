@@ -322,16 +322,16 @@ const CLASS_DESC = {
     passive:'Shadow Step — On wall bounce (3s CD), fires 2 shurikens (3- or 4-pointed, random) toward the enemy and briefly becomes untargetable for 0.35s. Purple dashed ring marks the active dodge window.'
   },
   wizard:{
-    ability:'Rod Cycle (4 stacks) — Advances to the next elemental rod, activating it for 8s plus staff power and firing 3 +2 damage bolts. Each staff cycle permanently increases rod duration, bolt damage, and elemental effect strength. Rods cycle: ⚡Lightning (longer weaken) → 🔥Fire (stronger burn) → 💧Water (stronger slow) → 🌀Wind (heavier knockback) → 🌍Earth (longer stun + heavier knockback).',
-    passive:'Continuously fires +2 damage elemental bolts. Active staff power strengthens every rod effect, and Wind rod boosts own speed and spin while active. Ranged kiting behavior keeps distance from enemies.'
+    ability:'Rod Cycle (4 stacks) — Advances to the next elemental rod, activating it for 8s plus staff power and firing 3 +5 damage bolts. Each staff cycle permanently increases rod duration, bolt damage, and stronger elemental effects. Rods cycle: ⚡Lightning (longer weaken) → 🔥Fire (longer, faster burn) → 💧Water (stronger, longer slow) → 🌀Wind (heavier knockback) → 🌍Earth (longer stun + heavier knockback).',
+    passive:'Continuously fires +5 damage elemental bolts. Active staff power strengthens every rod effect, and Wind rod boosts own speed and spin while active. Ranged kiting behavior keeps distance from enemies.'
   },
   berserker:{
     ability:'Orbit Frenzy (5 stacks) — Locks onto enemy and orbits at 3× speed for 2.5s with 1.1× damage boost.',
     passive:'Iron Will — When HP drops below 40%, automatically triggers 0.8s of full knockback immunity (red pulsing shield). 6s cooldown. Lets the Berserker keep swinging at death\'s door instead of being launched away.'
   },
   ranger:{
-    ability:'Volley Shot (4 stacks) — Fires 3 bursts of 5 spread arrows (center + 4 flanking) over 10s with +2 volley bonus damage each. Single shots suppressed during volley.',
-    passive:'Continuously fires +2 damage arrows. Each arrow applies momentum to the target on hit. Kites away from close enemies. Missing HP increases crit damage by 1% per lost HP%, capped at +20%.'
+    ability:'Volley Shot (4 stacks) — Rapidly fires 3 bursts of 5 spread arrows (center + 4 flanking) every 0.6s with +2 volley bonus damage each. Single shots suppressed during volley.',
+    passive:'Continuously fires +3 damage arrows. Each arrow applies momentum to the target on hit. Kites away from close enemies. Missing HP increases crit damage by 1% per lost HP%, capped at +30%.'
   },
   templar:{
     ability:'Slow Field (3 stacks) — Drops a slow zone at current position for 3s with 2.5× sphere radius. Enemies inside are heavily decelerated each frame. Templar spins 2× while active.',
