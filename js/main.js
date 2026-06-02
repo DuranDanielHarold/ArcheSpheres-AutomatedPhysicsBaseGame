@@ -52,6 +52,7 @@ function newBattle(){
  winDone=false;paused=false;
  document.getElementById('pbtn').textContent='PAUSE';
  spheres=[];particles=[];projectiles=[];afterimages=[];noiseTraps=[];slowZones=[];thornPatches=[];skeletons=[];dmgNums=[];bloodSplats=[];miasmaClouds=[];
+ if(typeof _burialMoundSeq!=='undefined')_burialMoundSeq=0;
  if(typeof _preloadConfiguredAudio==='function')_preloadConfiguredAudio();
  if(typeof _syncArenaBgm==='function')_syncArenaBgm();
  resize();
