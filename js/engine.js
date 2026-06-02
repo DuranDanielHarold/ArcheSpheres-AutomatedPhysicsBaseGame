@@ -642,6 +642,8 @@ function _weaponHit(att,def){
     if(def.bleedTickT<=0)def.bleedTickT=0.5;
     spawnSpark(hx,hy,'#e74c3c',4);
     }
+    // Ratcatcher — Rat Pack: each weapon hit releases one hunting rat.
+    if(traits&&att.key==='ratcatcher')att._spawnRatBurst(1,false);
     spawnSpark(hx,hy,att.d.rim,7);
     spawnImpactBurst(hx,hy,att.d.rim,def.d.color);
      if(traits&&att.key==='phoenix')att._releasePhoenixEmber(def,hx,hy);
@@ -689,6 +691,16 @@ function _weaponHit(att,def){
  const bladeStillInside=pts.some(pt=>Math.hypot(pt.x-def.x,pt.y-def.y)<def.radius+tipR);
  if(!bladeStillInside)att.hasHitThisSwing=false;
 }
+function _applyLocksmithLock(att,def){
+ def.locksmithLocks=Math.min(5,(def.locksmithLocks||0)+1);
+ spawnDmgNum(def.x,def.y-def.radius*1.7,`LOCK ${def.locksmithLocks}/5`,'#d0b45a');
+ if(def.locksmithLocks>=5){
+  def.locksmithJamT=Math.max(def.locksmithJamT||0,0.75);
+  def.locksmithLocks=0;
+  spawnBurst(def.x,def.y,'#d0b45a','#24313a',12);
+  spawnDmgNum(def.x,def.y-def.radius*2.0,'JAMMED','#d0b45a');
+ }
+}
 function _weaponClash(a,b){
  
  if(a.weaponHitCD>0||b.weaponHitCD>0)return;
@@ -721,6 +733,10 @@ function _weaponClash(a,b){
  else if(SPHERE_AUDIO[b.key]&&SPHERE_AUDIO[b.key].weaponCollision)_playSphereAudio(b.key,'weaponCollision');
  spawnSpark(mx,my,'#ffe066',10);spawnSpark(mx,my,'#fff',6);
  spawnImpactBurst(mx,my,'#ffe066','#fff');
+ if(a.canTriggerTraits!==false&&a.key==='locksmith')_applyLocksmithLock(a,b);
+ if(b.canTriggerTraits!==false&&b.key==='locksmith')_applyLocksmithLock(b,a);
+ if(a.canTriggerTraits!==false&&a.key==='glassblower')a._dropGlassShard(mx,my);
+ if(b.canTriggerTraits!==false&&b.key==='glassblower')b._dropGlassShard(mx,my);
  const bx=b.x-a.x,by2=b.y-a.y,bd=Math.hypot(bx,by2)||1;
  a.applyImpact(-(bx/bd)*80,-(by2/bd)*80);b.applyImpact((bx/bd)*80,(by2/bd)*80);
 }
