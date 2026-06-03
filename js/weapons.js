@@ -5,37 +5,78 @@
 const WEAPONS={
  broadsword(ctx,r,d,s){
   const L=r*2.1,th=r*.14,gW=r*.7;
-  ctx.fillStyle='#806010';ctx.fillRect(r*.65,-gW/2,r*.2,gW);
-  ctx.fillStyle='#ccaa40';ctx.fillRect(r*.66,-gW/2+1,r*.18,3);
-  ctx.fillStyle=d.wcol;ctx.fillRect(r*.85,-th/2,L,th);
-  ctx.fillStyle=d.wdrk;ctx.fillRect(r*.85,th*.2,L*.92,th*.4);
-  ctx.fillStyle='#eef';ctx.fillRect(r*.85,-th*.4,L*.6,th*.18);
-  ctx.fillStyle=d.wcol;
-  ctx.beginPath();ctx.moveTo(r*.85+L,-th/2);ctx.lineTo(r*.85+L+r*.3,0);ctx.lineTo(r*.85+L,th/2);ctx.closePath();ctx.fill();
-  ctx.strokeStyle='#223';ctx.lineWidth=1.2;ctx.strokeRect(r*.85,-th/2,L,th);
-  if(s&&s.invincible){ctx.shadowColor='#fff';ctx.shadowBlur=12;ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.strokeRect(r*.85,-th/2,L,th);ctx.shadowBlur=0;}
+  const x0=r*.85,x1=x0+L,tip=x1+r*.3;
+  ctx.save();
+  // Crossguard and wrapped grip stay within the original guard footprint.
+  const guardGrad=ctx.createLinearGradient(r*.65,-gW/2,r*.85,gW/2);
+  guardGrad.addColorStop(0,'#4d3508');guardGrad.addColorStop(0.45,'#d7b750');guardGrad.addColorStop(1,'#6a4710');
+  ctx.fillStyle=guardGrad;ctx.fillRect(r*.65,-gW/2,r*.2,gW);
+  ctx.strokeStyle='#2b1a04';ctx.lineWidth=Math.max(1,r*.018);ctx.strokeRect(r*.65,-gW/2,r*.2,gW);
+  ctx.fillStyle='#f4d97a';ctx.fillRect(r*.66,-gW/2+1,r*.18,3);
+  ctx.beginPath();ctx.arc(r*.75,-gW*.42,r*.075,0,Math.PI*2);ctx.arc(r*.75,gW*.42,r*.075,0,Math.PI*2);ctx.fill();
+
+  // Same start, length, and tip endpoint as the old stick blade; richer silhouette only.
+  const bladeGrad=ctx.createLinearGradient(x0,-th,x0,th);
+  bladeGrad.addColorStop(0,'#f7fbff');bladeGrad.addColorStop(0.28,d.wcol);bladeGrad.addColorStop(0.52,'#9fb3c2');bladeGrad.addColorStop(0.74,d.wdrk);bladeGrad.addColorStop(1,'#eef6ff');
+  ctx.fillStyle=bladeGrad;
+  ctx.beginPath();
+  ctx.moveTo(x0,-th/2);ctx.lineTo(x1,-th/2);ctx.lineTo(tip,0);ctx.lineTo(x1,th/2);ctx.lineTo(x0,th/2);ctx.closePath();ctx.fill();
+  ctx.strokeStyle='#22313d';ctx.lineWidth=Math.max(1.2,r*.025);ctx.stroke();
+
+  // Central fuller and edge highlights add broadsword character without changing hitbox geometry.
+  ctx.strokeStyle='rgba(48,66,82,.52)';ctx.lineWidth=Math.max(1,r*.018);ctx.beginPath();ctx.moveTo(x0+r*.16,0);ctx.lineTo(x1-r*.12,0);ctx.stroke();
+  ctx.strokeStyle='rgba(255,255,255,.72)';ctx.lineWidth=Math.max(1,r*.016);ctx.beginPath();ctx.moveTo(x0+r*.08,-th*.31);ctx.lineTo(x1-r*.08,-th*.31);ctx.lineTo(tip-r*.14,-th*.06);ctx.stroke();
+  ctx.strokeStyle='rgba(40,55,70,.45)';ctx.beginPath();ctx.moveTo(x0+r*.1,th*.3);ctx.lineTo(x1-r*.08,th*.3);ctx.lineTo(tip-r*.14,th*.06);ctx.stroke();
+
+  // Ricasso collar and small pommel detail.
+  ctx.fillStyle='#6d4a12';ctx.fillRect(x0-r*.05,-th*.72,r*.12,th*1.44);
+  ctx.strokeStyle='#2b1a04';ctx.lineWidth=Math.max(1,r*.014);ctx.strokeRect(x0-r*.05,-th*.72,r*.12,th*1.44);
+  ctx.fillStyle='#caa542';ctx.beginPath();ctx.arc(r*.58,0,r*.095,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#3b2606';ctx.stroke();
+  if(s&&s.invincible){ctx.shadowColor='#fff';ctx.shadowBlur=12;ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x0,-th/2);ctx.lineTo(x1,-th/2);ctx.lineTo(tip,0);ctx.lineTo(x1,th/2);ctx.lineTo(x0,th/2);ctx.closePath();ctx.stroke();ctx.shadowBlur=0;}
+  ctx.restore();
  },
  nodachi(ctx,r,d,s){
   const L=r*3.3,th=r*.065;
-  ctx.fillStyle='#3a1a08';ctx.fillRect(r*.6,-th,r*.55,th*2);
-  ctx.fillStyle='#c8a060';
-  for(let i=0;i<4;i++)ctx.fillRect(r*.6+i*r*.13,-th*.9,r*.08,th*1.8);
-  ctx.fillStyle='#806030';
-  ctx.beginPath();ctx.ellipse(r*1.15,0,r*.09,r*.3,0,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='#444';ctx.lineWidth=1;ctx.stroke();
+  const x0=r*1.24,xTip=x0+L;
+  ctx.save();
+  // Long wrapped handle and oval guard retain their original footprint.
+  const gripGrad=ctx.createLinearGradient(r*.6,-th*1.1,r*1.15,th*1.1);
+  gripGrad.addColorStop(0,'#1f0d04');gripGrad.addColorStop(0.5,'#4a210c');gripGrad.addColorStop(1,'#2a1206');
+  ctx.fillStyle=gripGrad;ctx.fillRect(r*.6,-th,r*.55,th*2);
+  ctx.strokeStyle='#120804';ctx.lineWidth=Math.max(1,r*.012);ctx.strokeRect(r*.6,-th,r*.55,th*2);
+  ctx.strokeStyle='#c8a060';ctx.lineWidth=Math.max(1,r*.028);
+  for(let i=0;i<4;i++){const x=r*(.64+i*.13);ctx.beginPath();ctx.moveTo(x,-th*.95);ctx.lineTo(x+r*.08,th*.95);ctx.stroke();}
+  const guardGrad=ctx.createRadialGradient(r*1.12,-r*.05,r*.02,r*1.15,0,r*.31);
+  guardGrad.addColorStop(0,'#e0b870');guardGrad.addColorStop(0.56,'#806030');guardGrad.addColorStop(1,'#2b1b10');
+  ctx.fillStyle=guardGrad;ctx.beginPath();ctx.ellipse(r*1.15,0,r*.09,r*.3,0,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#302418';ctx.lineWidth=1;ctx.stroke();
+
+  // Same blade start/end and slim thickness, with katana-like curve and polished facets.
   ctx.beginPath();
-  ctx.moveTo(r*1.24,-th/2);
-  ctx.quadraticCurveTo(r*2.4,-th*1.2,r*1.24+L,-th*.15);
-  ctx.lineTo(r*1.24+L,th*.15);
-  ctx.quadraticCurveTo(r*2.4,th*.4,r*1.24,th/2);
+  ctx.moveTo(x0,-th/2);
+  ctx.quadraticCurveTo(r*2.4,-th*1.2,xTip,-th*.15);
+  ctx.lineTo(xTip,th*.15);
+  ctx.quadraticCurveTo(r*2.4,th*.4,x0,th/2);
   ctx.closePath();
-  ctx.fillStyle=d.wcol;ctx.fill();
-  ctx.fillStyle='rgba(255,255,255,.28)';
-  ctx.beginPath();ctx.moveTo(r*1.24,-th/2);ctx.quadraticCurveTo(r*2.4,-th*1.1,r*1.24+L,-th*.15);ctx.lineTo(r*1.24+L,0);ctx.quadraticCurveTo(r*2.4,-th*.5,r*1.24,-th*.15);ctx.closePath();ctx.fill();
+  const bladeGrad=ctx.createLinearGradient(x0,-th*1.5,x0,th*1.5);
+  bladeGrad.addColorStop(0,'#f8f4dc');bladeGrad.addColorStop(0.32,d.wcol);bladeGrad.addColorStop(0.6,'#9a927d');bladeGrad.addColorStop(1,d.wdrk);
+  ctx.fillStyle=bladeGrad;ctx.fill();
+  ctx.strokeStyle='#3c382f';ctx.lineWidth=Math.max(1,r*.017);ctx.stroke();
+
+  // Bright cutting edge and darker spine follow the existing curve; no geometry changes.
+  ctx.strokeStyle='rgba(255,255,245,.72)';ctx.lineWidth=Math.max(1,r*.018);
+  ctx.beginPath();ctx.moveTo(x0+r*.08,-th*.42);ctx.quadraticCurveTo(r*2.45,-th*1.0,xTip-r*.12,-th*.12);ctx.stroke();
+  ctx.strokeStyle='rgba(72,64,48,.48)';ctx.lineWidth=Math.max(1,r*.014);
+  ctx.beginPath();ctx.moveTo(x0+r*.08,th*.32);ctx.quadraticCurveTo(r*2.45,th*.2,xTip-r*.15,th*.08);ctx.stroke();
+  ctx.strokeStyle='rgba(255,255,255,.30)';ctx.lineWidth=Math.max(1,r*.012);
+  ctx.beginPath();ctx.moveTo(x0+r*.18,-th*.06);ctx.quadraticCurveTo(r*2.5,-th*.55,xTip-r*.25,-th*.02);ctx.stroke();
+
   if(s&&s.spiralActive){
    ctx.fillStyle='rgba(255,220,80,.38)';
-   ctx.beginPath();ctx.moveTo(r*1.24,-th*2);ctx.lineTo(r*1.24+L+r*.4,0);ctx.lineTo(r*1.24,th*2);ctx.closePath();ctx.fill();
+   ctx.beginPath();ctx.moveTo(x0,-th*2);ctx.lineTo(xTip+r*.4,0);ctx.lineTo(x0,th*2);ctx.closePath();ctx.fill();
   }
+  ctx.restore();
  },
  battleaxe(ctx,r,d,s){
   const sL=r*1.7,sT=r*.1;
@@ -2074,17 +2115,39 @@ const WEAPONS={
  },
  knottedscourge(ctx,r,d,s){
   ctx.save();
-  ctx.fillStyle='#6b3020';ctx.fillRect(r*.55,-r*.07,r*.55,r*.14);
-  ctx.strokeStyle='#d8b06a';ctx.lineWidth=r*.025;ctx.strokeRect(r*.55,-r*.07,r*.55,r*.14);
-  const tails=5,t=performance.now()/1000;
+  const t=performance.now()/1000;
+  const spin=Math.abs(s?.omegaCur||d.om||1);
+  const flow=Math.max(-1,Math.min(1,(s?.omegaCur||d.om||1)/(Math.max(1,d.om)*1.4)));
+  ctx.fillStyle='#6b3020';ctx.fillRect(r*.55,-r*.08,r*.62,r*.16);
+  ctx.strokeStyle='#d8b06a';ctx.lineWidth=r*.025;ctx.strokeRect(r*.55,-r*.08,r*.62,r*.16);
+  ctx.fillStyle='rgba(216,176,106,.85)';ctx.beginPath();ctx.arc(r*1.13,0,r*.12,0,Math.PI*2);ctx.fill();
+  const tails=6;
   for(let i=0;i<tails;i++){
-   const off=(i-(tails-1)/2)*r*.11;
-   ctx.strokeStyle=i%2?d.wdrk:d.wcol;ctx.lineWidth=r*.045;ctx.lineCap='round';
-   ctx.beginPath();ctx.moveTo(r*1.05,off);
-   ctx.bezierCurveTo(r*1.55,off+Math.sin(t*7+i)*r*.16,r*2.1,off+Math.cos(t*6+i)*r*.24,r*2.85,off*1.4);
-   ctx.stroke();
+   const off=(i-(tails-1)/2)*r*.105;
+   const phase=t*(5.5+spin*.25)+i*.9;
+   const curl=flow*r*(.26+.03*i);
+   const tipLift=Math.sin(phase*1.22)*r*.28+curl;
+   ctx.strokeStyle=i%2?d.wdrk:d.wcol;ctx.lineWidth=r*(.052-i*.003);ctx.lineCap='round';ctx.lineJoin='round';
+   ctx.beginPath();ctx.moveTo(r*1.08,off);
+   let px=r*1.08,py=off;
+   for(let k=1;k<=5;k++){
+    const p=k/5;
+    const x=r*(1.08+p*1.95);
+    const wave=Math.sin(phase+p*5.2)*r*(.12+p*.2);
+    const sag=Math.sin(p*Math.PI)*r*.13;
+    const y=off*(1+p*.7)+wave+tipLift*p*p+sag;
+    const mx=(px+x)/2,my=(py+y)/2;
+    ctx.quadraticCurveTo(px,my,mx,my);
+    px=x;py=y;
+   }
+   ctx.lineTo(px,py);ctx.stroke();
    ctx.fillStyle='#d8b06a';
-   for(let k=0;k<3;k++){const x=r*(1.55+k*.42),y=off+Math.sin(t*7+i+k)*r*.14;ctx.beginPath();ctx.arc(x,y,r*.045,0,Math.PI*2);ctx.fill();}
+   for(let k=1;k<=3;k++){
+    const p=(k+.25)/4.5;
+    const x=r*(1.08+p*1.95);
+    const y=off*(1+p*.7)+Math.sin(phase+p*5.2)*r*(.12+p*.2)+tipLift*p*p+Math.sin(p*Math.PI)*r*.13;
+    ctx.beginPath();ctx.arc(x,y,r*.047,0,Math.PI*2);ctx.fill();
+   }
   }
   ctx.restore();
  },

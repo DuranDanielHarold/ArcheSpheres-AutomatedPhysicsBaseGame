@@ -41,11 +41,11 @@ const DEF = {
   stormbringer:{label:'Stormbrngr',weapon:'Lightning Chain',ab:'Thunderclap',       color:'#1a1a3a',dark:'#0d0d1e',rim:'#88ccff',out:'#050510',wcol:'#88ccff',wdrk:'#2244aa', mass:5.5, spd:255, hp:420, om:8.0, dmg:4.2, arm:75,  magDef:42, rest:.78, reach:2.4, tipR:0.30, wt:'lightningchain'},
   voidwalker: {label:'Void Walker',weapon:'Gravity Spike', ab:'Singularity',        color:'#080808',dark:'#000000',rim:'#aa44ff',out:'#000000',wcol:'#aa44ff',wdrk:'#550088', mass:6,   spd:228, hp:450, om:6.0, dmg:4.5, arm:85,  magDef:50, rest:.70, reach:3.0, tipR:0.20, wt:'gravityspike'},
   whelpling:  {label:'Whelpling', weapon:'Dragon Bite',     ab:'Firebreath',        color:'#5a1010',dark:'#2a0808',rim:'#ff6600',out:'#1a0400',wcol:'#ff6600',wdrk:'#cc2200', mass:8,   spd:222, hp:500, om:5.0, dmg:5.0, arm:100, magDef:35, rest:.62, reach:2.2, tipR:0.50, wt:'dragonbite'},
-  gravedigger:{label:'Gravedigger',weapon:'Rusty Shovel',   ab:'Exhume',            color:'#3f3326',dark:'#1f1810',rim:'#a7834b',out:'#120d08',wcol:'#9a8a72',wdrk:'#5f4b35', mass:10,  spd:198, hp:500, om:3.9, dmg:4.6, arm:115, magDef:34, rest:.58, reach:3.1, tipR:0.42, wt:'rustyshovel'},
+  gravedigger:{label:'Gravedigger',weapon:'Rusty Shovel',   ab:'Exhume',            color:'#4d6170',dark:'#1d2a31',rim:'#9fc3b3',out:'#0b1518',wcol:'#9a8a72',wdrk:'#5f4b35', mass:10,  spd:198, hp:500, om:3.9, dmg:4.6, arm:115, magDef:34, rest:.58, reach:3.1, tipR:0.42, wt:'rustyshovel'},
   flagellant: {label:'Flagellant', weapon:'Knotted Scourge',ab:'Penitence',         color:'#4a1116',dark:'#210609',rim:'#d8b06a',out:'#120304',wcol:'#c49a62',wdrk:'#6b3020', mass:6,   spd:238, hp:430, om:6.8, dmg:2.4, arm:62,  magDef:30, rest:.78, reach:3.2, tipR:0.18, wt:'knottedscourge'},
-  ratcatcher: {label:'Ratcatcher', weapon:'Catching Pole',  ab:'Infestation',       color:'#2f3520',dark:'#151a0e',rim:'#b7c06a',out:'#0b0d07',wcol:'#b0a070',wdrk:'#5f5230', mass:5.5, spd:246, hp:410, om:6.2, dmg:3.0, arm:74,  magDef:27, rest:.76, reach:4.4, tipR:0.10, wt:'catchingpole'},
+  ratcatcher: {label:'Ratcatcher', weapon:'Catching Pole',  ab:'Infestation',       color:'#111111',dark:'#050505',rim:'#b7c06a',out:'#000000',wcol:'#b0a070',wdrk:'#5f5230', mass:5.5, spd:246, hp:410, om:6.2, dmg:3.0, arm:74,  magDef:27, rest:.76, reach:4.4, tipR:0.10, wt:'catchingpole'},
   locksmith:  {label:'Locksmith',  weapon:'Prison Keys',    ab:'Master Key',        color:'#24313a',dark:'#101920',rim:'#d0b45a',out:'#071014',wcol:'#d6c06a',wdrk:'#6a5320', mass:6.5, spd:226, hp:440, om:7.6, dmg:3.4, arm:92,  magDef:42, rest:.72, reach:2.3, tipR:0.30, wt:'keyring'},
-  glassblower:{label:'Glassblower',weapon:'Furnace Pipe',   ab:'Kiln Detonation',  color:'#12353a',dark:'#07181b',rim:'#82f4ff',out:'#031012',wcol:'#ffb060',wdrk:'#b34818', mass:5,   spd:232, hp:390, om:5.8, dmg:3.2, arm:58,  magDef:55, rest:.80, reach:3.7, tipR:0.13, wt:'blowpipe'},
+  glassblower:{label:'Glassblower',weapon:'Furnace Pipe',   ab:'Kiln Detonation',  color:'#ffffff',dark:'#dfefff',rim:'#82f4ff',out:'#d8ffff',bodyAlpha:.52,wcol:'#ffb060',wdrk:'#b34818', mass:5,   spd:232, hp:390, om:5.8, dmg:3.2, arm:58,  magDef:55, rest:.80, reach:3.7, tipR:0.13, wt:'blowpipe'},
 };
 
 // Audio placeholder map for future asset wiring.
@@ -475,14 +475,14 @@ const CLASS_DESC = {
   },
   gravedigger:{
     ability:'Exhume (4 stacks) — Teleports to the oldest surviving Burial Mound, gains 1.8× spin and 0.6s invincibility on arrival. Burial Mounds persist only for the current battle and reset on each new battle.',
-    passive:'Burial Mounds — Every wall bounce buries a mound at the current position. Enemies crossing a mound are briefly slowed and lose 3% current HP. Mounds persist for the current battle, building a denser minefield over time.'
+    passive:'Burial Mounds — Every 6th wall contact buries a mound at the current position if it would not overlap an existing mound. Enemies crossing a mound are briefly slowed and lose 3% current HP.'
   },
   flagellant:{
     ability:'Penitence (3 stacks) — Deals 25 true self-damage, grants 1.5s invincibility during the ritual, and releases a contact-range shockwave that deals the same 25 damage to enemies.',
     passive:'Sacred Wounds — Every 15 HP lost permanently increases damage output by +0.8 and spin by +0.4. Losing health turns the Flagellant into a mounting offensive threat.'
   },
   ratcatcher:{
-    ability:'Infestation (3 stacks) — Releases 12 rats in all directions. Rats that reach an enemy apply Gnawed, reducing armor by 6 for 8s, stacking up to 5 times.',
+    ability:'Infestation (3 stacks) — Releases 12 rats in all directions. Rats that reach an enemy bite for damage and apply Gnawed, reducing armor by 6 for 8s, stacking up to 5 times.',
     passive:'Rat Pack — Each weapon hit releases a rat that hunts the enemy and deals 1 true damage per second for 5 seconds. Rats accumulate into a persistent attrition swarm.'
   },
   locksmith:{
