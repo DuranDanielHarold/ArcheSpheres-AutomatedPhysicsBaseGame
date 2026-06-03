@@ -2074,17 +2074,39 @@ const WEAPONS={
  },
  knottedscourge(ctx,r,d,s){
   ctx.save();
-  ctx.fillStyle='#6b3020';ctx.fillRect(r*.55,-r*.07,r*.55,r*.14);
-  ctx.strokeStyle='#d8b06a';ctx.lineWidth=r*.025;ctx.strokeRect(r*.55,-r*.07,r*.55,r*.14);
-  const tails=5,t=performance.now()/1000;
+  const t=performance.now()/1000;
+  const spin=Math.abs(s?.omegaCur||d.om||1);
+  const flow=Math.max(-1,Math.min(1,(s?.omegaCur||d.om||1)/(Math.max(1,d.om)*1.4)));
+  ctx.fillStyle='#6b3020';ctx.fillRect(r*.55,-r*.08,r*.62,r*.16);
+  ctx.strokeStyle='#d8b06a';ctx.lineWidth=r*.025;ctx.strokeRect(r*.55,-r*.08,r*.62,r*.16);
+  ctx.fillStyle='rgba(216,176,106,.85)';ctx.beginPath();ctx.arc(r*1.13,0,r*.12,0,Math.PI*2);ctx.fill();
+  const tails=6;
   for(let i=0;i<tails;i++){
-   const off=(i-(tails-1)/2)*r*.11;
-   ctx.strokeStyle=i%2?d.wdrk:d.wcol;ctx.lineWidth=r*.045;ctx.lineCap='round';
-   ctx.beginPath();ctx.moveTo(r*1.05,off);
-   ctx.bezierCurveTo(r*1.55,off+Math.sin(t*7+i)*r*.16,r*2.1,off+Math.cos(t*6+i)*r*.24,r*2.85,off*1.4);
-   ctx.stroke();
+   const off=(i-(tails-1)/2)*r*.105;
+   const phase=t*(5.5+spin*.25)+i*.9;
+   const curl=flow*r*(.26+.03*i);
+   const tipLift=Math.sin(phase*1.22)*r*.28+curl;
+   ctx.strokeStyle=i%2?d.wdrk:d.wcol;ctx.lineWidth=r*(.052-i*.003);ctx.lineCap='round';ctx.lineJoin='round';
+   ctx.beginPath();ctx.moveTo(r*1.08,off);
+   let px=r*1.08,py=off;
+   for(let k=1;k<=5;k++){
+    const p=k/5;
+    const x=r*(1.08+p*1.95);
+    const wave=Math.sin(phase+p*5.2)*r*(.12+p*.2);
+    const sag=Math.sin(p*Math.PI)*r*.13;
+    const y=off*(1+p*.7)+wave+tipLift*p*p+sag;
+    const mx=(px+x)/2,my=(py+y)/2;
+    ctx.quadraticCurveTo(px,my,mx,my);
+    px=x;py=y;
+   }
+   ctx.lineTo(px,py);ctx.stroke();
    ctx.fillStyle='#d8b06a';
-   for(let k=0;k<3;k++){const x=r*(1.55+k*.42),y=off+Math.sin(t*7+i+k)*r*.14;ctx.beginPath();ctx.arc(x,y,r*.045,0,Math.PI*2);ctx.fill();}
+   for(let k=1;k<=3;k++){
+    const p=(k+.25)/4.5;
+    const x=r*(1.08+p*1.95);
+    const y=off*(1+p*.7)+Math.sin(phase+p*5.2)*r*(.12+p*.2)+tipLift*p*p+Math.sin(p*Math.PI)*r*.13;
+    ctx.beginPath();ctx.arc(x,y,r*.047,0,Math.PI*2);ctx.fill();
+   }
   }
   ctx.restore();
  },
