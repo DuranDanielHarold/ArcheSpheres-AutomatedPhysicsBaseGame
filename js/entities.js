@@ -1654,6 +1654,9 @@ class Sphere{
   if(this.key==='glassblower')this._dropGlassShard();
  }
  _buryMound(){
+  const r=this.radius*1.35;
+  const overlaps=noiseTraps.some(n=>n instanceof BurialMound&&n.alive&&Math.hypot(n.x-this.x,n.y-this.y)<n.r+r+2);
+  if(overlaps)return;
   noiseTraps.push(new BurialMound(this.x,this.y,this));
   spawnSpark(this.x,this.y,'#a7834b',3);
  }
