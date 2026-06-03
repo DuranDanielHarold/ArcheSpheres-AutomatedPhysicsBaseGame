@@ -45,7 +45,7 @@ const DEF = {
   flagellant: {label:'Flagellant', weapon:'Knotted Scourge',ab:'Penitence',         color:'#4a1116',dark:'#210609',rim:'#d8b06a',out:'#120304',wcol:'#c49a62',wdrk:'#6b3020', mass:6,   spd:238, hp:430, om:6.8, dmg:2.4, arm:62,  magDef:30, rest:.78, reach:3.2, tipR:0.18, wt:'knottedscourge'},
   ratcatcher: {label:'Ratcatcher', weapon:'Catching Pole',  ab:'Infestation',       color:'#111111',dark:'#050505',rim:'#b7c06a',out:'#000000',wcol:'#b0a070',wdrk:'#5f5230', mass:5.5, spd:246, hp:410, om:6.2, dmg:3.0, arm:74,  magDef:27, rest:.76, reach:4.4, tipR:0.10, wt:'catchingpole'},
   locksmith:  {label:'Locksmith',  weapon:'Prison Keys',    ab:'Master Key',        color:'#24313a',dark:'#101920',rim:'#d0b45a',out:'#071014',wcol:'#d6c06a',wdrk:'#6a5320', mass:6.5, spd:226, hp:440, om:7.6, dmg:3.4, arm:92,  magDef:42, rest:.72, reach:2.3, tipR:0.30, wt:'keyring'},
-  glassblower:{label:'Glassblower',weapon:'Furnace Pipe',   ab:'Kiln Detonation',  color:'#12353a',dark:'#07181b',rim:'#82f4ff',out:'#031012',wcol:'#ffb060',wdrk:'#b34818', mass:5,   spd:232, hp:390, om:5.8, dmg:3.2, arm:58,  magDef:55, rest:.80, reach:3.7, tipR:0.13, wt:'blowpipe'},
+  glassblower:{label:'Glassblower',weapon:'Furnace Pipe',   ab:'Kiln Detonation',  color:'#ffffff',dark:'#dfefff',rim:'#82f4ff',out:'#d8ffff',bodyAlpha:.52,wcol:'#ffb060',wdrk:'#b34818', mass:5,   spd:232, hp:390, om:5.8, dmg:3.2, arm:58,  magDef:55, rest:.80, reach:3.7, tipR:0.13, wt:'blowpipe'},
 };
 
 // Audio placeholder map for future asset wiring.

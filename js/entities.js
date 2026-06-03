@@ -4035,8 +4035,11 @@ class Sphere{
  } // end _drawPowerOverlay
  _drawBody(){
   const d=this.d,r=this.radius,px=this.x,py=this.y;
+  ctx.save();
+  if(d.bodyAlpha!==undefined)ctx.globalAlpha=d.bodyAlpha;
   ctx.beginPath();ctx.arc(px,py,r,0,Math.PI*2);ctx.fillStyle=d.color;ctx.fill();
   ctx.beginPath();ctx.arc(px,py,r,0,Math.PI);ctx.lineTo(px,py);ctx.closePath();ctx.fillStyle=d.dark+'bb';ctx.fill();
+  ctx.restore();
   ctx.beginPath();ctx.arc(px-r*.14,py-r*.14,r*.75,-Math.PI*.88,-Math.PI*.08);ctx.strokeStyle=d.rim;ctx.lineWidth=Math.max(2,r*.09);ctx.stroke();
   ctx.beginPath();ctx.arc(px,py,r,0,Math.PI*2);ctx.strokeStyle=d.out;ctx.lineWidth=Math.max(2,r*.07);ctx.stroke();
   if(this.hitFlash>0){ctx.beginPath();ctx.arc(px,py,r,0,Math.PI*2);ctx.fillStyle=`rgba(255,255,60,${this.hitFlash*.45})`;ctx.fill();}
