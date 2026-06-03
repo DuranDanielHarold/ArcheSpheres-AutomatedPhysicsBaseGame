@@ -30,18 +30,26 @@ class BurialMound{
  }
  draw(){
   const pulse=0.45+0.25*Math.sin(this.t*3);
-  ctx.save();ctx.globalAlpha=0.72;
-  const g=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r);
-  g.addColorStop(0,'rgba(96,70,42,.72)');g.addColorStop(0.65,'rgba(64,44,25,.52)');g.addColorStop(1,'rgba(24,16,10,0)');
-  ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(this.x,this.y,this.r,this.r*0.55,0,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle=`rgba(167,131,75,${0.35+pulse})`;ctx.lineWidth=1.5;ctx.setLineDash([5,4]);
-  ctx.beginPath();ctx.ellipse(this.x,this.y,this.r*0.92,this.r*0.46,0,0,Math.PI*2);ctx.stroke();
-  ctx.setLineDash([]);ctx.restore();
+  ctx.save();ctx.globalAlpha=0.82;
+  const coreR=this.r*0.82;
+  const g=ctx.createRadialGradient(this.x-coreR*0.28,this.y-coreR*0.35,coreR*0.08,this.x,this.y,coreR);
+  g.addColorStop(0,'rgba(158,126,82,.86)');g.addColorStop(0.48,'rgba(92,66,40,.74)');g.addColorStop(1,'rgba(30,20,12,.88)');
+  ctx.fillStyle=g;ctx.beginPath();ctx.arc(this.x,this.y,coreR,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle=`rgba(167,131,75,${0.45+pulse})`;ctx.lineWidth=2;ctx.setLineDash([5,4]);
+  ctx.beginPath();ctx.arc(this.x,this.y,coreR*0.96,0,Math.PI*2);ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.globalAlpha=0.38;ctx.fillStyle='rgba(230,205,150,.9)';ctx.beginPath();ctx.arc(this.x-coreR*0.28,this.y-coreR*0.34,coreR*0.22,0,Math.PI*2);ctx.fill();
+  ctx.globalAlpha=0.55;ctx.fillStyle='rgba(42,30,18,.85)';
+  for(let i=0;i<4;i++){
+   const a=this.t*0.25+i*Math.PI*0.5;
+   ctx.beginPath();ctx.arc(this.x+Math.cos(a)*coreR*0.42,this.y+Math.sin(a)*coreR*0.38,coreR*(0.06+i*0.012),0,Math.PI*2);ctx.fill();
+  }
+  ctx.restore();
  }
 }
 class RatMinion{
  constructor(x,y,vx,vy,owner,gnaw=false){
-  this.x=x;this.y=y;this.vx=vx;this.vy=vy;this.owner=owner;this.life=5;this.maxLife=5;this.alive=true;this.r=5;this.tick=1;this.gnaw=gnaw;this.t=Math.random()*10;
+  this.x=x;this.y=y;this.vx=vx;this.vy=vy;this.owner=owner;this.life=5;this.maxLife=5;this.alive=true;this.r=5;this.tick=0;this.gnaw=gnaw;this.t=Math.random()*10;
  }
  update(dt){
   this.life-=dt;this.t+=dt;if(this.life<=0){this.alive=false;return;}
@@ -54,9 +62,11 @@ class RatMinion{
    if(spd>max){this.vx=this.vx/spd*max;this.vy=this.vy/spd*max;}
    if(d<target.radius+this.r+4){
     if(this.gnaw){
+     target.receiveDamage(2);
      target.gnawedArmorStacks=Math.min(5,(target.gnawedArmorStacks||0)+1);target.gnawedArmorT=8.0;
      target._refreshGnawedArmor();
      spawnDmgNum(target.x,target.y-target.radius*1.8,'GNAWED','#b7c06a');
+     spawnSpark(target.x,target.y,'#9aa050',3);
      this.alive=false;
     } else {
      this.tick-=dt;
