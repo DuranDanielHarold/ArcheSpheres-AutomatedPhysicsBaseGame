@@ -475,7 +475,7 @@ const CLASS_DESC = {
   },
   gravedigger:{
     ability:'Exhume (4 stacks) — Teleports to the oldest surviving Burial Mound, gains 1.8× spin and 0.6s invincibility on arrival. Burial Mounds persist only for the current battle and reset on each new battle.',
-    passive:'Burial Mounds — Every wall bounce buries a mound at the current position. Enemies crossing a mound are briefly slowed and lose 3% current HP. Mounds persist for the current battle, building a denser minefield over time.'
+    passive:'Burial Mounds — Every 6th wall contact buries a mound at the current position. Enemies crossing a mound are briefly slowed and lose 3% current HP. Mounds persist for the current battle, building a denser minefield over time.'
   },
   flagellant:{
     ability:'Penitence (3 stacks) — Deals 25 true self-damage, grants 1.5s invincibility during the ritual, and releases a contact-range shockwave that deals the same 25 damage to enemies.',

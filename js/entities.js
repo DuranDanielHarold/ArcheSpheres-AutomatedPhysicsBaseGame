@@ -1639,6 +1639,7 @@ class Sphere{
   this.whelplingFireCooldown=0;
   // New roster class state
   this.flagellantWoundTier=0;
+  this.gravediggerWallContacts=0;
   this.exhumeSpinT=0;
   this.locksmithLocks=0;this.locksmithJamT=0;
   this.gnawedArmorStacks=0;this.gnawedArmorT=0;
@@ -1646,7 +1647,10 @@ class Sphere{
  }
  _onWallBounce(){
   if(this.canTriggerTraits===false)return;
-  if(this.key==='gravedigger')this._buryMound();
+  if(this.key==='gravedigger'){
+   this.gravediggerWallContacts=(this.gravediggerWallContacts||0)+1;
+   if(this.gravediggerWallContacts%6===0)this._buryMound();
+  }
   if(this.key==='glassblower')this._dropGlassShard();
  }
  _buryMound(){
