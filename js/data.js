@@ -46,6 +46,16 @@ const DEF = {
   ratcatcher: {label:'Ratcatcher', weapon:'Catching Pole',  ab:'Infestation',       color:'#111111',dark:'#050505',rim:'#b7c06a',out:'#000000',wcol:'#b0a070',wdrk:'#5f5230', mass:5.5, spd:246, hp:410, om:6.2, dmg:3.0, arm:74,  magDef:27, rest:.76, reach:4.4, tipR:0.10, wt:'catchingpole'},
   locksmith:  {label:'Locksmith',  weapon:'Prison Keys',    ab:'Master Key',        color:'#24313a',dark:'#101920',rim:'#d0b45a',out:'#071014',wcol:'#d6c06a',wdrk:'#6a5320', mass:6.5, spd:226, hp:440, om:7.6, dmg:3.4, arm:92,  magDef:42, rest:.72, reach:2.3, tipR:0.30, wt:'keyring'},
   glassblower:{label:'Glassblower',weapon:'Furnace Pipe',   ab:'Kiln Detonation',  color:'#ffffff',dark:'#dfefff',rim:'#82f4ff',out:'#d8ffff',bodyAlpha:.52,wcol:'#ffb060',wdrk:'#b34818', mass:5,   spd:232, hp:390, om:5.8, dmg:3.2, arm:58,  magDef:55, rest:.80, reach:3.7, tipR:0.13, wt:'blowpipe'},
+  witch:     {label:'Witch',     weapon:'Hex Staff',       ab:'Hex Converge',    color:'#5b1f86',dark:'#2a0c46',rim:'#d77bff',out:'#12051f',wcol:'#d77bff',wdrk:'#6b2a90', mass:5,   spd:200, hp:420, om:5.2, dmg:5.8, arm:65,  magDef:62, rest:.72, reach:3.1, tipR:0.18, wt:'hexstaff'},
+  spartan:   {label:'Spartan',   weapon:'Doru+Aspis',     ab:'Phalanx Thrust', color:'#5b1a16',dark:'#260807',rim:'#d24634',out:'#120302',wcol:'#d8b060',wdrk:'#7a4a20', mass:12,  spd:205, hp:560, om:4.5, dmg:4.2, arm:175, magDef:40, rest:.58, reach:4.0, tipR:0.18, wt:'doruaspis'},
+  gladiator: {label:'Gladiator', weapon:'Gladius+Net',    ab:"Arena's Verdict",color:'#b98152',dark:'#6b3f24',rim:'#f0c08a',out:'#2a1408',wcol:'#d8d0c0',wdrk:'#7a6048', mass:6,   spd:255, hp:430, om:9.0, dmg:4.8, arm:85,  magDef:30, rest:.78, reach:2.2, tipR:0.26, wt:'gladiusnet'},
+  king:      {label:'King',      weapon:'Royal Scepter',  ab:'Royal Decree',    color:'#d00020',dark:'#66000d',rim:'#ffd35a',out:'#2a0006',wcol:'#ffd35a',wdrk:'#8a5a10', mass:18,  spd:165, hp:600, om:3.5, dmg:6.0, arm:160, magDef:50, rest:.50, reach:2.8, tipR:0.52, wt:'royalscepter'},
+  queen:     {label:'Queen',     weapon:'Regal Rapier',   ab:'Off With Head',   color:'#b01872',dark:'#5b0838',rim:'#ff8bd1',out:'#220016',wcol:'#ffb8e6',wdrk:'#a02a70', mass:5,   spd:280, hp:400, om:11.0,dmg:3.5, arm:75,  magDef:45, rest:.82, reach:3.6, tipR:0.09, wt:'regalrapier'},
+  prince:    {label:'Prince',    weapon:'Dueling Sabre',  ab:'Chivalric Rush',  color:'#1747b8',dark:'#08205f',rim:'#8bb7ff',out:'#031032',wcol:'#d8e8ff',wdrk:'#5678b8', mass:6,   spd:265, hp:460, om:8.5, dmg:4.0, arm:90,  magDef:35, rest:.78, reach:3.0, tipR:0.18, wt:'duelingsabre'},
+  fairy:     {label:'Fairy',     weapon:'Pixie Wand',     ab:'Wish Granted',    color:'#ff5ac8',dark:'#9b1768',rim:'#fff0ff',out:'#42002b',wcol:'#fff0ff',wdrk:'#ff8ce2', mass:4,   spd:295, hp:360, om:10.5,dmg:3.2, arm:55,  magDef:65, rest:.86, reach:2.4, tipR:0.14, wt:'pixiewand'},
+  beastmaster:{label:'Beastmaster',weapon:'Beast Whip',   ab:'Pack Hunt',       color:'#b85a13',dark:'#5a2608',rim:'#ffb060',out:'#220c02',wcol:'#c08a50',wdrk:'#6a3510', mass:7,   spd:215, hp:480, om:5.8, dmg:3.8, arm:95,  magDef:38, rest:.68, reach:4.6, tipR:0.16, wt:'beastwhip'},
+  sage:      {label:'Sage',      weapon:'Ancient Tome',   ab:'Foresight',       color:'#6c8f52',dark:'#304525',rim:'#d6f0b2',out:'#132010',wcol:'#e6d8a0',wdrk:'#7a6040', mass:9,   spd:195, hp:500, om:4.8, dmg:2.8, arm:110, magDef:60, rest:.62, reach:2.4, tipR:0.48, wt:'ancienttome'},
+  arcanist:  {label:'Arcanist',  weapon:'Arcane Cannon',  ab:'Overload',        color:'#78d8ff',dark:'#1d6b92',rim:'#e8fbff',out:'#083044',wcol:'#e8fbff',wdrk:'#3388bb', mass:5,   spd:190, hp:400, om:4.2, dmg:6.5, arm:60,  magDef:55, rest:.72, reach:3.2, tipR:0.28, wt:'arcanecannon'},
 };
 
 // Audio placeholder map for future asset wiring.
@@ -258,6 +268,16 @@ const SPHERE_AUDIO = {
     damage: '', // add audio file path here
     ability: '', // add audio file path here
   },
+  witch: {weaponCollision: '', damage: '', ability: ''},
+  spartan: {weaponCollision: '', damage: '', ability: ''},
+  gladiator: {weaponCollision: '', damage: '', ability: ''},
+  king: {weaponCollision: '', damage: '', ability: ''},
+  queen: {weaponCollision: '', damage: '', ability: ''},
+  prince: {weaponCollision: '', damage: '', ability: ''},
+  fairy: {weaponCollision: '', damage: '', ability: ''},
+  beastmaster: {weaponCollision: '', damage: '', ability: ''},
+  sage: {weaponCollision: '', damage: '', ability: ''},
+  arcanist: {weaponCollision: '', damage: '', ability: ''},
 };
 
 const ARENA_AUDIO = {
@@ -295,7 +315,7 @@ const AUDIO_VOLUMES = {
   },
 };
 
-const RANGED_KEYS = new Set(['ranger','wizard','necromancer','sheriff','priest','bard']);
+const RANGED_KEYS = new Set(['ranger','wizard','necromancer','sheriff','priest','bard','witch','fairy','arcanist']);
 
 const CLASS_ROLE = {
   knight:'TANK',samurai:'DUELIST',viking:'BRAWLER',barbarian:'BRUISER',paladin:'SUPPORT',
@@ -320,7 +340,7 @@ const CLASS_ROLE = {
   flagellant:'MARTYR',
   ratcatcher:'VERMIN',
   locksmith:'DENIAL',
-  glassblower:'TRAP BURST'
+  glassblower:'TRAP BURST',witch:'HEXER',spartan:'VANGUARD',gladiator:'DUELIST',king:'SOVEREIGN',queen:'SOVEREIGN',prince:'SKIRMISHER',fairy:'SUPPORT',beastmaster:'SUMMONER',sage:'WISDOM',arcanist:'ANOMALY'
 };
 
 const ROLE_COLOR = {
@@ -329,7 +349,7 @@ const ROLE_COLOR = {
   CONTROL:'#1b6e20',CHAOS:'#e91e63',EVASION:'#00bcd4',SKIRMISHER:'#5d4037',
   ZEALOT:'#cc3300',PREDATOR:'#880022',MARTIAL:'#c8a040',ALCHEMIST:'#44aa22',LANCER:'#2255aa',BARD:'#9c27b0',
   PESTILENCE:'#668800',ELEMENTAL:'#0088aa',VANGUARD:'#c8a840',SHAPESHIFTER:'#884499',ANOMALY:'#550088',BEAST:'#994400',
-  ATTRITION:'#8a6a40',MARTYR:'#b84a40',VERMIN:'#9aa050',DENIAL:'#d0b45a','TRAP BURST':'#82f4ff'
+  ATTRITION:'#8a6a40',MARTYR:'#b84a40',VERMIN:'#9aa050',DENIAL:'#d0b45a','TRAP BURST':'#82f4ff',HEXER:'#d77bff',SOVEREIGN:'#ffd35a',SUMMONER:'#ff9a38',WISDOM:'#d6f0b2'
 };
 
 const CLASS_DESC = {
@@ -493,6 +513,16 @@ const CLASS_DESC = {
     ability:'Kiln Detonation (4 stacks) — Detonates all surviving Glass Shards into small splinter bursts. Taking 3 or more shard blasts briefly blinds and reverses enemy spin.',
     passive:'Glass Litter — Wall bounces and weapon clashes drop fragile Glass Shards. High-speed enemies shatter shards, taking true damage and Bleeding Glass.'
   },
+  witch:{ability:'Hex Convergence (3 stacks) — Fires 3 warping Hex Bolts. Repeated hits briefly halve enemy damage and reverse spin; missed bolts linger as traps.',passive:'Jinx — Hex Bolt hits stack Jinx up to 4, then trigger a random blind, burn, slow, or spin-reverse debuff for 3s.'},
+  spartan:{ability:'Phalanx Thrust (3 stacks) — Locks spear forward and charges for 1.2s with 2.5× true contact damage while the rear shield reflects melee pressure.',passive:'Iron Formation — Shield-side hits build stacks that reduce physical damage; at 5 stacks the next ability is primed for free.'},
+  gladiator:{ability:"Arena's Verdict (3 stacks) — Throws the net to root the enemy and set armor to 0; gladius attacks during the window deal 3× damage with extra reach.",passive:'Crowd Favor — Gladius hits build Favor for speed/spin. Taking damage removes Favor; at 10 Favor the next hit deals double damage.'},
+  king:{ability:'Royal Decree (4 stacks) — Crown shockwave Subdues enemies, dropping spin and speed for 5s while the King doubles spin and damage.',passive:'Sovereign Weight — Collision wins permanently add ARM and DMG up to a match cap, shown as crown pips.'},
+  queen:{ability:'Off With Your Head (3 stacks) — Teleports behind the nearest enemy and lands an armor-ignoring 3× execution strike; resets on kill or wounded prey.',passive:"Courtly Menace — Nearby enemies lose damage and speed. Back hits permanently raise the Queen's damage."},
+  prince:{ability:'Chivalric Rush (3 stacks) — Accelerates to 3× speed; sabre hits extend the rush, then he reverses direction to escape corners.',passive:'Born to the Blade — Recent wall bounces increase sabre damage and the Prince slowly regenerates HP.'},
+  fairy:{ability:'Wish Granted (4 stacks) — Rolls invincibility, a heal burst, a triple-speed dash, or a one-hit mirror clone.',passive:'Pixie Dust Trail — Moving sheds charm dust that reverses enemy spin and slows them; Fairy heals in her own dust.'},
+  beastmaster:{ability:'Pack Hunt (4 stacks) — Releases wolf, boar, and hawk companions that hunt enemies for 10s; damage rises while beasts live.',passive:'Wild Bond — Whip hits spawn ferrets; three ferrets on a target trigger an ARM-stripping Frenzy burst.'},
+  sage:{ability:'Foresight (3 stacks) — Becomes untargetable for 2s, mirrors enemy motion in reverse, then releases a 2× Wisdom Wave.',passive:'Ancient Patience — Damage taken converts into permanent DMG and MDEF Knowledge, displayed above the sphere.'},
+  arcanist:{ability:'Overload (3 stacks) — For 4s shells fly faster, explode wider, and leave longer burn zones; each explosion hurts the Arcanist for true damage.',passive:'Volatile Charge — Avoiding damage builds charge; at full charge the next shell detonates on the enemy position. Taking damage resets charge and knocks self back.'},
 };
 
 const STACK_THRESHOLD = {
@@ -524,6 +554,7 @@ const STACK_THRESHOLD = {
   ratcatcher: 3,
   locksmith: 3,
   glassblower: 4,
+  witch: 3, spartan: 3, gladiator: 3, king: 4, queen: 3, prince: 3, fairy: 4, beastmaster: 4, sage: 3, arcanist: 3,
 };
 function getStackThreshold(key){
   return STACK_THRESHOLD[key] ?? 5;
