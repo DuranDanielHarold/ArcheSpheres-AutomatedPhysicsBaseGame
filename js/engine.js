@@ -183,6 +183,8 @@ function resolveAll(){
       const pushF=Math.abs(vRel)*0.12;
       const pushToA=pushF*b.mass*(b.vikingRageSpinActive?2:1);
       const pushToB=pushF*a.mass*(a.vikingRageSpinActive?2:1);
+      if(a.key==='king'&&a.mass>=b.mass&&(a.sovereignArmBonus||0)<30){a.sovereignArmBonus=(a.sovereignArmBonus||0)+2;a.sovereignDmgBonus=(a.sovereignDmgBonus||0)+0.05;a.d=Object.assign({},a.d);a.d.arm+=2;a.d.dmg+=0.05;}
+      if(b.key==='king'&&b.mass>=a.mass&&(b.sovereignArmBonus||0)<30){b.sovereignArmBonus=(b.sovereignArmBonus||0)+2;b.sovereignDmgBonus=(b.sovereignDmgBonus||0)+0.05;b.d=Object.assign({},b.d);b.d.arm+=2;b.d.dmg+=0.05;}
       a.applyImpact(-nx*pushToA,-ny*pushToA);
       b.applyImpact( nx*pushToB, ny*pushToB);
      }
@@ -582,6 +584,11 @@ function _weaponHit(att,def){
   const tipSpd=Math.hypot(tvx,tvy);
   const weaponWeight=att.mass*0.35;
   let dmg=(tipSpd*att.d.dmg*0.010+weaponWeight*0.12)*att.dmgMult/(def.d.arm*0.004+1);
+  if(att.dmgHalvedT>0)dmg*=0.5;
+  if(att.key==='gladiator'&&att.crowdDouble){dmg*=2;att.crowdDouble=false;att.favor=0;}
+  if(att.key==='prince'){const wb=Math.min(5,att.wallBounceBonus||0);dmg*=1+wb*.08;if(Math.hypot(att.vx,att.vy)>att.baseSpd*.8)dmg*=1.18;}
+  if(att.key==='queen'&&def.courtlyT>0)dmg*=0.92;
+  if(def.key==='spartan'&&def.ironStacks>0)dmg*=Math.max(.8,1-def.ironStacks*.04);
    if(traits&&att.key==='pirate'&&att.draining){
    att.receiveHeal(dmg*0.15);
    const pullX=att.x-def.x,pullY=att.y-def.y,pullD=Math.hypot(pullX,pullY)||1;
@@ -644,6 +651,10 @@ function _weaponHit(att,def){
     }
     // Ratcatcher — Rat Pack: each weapon hit releases one hunting rat.
     if(traits&&att.key==='ratcatcher')att._spawnRatBurst(1,false);
+    if(traits&&att.key==='beastmaster'){noiseTraps.push(new RatMinion(att.x,att.y,(Math.random()-.5)*180,(Math.random()-.5)*180,att,false));def.markedBy=att;}
+    if(traits&&att.key==='gladiator'){att.favor=Math.min(10,(att.favor||0)+1);att.targetSpd=att.baseSpd+att.favor*5;att.omegaCur+=(0.3*Math.sign(att.omegaCur||1));if(att.favor>=10){att.crowdDouble=true;spawnDmgNum(att.x,att.y-att.radius*1.7,'FAVOR','#ffd35a');}}
+    if(traits&&att.key==='queen'){att.queenDmgBonus=(att.queenDmgBonus||0)+0.005;att.d=Object.assign({},att.d);att.d.dmg+=DEF[att.key].dmg*.005;}
+    if(traits&&att.key==='prince'&&att.rushT>0){att.rushT=Math.min(2.5-(att.rushElapsed||0),att.rushT+.25);}
     spawnSpark(hx,hy,att.d.rim,7);
     spawnImpactBurst(hx,hy,att.d.rim,def.d.color);
      if(traits&&att.key==='phoenix')att._releasePhoenixEmber(def,hx,hy);
@@ -736,7 +747,9 @@ function _weaponClash(a,b){
  if(a.canTriggerTraits!==false&&a.key==='locksmith')_applyLocksmithLock(a,b);
  if(b.canTriggerTraits!==false&&b.key==='locksmith')_applyLocksmithLock(b,a);
  if(a.canTriggerTraits!==false&&a.key==='glassblower')a._dropGlassShard(mx,my);
+ if(a.canTriggerTraits!==false&&b.key==='spartan'){b.ironStacks=Math.min(5,(b.ironStacks||0)+1);if(b.ramActive){a.receiveDamage(30);}}
  if(b.canTriggerTraits!==false&&b.key==='glassblower')b._dropGlassShard(mx,my);
+ if(b.canTriggerTraits!==false&&a.key==='spartan'){a.ironStacks=Math.min(5,(a.ironStacks||0)+1);if(a.ramActive){b.receiveDamage(30);}}
  const bx=b.x-a.x,by2=b.y-a.y,bd=Math.hypot(bx,by2)||1;
  a.applyImpact(-(bx/bd)*80,-(by2/bd)*80);b.applyImpact((bx/bd)*80,(by2/bd)*80);
 }
