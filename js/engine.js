@@ -537,7 +537,7 @@ function _weaponHit(att,def){
  if(def.untargetable)return; // vampire ghost mode — weapons pass through ghost vampire
  // Note: att.untargetable is intentionally NOT checked — ghost vampire can still deal bat damage
  const traits=att.canTriggerTraits!==false;
- if(RANGED_KEYS.has(att.key)){
+ if(RANGED_KEYS.has(att.key)||(att.key==='prince'&&att.princeWeaponMode==='bow')){
   if(att.weaponHitCD>0)return;
   const tip=att.getTip();
   const tipR=att.radius*att.d.tipR;
@@ -713,7 +713,7 @@ function _applyLocksmithLock(att,def){
  }
 }
 function _weaponClash(a,b){
- 
+ if((a.key==='prince'&&a.princeWeaponMode==='bow')||(b.key==='prince'&&b.princeWeaponMode==='bow'))return;
  if(a.weaponHitCD>0||b.weaponHitCD>0)return;
  const ptsA=a.getBladePoints(), ptsB=b.getBladePoints();
  const clashDist=a.radius*a.d.tipR+b.radius*b.d.tipR+6;

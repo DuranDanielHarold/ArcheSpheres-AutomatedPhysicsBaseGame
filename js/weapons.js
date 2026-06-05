@@ -299,12 +299,13 @@ const WEAPONS={
  },
  longbow(ctx,r,d,s){
   const bowX=r*.8,bowH=r*1.8;
-  ctx.strokeStyle='#7a4020';ctx.lineWidth=r*.1;
+  const princeSilver=s&&s.key==='prince';
+  ctx.strokeStyle=princeSilver?'#d8e8ff':'#7a4020';ctx.lineWidth=r*.1;
   ctx.beginPath();ctx.moveTo(bowX,-bowH/2);ctx.quadraticCurveTo(bowX+r*.55,0,bowX,bowH/2);ctx.stroke();
-  ctx.strokeStyle='#ddd';ctx.lineWidth=r*.025;
+  ctx.strokeStyle=princeSilver?'#8bb7ff':'#ddd';ctx.lineWidth=r*.025;
   ctx.beginPath();ctx.moveTo(bowX,-bowH/2);ctx.lineTo(bowX+r*.05,0);ctx.lineTo(bowX,bowH/2);ctx.stroke();
   const drawPull=s&&s.drawCharge?s.drawCharge:0;
-  ctx.fillStyle='#a06030';ctx.fillRect(bowX,-(r*.04/2),r*(1.1+drawPull*.3),r*.04);
+  ctx.fillStyle=princeSilver?'#c8d8ee':'#a06030';ctx.fillRect(bowX,-(r*.04/2),r*(1.1+drawPull*.3),r*.04);
   ctx.fillStyle=d.wcol;ctx.fillRect(bowX+r*(1.1+drawPull*.3),-r*.09,r*.2,r*.18);
   ctx.fillStyle='#eee';ctx.fillRect(bowX-r*.06,-r*.12,r*.1,r*.1);ctx.fillRect(bowX-r*.06,r*.02,r*.1,r*.1);
   if(s&&s.spreadActive){
