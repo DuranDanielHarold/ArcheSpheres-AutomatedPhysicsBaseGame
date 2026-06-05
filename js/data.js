@@ -51,7 +51,7 @@ const DEF = {
   gladiator: {label:'Gladiator', weapon:'Gladius+Net',    ab:"Arena's Verdict",color:'#b98152',dark:'#6b3f24',rim:'#f0c08a',out:'#2a1408',wcol:'#d8d0c0',wdrk:'#7a6048', mass:6,   spd:255, hp:430, om:9.0, dmg:4.8, arm:85,  magDef:30, rest:.78, reach:2.2, tipR:0.26, wt:'gladiusnet'},
   king:      {label:'King',      weapon:'Royal Scepter',  ab:'Royal Decree',    color:'#d00020',dark:'#66000d',rim:'#ffd35a',out:'#2a0006',wcol:'#ffd35a',wdrk:'#8a5a10', mass:18,  spd:165, hp:600, om:3.5, dmg:6.0, arm:160, magDef:50, rest:.50, reach:2.8, tipR:0.52, wt:'royalscepter'},
   queen:     {label:'Queen',     weapon:'Regal Rapier',   ab:'Off With Head',   color:'#b01872',dark:'#5b0838',rim:'#ff8bd1',out:'#220016',wcol:'#ffb8e6',wdrk:'#a02a70', mass:5,   spd:280, hp:400, om:11.0,dmg:3.5, arm:75,  magDef:45, rest:.82, reach:3.6, tipR:0.09, wt:'regalrapier'},
-  prince:    {label:'Prince',    weapon:'Dueling Sabre',  ab:'Chivalric Rush',  color:'#1747b8',dark:'#08205f',rim:'#8bb7ff',out:'#031032',wcol:'#d8e8ff',wdrk:'#5678b8', mass:6,   spd:265, hp:460, om:8.5, dmg:4.0, arm:90,  magDef:35, rest:.78, reach:3.0, tipR:0.18, wt:'duelingsabre'},
+  prince:    {label:'Prince',    weapon:'Dueling Sabre',  ab:'Royal Blood',     color:'#1747b8',dark:'#08205f',rim:'#8bb7ff',out:'#031032',wcol:'#d8e8ff',wdrk:'#5678b8', mass:6,   spd:265, hp:460, om:8.5, dmg:4.0, arm:90,  magDef:35, rest:.78, reach:3.0, tipR:0.18, wt:'duelingsabre'},
   fairy:     {label:'Fairy',     weapon:'Pixie Wand',     ab:'Wish Granted',    color:'#ff5ac8',dark:'#9b1768',rim:'#fff0ff',out:'#42002b',wcol:'#fff0ff',wdrk:'#ff8ce2', mass:4,   spd:295, hp:360, om:10.5,dmg:3.2, arm:55,  magDef:65, rest:.86, reach:2.4, tipR:0.14, wt:'pixiewand'},
   beastmaster:{label:'Beastmaster',weapon:'Beast Whip',   ab:'Pack Hunt',       color:'#b85a13',dark:'#5a2608',rim:'#ffb060',out:'#220c02',wcol:'#c08a50',wdrk:'#6a3510', mass:7,   spd:215, hp:480, om:5.8, dmg:3.8, arm:95,  magDef:38, rest:.68, reach:4.6, tipR:0.16, wt:'beastwhip'},
   sage:      {label:'Sage',      weapon:'Ancient Tome',   ab:'Foresight',       color:'#6c8f52',dark:'#304525',rim:'#d6f0b2',out:'#132010',wcol:'#e6d8a0',wdrk:'#7a6040', mass:9,   spd:195, hp:500, om:4.8, dmg:2.8, arm:110, magDef:60, rest:.62, reach:2.4, tipR:0.48, wt:'ancienttome'},
@@ -518,7 +518,7 @@ const CLASS_DESC = {
   gladiator:{ability:"Arena's Verdict (3 stacks) — Throws the net to root the enemy and set armor to 0; gladius attacks during the window deal 3× damage with extra reach.",passive:'Crowd Favor — Gladius hits build Favor for speed/spin. Taking damage removes Favor; at 10 Favor the next hit deals double damage.'},
   king:{ability:'Royal Decree (4 stacks) — Crown shockwave Subdues enemies, dropping spin and speed for 5s while the King doubles spin and damage.',passive:'Sovereign Weight — Collision wins permanently add ARM and DMG up to a match cap, shown as crown pips.'},
   queen:{ability:'Off With Your Head (3 stacks) — Teleports behind the nearest enemy and lands an armor-ignoring 3× execution strike; resets on kill or wounded prey.',passive:"Courtly Menace — Nearby enemies lose damage and speed. Back hits permanently raise the Queen's damage."},
-  prince:{ability:'Chivalric Rush (3 stacks) — Accelerates to 3× speed; sabre hits extend the rush, then he reverses direction to escape corners.',passive:'Born to the Blade — Recent wall bounces increase sabre damage and the Prince slowly regenerates HP.'},
+  prince:{ability:'Royal Blood (4 stacks) — Gains a 10-damage shield for 6s. While the shield holds, saber mode gains +2 damage and faster omega spin, while bow mode fires more quickly. If enemies break the shield early, gains +30 ARM and MDEF for 3s.',passive:'Weapon Master — Automatically swaps between a dueling sabre for enemies within sabre reach and a silver wood bow for longer range. Only the active weapon is equipped and drawn.'},
   fairy:{ability:'Wish Granted (4 stacks) — Rolls invincibility, a heal burst, a triple-speed dash, or a one-hit mirror clone.',passive:'Pixie Dust Trail — Moving sheds charm dust that reverses enemy spin and slows them; Fairy heals in her own dust.'},
   beastmaster:{ability:'Pack Hunt (4 stacks) — Releases wolf, boar, and hawk companions that hunt enemies for 10s; damage rises while beasts live.',passive:'Wild Bond — Whip hits spawn ferrets; three ferrets on a target trigger an ARM-stripping Frenzy burst.'},
   sage:{ability:'Foresight (3 stacks) — Becomes untargetable for 2s, mirrors enemy motion in reverse, then releases a 2× Wisdom Wave.',passive:'Ancient Patience — Fires ranged gibberish wisdom words. Damage taken converts into permanent DMG and MDEF Knowledge, displayed above the sphere.'},
@@ -554,7 +554,7 @@ const STACK_THRESHOLD = {
   ratcatcher: 3,
   locksmith: 3,
   glassblower: 4,
-  witch: 3, spartan: 3, gladiator: 3, king: 4, queen: 3, prince: 3, fairy: 4, beastmaster: 4, sage: 3, arcanist: 3,
+  witch: 3, spartan: 3, gladiator: 3, king: 4, queen: 3, prince: 4, fairy: 4, beastmaster: 4, sage: 3, arcanist: 3,
 };
 function getStackThreshold(key){
   return STACK_THRESHOLD[key] ?? 5;
