@@ -298,15 +298,39 @@ const WEAPONS={
   }
  },
  longbow(ctx,r,d,s){
-  const bowX=r*.8,bowH=r*1.8;
-  ctx.strokeStyle='#7a4020';ctx.lineWidth=r*.1;
-  ctx.beginPath();ctx.moveTo(bowX,-bowH/2);ctx.quadraticCurveTo(bowX+r*.55,0,bowX,bowH/2);ctx.stroke();
-  ctx.strokeStyle='#ddd';ctx.lineWidth=r*.025;
-  ctx.beginPath();ctx.moveTo(bowX,-bowH/2);ctx.lineTo(bowX+r*.05,0);ctx.lineTo(bowX,bowH/2);ctx.stroke();
+  const bowX=r*.82,bowH=r*2.05;
+  const princeSilver=s&&s.key==='prince';
   const drawPull=s&&s.drawCharge?s.drawCharge:0;
-  ctx.fillStyle='#a06030';ctx.fillRect(bowX,-(r*.04/2),r*(1.1+drawPull*.3),r*.04);
-  ctx.fillStyle=d.wcol;ctx.fillRect(bowX+r*(1.1+drawPull*.3),-r*.09,r*.2,r*.18);
-  ctx.fillStyle='#eee';ctx.fillRect(bowX-r*.06,-r*.12,r*.1,r*.1);ctx.fillRect(bowX-r*.06,r*.02,r*.1,r*.1);
+  const wood=princeSilver?'#eef7ff':'#7a4020';
+  const woodDark=princeSilver?'#5f83b8':'#4a2410';
+  const stringCol=princeSilver?'#ffffff':'#ddd';
+  const accent=princeSilver?'#8bb7ff':'#88cc44';
+  ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
+  if(princeSilver){ctx.shadowColor='#8bb7ff';ctx.shadowBlur=9;}
+  // Thick readable bow limbs with darker backing so the silver bow stays visible.
+  ctx.strokeStyle=woodDark;ctx.lineWidth=r*.18;
+  ctx.beginPath();ctx.moveTo(bowX,-bowH/2);ctx.quadraticCurveTo(bowX+r*.68,0,bowX,bowH/2);ctx.stroke();
+  ctx.strokeStyle=wood;ctx.lineWidth=r*.105;
+  ctx.beginPath();ctx.moveTo(bowX,-bowH/2);ctx.quadraticCurveTo(bowX+r*.58,0,bowX,bowH/2);ctx.stroke();
+  // Blue-silver caps and central grip make Prince's bow distinct from Ranger's.
+  if(princeSilver){
+   ctx.fillStyle='#1747b8';
+   ctx.fillRect(bowX-r*.08,-bowH/2-r*.05,r*.18,r*.16);
+   ctx.fillRect(bowX-r*.08,bowH/2-r*.11,r*.18,r*.16);
+   ctx.fillStyle='#08205f';ctx.fillRect(bowX+r*.43,-r*.18,r*.2,r*.36);
+   ctx.fillStyle='#8bb7ff';ctx.fillRect(bowX+r*.47,-r*.13,r*.12,r*.26);
+  }
+  ctx.strokeStyle=stringCol;ctx.lineWidth=princeSilver?r*.035:r*.025;
+  ctx.beginPath();ctx.moveTo(bowX,-bowH/2);ctx.lineTo(bowX+r*(.08+drawPull*.18),0);ctx.lineTo(bowX,bowH/2);ctx.stroke();
+  // Nocked arrow drawn forward from the grip/tip direction.
+  const arrowLen=r*(1.25+drawPull*.35);
+  ctx.fillStyle=princeSilver?'#d8e8ff':'#a06030';ctx.fillRect(bowX+r*.2,-r*.035,arrowLen,r*.07);
+  ctx.fillStyle=princeSilver?'#ffffff':d.wcol;ctx.beginPath();ctx.moveTo(bowX+r*.2+arrowLen,-r*.12);ctx.lineTo(bowX+r*.2+arrowLen+r*.24,0);ctx.lineTo(bowX+r*.2+arrowLen,r*.12);ctx.closePath();ctx.fill();
+  ctx.fillStyle=accent;ctx.beginPath();ctx.moveTo(bowX+r*.18,-r*.035);ctx.lineTo(bowX-r*.02,-r*.16);ctx.lineTo(bowX+r*.04,-r*.035);ctx.closePath();ctx.fill();ctx.beginPath();ctx.moveTo(bowX+r*.18,r*.035);ctx.lineTo(bowX-r*.02,r*.16);ctx.lineTo(bowX+r*.04,r*.035);ctx.closePath();ctx.fill();
+  if(princeSilver){
+   ctx.strokeStyle='rgba(139,183,255,.65)';ctx.lineWidth=r*.025;ctx.setLineDash([r*.12,r*.08]);
+   ctx.beginPath();ctx.moveTo(bowX+r*.22,-bowH*.36);ctx.quadraticCurveTo(bowX+r*.45,0,bowX+r*.22,bowH*.36);ctx.stroke();ctx.setLineDash([]);
+  }
   if(s&&s.spreadActive){
    ctx.shadowColor='#88cc44';ctx.shadowBlur=12;
    for(let a=-0.3;a<=0.3;a+=0.3){
@@ -315,8 +339,8 @@ const WEAPONS={
     ctx.beginPath();ctx.moveTo(bowX+r*.5,0);ctx.lineTo(bowX+r*1.8,0);ctx.stroke();
     ctx.restore();
    }
-   ctx.shadowBlur=0;
   }
+  ctx.shadowBlur=0;ctx.restore();
  },
  warhammer(ctx,r,d,s){
   const sL=r*1.4,sT=r*.1;
