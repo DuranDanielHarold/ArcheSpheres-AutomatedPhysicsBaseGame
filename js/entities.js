@@ -1874,7 +1874,7 @@ class Sphere{
    }
   }
   if(this.princeWeaponMode==='bow'){
-   const rate=this.princeRoyalShield>0&&this.princeRoyalShieldT>0?0.28:0.48;
+   const rate=this.princeRoyalShield>0&&this.princeRoyalShieldT>0?0.12:0.18;
    this.princeBowDraw=Math.min(1,(this.princeBowDraw||0)+dt/rate);
    this.drawCharge=this.princeBowDraw;
    if(this.shotCD<=0&&this.princeBowDraw>=1){
