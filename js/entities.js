@@ -1888,7 +1888,7 @@ class Sphere{
  }
  _startPrinceRoyalBlood(){
   this.stacks=0;
-  this.princeRoyalShield=50;this.princeRoyalShieldT=6;
+  this.princeRoyalShield=10;this.princeRoyalShieldT=6;
   this._removePrinceModeBonuses();this._applyPrinceModeBonuses();
   spawnBurst(this.x,this.y,'#e6f0ff','#1747b8',22);
   spawnPulse(this.x,this.y,'#8bb7ff');
@@ -4559,7 +4559,7 @@ class Sphere{
    ctx.fillStyle='rgba(255,248,200,.85)';ctx.fillRect(bx,by-2,bw*shieldPct,1.5);
   }
   if(this.key==='prince'&&this.princeRoyalShield>0&&this.princeRoyalShieldT>0){
-   const royalPct=Math.min(1,this.princeRoyalShield/50);
+   const royalPct=Math.min(1,this.princeRoyalShield/10);
    ctx.fillStyle='rgba(139,183,255,.92)';ctx.fillRect(bx,by-4,bw*royalPct,2);
   }
   if(this.magicShield){
