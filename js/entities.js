@@ -72,10 +72,98 @@ class ArcaneBurnZone{
  draw(){ctx.save();const a=this.life/this.maxLife;ctx.globalAlpha=.13+.2*a;const g=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r);g.addColorStop(0,'rgba(232,251,255,.75)');g.addColorStop(.42,'rgba(120,216,255,.36)');g.addColorStop(1,'rgba(255,122,34,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fill();ctx.globalAlpha=.45*a;ctx.strokeStyle='#78d8ff';ctx.lineWidth=2;for(let i=0;i<3;i++){ctx.save();ctx.translate(this.x,this.y);ctx.rotate(this.t*(.6+i*.25)+i*Math.PI/3);ctx.beginPath();ctx.ellipse(0,0,this.r*(.35+i*.22),this.r*(.18+i*.16),0,0,Math.PI*2);ctx.stroke();ctx.restore();}ctx.strokeStyle='#ff7a22';ctx.setLineDash([5,6]);ctx.beginPath();ctx.arc(this.x,this.y,this.r*(.92+.04*Math.sin(this.t*5)),0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.restore();}
 }
 class BeastCompanion{
- constructor(x,y,owner,kind){this.x=x;this.y=y;this.owner=owner;this.kind=kind;this.life=10;this.maxLife=10;this.alive=true;this.r=kind==='boar'?9:kind==='hawk'?6:kind==='ferret'?4:7;this.vx=0;this.vy=0;this.t=0;this.trail=[];}
- update(dt){this.life-=dt;this.t+=dt;if(this.life<=0)this.alive=false;this.trail.push({x:this.x,y:this.y});if(this.trail.length>10)this.trail.shift();const t=spheres.find(s=>s!==this.owner&&s.alive&&!s.dying);if(!t)return;const dx=t.x-this.x,dy=t.y-this.y,d=Math.hypot(dx,dy)||1,spd=this.kind==='boar'?185:this.kind==='hawk'?310:this.kind==='ferret'?335:260;this.vx+=(dx/d)*spd*dt*3;this.vy+=(dy/d)*spd*dt*3;const m=Math.hypot(this.vx,this.vy)||1;if(m>spd){this.vx=this.vx/m*spd;this.vy=this.vy/m*spd;}this.x+=this.vx*dt;this.y+=this.vy*dt;if(d<t.radius+this.r){t.receiveDamage(this.kind==='boar'?9:this.kind==='ferret'?1:6);t.applyImpact((dx/d)*(this.kind==='boar'?360:120),(dy/d)*(this.kind==='boar'?360:120));spawnBurst(this.x,this.y,this.kind==='hawk'?'#e8d8a0':this.kind==='ferret'?'#d0c090':'#ffb060','#5a2608',8);this.alive=false;}}
- draw(){ctx.save();const a=this.life/this.maxLife,ang=Math.atan2(this.vy,this.vx);for(let i=0;i<this.trail.length;i++){const p=this.trail[i],k=i/this.trail.length;ctx.globalAlpha=.12*k*a;ctx.fillStyle=this.kind==='hawk'?'#e8d8a0':this.kind==='wolf'?'#8a8060':'#8a4a20';ctx.beginPath();ctx.arc(p.x,p.y,this.r*k,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=a;ctx.translate(this.x,this.y);ctx.rotate(ang);ctx.fillStyle=this.kind==='boar'?'#8a4a20':this.kind==='hawk'?'#e8d8a0':this.kind==='ferret'?'#b09a70':'#6a6a50';ctx.strokeStyle='#2a1608';ctx.lineWidth=1.2;if(this.kind==='ferret'){ctx.beginPath();ctx.ellipse(0,0,this.r*1.75,this.r*.65,0,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.strokeStyle='#d0c090';ctx.beginPath();ctx.moveTo(-this.r*1.1,0);ctx.quadraticCurveTo(-this.r*1.85,-this.r*.45,-this.r*2.25,0);ctx.stroke();ctx.fillStyle='#f0d8a0';ctx.beginPath();ctx.arc(this.r*1.35,-this.r*.18,this.r*.18,0,Math.PI*2);ctx.arc(this.r*1.35,this.r*.18,this.r*.18,0,Math.PI*2);ctx.fill();}else if(this.kind==='boar'){ctx.beginPath();ctx.ellipse(0,0,this.r*1.35,this.r*.9,0,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='#f0d0a0';for(const y of [-.42,.42]){ctx.beginPath();ctx.moveTo(this.r*.85,y*this.r);ctx.lineTo(this.r*1.35,y*this.r*.55);ctx.lineTo(this.r*.82,y*this.r*.18);ctx.fill();}}else if(this.kind==='hawk'){ctx.beginPath();ctx.moveTo(this.r*1.45,0);ctx.lineTo(-this.r*.35,-this.r*.35);ctx.lineTo(-this.r*.1,0);ctx.lineTo(-this.r*.35,this.r*.35);ctx.closePath();ctx.fill();ctx.stroke();ctx.strokeStyle='#fff3c0';ctx.beginPath();ctx.moveTo(-this.r*.1,0);ctx.lineTo(-this.r*1.2,-this.r*.7);ctx.moveTo(-this.r*.1,0);ctx.lineTo(-this.r*1.2,this.r*.7);ctx.stroke();}else{ctx.beginPath();ctx.ellipse(0,0,this.r*1.25,this.r*.72,0,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='#cfc090';ctx.beginPath();ctx.moveTo(this.r*1.1,0);ctx.lineTo(this.r*.55,-this.r*.35);ctx.lineTo(this.r*.65,this.r*.35);ctx.closePath();ctx.fill();}ctx.restore();}
+ constructor(x,y,owner,kind){
+  this.x=x;this.y=y;this.owner=owner;this.kind=kind;this.life=10;this.maxLife=10;this.alive=true;
+  this.r=kind==='boar'?10:kind==='hawk'?7:kind==='ferret'?4:8;
+  this.vx=0;this.vy=0;this.t=0;this.trail=[];this.seed=Math.random()*Math.PI*2;
+ }
+ update(dt){
+  this.life-=dt;this.t+=dt;if(this.life<=0)this.alive=false;
+  this.trail.push({x:this.x,y:this.y,t:this.t});if(this.trail.length>12)this.trail.shift();
+  const t=spheres.find(s=>s!==this.owner&&s.alive&&!s.dying);if(!t)return;
+  const dx=t.x-this.x,dy=t.y-this.y,d=Math.hypot(dx,dy)||1;
+  const spd=this.kind==='boar'?185:this.kind==='hawk'?310:this.kind==='ferret'?335:260;
+  this.vx+=(dx/d)*spd*dt*3;this.vy+=(dy/d)*spd*dt*3;
+  const m=Math.hypot(this.vx,this.vy)||1;if(m>spd){this.vx=this.vx/m*spd;this.vy=this.vy/m*spd;}
+  this.x+=this.vx*dt;this.y+=this.vy*dt;
+  if(d<t.radius+this.r){
+   t.receiveDamage(this.kind==='boar'?9:this.kind==='ferret'?1:6);
+   t.applyImpact((dx/d)*(this.kind==='boar'?360:120),(dy/d)*(this.kind==='boar'?360:120));
+   spawnBurst(this.x,this.y,this.kind==='hawk'?'#f3df8f':this.kind==='ferret'?'#d0c090':this.kind==='wolf'?'#9aa080':'#ffb060','#5a2608',8);
+   this.alive=false;
+  }
+ }
+ draw(){
+  ctx.save();
+  const a=this.life/this.maxLife,ang=Math.atan2(this.vy,this.vx),stride=Math.sin(this.t*18+this.seed);
+  this._drawTrail(a,ang);
+  ctx.globalAlpha=a;ctx.translate(this.x,this.y);ctx.rotate(ang);
+  if(this.kind==='wolf')this._drawWolf(stride);
+  else if(this.kind==='boar')this._drawBoar(stride);
+  else if(this.kind==='hawk')this._drawHawk(stride);
+  else this._drawFerret(stride);
+  ctx.restore();
+ }
+ _drawTrail(alpha,ang){
+  const color=this.kind==='hawk'?'#f3df8f':this.kind==='wolf'?'#9aa080':this.kind==='ferret'?'#d0c090':'#8a4a20';
+  for(let i=0;i<this.trail.length;i++){
+   const p=this.trail[i],k=i/this.trail.length;
+   ctx.globalAlpha=.07*k*alpha;
+   ctx.fillStyle=color;
+   if(this.kind==='hawk'){
+    ctx.save();ctx.translate(p.x,p.y);ctx.rotate(ang+Math.PI*.5);ctx.beginPath();ctx.ellipse(0,0,this.r*k*.9,this.r*k*.28,0,0,Math.PI*2);ctx.fill();ctx.restore();
+   } else {
+    ctx.beginPath();ctx.ellipse(p.x,p.y,this.r*k*.8,this.r*k*.45,ang,0,Math.PI*2);ctx.fill();
+   }
+  }
+ }
+ _drawWolf(stride){
+  // Angular grey wolf: pointed ears, long muzzle, legs, and raised tail.
+  ctx.fillStyle='#4f5246';ctx.strokeStyle='#171a14';ctx.lineWidth=1.2;
+  ctx.beginPath();ctx.ellipse(-this.r*.15,0,this.r*1.35,this.r*.62,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+  ctx.fillStyle='#6f735f';ctx.beginPath();ctx.moveTo(this.r*.78,-this.r*.34);ctx.lineTo(this.r*1.46,-this.r*.18);ctx.lineTo(this.r*1.62,0);ctx.lineTo(this.r*1.46,this.r*.18);ctx.lineTo(this.r*.78,this.r*.34);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.fillStyle='#35382f';for(const y of [-.22,.22]){ctx.beginPath();ctx.moveTo(this.r*.92,y*this.r);ctx.lineTo(this.r*1.04,y*this.r-this.r*.48*Math.sign(y));ctx.lineTo(this.r*1.18,y*this.r-this.r*.04*Math.sign(y));ctx.closePath();ctx.fill();ctx.stroke();}
+  ctx.fillStyle='#e8e0c0';ctx.beginPath();ctx.arc(this.r*1.55,0,this.r*.12,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#f1d86a';ctx.beginPath();ctx.arc(this.r*1.18,-this.r*.12,this.r*.055,0,Math.PI*2);ctx.arc(this.r*1.18,this.r*.12,this.r*.055,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#2f3328';ctx.lineWidth=1.4;for(const x of [-.65,-.15,.35,.75]){ctx.beginPath();ctx.moveTo(x*this.r,this.r*.48);ctx.lineTo((x+.12*stride)*this.r,this.r*.95);ctx.stroke();}
+  ctx.strokeStyle='#70745f';ctx.lineWidth=this.r*.22;ctx.beginPath();ctx.moveTo(-this.r*1.2,0);ctx.quadraticCurveTo(-this.r*1.8,-this.r*.45,-this.r*2.15,-this.r*.14);ctx.stroke();
+ }
+ _drawBoar(stride){
+  // Stocky armored boar: bristled back, snout plate, tusks, and heavy hooves.
+  const body=ctx.createRadialGradient(-this.r*.3,-this.r*.25,1,0,0,this.r*1.3);body.addColorStop(0,'#b06a32');body.addColorStop(.55,'#7a3a18');body.addColorStop(1,'#321407');
+  ctx.fillStyle=body;ctx.strokeStyle='#1b0903';ctx.lineWidth=1.4;ctx.beginPath();ctx.ellipse(-this.r*.18,0,this.r*1.48,this.r*.86,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+  ctx.fillStyle='#2a1208';for(let i=0;i<6;i++){const x=-this.r*.92+i*this.r*.28;ctx.beginPath();ctx.moveTo(x,-this.r*.7);ctx.lineTo(x+this.r*.13,-this.r*1.08);ctx.lineTo(x+this.r*.25,-this.r*.66);ctx.closePath();ctx.fill();}
+  ctx.fillStyle='#8f4a22';ctx.beginPath();ctx.ellipse(this.r*1.1,0,this.r*.55,this.r*.48,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+  ctx.fillStyle='#3a1809';ctx.beginPath();ctx.ellipse(this.r*1.5,0,this.r*.25,this.r*.28,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#f0d0a0';for(const y of [-.38,.38]){ctx.beginPath();ctx.moveTo(this.r*1.32,y*this.r);ctx.quadraticCurveTo(this.r*1.86,y*this.r*.85,this.r*1.72,y*this.r*.08);ctx.quadraticCurveTo(this.r*1.52,y*this.r*.32,this.r*1.32,y*this.r);ctx.fill();ctx.stroke();}
+  ctx.fillStyle='#130804';ctx.beginPath();ctx.arc(this.r*1.58,-this.r*.08,this.r*.04,0,Math.PI*2);ctx.arc(this.r*1.58,this.r*.08,this.r*.04,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#2b1208';ctx.lineWidth=2;for(const x of [-.75,-.2,.35,.8]){ctx.beginPath();ctx.moveTo(x*this.r,this.r*.6);ctx.lineTo((x+.08*stride)*this.r,this.r*1.0);ctx.stroke();}
+ }
+ _drawHawk(stride){
+  // Golden hawk: wide feathered wings, pointed beak, tail fan, and visible talons.
+  const flap=.25*stride;
+  ctx.fillStyle='#f0d58a';ctx.strokeStyle='#5b3b10';ctx.lineWidth=1.1;
+  ctx.beginPath();ctx.moveTo(this.r*1.35,0);ctx.lineTo(this.r*.25,-this.r*.34);ctx.lineTo(-this.r*.42,0);ctx.lineTo(this.r*.25,this.r*.34);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.fillStyle='#c99738';
+  ctx.beginPath();ctx.moveTo(-this.r*.08,-this.r*.12);ctx.lineTo(-this.r*1.55,-this.r*(.88+flap));ctx.lineTo(-this.r*.78,-this.r*.08);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.beginPath();ctx.moveTo(-this.r*.08,this.r*.12);ctx.lineTo(-this.r*1.55,this.r*(.88+flap));ctx.lineTo(-this.r*.78,this.r*.08);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.strokeStyle='#f6e7aa';ctx.lineWidth=1;for(let i=0;i<4;i++){const yy=(i+1)*this.r*.18;ctx.beginPath();ctx.moveTo(-this.r*.42,-this.r*.18);ctx.lineTo(-this.r*(1.0+i*.15),-yy-this.r*.2);ctx.stroke();ctx.beginPath();ctx.moveTo(-this.r*.42,this.r*.18);ctx.lineTo(-this.r*(1.0+i*.15),yy+this.r*.2);ctx.stroke();}
+  ctx.fillStyle='#ffd35a';ctx.beginPath();ctx.moveTo(this.r*1.35,0);ctx.lineTo(this.r*1.72,-this.r*.13);ctx.lineTo(this.r*1.52,this.r*.12);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.fillStyle='#111';ctx.beginPath();ctx.arc(this.r*.86,-this.r*.08,this.r*.045,0,Math.PI*2);ctx.arc(this.r*.86,this.r*.08,this.r*.045,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#ffd35a';ctx.lineWidth=1.2;for(const y of [-.16,.16]){ctx.beginPath();ctx.moveTo(this.r*.18,y*this.r);ctx.lineTo(this.r*.28,y*this.r+this.r*.34*Math.sign(y));ctx.stroke();}
+ }
+ _drawFerret(stride){
+  // Slim tan ferret: clearly smaller and quicker than the pack beasts.
+  ctx.fillStyle='#b59a68';ctx.strokeStyle='#2a1a08';ctx.lineWidth=1.1;
+  ctx.beginPath();ctx.ellipse(-this.r*.2,0,this.r*1.85,this.r*.55,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+  ctx.fillStyle='#e7d1a0';ctx.beginPath();ctx.ellipse(this.r*1.35,0,this.r*.55,this.r*.42,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+  ctx.fillStyle='#3a2410';ctx.beginPath();ctx.ellipse(this.r*1.78,0,this.r*.16,this.r*.18,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#111';ctx.beginPath();ctx.arc(this.r*1.45,-this.r*.12,this.r*.055,0,Math.PI*2);ctx.arc(this.r*1.45,this.r*.12,this.r*.055,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#d8bf88';ctx.lineWidth=this.r*.28;ctx.beginPath();ctx.moveTo(-this.r*1.65,0);ctx.quadraticCurveTo(-this.r*2.35,-this.r*.42,-this.r*2.75,0);ctx.stroke();
+  ctx.strokeStyle='#3a2410';ctx.lineWidth=1;for(const x of [-.8,-.25,.35,.8]){ctx.beginPath();ctx.moveTo(x*this.r,this.r*.34);ctx.lineTo((x+.16*stride)*this.r,this.r*.72);ctx.stroke();}
+ }
 }
+
 class BurialMound{
  constructor(x,y,owner){
   this.x=x;this.y=y;this.owner=owner;this.r=owner.radius*1.35;this.life=Infinity;this.maxLife=Infinity;this.alive=true;

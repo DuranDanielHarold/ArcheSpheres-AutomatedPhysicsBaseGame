@@ -2264,16 +2264,47 @@ const WEAPONS={
  royalscepter(ctx,r,d,s){
   const t=performance.now()/1000,p=s&&s.decreeT>0?0.5+0.5*Math.sin(t*10):0;
   ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
-  const hg=ctx.createLinearGradient(r*.56,-r*.1,r*2.28,r*.1);hg.addColorStop(0,'#3a1907');hg.addColorStop(.45,'#8a4a18');hg.addColorStop(1,'#1f0b02');
-  ctx.fillStyle=hg;ctx.fillRect(r*.56,-r*.1,r*1.72,r*.2);ctx.strokeStyle='#120602';ctx.lineWidth=r*.022;ctx.strokeRect(r*.56,-r*.1,r*1.72,r*.2);
-  ctx.strokeStyle=d.wcol;ctx.lineWidth=r*.03;for(let i=0;i<3;i++){const x=r*(.84+i*.42);ctx.beginPath();ctx.moveTo(x,-r*.11);ctx.lineTo(x+r*.18,r*.11);ctx.stroke();}
-  ctx.translate(r*2.36,0);ctx.shadowColor=d.rim;ctx.shadowBlur=10+p*14;
-  const mg=ctx.createRadialGradient(-r*.14,-r*.16,r*.04,0,0,r*.48);mg.addColorStop(0,'#fff1a8');mg.addColorStop(.35,d.wcol);mg.addColorStop(.76,d.wdrk);mg.addColorStop(1,'#4c2504');
-  ctx.fillStyle=mg;ctx.beginPath();ctx.arc(0,0,r*.43,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#2a1304';ctx.lineWidth=r*.025;ctx.stroke();
-  ctx.fillStyle='#b60018';ctx.strokeStyle='#ffd35a';ctx.lineWidth=r*.026;
-  for(let i=-2;i<=2;i++){const x=i*r*.13,h=(i===0?r*.62:i%2?r*.48:r*.38);ctx.beginPath();ctx.moveTo(x-r*.075,-r*.19);ctx.lineTo(x,-h);ctx.lineTo(x+r*.075,-r*.19);ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle=i===0?'#7df6ff':'#ffd35a';ctx.beginPath();ctx.arc(x,-h,r*.04,0,Math.PI*2);ctx.fill();ctx.fillStyle='#b60018';}
-  if(s&&s.decreeT>0){ctx.strokeStyle=`rgba(255,211,90,${.45+p*.35})`;ctx.lineWidth=r*.08;ctx.beginPath();ctx.arc(0,0,r*(.58+p*.08),0,Math.PI*2);ctx.stroke();}
-  ctx.restore();
+  // Royal scepter: long gilded ceremonial shaft, jeweled collar, crown head, and heavy orb.
+  const shaftX=r*.55,shaftY=-r*.065,shaftL=r*1.98,shaftH=r*.13;
+  const shaftGrad=ctx.createLinearGradient(shaftX,shaftY,shaftX,shaftY+shaftH);
+  shaftGrad.addColorStop(0,'#fff0a8');shaftGrad.addColorStop(.18,d.wcol);shaftGrad.addColorStop(.48,'#9b6718');shaftGrad.addColorStop(.78,d.wdrk);shaftGrad.addColorStop(1,'#3d2105');
+  ctx.fillStyle=shaftGrad;rrect(ctx,shaftX,shaftY,shaftL,shaftH,r*.045);ctx.fill();
+  ctx.strokeStyle='#2a1402';ctx.lineWidth=r*.022;ctx.stroke();
+  ctx.strokeStyle='rgba(255,245,180,.75)';ctx.lineWidth=r*.018;ctx.beginPath();ctx.moveTo(r*.7,-r*.035);ctx.lineTo(r*2.32,-r*.035);ctx.stroke();
+  ctx.strokeStyle='#ffd35a';ctx.lineWidth=r*.028;
+  for(let i=0;i<5;i++){const x=r*(.74+i*.31);ctx.beginPath();ctx.moveTo(x,-r*.085);ctx.lineTo(x+r*.12,r*.085);ctx.stroke();}
+  // Grip pommel and jewel bands make it read as royal regalia instead of a plain mace.
+  for(const x of [r*.72,r*1.28,r*1.84,r*2.38]){
+   ctx.fillStyle='#d00020';ctx.beginPath();ctx.ellipse(x,0,r*.055,r*.105,0,0,Math.PI*2);ctx.fill();
+   ctx.strokeStyle='#ffd35a';ctx.lineWidth=r*.012;ctx.stroke();
+  }
+  ctx.fillStyle='#7df6ff';ctx.beginPath();ctx.arc(r*2.08,0,r*.06,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#ffffff';ctx.stroke();
+  ctx.translate(r*2.62,0);ctx.shadowColor=d.rim;ctx.shadowBlur=10+p*16;
+  // Heavy jeweled orb at the end of the scepter.
+  const orb=ctx.createRadialGradient(-r*.13,-r*.16,r*.04,0,0,r*.42);
+  orb.addColorStop(0,'#fff7c7');orb.addColorStop(.32,d.wcol);orb.addColorStop(.66,'#c78a1a');orb.addColorStop(1,'#5c3105');
+  ctx.fillStyle=orb;ctx.beginPath();ctx.arc(0,0,r*.38,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#2a1304';ctx.lineWidth=r*.026;ctx.stroke();
+  ctx.fillStyle='#d00020';ctx.beginPath();ctx.arc(-r*.09,-r*.08,r*.07,0,Math.PI*2);ctx.arc(r*.1,r*.09,r*.055,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#7df6ff';ctx.beginPath();ctx.arc(r*.08,-r*.09,r*.045,0,Math.PI*2);ctx.fill();
+  // Crown cup and prongs with fleur-de-lis center.
+  const cup=ctx.createLinearGradient(-r*.38,-r*.37,r*.38,-r*.08);cup.addColorStop(0,'#6c090f');cup.addColorStop(.45,'#d00020');cup.addColorStop(1,'#ff4960');
+  ctx.fillStyle=cup;ctx.strokeStyle='#ffd35a';ctx.lineWidth=r*.028;
+  ctx.beginPath();ctx.moveTo(-r*.39,-r*.17);ctx.quadraticCurveTo(0,-r*.04,r*.39,-r*.17);ctx.lineTo(r*.31,-r*.35);ctx.quadraticCurveTo(0,-r*.27,-r*.31,-r*.35);ctx.closePath();ctx.fill();ctx.stroke();
+  for(let i=-2;i<=2;i++){
+   const x=i*r*.16,h=i===0?r*.76:Math.abs(i)===1?r*.58:r*.46;
+   ctx.fillStyle=i===0?'#b60018':'#d00020';ctx.strokeStyle='#ffd35a';
+   ctx.beginPath();ctx.moveTo(x-r*.075,-r*.31);ctx.lineTo(x,-h);ctx.lineTo(x+r*.075,-r*.31);ctx.closePath();ctx.fill();ctx.stroke();
+   const jewel=i===0?'#7df6ff':Math.abs(i)===1?'#ffd35a':'#fff1a8';
+   ctx.fillStyle=jewel;ctx.beginPath();ctx.arc(x,-h,r*(i===0?.055:.04),0,Math.PI*2);ctx.fill();ctx.strokeStyle='#7a4a08';ctx.lineWidth=r*.01;ctx.stroke();
+  }
+  ctx.fillStyle='#ffd35a';ctx.beginPath();ctx.moveTo(0,-r*.53);ctx.bezierCurveTo(-r*.16,-r*.47,-r*.17,-r*.31,0,-r*.24);ctx.bezierCurveTo(r*.17,-r*.31,r*.16,-r*.47,0,-r*.53);ctx.fill();
+  ctx.fillRect(-r*.025,-r*.49,r*.05,r*.34);
+  if(s&&s.decreeT>0){
+   ctx.strokeStyle=`rgba(255,211,90,${.45+p*.4})`;ctx.lineWidth=r*.07;ctx.setLineDash([r*.08,r*.05]);
+   ctx.beginPath();ctx.arc(0,-r*.22,r*(.72+p*.1),0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
+   ctx.fillStyle=`rgba(255,211,90,${.18+p*.16})`;ctx.beginPath();for(let i=0;i<5;i++){const a=-Math.PI/2+i*Math.PI*2/5,rr=r*(.78+(i%2)*.16);ctx.lineTo(Math.cos(a)*rr,Math.sin(a)*rr-r*.1);}ctx.closePath();ctx.fill();
+  }
+  ctx.shadowBlur=0;ctx.restore();
  },
  regalrapier(ctx,r,d,s){
   const t=performance.now()/1000,p=s&&s.blinking?0.5+0.5*Math.sin(t*14):0;
