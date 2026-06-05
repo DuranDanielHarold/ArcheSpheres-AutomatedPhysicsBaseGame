@@ -315,7 +315,7 @@ const AUDIO_VOLUMES = {
   },
 };
 
-const RANGED_KEYS = new Set(['ranger','wizard','necromancer','sheriff','priest','bard','witch','fairy','arcanist']);
+const RANGED_KEYS = new Set(['ranger','wizard','necromancer','sheriff','priest','bard','witch','fairy','sage','arcanist']);
 
 const CLASS_ROLE = {
   knight:'TANK',samurai:'DUELIST',viking:'BRAWLER',barbarian:'BRUISER',paladin:'SUPPORT',
@@ -513,7 +513,7 @@ const CLASS_DESC = {
     ability:'Kiln Detonation (4 stacks) — Detonates all surviving Glass Shards into small splinter bursts. Taking 3 or more shard blasts briefly blinds and reverses enemy spin.',
     passive:'Glass Litter — Wall bounces and weapon clashes drop fragile Glass Shards. High-speed enemies shatter shards, taking true damage and Bleeding Glass.'
   },
-  witch:{ability:'Hex Convergence (3 stacks) — Fires 3 warping Hex Bolts. Repeated hits briefly halve enemy damage and reverse spin; missed bolts linger as traps.',passive:'Jinx — Hex Bolt hits stack Jinx up to 4, then trigger a random blind, burn, slow, or spin-reverse debuff for 3s.'},
+  witch:{ability:'Hex Convergence (3 stacks) — Fires 3 warping Hex Bolts. Repeated hits briefly halve enemy damage and reverse spin; bolts now fizzle on wall impact.',passive:'Jinx — Hex Bolt hits stack Jinx up to 4, then trigger a random blind, burn, slow, or spin-reverse debuff for 3s.'},
   spartan:{ability:'Phalanx Thrust (3 stacks) — Locks spear forward and charges for 1.2s with 2.5× true contact damage while the rear shield reflects melee pressure.',passive:'Iron Formation — Shield-side hits build stacks that reduce physical damage; at 5 stacks the next ability is primed for free.'},
   gladiator:{ability:"Arena's Verdict (3 stacks) — Throws the net to root the enemy and set armor to 0; gladius attacks during the window deal 3× damage with extra reach.",passive:'Crowd Favor — Gladius hits build Favor for speed/spin. Taking damage removes Favor; at 10 Favor the next hit deals double damage.'},
   king:{ability:'Royal Decree (4 stacks) — Crown shockwave Subdues enemies, dropping spin and speed for 5s while the King doubles spin and damage.',passive:'Sovereign Weight — Collision wins permanently add ARM and DMG up to a match cap, shown as crown pips.'},
@@ -521,7 +521,7 @@ const CLASS_DESC = {
   prince:{ability:'Chivalric Rush (3 stacks) — Accelerates to 3× speed; sabre hits extend the rush, then he reverses direction to escape corners.',passive:'Born to the Blade — Recent wall bounces increase sabre damage and the Prince slowly regenerates HP.'},
   fairy:{ability:'Wish Granted (4 stacks) — Rolls invincibility, a heal burst, a triple-speed dash, or a one-hit mirror clone.',passive:'Pixie Dust Trail — Moving sheds charm dust that reverses enemy spin and slows them; Fairy heals in her own dust.'},
   beastmaster:{ability:'Pack Hunt (4 stacks) — Releases wolf, boar, and hawk companions that hunt enemies for 10s; damage rises while beasts live.',passive:'Wild Bond — Whip hits spawn ferrets; three ferrets on a target trigger an ARM-stripping Frenzy burst.'},
-  sage:{ability:'Foresight (3 stacks) — Becomes untargetable for 2s, mirrors enemy motion in reverse, then releases a 2× Wisdom Wave.',passive:'Ancient Patience — Damage taken converts into permanent DMG and MDEF Knowledge, displayed above the sphere.'},
+  sage:{ability:'Foresight (3 stacks) — Becomes untargetable for 2s, mirrors enemy motion in reverse, then releases a 2× Wisdom Wave.',passive:'Ancient Patience — Fires ranged gibberish wisdom words. Damage taken converts into permanent DMG and MDEF Knowledge, displayed above the sphere.'},
   arcanist:{ability:'Overload (3 stacks) — For 4s shells fly faster, explode wider, and leave longer burn zones; each explosion hurts the Arcanist for true damage.',passive:'Volatile Charge — Avoiding damage builds charge; at full charge the next shell detonates on the enemy position. Taking damage resets charge and knocks self back.'},
 };
 
