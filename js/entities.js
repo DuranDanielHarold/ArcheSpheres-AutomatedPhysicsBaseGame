@@ -1903,21 +1903,19 @@ class Sphere{
   spawnDmgNum(this.x,this.y-this.radius*1.9,'BULWARK +30','#ffd35a');
  }
  _firePrinceArrow(){
-  const target=this._nearestEnemy();
-  let a=this.angle;
-  if(target){a=Math.atan2(target.enemy.y-this.y,target.enemy.x-this.x);this.angle=a;}
+  // Projectiles must honor the weapon's current facing. Do not auto-aim at enemies.
   const tip=this.getTip(),spd=520;
+  const wx=Math.cos(this.angle),wy=Math.sin(this.angle);
   const dmg=(this.d.dmg+2.5)*this.dmgMult;
-  const arr=new Arrow(tip.x,tip.y,Math.cos(a)*spd,Math.sin(a)*spd,dmg,this);
+  const arr=new Arrow(tip.x,tip.y,wx*spd,wy*spd,dmg,this);
   arr.col='#e6f0ff';projectiles.push(arr);
   spawnSpark(tip.x,tip.y,'#e6f0ff',5);
  }
  _fireSageWord(){
-  const target=this._nearestEnemy();
-  let a=this.angle;
-  if(target){a=Math.atan2(target.enemy.y-this.y,target.enemy.x-this.x);this.angle=a;}
+  // Sage words fire straight from the tome tip instead of snapping aim to a target.
   const tip=this.getTip(),spd=330;
-  projectiles.push(new RosterBolt(tip.x,tip.y,Math.cos(a)*spd,Math.sin(a)*spd,this.d.dmg*this.dmgMult,this,'word'));
+  const wx=Math.cos(this.angle),wy=Math.sin(this.angle);
+  projectiles.push(new RosterBolt(tip.x,tip.y,wx*spd,wy*spd,this.d.dmg*this.dmgMult,this,'word'));
   spawnSpark(tip.x,tip.y,'#d6f0b2',4);
  }
  _onWallBounce(){
