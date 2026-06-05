@@ -3754,7 +3754,7 @@ class Sphere{
    if(this.key==='king'&&(this.sovereignArmBonus||0)>0){ctx.fillStyle='#ffd35a';ctx.font=`bold ${Math.max(7,this.radius*.32)}px serif`;ctx.fillText('♛'.repeat(Math.min(5,Math.ceil(this.sovereignArmBonus/6))),this.x,this.y-this.radius-16);}
   }
   ctx.restore();
-  if(!this.dying)this._drawHpBar();
+  if(!this.dying){this._drawHpBar();this._drawStatusEffectBadges();}
  }
  _drawPowerOverlay(){
   const r=this.radius,p=0.5+0.5*Math.sin(Date.now()*.016);
@@ -4339,6 +4339,62 @@ class Sphere{
   if((this.hpBarDisplayHp||0)>=curHp-0.5&&this.hpBarHealAlpha>0){
    this.hpBarHealAlpha=Math.max(0,this.hpBarHealAlpha-dt/0.28);
   }
+ }
+ _collectStatusEffectBadges(){
+  const badges=[];
+  const add=(label,color)=>badges.push({label,color});
+  if(this.stunned)add('STUN','#ffee55');
+  if((this.netRootT||0)>0)add('NET','#f0c08a');
+  if((this.bolaRootT||0)>0)add('ROOT','#ffaa44');
+  if((this.locksmithJamT||0)>0)add('JAM','#d0b45a');
+  if(this.blinded)add('BLIND','#ffee22');
+  if(this.burning)add('BURN','#ff6600');
+  if((this.waterSlow||0)>0)add('SLOW','#44aaff');
+  if(this.electrified)add('SHOCK','#ffee00');
+  if((this.woundT||0)>0)add('WOUND','#b432ff');
+  if((this.bleedStacks||0)>0)add(`BLEED×${this.bleedStacks}`,'#e74c3c');
+  if((this.corrosionStacks||0)>0)add(`CORR×${this.corrosionStacks}`,'#2a8822');
+  if((this.virulenceStacks||0)>0)add(`INFECT×${Math.ceil(this.virulenceStacks)}`,'#aadd44');
+  if((this.sepsisWeakenedT||0)>0)add('WEAK','#aadd44');
+  if((this.gnawedArmorStacks||0)>0)add(`GNAW×${this.gnawedArmorStacks}`,'#b7c06a');
+  if((this.deathMarkTicks||0)>0)add(`MARK×${this.deathMarkTicks}`,'#7c4dff');
+  if((this.subduedT||0)>0)add('SUBDUE','#ffd35a');
+  if((this.dmgHalvedT||0)>0)add('CURSE','#d77bff');
+  if((this.spinReverseT||0)>0)add('REVERSE','#d77bff');
+  if((this.charmedT||0)>0)add('CHARM','#ff8ce2');
+  if((this.courtlyT||0)>0)add('MENACE','#ff8bd1');
+  if((this.bolaSlowT||0)>0)add('SNARED','#ffaa44');
+  if((this.locksmithLocks||0)>0)add(`LOCK×${this.locksmithLocks}`,'#d0b45a');
+  return badges;
+ }
+ _drawStatusEffectBadges(){
+  const badges=this._collectStatusEffectBadges();
+  if(!badges.length)return;
+  const r=this.radius,bw=r*2.35,barY=this.y-r-13;
+  const fontSize=Math.max(5,Math.min(8,r*.18));
+  const padX=3,gapX=3,rowGap=3,badgeH=fontSize+5,maxRowW=Math.max(bw*1.35,70);
+  ctx.save();
+  ctx.font=`bold ${fontSize}px 'Press Start 2P',monospace`;ctx.textAlign='center';ctx.textBaseline='middle';
+  const rows=[];let row=[],rowW=0;
+  for(const badge of badges){
+   const w=Math.ceil(ctx.measureText(badge.label).width)+padX*2;
+   if(row.length&&rowW+w+gapX>maxRowW){rows.push({items:row,w:rowW-gapX});row=[];rowW=0;}
+   row.push({...badge,w});rowW+=w+gapX;
+  }
+  if(row.length)rows.push({items:row,w:rowW-gapX});
+  for(let ri=0;ri<rows.length;ri++){
+   const row=rows[ri];
+   let x=this.x-row.w/2;
+   const y=barY-5-badgeH-ri*(badgeH+rowGap);
+   for(const badge of row.items){
+    const bx=x,by=y;
+    ctx.fillStyle='rgba(4,6,10,.86)';rrect(ctx,bx,by,badge.w,badgeH,3);ctx.fill();
+    ctx.strokeStyle=badge.color;ctx.lineWidth=1;rrect(ctx,bx+.5,by+.5,badge.w-1,badgeH-1,3);ctx.stroke();
+    ctx.fillStyle=badge.color;ctx.fillText(badge.label,bx+badge.w/2,by+badgeH/2+0.5);
+    x+=badge.w+gapX;
+   }
+  }
+  ctx.restore();
  }
  _drawHpBar(){
   this._syncHpBarVisual();
