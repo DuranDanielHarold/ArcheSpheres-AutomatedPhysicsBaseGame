@@ -614,11 +614,11 @@ class Skeleton{
   this._drawWeapon(r*1.35);
   ctx.restore();
   ctx.beginPath();ctx.arc(this.x,this.y,r,0,Math.PI*2);
-  ctx.fillStyle='#2a2a1e';ctx.fill();
+  ctx.fillStyle=this.bodyCol||'#2a2a1e';ctx.fill();
   ctx.beginPath();ctx.arc(this.x,this.y,r,0,Math.PI*2);
-  ctx.strokeStyle='#7c4dff';ctx.lineWidth=2;ctx.stroke();
+  ctx.strokeStyle=this.rimCol||'#7c4dff';ctx.lineWidth=2;ctx.stroke();
   ctx.beginPath();ctx.arc(this.x-r*.15,this.y-r*.15,r*.72,-Math.PI*.88,-Math.PI*.08);
-  ctx.strokeStyle='#c8c0a0';ctx.lineWidth=Math.max(1.5,r*.07);ctx.stroke();
+  ctx.strokeStyle=this.boneCol||'#c8c0a0';ctx.lineWidth=Math.max(1.5,r*.07);ctx.stroke();
   const fs=Math.max(7,r*.52);
   ctx.font=`bold ${fs}px 'Press Start 2P',monospace`;
   ctx.textAlign='center';ctx.textBaseline='middle';
@@ -626,17 +626,17 @@ class Skeleton{
   ctx.fillStyle='#000';
   for(const[ox,oy]of[[-1,-1],[1,-1],[-1,1],[1,1],[0,-2],[0,2],[-2,0],[2,0]])
    ctx.fillText(hpTxt,this.x+ox,this.y+oy);
-  ctx.fillStyle=this.hitFlash>0?'#ffff44':'#c8c0a0';
+  ctx.fillStyle=this.hitFlash>0?'#ffff44':(this.hpCol||this.boneCol||'#c8c0a0');
   ctx.fillText(hpTxt,this.x,this.y);
   const bw=r*2,bh=3,bx=this.x-r,by=this.y-r-8;
   ctx.fillStyle='#111';ctx.fillRect(bx-1,by-1,bw+2,bh+2);
-  ctx.fillStyle='#7c4dff';ctx.fillRect(bx,by,bw*(this.hp/this.maxHp),bh);
-  ctx.fillStyle=`rgba(124,77,255,${0.3*fadeT})`;
+  ctx.fillStyle=this.rimCol||'#7c4dff';ctx.fillRect(bx,by,bw*(this.hp/this.maxHp),bh);
+  ctx.fillStyle=this.lifeCol||`rgba(124,77,255,${0.3*fadeT})`;
   ctx.beginPath();ctx.arc(this.x,this.y+r+6,3*(this.life/this.maxLife),0,Math.PI*2);ctx.fill();
   ctx.restore();
  }
  _drawWeapon(r){
-  const bc='#d4cfa8',bd='#a09060',dk='#5a4a20';
+  const bc=this.weaponCol||'#d4cfa8',bd=this.weaponDark||'#a09060',dk=this.weaponWood||'#5a4a20';
   ctx.strokeStyle=bc;ctx.fillStyle=bc;
   switch(this.weaponType){
    case 'sword':
@@ -676,14 +676,12 @@ class Skeleton{
 
 }
 class BarbAlly extends Skeleton{
- constructor(x,y,king){super(x,y,king.faction);this.owner=king;this.life=10;this.maxLife=10;this.hp=80;this.maxHp=80;this.arm=0;this.magDef=0;this.radius=king.radius*.75;this.mass=4;this.speed=260;this.omegaCur=6*Math.sign(king.omegaCur||1);this.weaponType='sword';this.reach=1.5;this.tipR=.30;this.dmg=king.d.dmg*.5;this.dmgMult=1;}
- update(dt){if(this.owner&&this.owner.alive&&!this.owner.dying&&this.owner.decreeT>0&&Math.hypot(this.x-this.owner.x,this.y-this.owner.y)<this.owner.radius*2.5+this.radius)this.dmgMult=1.6;else this.dmgMult=1;super.update(dt)}
- draw(){if(!this.alive)return;const fadeT=Math.min(1,this.life/1.5),alpha=Math.min(1,fadeT)*(this.hp/this.maxHp*.4+.6),r=this.radius;ctx.save();ctx.globalAlpha=alpha;ctx.save();ctx.translate(this.x,this.y);ctx.rotate(this.angle);ctx.fillStyle='#8a5a10';ctx.fillRect(r*.55,-r*.08,r*.28,r*.16);ctx.fillStyle='#ffee88';ctx.fillRect(r*.82,-r*.055,r*1.15,r*.11);ctx.beginPath();ctx.moveTo(r*1.97,-r*.09);ctx.lineTo(r*2.16,0);ctx.lineTo(r*1.97,r*.09);ctx.closePath();ctx.fill();ctx.restore();ctx.beginPath();ctx.arc(this.x,this.y,r,0,Math.PI*2);ctx.fillStyle='#ffd35a';ctx.fill();ctx.strokeStyle='#ffee88';ctx.lineWidth=2;ctx.stroke();ctx.fillStyle=this.hitFlash>0?'#ffff44':'#6a3a00';ctx.font=`bold ${Math.max(7,r*.48)}px 'Press Start 2P',monospace`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(Math.ceil(this.hp),this.x,this.y);ctx.restore()}
+ constructor(x,y,king){super(x,y,king.faction);this.owner=king;this.life=10;this.maxLife=10;this.hp=80;this.maxHp=80;this.arm=0;this.magDef=0;this.radius=king.radius*.75;this.mass=4;this.speed=260;this.omegaCur=6*Math.sign(king.omegaCur||1);this.weaponType='sword';this.reach=1.5;this.tipR=.30;this.dmg=king.d.dmg*.5;this.dmgMult=1;this.bodyCol='#3a3008';this.rimCol='#ffd35a';this.boneCol='#ffee88';this.hpCol='#fff3a0';this.weaponCol='#ffee88';this.weaponDark='#8a5a10';this.weaponWood='#6a3a00';this.lifeCol='rgba(255,211,90,.3)';}
+ update(dt){let t=null,td=Infinity;for(const s of spheres){if(s.alive&&!s.dying&&!sameFaction(this,s)){const d=Math.hypot(s.x-this.x,s.y-this.y);if(d<td){td=d;t=s;}}}if(t){const dx=t.x-this.x,dy=t.y-this.y,d=td||1;this.vx+=dx/d*this.speed*dt*3.2;this.vy+=dy/d*this.speed*dt*3.2;}if(this.owner&&this.owner.alive&&!this.owner.dying&&this.owner.decreeT>0&&Math.hypot(this.x-this.owner.x,this.y-this.owner.y)<this.owner.radius*2.5+this.radius)this.dmgMult=1.6;else this.dmgMult=1;super.update(dt)}
 }
 class ArcherAlly extends Skeleton{
- constructor(x,y,queen){super(x,y,queen.faction);this.owner=queen;this.life=10;this.maxLife=10;this.hp=80;this.maxHp=80;this.arm=0;this.magDef=0;this.radius=queen.radius*.72;this.mass=3.5;this.speed=240;this.omegaCur=5*Math.sign(queen.omegaCur||1);this.weaponType='bow';this.reach=2.1;this.tipR=.12;this.dmg=queen.d.dmg*.4;this.bowCD=.15;this.kiteCD=0;}
- update(dt){if(!this.alive)return;this.life-=dt;if(this.life<=0||this.hp<=0){this.alive=false;spawnToxicCloud(this.x,this.y);return;}this.hitFlash=Math.max(0,this.hitFlash-dt*5);this.bowCD=Math.max(0,this.bowCD-dt);this.kiteCD=Math.max(0,this.kiteCD-dt);if(this.impactDecay>0){this.impactDecay=Math.max(0,this.impactDecay-dt);this.impactVx*=Math.pow(0.04,dt);this.impactVy*=Math.pow(0.04,dt);}let target=null,td=Infinity;for(const s of spheres){if(s.alive&&!s.dying&&!sameFaction(this,s)){const d=Math.hypot(s.x-this.x,s.y-this.y);if(d<td){td=d;target=s;}}}if(target){const dx=target.x-this.x,dy=target.y-this.y,d=td||1;this.angle=Math.atan2(dy,dx);if(this.kiteCD<=0){this.kiteCD=.15;const danger=this.radius*4,mid=this.radius*8;if(d<danger){this.vx-=dx/d*this.speed*.55;this.vy-=dy/d*this.speed*.55;}else if(d>mid){this.vx+=dx/d*this.speed*.45;this.vy+=dy/d*this.speed*.45;}else{this.vx+=-dy/d*this.speed*.18;this.vy+=dx/d*this.speed*.18;}}if(this.bowCD<=0){this.bowCD=.35;const tip=this.getTip(),spd=360,arr=new Arrow(tip.x,tip.y,Math.cos(this.angle)*spd,Math.sin(this.angle)*spd,this.dmg,this);arr.col='#ff6600';arr.fireBurn=true;projectiles.push(arr);spawnSpark(tip.x,tip.y,'#ff6600',4);}}if(Math.random()<dt*.4){const a=Math.random()*Math.PI*2;this.vx+=Math.cos(a)*this.speed*.2;this.vy+=Math.sin(a)*this.speed*.2;}const spd=Math.hypot(this.vx,this.vy)||1;if(spd>this.speed*1.8){this.vx=this.vx/spd*this.speed*1.8;this.vy=this.vy/spd*this.speed*1.8;}this.vx*=Math.pow(.94,dt*10);this.vy*=Math.pow(.94,dt*10);this.vy+=GRAVITY*.04*dt;this.x+=(this.vx+this.impactVx)*dt;this.y+=(this.vy+this.impactVy)*dt;this.angle+=this.omegaCur*dt*.08;const R=this.radius;if(this.x-R<0){this.x=R+1;this.vx=Math.abs(this.vx)*.55;this.impactVx=0;}if(this.x+R>W){this.x=W-R-1;this.vx=-Math.abs(this.vx)*.55;this.impactVx=0;}if(this.y-R<0){this.y=R+1;this.vy=Math.abs(this.vy)*.55;this.impactVy=0;}if(this.y+R>H){this.y=H-R-1;this.vy=-Math.abs(this.vy)*.55;this.impactVy=0;}}
- draw(){if(!this.alive)return;const fadeT=Math.min(1,this.life/1.5),alpha=Math.min(1,fadeT)*(this.hp/this.maxHp*.4+.6),r=this.radius;ctx.save();ctx.globalAlpha=alpha;ctx.save();ctx.translate(this.x,this.y);ctx.rotate(this.angle);ctx.strokeStyle='#8a2a60';ctx.lineWidth=r*.08;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(r*.7,-r*.65);ctx.quadraticCurveTo(r*1.35,0,r*.7,r*.65);ctx.stroke();ctx.strokeStyle='#ffb8e6';ctx.lineWidth=r*.025;ctx.beginPath();ctx.moveTo(r*.7,-r*.65);ctx.lineTo(r*.7,r*.65);ctx.stroke();ctx.fillStyle='#ff6600';ctx.fillRect(r*.75,-r*.03,r*.95,r*.06);ctx.beginPath();ctx.moveTo(r*1.7,-r*.1);ctx.lineTo(r*1.9,0);ctx.lineTo(r*1.7,r*.1);ctx.closePath();ctx.fill();ctx.restore();ctx.beginPath();ctx.arc(this.x,this.y,r,0,Math.PI*2);ctx.fillStyle='#ff69b4';ctx.fill();ctx.strokeStyle='#ffb8e6';ctx.lineWidth=2;ctx.stroke();ctx.fillStyle=this.hitFlash>0?'#ffff44':'#5b0838';ctx.font=`bold ${Math.max(7,r*.48)}px 'Press Start 2P',monospace`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(Math.ceil(this.hp),this.x,this.y);ctx.restore()}
+ constructor(x,y,queen){super(x,y,queen.faction);this.owner=queen;this.life=10;this.maxLife=10;this.hp=80;this.maxHp=80;this.arm=0;this.magDef=0;this.radius=queen.radius*.72;this.mass=3.5;this.speed=240;this.omegaCur=5*Math.sign(queen.omegaCur||1);this.weaponType='bow';this.reach=2.1;this.tipR=.12;this.dmg=queen.d.dmg*.4;this.bowCD=.15;this.kiteCD=0;this.bodyCol='#331025';this.rimCol='#ff69b4';this.boneCol='#ffb8e6';this.hpCol='#ffe3f5';this.weaponCol='#ffb8e6';this.weaponDark='#b01872';this.weaponWood='#8a2a60';this.lifeCol='rgba(255,105,180,.3)';}
+ update(dt){if(!this.alive)return;this.life-=dt;if(this.life<=0||this.hp<=0){this.alive=false;spawnToxicCloud(this.x,this.y);return;}this.hitFlash=Math.max(0,this.hitFlash-dt*5);this.bowCD=Math.max(0,this.bowCD-dt);this.kiteCD=Math.max(0,this.kiteCD-dt);if(this.impactDecay>0){this.impactDecay=Math.max(0,this.impactDecay-dt);this.impactVx*=Math.pow(0.04,dt);this.impactVy*=Math.pow(0.04,dt);}let target=null,td=Infinity;for(const s of spheres){if(s.alive&&!s.dying&&!sameFaction(this,s)){const d=Math.hypot(s.x-this.x,s.y-this.y);if(d<td){td=d;target=s;}}}if(target){const dx=target.x-this.x,dy=target.y-this.y,d=td||1;if(this.kiteCD<=0){this.kiteCD=.15;const danger=this.radius*4,mid=this.radius*8;if(d<danger){this.vx-=dx/d*this.speed*.55;this.vy-=dy/d*this.speed*.55;}else if(d>mid){this.vx+=dx/d*this.speed*.45;this.vy+=dy/d*this.speed*.45;}else{this.vx+=-dy/d*this.speed*.18;this.vy+=dx/d*this.speed*.18;}}if(this.bowCD<=0){this.bowCD=.35;const tip=this.getTip(),spd=360,arr=new Arrow(tip.x,tip.y,Math.cos(this.angle)*spd,Math.sin(this.angle)*spd,this.dmg,this);arr.col='#ff6600';arr.fireBurn=true;projectiles.push(arr);spawnSpark(tip.x,tip.y,'#ff6600',4);}}if(Math.random()<dt*.4){const a=Math.random()*Math.PI*2;this.vx+=Math.cos(a)*this.speed*.2;this.vy+=Math.sin(a)*this.speed*.2;}const spd=Math.hypot(this.vx,this.vy)||1;if(spd>this.speed*1.8){this.vx=this.vx/spd*this.speed*1.8;this.vy=this.vy/spd*this.speed*1.8;}this.vx*=Math.pow(.94,dt*10);this.vy*=Math.pow(.94,dt*10);this.vy+=GRAVITY*.04*dt;this.x+=(this.vx+this.impactVx)*dt;this.y+=(this.vy+this.impactVy)*dt;this.angle+=this.omegaCur*dt;const R=this.radius;if(this.x-R<0){this.x=R+1;this.vx=Math.abs(this.vx)*.55;this.impactVx=0;}if(this.x+R>W){this.x=W-R-1;this.vx=-Math.abs(this.vx)*.55;this.impactVx=0;}if(this.y-R<0){this.y=R+1;this.vy=Math.abs(this.vy)*.55;this.impactVy=0;}if(this.y+R>H){this.y=H-R-1;this.vy=-Math.abs(this.vy)*.55;this.impactVy=0;}}
 }
 class GrapplingHook{
  constructor(x,y,vx,vy,dmg,owner){
