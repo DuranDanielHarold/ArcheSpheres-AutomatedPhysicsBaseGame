@@ -206,7 +206,7 @@ function resolveAll(){
   for(const s of spheres){
    if(!s.alive||s.dying)continue;
    
-   if(s.key==='necromancer'&&s.faction===sk.faction)continue; // never hit master
+   if(sameFaction(s,sk))continue;
    _skeletonWeaponHit(sk,s);
   }
  }
@@ -223,7 +223,7 @@ function resolveAll(){
   for(const sk of skeletons){
    if(!sk.alive)continue;
    
-   if(s.key==='necromancer'&&s.faction===sk.faction)continue;
+   if(sameFaction(s,sk))continue;
    const dx=sk.x-s.x,dy=sk.y-s.y,dist=Math.hypot(dx,dy)||0.01;
    const bodyMin=s.radius+sk.radius;
    if(dist<bodyMin){
@@ -652,7 +652,7 @@ function _weaponHit(att,def){
     // Ratcatcher — Rat Pack: each weapon hit releases one hunting rat.
     if(traits&&att.key==='ratcatcher')att._spawnRatBurst(1,false);
     if(traits&&att.key==='beastmaster'){noiseTraps.push(new RatMinion(att.x,att.y,(Math.random()-.5)*180,(Math.random()-.5)*180,att,false));def.markedBy=att;}
-    if(traits&&att.key==='gladiator'){att.favor=Math.min(10,(att.favor||0)+1);att.targetSpd=att.baseSpd+att.favor*5;att.omegaCur+=(0.3*Math.sign(att.omegaCur||1));if(att.favor>=10){att.crowdDouble=true;spawnDmgNum(att.x,att.y-att.radius*1.7,'FAVOR','#ffd35a');}}
+    if(traits&&att.key==='gladiator'){att.favor=Math.min(10,(att.favor||0)+0.5);att.targetSpd=att.baseSpd+att.favor*2;att.omegaCur+=(0.12*Math.sign(att.omegaCur||1));if(att.favor>=10){att.crowdDouble=true;spawnDmgNum(att.x,att.y-att.radius*1.7,'FAVOR','#ffd35a');}}
     if(traits&&att.key==='queen'){att.queenDmgBonus=(att.queenDmgBonus||0)+0.005;att.d=Object.assign({},att.d);att.d.dmg+=DEF[att.key].dmg*.005;}
     if(traits&&att.key==='prince'&&att.rushT>0){att.rushT=Math.min(2.5-(att.rushElapsed||0),att.rushT+.25);}
     spawnSpark(hx,hy,att.d.rim,7);
@@ -703,10 +703,10 @@ function _weaponHit(att,def){
  if(!bladeStillInside)att.hasHitThisSwing=false;
 }
 function _applyLocksmithLock(att,def){
- def.locksmithLocks=Math.min(5,(def.locksmithLocks||0)+1);
- spawnDmgNum(def.x,def.y-def.radius*1.7,`LOCK ${def.locksmithLocks}/5`,'#d0b45a');
- if(def.locksmithLocks>=5){
-  def.locksmithJamT=Math.max(def.locksmithJamT||0,0.75);
+ def.locksmithLocks=Math.min(2,(def.locksmithLocks||0)+1);
+ spawnDmgNum(def.x,def.y-def.radius*1.7,`LOCK ${def.locksmithLocks}/2`,'#d0b45a');
+ if(def.locksmithLocks>=2){
+  def.locksmithJamT=Math.max(def.locksmithJamT||0,1.0);
   def.locksmithLocks=0;
   spawnBurst(def.x,def.y,'#d0b45a','#24313a',12);
   spawnDmgNum(def.x,def.y-def.radius*2.0,'JAMMED','#d0b45a');
@@ -777,7 +777,7 @@ function _skeletonWeaponHit(sk,def){
    sk.vx-=(imp/sk.mass)*px*0.3;sk.vy-=(imp/sk.mass)*py*0.3;
   }
   sk.omegaCur*=-1;
-  const dmg=sk.dmg/(def.d.arm*0.004+1);
+  const dmg=sk.dmg*(sk.dmgMult||1)/(def.d.arm*0.004+1);
   if(dmg>0.1){
    def.receiveDamage(dmg);
    spawnSpark(hx,hy,'#c8c0a0',5);
@@ -787,7 +787,7 @@ function _skeletonWeaponHit(sk,def){
  if(!bladeStillIn)sk.hasHitThisSwing=false;
 }
 function _sphereHitSkeleton(att,sk){
- if(att.key==='necromancer'&&att.faction===sk.faction)return;
+ if(sameFaction(att,sk))return;
  if(att.weaponHitCD>0)return;
  const tip=att.getTip();
  const tipR=att.radius*att.d.tipR;

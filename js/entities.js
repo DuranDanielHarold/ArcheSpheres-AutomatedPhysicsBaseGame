@@ -18,25 +18,26 @@ class RosterBolt{
  }
  update(dt){
   this.t+=dt;this.life-=dt;this.trail.push({x:this.x,y:this.y,t:this.t});if(this.trail.length>18)this.trail.shift();
-  if(this.kind==='hex'&&this.life<1.5){const e=spheres.find(s=>s!==this.owner&&s.alive&&!s.dying);if(e){const dx=e.x-this.x,dy=e.y-this.y,d=Math.hypot(dx,dy)||1;this.vx+=(dx/d)*60*dt;this.vy+=(dy/d)*60*dt;}}
+  if(this.kind==='hex'&&this.life<1.5){const e=spheres.find(s=>s!==this.owner&&!sameFaction(this.owner,s)&&s.alive&&!s.dying);if(e){const dx=e.x-this.x,dy=e.y-this.y,d=Math.hypot(dx,dy)||1;this.vx+=(dx/d)*60*dt;this.vy+=(dy/d)*60*dt;}}
   this.x+=this.vx*dt;this.y+=this.vy*dt;
   if(this.x<0||this.x>W||this.y<0||this.y>H){if(this.kind==='arcane'){this._explode();return;}spawnSpark(Math.max(4,Math.min(W-4,this.x)),Math.max(4,Math.min(H-4,this.y)),this.kind==='dust'?'#fff0ff':this.kind==='word'?'#d6f0b2':'#d77bff',4);this.alive=false;return;}
   if(this.life<=0){this.alive=false;return;}
-  for(const q of spheres){if(q===this.owner||!q.alive||q.dying)continue;if(Math.hypot(q.x-this.x,q.y-this.y)<q.radius+this.r){this._hit(q);return;}}
+  for(const q of spheres){if(q===this.owner||sameFaction(this.owner,q)||!q.alive||q.dying)continue;if(Math.hypot(q.x-this.x,q.y-this.y)<q.radius+this.r){this._hit(q);return;}}
  }
  _hit(q){
   if(this.kind==='arcane'){this._explode(q);return;}
-  if(this.kind==='dust'){q.receiveMagicDamage(this.dmg);if(this.owner&&this.owner.canTriggerTraits!==false){this.owner.gainStack();this.owner._applyHitBuff();}spawnSpark(this.x,this.y,'#fff0ff',5);return this.alive=false;}
-  if(this.kind==='word'){q.receiveMagicDamage(this.dmg);if(this.owner&&this.owner.canTriggerTraits!==false){this.owner.gainStack();this.owner._applyHitBuff();}spawnDmgNum(q.x,q.y-q.radius*1.7,this.word,'#d6f0b2');spawnBurst(this.x,this.y,'#d6f0b2','#6c8f52',7);return this.alive=false;}
-  q.receiveMagicDamage(this.dmg);if(this.owner&&this.owner.canTriggerTraits!==false){this.owner.gainStack();this.owner._applyHitBuff();}
+  if(this.kind==='dust'){q.receiveMagicDamage(this.dmg);if(this.owner&&this.owner.canTriggerTraits!==false&&this.owner.gainStack){this.owner.gainStack();this.owner._applyHitBuff();}spawnSpark(this.x,this.y,'#fff0ff',5);return this.alive=false;}
+  if(this.kind==='word'){q.receiveMagicDamage(this.dmg);if(this.owner&&this.owner.canTriggerTraits!==false&&this.owner.gainStack){this.owner.gainStack();this.owner._applyHitBuff();}spawnDmgNum(q.x,q.y-q.radius*1.7,this.word,'#d6f0b2');spawnBurst(this.x,this.y,'#d6f0b2','#6c8f52',7);return this.alive=false;}
+  q.receiveMagicDamage(this.dmg);
   q.hexRecent=(q.hexRecent||[]).filter(t=>this.t-t<0.5);q.hexRecent.push(this.t);q.jinxStacks=(q.jinxStacks||0)+1;
   if(q.hexRecent.length>=2){q.dmgHalvedT=Math.max(q.dmgHalvedT||0,4);q.omegaCur*=-1;spawnDmgNum(q.x,q.y-q.radius*1.8,'CURSE','#d77bff');spawnPulse(q.x,q.y,'#d77bff');}
   if(q.jinxStacks>=4){q.jinxStacks=0;const roll=Math.floor(Math.random()*4);if(roll===0){q.blinded=true;q.blindT=3;}else if(roll===1){q.burning=true;q.burnT=3;q.burnTickT=0.4;}else if(roll===2){q.waterSlow=Math.max(q.waterSlow||0,2);q.waterSlowT=3;}else{q.omegaCur*=-1;q.spinReverseT=3;}spawnDmgNum(q.x,q.y-q.radius*2,'JINX','#d77bff');spawnBurst(q.x,q.y,'#d77bff','#12051f',12);}
+  if(this.owner&&this.owner.canTriggerTraits!==false&&this.owner.gainStack&&!this.owner.hexBurstFired&&(this.owner.stacks||0)<getStackThreshold(this.owner.key)){this.owner.gainStack();this.owner._applyHitBuff();}
   this.alive=false;spawnBurst(this.x,this.y,'#d77bff','#5b1f86',8);
  }
  _explode(target){
   const rad=this.owner.radius*(this.owner.overloadActive?2.7:1.7);
-  for(const q of spheres){if(q===this.owner||!q.alive||q.dying)continue;if(Math.hypot(q.x-this.x,q.y-this.y)<rad+q.radius){q.receiveMagicDamage(this.dmg);if(this.owner&&this.owner.canTriggerTraits!==false){this.owner.gainStack();this.owner._applyHitBuff();}}}
+  for(const q of spheres){if(q===this.owner||sameFaction(this.owner,q)||!q.alive||q.dying)continue;if(Math.hypot(q.x-this.x,q.y-this.y)<rad+q.radius){q.receiveMagicDamage(this.dmg);if(this.owner&&this.owner.canTriggerTraits!==false&&this.owner.gainStack){this.owner.gainStack();this.owner._applyHitBuff();}}}
   slowZones.push(new ArcaneBurnZone(this.x,this.y,rad,this.owner.overloadActive?6:2,this.owner));
   if(this.owner.overloadActive){this.owner.hp=Math.max(1,this.owner.hp-5);spawnDmgNum(this.owner.x,this.owner.y-this.owner.radius*1.2,5,'#78d8ff');}
   spawnBurst(this.x,this.y,'#78d8ff','#e8fbff',18);spawnPulse(this.x,this.y,'#78d8ff');this.alive=false;
@@ -68,7 +69,7 @@ class RosterBolt{
 }
 class PixieDustPatch{
  constructor(x,y,owner){this.x=x;this.y=y;this.owner=owner;this.r=owner.radius*0.8;this.life=3;this.maxLife=3;this.alive=true;this.t=0;this.tick=0;this.seed=Math.random()*10;}
- update(dt){this.life-=dt;this.t+=dt;if(this.life<=0)this.alive=false;for(const s of spheres){if(!s.alive||s.dying)continue;if(Math.hypot(s.x-this.x,s.y-this.y)<this.r+s.radius){if(s===this.owner){this.tick-=dt;if(this.tick<=0){this.tick=.5;s.receiveHeal(1);}}else{s.omegaCur=-Math.abs(s.omegaCur||1)*Math.sign(this.owner.omegaCur||1);s.charmedT=1.2;s.vx*=.75;s.vy*=.75;}}}}
+ update(dt){this.life-=dt;this.t+=dt;if(this.life<=0)this.alive=false;for(const s of spheres){if(!s.alive||s.dying)continue;if(Math.hypot(s.x-this.x,s.y-this.y)<this.r+s.radius){if(s===this.owner){this.tick-=dt;if(this.tick<=0){this.tick=.5;s.receiveHeal(0.3);}}else{s.omegaCur=-Math.abs(s.omegaCur||1)*Math.sign(this.owner.omegaCur||1);s.charmedT=1.2;s.vx*=.75;s.vy*=.75;}}}}
  draw(){ctx.save();const a=this.life/this.maxLife;ctx.globalAlpha=.12+.26*a;const g=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r);g.addColorStop(0,'rgba(255,255,255,.9)');g.addColorStop(.45,'rgba(255,184,239,.55)');g.addColorStop(1,'rgba(255,90,200,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fill();ctx.globalAlpha=.35*a;ctx.strokeStyle='#fff0ff';ctx.setLineDash([4,5]);ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(this.x,this.y,this.r*(.74+.08*Math.sin(this.t*4)),0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);for(let i=0;i<7;i++){const ang=this.seed+i*Math.PI*2/7+this.t*.7,rr=this.r*(.18+.62*((i*37)%100)/100);ctx.fillStyle=i%2?'#ff8ce2':'#fff0ff';ctx.beginPath();ctx.arc(this.x+Math.cos(ang)*rr,this.y+Math.sin(ang)*rr,1.4+i%3,0,Math.PI*2);ctx.fill();}ctx.restore();}
 }
 class ArcaneBurnZone{
@@ -369,7 +370,7 @@ class ThornPatch{
   this.dotTimer+=dt;
   for(const s of spheres){
    const isEnemy=!this.owner||s!==this.owner;
-   if(!isEnemy||!s.alive||s.dying)continue;
+   if(!isEnemy||sameFaction(this.owner,s)||!s.alive||s.dying)continue;
    if(s.hp<=0)continue;
    const d=Math.hypot(s.x-this.x,s.y-this.y);
    if(d<this.r+s.radius){
@@ -561,9 +562,8 @@ class Skeleton{
   }
   let target=null,tDist=Infinity;
   for(const s of spheres){
-   const isEnemy=true;
+   const isEnemy=!sameFaction(this,s);
    if(!isEnemy||!s.alive||s.dying)continue;
-   if(s.key==='necromancer'&&s.faction===this.faction)continue;
    const d=Math.hypot(s.x-this.x,s.y-this.y);
    if(d<tDist){tDist=d;target=s;}
   }
@@ -673,6 +673,17 @@ class Skeleton{
     break;
   }
  }
+
+}
+class BarbAlly extends Skeleton{
+ constructor(x,y,king){super(x,y,king.faction);this.owner=king;this.life=10;this.maxLife=10;this.hp=80;this.maxHp=80;this.arm=0;this.magDef=0;this.radius=king.radius*.75;this.mass=4;this.speed=260;this.omegaCur=6*Math.sign(king.omegaCur||1);this.weaponType='sword';this.reach=1.5;this.tipR=.30;this.dmg=king.d.dmg*.5;this.dmgMult=1;}
+ update(dt){if(this.owner&&this.owner.alive&&!this.owner.dying&&this.owner.decreeT>0&&Math.hypot(this.x-this.owner.x,this.y-this.owner.y)<this.owner.radius*2.5+this.radius)this.dmgMult=1.6;else this.dmgMult=1;super.update(dt)}
+ draw(){if(!this.alive)return;const fadeT=Math.min(1,this.life/1.5),alpha=Math.min(1,fadeT)*(this.hp/this.maxHp*.4+.6),r=this.radius;ctx.save();ctx.globalAlpha=alpha;ctx.save();ctx.translate(this.x,this.y);ctx.rotate(this.angle);ctx.fillStyle='#8a5a10';ctx.fillRect(r*.55,-r*.08,r*.28,r*.16);ctx.fillStyle='#ffee88';ctx.fillRect(r*.82,-r*.055,r*1.15,r*.11);ctx.beginPath();ctx.moveTo(r*1.97,-r*.09);ctx.lineTo(r*2.16,0);ctx.lineTo(r*1.97,r*.09);ctx.closePath();ctx.fill();ctx.restore();ctx.beginPath();ctx.arc(this.x,this.y,r,0,Math.PI*2);ctx.fillStyle='#ffd35a';ctx.fill();ctx.strokeStyle='#ffee88';ctx.lineWidth=2;ctx.stroke();ctx.fillStyle=this.hitFlash>0?'#ffff44':'#6a3a00';ctx.font=`bold ${Math.max(7,r*.48)}px 'Press Start 2P',monospace`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(Math.ceil(this.hp),this.x,this.y);ctx.restore()}
+}
+class ArcherAlly extends Skeleton{
+ constructor(x,y,queen){super(x,y,queen.faction);this.owner=queen;this.life=10;this.maxLife=10;this.hp=80;this.maxHp=80;this.arm=0;this.magDef=0;this.radius=queen.radius*.72;this.mass=3.5;this.speed=240;this.omegaCur=5*Math.sign(queen.omegaCur||1);this.weaponType='bow';this.reach=2.1;this.tipR=.12;this.dmg=queen.d.dmg*.4;this.bowCD=.15;this.kiteCD=0;}
+ update(dt){if(!this.alive)return;this.life-=dt;if(this.life<=0||this.hp<=0){this.alive=false;spawnToxicCloud(this.x,this.y);return;}this.hitFlash=Math.max(0,this.hitFlash-dt*5);this.bowCD=Math.max(0,this.bowCD-dt);this.kiteCD=Math.max(0,this.kiteCD-dt);if(this.impactDecay>0){this.impactDecay=Math.max(0,this.impactDecay-dt);this.impactVx*=Math.pow(0.04,dt);this.impactVy*=Math.pow(0.04,dt);}let target=null,td=Infinity;for(const s of spheres){if(s.alive&&!s.dying&&!sameFaction(this,s)){const d=Math.hypot(s.x-this.x,s.y-this.y);if(d<td){td=d;target=s;}}}if(target){const dx=target.x-this.x,dy=target.y-this.y,d=td||1;this.angle=Math.atan2(dy,dx);if(this.kiteCD<=0){this.kiteCD=.15;const danger=this.radius*4,mid=this.radius*8;if(d<danger){this.vx-=dx/d*this.speed*.55;this.vy-=dy/d*this.speed*.55;}else if(d>mid){this.vx+=dx/d*this.speed*.45;this.vy+=dy/d*this.speed*.45;}else{this.vx+=-dy/d*this.speed*.18;this.vy+=dx/d*this.speed*.18;}}if(this.bowCD<=0){this.bowCD=.35;const tip=this.getTip(),spd=360,arr=new Arrow(tip.x,tip.y,Math.cos(this.angle)*spd,Math.sin(this.angle)*spd,this.dmg,this);arr.col='#ff6600';arr.fireBurn=true;projectiles.push(arr);spawnSpark(tip.x,tip.y,'#ff6600',4);}}if(Math.random()<dt*.4){const a=Math.random()*Math.PI*2;this.vx+=Math.cos(a)*this.speed*.2;this.vy+=Math.sin(a)*this.speed*.2;}const spd=Math.hypot(this.vx,this.vy)||1;if(spd>this.speed*1.8){this.vx=this.vx/spd*this.speed*1.8;this.vy=this.vy/spd*this.speed*1.8;}this.vx*=Math.pow(.94,dt*10);this.vy*=Math.pow(.94,dt*10);this.vy+=GRAVITY*.04*dt;this.x+=(this.vx+this.impactVx)*dt;this.y+=(this.vy+this.impactVy)*dt;this.angle+=this.omegaCur*dt*.08;const R=this.radius;if(this.x-R<0){this.x=R+1;this.vx=Math.abs(this.vx)*.55;this.impactVx=0;}if(this.x+R>W){this.x=W-R-1;this.vx=-Math.abs(this.vx)*.55;this.impactVx=0;}if(this.y-R<0){this.y=R+1;this.vy=Math.abs(this.vy)*.55;this.impactVy=0;}if(this.y+R>H){this.y=H-R-1;this.vy=-Math.abs(this.vy)*.55;this.impactVy=0;}}
+ draw(){if(!this.alive)return;const fadeT=Math.min(1,this.life/1.5),alpha=Math.min(1,fadeT)*(this.hp/this.maxHp*.4+.6),r=this.radius;ctx.save();ctx.globalAlpha=alpha;ctx.save();ctx.translate(this.x,this.y);ctx.rotate(this.angle);ctx.strokeStyle='#8a2a60';ctx.lineWidth=r*.08;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(r*.7,-r*.65);ctx.quadraticCurveTo(r*1.35,0,r*.7,r*.65);ctx.stroke();ctx.strokeStyle='#ffb8e6';ctx.lineWidth=r*.025;ctx.beginPath();ctx.moveTo(r*.7,-r*.65);ctx.lineTo(r*.7,r*.65);ctx.stroke();ctx.fillStyle='#ff6600';ctx.fillRect(r*.75,-r*.03,r*.95,r*.06);ctx.beginPath();ctx.moveTo(r*1.7,-r*.1);ctx.lineTo(r*1.9,0);ctx.lineTo(r*1.7,r*.1);ctx.closePath();ctx.fill();ctx.restore();ctx.beginPath();ctx.arc(this.x,this.y,r,0,Math.PI*2);ctx.fillStyle='#ff69b4';ctx.fill();ctx.strokeStyle='#ffb8e6';ctx.lineWidth=2;ctx.stroke();ctx.fillStyle=this.hitFlash>0?'#ffff44':'#5b0838';ctx.font=`bold ${Math.max(7,r*.48)}px 'Press Start 2P',monospace`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(Math.ceil(this.hp),this.x,this.y);ctx.restore()}
 }
 class GrapplingHook{
  constructor(x,y,vx,vy,dmg,owner){
@@ -978,8 +989,8 @@ class HolyOrb{
        s.d=Object.assign({},s.d);
     const baseMagDef=DEF[s.key].magDef;
     s.d.magDef=Math.max(Math.max(0,baseMagDef-30),s.d.magDef-5);
-    this.owner.gainStack();
-    this.owner._applyHitBuff();
+    if(this.fireBurn){s.burning=true;s.burnT=2.5;s.burnTickInterval=1.0;s.burnTickT=1.0;}
+    if(this.owner&&this.owner.gainStack){this.owner.gainStack();this.owner._applyHitBuff();}
     spawnSpark(this.x,this.y,'#fff8c0',8);
     spawnBurst(this.x,this.y,'#f0e890','#fff',10);
     this.alive=false;return;
@@ -1066,14 +1077,14 @@ class Arrow{
   }
   for(const s of spheres){
    const isEnemy=s!==this.owner;
-   if(!isEnemy||!s.alive||s.dying)continue;
+   if(!isEnemy||sameFaction(this.owner,s)||!s.alive||s.dying)continue;
    if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+8){
     const nx=(s.x-this.x)/Math.hypot(s.x-this.x,s.y-this.y)||1;
     const ny=(s.y-this.y)/Math.hypot(s.x-this.x,s.y-this.y)||0;
     s.applyImpact(nx*Math.hypot(this.vx,this.vy)*0.32,ny*Math.hypot(this.vx,this.vy)*0.32);
     s.receiveDamage(this.dmg);
-    this.owner.gainStack();
-    this.owner._applyHitBuff();
+    if(this.fireBurn){s.burning=true;s.burnT=2.5;s.burnTickInterval=1.0;s.burnTickT=1.0;}
+    if(this.owner&&this.owner.gainStack){this.owner.gainStack();this.owner._applyHitBuff();}
     if(this.isCrit){
      spawnBurst(this.x,this.y,'#ff4400','#ffaa22',14);
      spawnDmgNum(s.x,s.y-s.radius*1.4,this.dmg,'#ff4400');
@@ -1085,7 +1096,7 @@ class Arrow{
   }
   for(const sk of skeletons){
    const isEnemy=true;
-   if(!isEnemy||!sk.alive)continue;
+   if(!isEnemy||sk===this.owner||sameFaction(this.owner,sk)||!sk.alive)continue;
    if(Math.hypot(sk.x-this.x,sk.y-this.y)<sk.radius+8){
     const dmg=this.dmg/(sk.arm*0.004+1);
     sk.hp=Math.max(0,sk.hp-dmg);sk.hitFlash=1;
@@ -1240,8 +1251,8 @@ class SkullOrb{
    if(!isEnemy||!s.alive||s.dying)continue;
    if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+this.r+3){
     s.receiveMagicDamage(this.dmg); // magic damage — uses magDef not arm
-    this.owner.gainStack();
-    this.owner._applyHitBuff();
+    if(this.fireBurn){s.burning=true;s.burnT=2.5;s.burnTickInterval=1.0;s.burnTickT=1.0;}
+    if(this.owner&&this.owner.gainStack){this.owner.gainStack();this.owner._applyHitBuff();}
     if(s.deathMarkTicks<=0){
      s.deathMarkTicks=7;
      s.deathMarkTimer=0.18;
@@ -1819,7 +1830,7 @@ class Sphere{
   this.locksmithLocks=0;this.locksmithJamT=0;
   this.gnawedArmorStacks=0;this.gnawedArmorT=0;
   this.glassBleedT=0;this.glassBleedTickT=0;
-  this.favor=0;this.crowdDouble=false;this.netRootT=0;this.netLockoutT=0;this.savedArm=null;this.ironStacks=0;this.sovereignArmBonus=0;this.sovereignDmgBonus=0;this.decreeT=0;this.queenDmgBonus=0;this.rushT=0;this.rushElapsed=0;this.wishClone=null;this.dustDropT=0;this.packHuntT=0;this.knowledge=0;this.foresightT=0;this.overloadActive=false;this.overloadT=0;this.arcaneCharge=0;this.hexBurstActive=false;
+  this.favor=0;this.crowdDouble=false;this.netRootT=0;this.netLockoutT=0;this.savedArm=null;this.ironStacks=0;this.sovereignArmBonus=0;this.sovereignDmgBonus=0;this.decreeT=0;this.queenDmgBonus=0;this.queenInvisible=false;this.queenInvisibleT=0;this.rushT=0;this.rushElapsed=0;this.wishClone=null;this.dustDropT=0;this.packHuntT=0;this.knowledge=0;this.foresightT=0;this.overloadActive=false;this.overloadT=0;this.arcaneCharge=0;this.hexBurstActive=false;this.hexBurstFired=false;this.hexBurstFiredT=0;
  }
  _nearestEnemy(){
   let nearest=null,nearDist=Infinity;
@@ -1915,7 +1926,7 @@ class Sphere{
   // Sage words fire straight from the tome tip instead of snapping aim to a target.
   const tip=this.getTip(),spd=330;
   const wx=Math.cos(this.angle),wy=Math.sin(this.angle);
-  projectiles.push(new RosterBolt(tip.x,tip.y,wx*spd,wy*spd,this.d.dmg*this.dmgMult,this,'word'));
+  projectiles.push(new RosterBolt(tip.x,tip.y,wx*spd,wy*spd,(this.d.dmg+8)*this.dmgMult,this,'word'));
   spawnSpark(tip.x,tip.y,'#d6f0b2',4);
  }
  _onWallBounce(){
@@ -2364,14 +2375,14 @@ class Sphere{
     if(this.stacks>=3){
      this.stacks=0;
      this.invincible=true;this.invincibleT=1.5;
-     this._flagellantSelfWound(25);
+     this._flagellantSelfWound(10);
      for(const s of spheres){
       if(s===this||!s.alive||s.dying)continue;
       const dx=s.x-this.x,dy=s.y-this.y,d=Math.hypot(dx,dy)||1;
       if(d<this.radius+s.radius+18){
-       s.hp=Math.max(0,s.hp-25);s.hitFlash=1;
+       s.hp=Math.max(0,s.hp-10);s.hitFlash=1;
        s.applyImpact((dx/d)*180,(dy/d)*180);
-       spawnDmgNum(s.x,s.y-s.radius*1.5,25,'#d8b06a');
+       spawnDmgNum(s.x,s.y-s.radius*1.5,10,'#d8b06a');
        if(s.hp<=0&&!s.dying){s.alive=false;s.dying=true;spawnBurst(s.x,s.y,s.d.rim,s.d.color,28);}
       }
      }
@@ -2390,7 +2401,7 @@ class Sphere{
      if(enLock){
       const locks=enLock.locksmithLocks||0;
       enLock.stacks=Math.max(0,enLock.stacks-locks*0.25);
-      if(locks>=5)enLock.locksmithJamT=Math.max(enLock.locksmithJamT||0,1.1);
+      if(locks>=2)enLock.locksmithJamT=Math.max(enLock.locksmithJamT||0,1.1);
       this.targetSpd=this.baseSpd*(1+locks*0.08);
       this.locksmithHasteT=0.35*locks;
       enLock.locksmithLocks=0;
@@ -2422,15 +2433,15 @@ class Sphere{
      spawnPulse(this.x,this.y,'#82f4ff');
     } break;
    case 'witch':
-    if(this.stacks>=3){this.stacks=0;const tip=this.getTip();for(const off of[-.16,0,.16]){const a=this.angle+off;projectiles.push(new RosterBolt(tip.x,tip.y,Math.cos(a)*240,Math.sin(a)*240,this.d.dmg*this.dmgMult,this,'hex'));}spawnBurst(this.x,this.y,'#d77bff','#5b1f86',16);} break;
+    if(this.stacks>=3){this.stacks=0;this.hexBurstFired=true;this.hexBurstFiredT=.5;const tip=this.getTip();for(const off of[-.16,0,.16]){const a=this.angle+off;projectiles.push(new RosterBolt(tip.x,tip.y,Math.cos(a)*240,Math.sin(a)*240,(this.d.dmg+8)*this.dmgMult,this,'hex'));}spawnBurst(this.x,this.y,'#d77bff','#5b1f86',16);} break;
    case 'spartan':
     if(this.stacks>=3||this.ironStacks>=5){this.stacks=0;this.ironStacks=0;this.ramActive=true;this.ramT=1.2;this.dmgMult=2.5;this.vx=Math.cos(this.angle)*this.baseSpd*3;this.vy=Math.sin(this.angle)*this.baseSpd*3;this.targetSpd=this.baseSpd*3;spawnBurst(this.x,this.y,'#d24634','#d8b060',18);} break;
    case 'gladiator':
-    if(this.stacks>=3&&this.netLockoutT<=0){this.stacks=0;const en=spheres.find(s=>s!==this&&s.alive&&!s.dying);if(en){en.netRootT=1.4;en.savedArm=en.d.arm;en.d=Object.assign({},en.d);en.d.arm=0;this.dmgMult=3;this.netLockoutT=2.9;spawnDmgNum(en.x,en.y-en.radius*1.8,'NET','#f0c08a');}} break;
+    if(this.stacks>=3&&this.netLockoutT<=0){this.stacks=0;const en=spheres.find(s=>s!==this&&s.alive&&!s.dying);if(en){en.netRootT=0.8;en.savedArm=en.d.arm;en.d=Object.assign({},en.d);en.d.arm=en.savedArm*.3;this.dmgMult=1.8;this.netLockoutT=2.0;spawnDmgNum(en.x,en.y-en.radius*1.8,'NET','#f0c08a');}} break;
    case 'king':
-    if(this.stacks>=4){this.stacks=0;this.decreeT=5;this.dmgMult=2;this.omegaCur=this.d.om*2*Math.sign(this.omegaCur||1);for(const en of spheres){if(en!==this&&en.alive&&!en.dying){en.subduedT=5;en.vx*=.6;en.vy*=.6;en.omegaCur=(en.d.om*.15)*Math.sign(en.omegaCur||1);}}spawnBurst(this.x,this.y,'#ffd35a','#d00020',30);spawnPulse(this.x,this.y,'#ffd35a');} break;
+    if(this.stacks>=4){this.stacks=0;this.decreeT=6;this.dmgMult=1.6;this.omegaCur=(this.d.om*1.5)*Math.sign(this.omegaCur||1);for(let i=0;i<3;i++){const a=i*Math.PI*2/3+Math.random()*.4;skeletons.push(new BarbAlly(this.x+Math.cos(a)*this.radius*1.4,this.y+Math.sin(a)*this.radius*1.4,this));}spawnBurst(this.x,this.y,'#ffd35a','#d00020',30);spawnPulse(this.x,this.y,'#ffd35a');} break;
    case 'queen':
-    if(this.stacks>=3){this.stacks=0;const en=spheres.find(s=>s!==this&&s.alive&&!s.dying);if(en){const a=Math.atan2(en.vy||Math.sin(en.angle),en.vx||Math.cos(en.angle))+Math.PI;this.x=en.x+Math.cos(a)*(en.radius+this.radius+6);this.y=en.y+Math.sin(a)*(en.radius+this.radius+6);const td=this.d.dmg*3;en.hp=Math.max(0,en.hp-td);en.hitFlash=1;spawnDmgNum(en.x,en.y-en.radius*1.8,td,'#ff8bd1');if(en.hp<=0||en.hp/en.maxHp<.25)this.stacks=3;if(en.hp<=0&&!en.dying){en.alive=false;en.dying=true;spawnBurst(en.x,en.y,en.d.rim,en.d.color,28);}}} break;
+    if(this.stacks>=3){this.stacks=0;this.queenInvisible=true;this.queenInvisibleT=3;this.untargetable=true;spawnBurst(this.x,this.y,'#ff69b4','#ffb8e6',18);} break;
    case 'prince':
     if(this.stacks>=4)this._startPrinceRoyalBlood(); break;
    case 'fairy':
@@ -3293,14 +3304,14 @@ class Sphere{
      }
     }
     break;
-   case 'witch': if(this.shotCD<=0){this.shotCD=.45;const tip=this.getTip();projectiles.push(new RosterBolt(tip.x,tip.y,Math.cos(this.angle)*250,Math.sin(this.angle)*250,this.d.dmg*this.dmgMult,this,'hex'));}this._applyKite(dt);break;
-   case 'fairy': this.dustDropT-=dt;if(this.dustDropT<=0){this.dustDropT=.22;noiseTraps.push(new PixieDustPatch(this.x,this.y,this));}if(this.shotCD<=0){this.shotCD=.38;const tip=this.getTip();projectiles.push(new RosterBolt(tip.x,tip.y,Math.cos(this.angle)*360,Math.sin(this.angle)*360,this.d.dmg*.75,this,'dust'));}if(this.wishDashT>0){this.wishDashT-=dt;if(this.wishDashT<=0)this.targetSpd=this.baseSpd;}this._applyKite(dt);break;
-   case 'arcanist': this.arcaneCharge=Math.min(5,(this.arcaneCharge||0)+dt);if(this.overloadActive){this.overloadT-=dt;if(this.overloadT<=0)this.overloadActive=false;}if(this.shotCD<=0){this.shotCD=this.overloadActive?.28:.62;const tip=this.getTip(),spd=this.overloadActive?660:220;const b=new RosterBolt(tip.x,tip.y,Math.cos(this.angle)*spd,Math.sin(this.angle)*spd,this.d.dmg*this.dmgMult,this,'arcane');if(this.arcaneCharge>=5){const en=spheres.find(s=>s!==this&&s.alive&&!s.dying);if(en){b.x=en.x;b.y=en.y;b._explode(en);}this.arcaneCharge=0;}else projectiles.push(b);}this._applyKite(dt);break;
-   case 'queen': for(const en of spheres){if(en!==this&&en.alive&&!en.dying&&Math.hypot(en.x-this.x,en.y-this.y)<this.radius*2.9+en.radius){en.courtlyT=1.5;en.vx*=.90;en.vy*=.90;}}break;
+   case 'witch': if(this.hexBurstFiredT>0){this.hexBurstFiredT-=dt;if(this.hexBurstFiredT<=0)this.hexBurstFired=false;}if(this.shotCD<=0){this.shotCD=.28;const tip=this.getTip();projectiles.push(new RosterBolt(tip.x,tip.y,Math.cos(this.angle)*250,Math.sin(this.angle)*250,(this.d.dmg+8)*this.dmgMult,this,'hex'));}this._applyKite(dt);break;
+   case 'fairy': this.dustDropT-=dt;if(this.dustDropT<=0){this.dustDropT=.22;noiseTraps.push(new PixieDustPatch(this.x,this.y,this));}if(this.shotCD<=0){this.shotCD=.22;const tip=this.getTip();projectiles.push(new RosterBolt(tip.x,tip.y,Math.cos(this.angle)*360,Math.sin(this.angle)*360,(this.d.dmg+8)*.75,this,'dust'));}if(this.wishDashT>0){this.wishDashT-=dt;if(this.wishDashT<=0)this.targetSpd=this.baseSpd;}this._applyKite(dt);break;
+   case 'arcanist': this.arcaneCharge=Math.min(5,(this.arcaneCharge||0)+dt);if(this.overloadActive){this.overloadT-=dt;if(this.overloadT<=0)this.overloadActive=false;}if(this.shotCD<=0){this.shotCD=this.overloadActive?.20:.38;const tip=this.getTip(),spd=this.overloadActive?660:220;const b=new RosterBolt(tip.x,tip.y,Math.cos(this.angle)*spd,Math.sin(this.angle)*spd,(this.d.dmg+8)*this.dmgMult,this,'arcane');if(this.arcaneCharge>=5){const en=spheres.find(s=>s!==this&&s.alive&&!s.dying);if(en){b.x=en.x;b.y=en.y;b._explode(en);}this.arcaneCharge=0;}else projectiles.push(b);}this._applyKite(dt);break;
+   case 'queen': if(this.queenInvisibleT>0){this.queenInvisibleT-=dt;if(this.queenInvisibleT<=0){this.queenInvisible=false;this.untargetable=false;for(let i=0;i<3;i++){const a=i*Math.PI*2/3+Math.random()*.4;skeletons.push(new ArcherAlly(this.x+Math.cos(a)*this.radius*1.3,this.y+Math.sin(a)*this.radius*1.3,this));}spawnBurst(this.x,this.y,'#ff69b4','#ffb8e6',18);}}for(const en of spheres){if(en!==this&&en.alive&&!en.dying&&Math.hypot(en.x-this.x,en.y-this.y)<this.radius*2.9+en.radius){en.courtlyT=1.5;en.vx*=.90;en.vy*=.90;}}break;
    case 'prince': this._updatePrinceWeaponMaster(dt);break;
    case 'king': if(this.decreeT>0){this.decreeT-=dt;if(this.decreeT<=0){this.dmgMult=1;this.omegaCur=this.d.om*Math.sign(this.omegaCur||1);}}break;
    case 'gladiator': if(this.netLockoutT>0){this.netLockoutT-=dt;if(this.netLockoutT<=0)this.dmgMult=1;}break;
-   case 'sage': if(this.shotCD<=0){this.shotCD=.55;this._fireSageWord();}this._applyKite(dt);if(this.foresightT>0){this.foresightT-=dt;const en=spheres.find(s=>s!==this&&s.alive&&!s.dying);if(en){this.vx=-(en.vx+en.impactVx);this.vy=-(en.vy+en.impactVy);}if(this.foresightT<=0){this.untargetable=false;for(const q of spheres){if(q!==this&&q.alive&&!q.dying&&Math.hypot(q.x-this.x,q.y-this.y)<this.radius*4)q.receiveMagicDamage(this.d.dmg*2);}spawnPulse(this.x,this.y,'#d6f0b2');}}break;
+   case 'sage': if(this.shotCD<=0){this.shotCD=.32;this._fireSageWord();}this._applyKite(dt);if(this.foresightT>0){this.foresightT-=dt;const en=spheres.find(s=>s!==this&&s.alive&&!s.dying);if(en){this.vx=-(en.vx+en.impactVx);this.vy=-(en.vy+en.impactVy);}if(this.foresightT<=0){this.untargetable=false;for(const q of spheres){if(q!==this&&q.alive&&!q.dying&&Math.hypot(q.x-this.x,q.y-this.y)<this.radius*4)q.receiveMagicDamage(this.d.dmg*2);}spawnPulse(this.x,this.y,'#d6f0b2');}}break;
    case 'whelpling':
     // Mouth open timer countdown
     if(this.mouthOpenTimer>0)this.mouthOpenTimer=Math.max(0,this.mouthOpenTimer-dt);
@@ -3822,9 +3833,9 @@ class Sphere{
   const sign=Math.sign(this.omegaCur)||1;
   this.omegaCur=Math.abs(this.omegaCur)*1.004*sign;
   if(this.key==='gladiator'){
-   this.favor=Math.min(10,(this.favor||0)+1);
-   this.targetSpd=this.baseSpd+this.favor*5;
-   this.omegaCur=(Math.sign(this.omegaCur)||1)*(this.d.om+this.favor*.3);
+   this.favor=Math.min(10,(this.favor||0)+0.5);
+   this.targetSpd=this.baseSpd+this.favor*2;
+   this.omegaCur=(Math.sign(this.omegaCur)||1)*(this.d.om+this.favor*.12);
    if(this.favor>=10){this.crowdDouble=true;spawnDmgNum(this.x,this.y-this.radius*1.7,'FAVOR!','#ffd35a');spawnBurst(this.x,this.y,'#ffd35a','#f0c08a',16);}
   }
   if(this.key==='beastmaster'){
@@ -3849,7 +3860,7 @@ class Sphere{
   if(!this.alive&&this.dyingT>0.7)return;
   const alpha=this.dying?Math.max(0,1-this.dyingT/0.7):1;
   const leapAlpha=this.isLeaping?Math.max(0.0,1.0-(1.2-this.leapT)/1.2):1;
-  let baseAlpha=this.phaseOut?alpha*0.45:this.ghostMode?alpha*0.30:alpha*leapAlpha;
+  let baseAlpha=this.phaseOut?alpha*0.45:this.ghostMode?alpha*0.30:alpha*leapAlpha;if(this.queenInvisible)baseAlpha=alpha*.08;
   if(this.isReplica)baseAlpha*=this.replicaKind==='phase'?0.58:0.84;
   // Shadow + warning drawn inside _passiveAbility during leap — nothing extra needed here
   ctx.save();ctx.globalAlpha=baseAlpha;
@@ -3885,6 +3896,8 @@ class Sphere{
    ctx.strokeStyle=`rgba(255,255,255,${.7+p*.3})`;ctx.lineWidth=4;ctx.stroke();
    ctx.shadowBlur=0;
   }
+  if(this.key==='king'&&this.decreeT>0){const rr=r*2.5+p*4;ctx.shadowColor='#ffd35a';ctx.shadowBlur=18;ctx.beginPath();ctx.arc(this.x,this.y,rr,0,Math.PI*2);ctx.strokeStyle=`rgba(255,211,90,${.58+p*.32})`;ctx.lineWidth=4;ctx.stroke();ctx.shadowBlur=0;}
+  if(this.queenInvisible){ctx.shadowColor='#ffb8e6';ctx.shadowBlur=12;ctx.beginPath();ctx.arc(this.x,this.y,r+5+p*2,0,Math.PI*2);ctx.strokeStyle=`rgba(255,184,230,${.35+p*.25})`;ctx.lineWidth=2;ctx.stroke();ctx.shadowBlur=0;}
   if(this.isReplica){
    ctx.beginPath();ctx.arc(this.x,this.y,r+5+p*2,0,Math.PI*2);
    ctx.strokeStyle=this.replicaKind==='phase'?`rgba(224,247,250,${0.45+p*0.25})`:`rgba(224,247,250,${0.65+p*0.25})`;
