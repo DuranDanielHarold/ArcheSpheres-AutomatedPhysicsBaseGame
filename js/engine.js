@@ -747,9 +747,9 @@ function _weaponClash(a,b){
  if(a.canTriggerTraits!==false&&a.key==='locksmith')_applyLocksmithLock(a,b);
  if(b.canTriggerTraits!==false&&b.key==='locksmith')_applyLocksmithLock(b,a);
  if(a.canTriggerTraits!==false&&a.key==='glassblower')a._dropGlassShard(mx,my);
- if(a.canTriggerTraits!==false&&b.key==='spartan'){b.ironStacks=Math.min(5,(b.ironStacks||0)+1);if(b.ramActive){a.receiveDamage(30);}}
+ if(a.canTriggerTraits!==false&&b.key==='spartan'){b.ironStacks=Math.min(5,(b.ironStacks||0)+1);if(b.ramActive){a.receiveDamage(1);}}
  if(b.canTriggerTraits!==false&&b.key==='glassblower')b._dropGlassShard(mx,my);
- if(b.canTriggerTraits!==false&&a.key==='spartan'){a.ironStacks=Math.min(5,(a.ironStacks||0)+1);if(a.ramActive){b.receiveDamage(30);}}
+ if(b.canTriggerTraits!==false&&a.key==='spartan'){a.ironStacks=Math.min(5,(a.ironStacks||0)+1);if(a.ramActive){b.receiveDamage(1);}}
  const bx=b.x-a.x,by2=b.y-a.y,bd=Math.hypot(bx,by2)||1;
  a.applyImpact(-(bx/bd)*80,-(by2/bd)*80);b.applyImpact((bx/bd)*80,(by2/bd)*80);
 }
