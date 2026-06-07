@@ -39,7 +39,7 @@ class RosterBolt{
   const rad=this.owner.radius*(this.owner.overloadActive?2.7:1.7);
   for(const q of spheres){if(q===this.owner||sameFaction(this.owner,q)||!q.alive||q.dying)continue;if(Math.hypot(q.x-this.x,q.y-this.y)<rad+q.radius){q.receiveMagicDamage(this.dmg);if(this.owner&&this.owner.canTriggerTraits!==false&&this.owner.gainStack){this.owner.gainStack();this.owner._applyHitBuff();}}}
   slowZones.push(new ArcaneBurnZone(this.x,this.y,rad,this.owner.overloadActive?6:2,this.owner));
-  if(this.owner.overloadActive){this.owner.hp=Math.max(1,this.owner.hp-5);spawnDmgNum(this.owner.x,this.owner.y-this.owner.radius*1.2,5,'#78d8ff');}
+  if(this.owner.overloadActive){const selfHarm=2;this.owner.hp=Math.max(1,this.owner.hp-selfHarm);spawnDmgNum(this.owner.x,this.owner.y-this.owner.radius*1.2,selfHarm,'#78d8ff');}
   spawnBurst(this.x,this.y,'#78d8ff','#e8fbff',18);spawnPulse(this.x,this.y,'#78d8ff');this.alive=false;
  }
  draw(){
@@ -131,6 +131,8 @@ class BeastCompanion{
   ctx.fillStyle='#6f735f';ctx.beginPath();ctx.moveTo(this.r*.78,-this.r*.34);ctx.lineTo(this.r*1.46,-this.r*.18);ctx.lineTo(this.r*1.62,0);ctx.lineTo(this.r*1.46,this.r*.18);ctx.lineTo(this.r*.78,this.r*.34);ctx.closePath();ctx.fill();ctx.stroke();
   ctx.fillStyle='#35382f';for(const y of [-.22,.22]){ctx.beginPath();ctx.moveTo(this.r*.92,y*this.r);ctx.lineTo(this.r*1.04,y*this.r-this.r*.48*Math.sign(y));ctx.lineTo(this.r*1.18,y*this.r-this.r*.04*Math.sign(y));ctx.closePath();ctx.fill();ctx.stroke();}
   ctx.fillStyle='#e8e0c0';ctx.beginPath();ctx.arc(this.r*1.55,0,this.r*.12,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#ffb060';ctx.lineWidth=this.r*.09;ctx.beginPath();ctx.moveTo(this.r*.58,-this.r*.32);ctx.lineTo(this.r*.58,this.r*.32);ctx.stroke();
+  ctx.fillStyle='#ffd35a';ctx.beginPath();ctx.arc(this.r*.58,0,this.r*.11,0,Math.PI*2);ctx.fill();
   ctx.fillStyle='#f1d86a';ctx.beginPath();ctx.arc(this.r*1.18,-this.r*.12,this.r*.055,0,Math.PI*2);ctx.arc(this.r*1.18,this.r*.12,this.r*.055,0,Math.PI*2);ctx.fill();
   ctx.strokeStyle='#2f3328';ctx.lineWidth=1.4;for(const x of [-.65,-.15,.35,.75]){ctx.beginPath();ctx.moveTo(x*this.r,this.r*.48);ctx.lineTo((x+.12*stride)*this.r,this.r*.95);ctx.stroke();}
   ctx.strokeStyle='#70745f';ctx.lineWidth=this.r*.22;ctx.beginPath();ctx.moveTo(-this.r*1.2,0);ctx.quadraticCurveTo(-this.r*1.8,-this.r*.45,-this.r*2.15,-this.r*.14);ctx.stroke();
@@ -141,6 +143,7 @@ class BeastCompanion{
   ctx.fillStyle=body;ctx.strokeStyle='#1b0903';ctx.lineWidth=1.4;ctx.beginPath();ctx.ellipse(-this.r*.18,0,this.r*1.48,this.r*.86,0,0,Math.PI*2);ctx.fill();ctx.stroke();
   ctx.fillStyle='#2a1208';for(let i=0;i<6;i++){const x=-this.r*.92+i*this.r*.28;ctx.beginPath();ctx.moveTo(x,-this.r*.7);ctx.lineTo(x+this.r*.13,-this.r*1.08);ctx.lineTo(x+this.r*.25,-this.r*.66);ctx.closePath();ctx.fill();}
   ctx.fillStyle='#8f4a22';ctx.beginPath();ctx.ellipse(this.r*1.1,0,this.r*.55,this.r*.48,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+  ctx.fillStyle='rgba(255,176,96,.55)';for(let i=0;i<3;i++){ctx.beginPath();ctx.ellipse(-this.r*(.52-i*.42),0,this.r*.17,this.r*.72,0,0,Math.PI*2);ctx.fill();ctx.stroke();}
   ctx.fillStyle='#3a1809';ctx.beginPath();ctx.ellipse(this.r*1.5,0,this.r*.25,this.r*.28,0,0,Math.PI*2);ctx.fill();
   ctx.fillStyle='#f0d0a0';for(const y of [-.38,.38]){ctx.beginPath();ctx.moveTo(this.r*1.32,y*this.r);ctx.quadraticCurveTo(this.r*1.86,y*this.r*.85,this.r*1.72,y*this.r*.08);ctx.quadraticCurveTo(this.r*1.52,y*this.r*.32,this.r*1.32,y*this.r);ctx.fill();ctx.stroke();}
   ctx.fillStyle='#130804';ctx.beginPath();ctx.arc(this.r*1.58,-this.r*.08,this.r*.04,0,Math.PI*2);ctx.arc(this.r*1.58,this.r*.08,this.r*.04,0,Math.PI*2);ctx.fill();
@@ -153,6 +156,7 @@ class BeastCompanion{
   ctx.beginPath();ctx.moveTo(this.r*1.35,0);ctx.lineTo(this.r*.25,-this.r*.34);ctx.lineTo(-this.r*.42,0);ctx.lineTo(this.r*.25,this.r*.34);ctx.closePath();ctx.fill();ctx.stroke();
   ctx.fillStyle='#c99738';
   ctx.beginPath();ctx.moveTo(-this.r*.08,-this.r*.12);ctx.lineTo(-this.r*1.55,-this.r*(.88+flap));ctx.lineTo(-this.r*.78,-this.r*.08);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.fillStyle='#fff1a8';ctx.beginPath();ctx.moveTo(-this.r*1.55,-this.r*(.88+flap));ctx.lineTo(-this.r*1.18,-this.r*(.74+flap));ctx.lineTo(-this.r*1.32,-this.r*(.56+flap));ctx.closePath();ctx.fill();
   ctx.beginPath();ctx.moveTo(-this.r*.08,this.r*.12);ctx.lineTo(-this.r*1.55,this.r*(.88+flap));ctx.lineTo(-this.r*.78,this.r*.08);ctx.closePath();ctx.fill();ctx.stroke();
   ctx.strokeStyle='#f6e7aa';ctx.lineWidth=1;for(let i=0;i<4;i++){const yy=(i+1)*this.r*.18;ctx.beginPath();ctx.moveTo(-this.r*.42,-this.r*.18);ctx.lineTo(-this.r*(1.0+i*.15),-yy-this.r*.2);ctx.stroke();ctx.beginPath();ctx.moveTo(-this.r*.42,this.r*.18);ctx.lineTo(-this.r*(1.0+i*.15),yy+this.r*.2);ctx.stroke();}
   ctx.fillStyle='#ffd35a';ctx.beginPath();ctx.moveTo(this.r*1.35,0);ctx.lineTo(this.r*1.72,-this.r*.13);ctx.lineTo(this.r*1.52,this.r*.12);ctx.closePath();ctx.fill();ctx.stroke();
@@ -561,20 +565,22 @@ class Skeleton{
    this.impactVy*=Math.pow(0.04,dt);
   }
   let target=null,tDist=Infinity;
-  for(const s of spheres){
-   const isEnemy=!sameFaction(this,s);
-   if(!isEnemy||!s.alive||s.dying)continue;
-   const d=Math.hypot(s.x-this.x,s.y-this.y);
-   if(d<tDist){tDist=d;target=s;}
-  }
-  if(target){
-   if(this.weaponType==='bow'&&this.bowCD<=0){
-    this.bowCD=1.2;
-    const tip=this.getTip();
-    const bspd=280;
-    const wx=Math.cos(this.angle),wy=Math.sin(this.angle);
-    projectiles.push(new BoneArrow(tip.x,tip.y,wx*bspd,wy*bspd,this));
-    spawnSpark(tip.x,tip.y,'#c8c0a0',3);
+  if(!this.randomOnly){
+   for(const s of spheres){
+    const isEnemy=!sameFaction(this,s);
+    if(!isEnemy||!s.alive||s.dying)continue;
+    const d=Math.hypot(s.x-this.x,s.y-this.y);
+    if(d<tDist){tDist=d;target=s;}
+   }
+   if(target){
+    if(this.weaponType==='bow'&&this.bowCD<=0){
+     this.bowCD=1.2;
+     const tip=this.getTip();
+     const bspd=280;
+     const wx=Math.cos(this.angle),wy=Math.sin(this.angle);
+     projectiles.push(new BoneArrow(tip.x,tip.y,wx*bspd,wy*bspd,this));
+     spawnSpark(tip.x,tip.y,'#c8c0a0',3);
+    }
    }
   }
   // Wander — occasional random direction nudge so movement feels alive
@@ -590,12 +596,13 @@ class Skeleton{
   // Minimal friction — skeletons glide fast and change direction quickly
   this.vx*=Math.pow(0.96,dt*10);
   this.vy*=Math.pow(0.96,dt*10);
-  this.vy+=GRAVITY*0.04*dt; // near-zero gravity so it doesn't arc down
+  this.vy+=GRAVITY*(this.fullGravity?1:0.04)*dt; // player-like ally spawns use full arena gravity
   this.x+=(this.vx+this.impactVx)*dt;
   this.y+=(this.vy+this.impactVy)*dt;
-  this.angle+=this.omegaCur*dt;
+  if(this.abilityAimT>0){this.abilityAimT=Math.max(0,this.abilityAimT-dt);if(this.abilityAimAngle!==null)this.angle=this.abilityAimAngle;else this.angle+=this.omegaCur*dt;}
+  else {this.abilityAimAngle=null;this.angle+=this.omegaCur*dt;}
   const R=this.radius;
-  const SKW=0.55;
+  const SKW=this.fullGravity?WALL_REST:0.55;
   if(this.x-R<0){this.x=R+1;this.vx=Math.abs(this.vx)*SKW;this.impactVx=0;}
   if(this.x+R>W){this.x=W-R-1;this.vx=-Math.abs(this.vx)*SKW;this.impactVx=0;}
   if(this.y-R<0){this.y=R+1;this.vy=Math.abs(this.vy)*SKW;this.impactVy=0;}
@@ -676,12 +683,12 @@ class Skeleton{
 
 }
 class BarbAlly extends Skeleton{
- constructor(x,y,king){super(x,y,king.faction);this.owner=king;this.life=10;this.maxLife=10;this.hp=80;this.maxHp=80;this.arm=0;this.magDef=0;this.radius=king.radius*.75;this.mass=4;this.speed=260;this.omegaCur=6*Math.sign(king.omegaCur||1);this.weaponType='sword';this.reach=1.5;this.tipR=.30;this.dmg=king.d.dmg*.5;this.dmgMult=1;this.bodyCol='#3a3008';this.rimCol='#ffd35a';this.boneCol='#ffee88';this.hpCol='#fff3a0';this.weaponCol='#ffee88';this.weaponDark='#8a5a10';this.weaponWood='#6a3a00';this.lifeCol='rgba(255,211,90,.3)';}
- update(dt){let t=null,td=Infinity;for(const s of spheres){if(s.alive&&!s.dying&&!sameFaction(this,s)){const d=Math.hypot(s.x-this.x,s.y-this.y);if(d<td){td=d;t=s;}}}if(t){const dx=t.x-this.x,dy=t.y-this.y,d=td||1;this.vx+=dx/d*this.speed*dt*3.2;this.vy+=dy/d*this.speed*dt*3.2;}if(this.owner&&this.owner.alive&&!this.owner.dying&&this.owner.decreeT>0&&Math.hypot(this.x-this.owner.x,this.y-this.owner.y)<this.owner.radius*2.5+this.radius)this.dmgMult=1.6;else this.dmgMult=1;super.update(dt)}
+ constructor(x,y,king){super(x,y,king.faction);this.owner=king;this.life=10;this.maxLife=10;this.hp=80;this.maxHp=80;this.arm=0;this.magDef=0;this.radius=king.radius*.75;this.mass=4;this.speed=260;this.fullGravity=true;this.randomOnly=true;{const a=Math.random()*Math.PI*2;this.vx=Math.cos(a)*this.speed;this.vy=Math.sin(a)*this.speed;}this.omegaCur=6*Math.sign(king.omegaCur||1);this.weaponType='sword';this.reach=1.5;this.tipR=.30;this.dmg=king.d.dmg*.5;this.dmgMult=1;this.bodyCol='#3a3008';this.rimCol='#ffd35a';this.boneCol='#ffee88';this.hpCol='#fff3a0';this.weaponCol='#ffee88';this.weaponDark='#8a5a10';this.weaponWood='#6a3a00';this.lifeCol='rgba(255,211,90,.3)';}
+ update(dt){if(this.owner&&this.owner.alive&&!this.owner.dying&&this.owner.decreeT>0&&Math.hypot(this.x-this.owner.x,this.y-this.owner.y)<this.owner.radius*2.5+this.radius)this.dmgMult=1.6;else this.dmgMult=1;super.update(dt)}
 }
 class ArcherAlly extends Skeleton{
- constructor(x,y,queen){super(x,y,queen.faction);this.owner=queen;this.life=10;this.maxLife=10;this.hp=80;this.maxHp=80;this.arm=0;this.magDef=0;this.radius=queen.radius*.72;this.mass=3.5;this.speed=240;this.omegaCur=5*Math.sign(queen.omegaCur||1);this.weaponType='bow';this.reach=2.1;this.tipR=.12;this.dmg=queen.d.dmg*.4;this.bowCD=.15;this.kiteCD=0;this.bodyCol='#331025';this.rimCol='#ff69b4';this.boneCol='#ffb8e6';this.hpCol='#ffe3f5';this.weaponCol='#ffb8e6';this.weaponDark='#b01872';this.weaponWood='#8a2a60';this.lifeCol='rgba(255,105,180,.3)';}
- update(dt){if(!this.alive)return;this.life-=dt;if(this.life<=0||this.hp<=0){this.alive=false;spawnToxicCloud(this.x,this.y);return;}this.hitFlash=Math.max(0,this.hitFlash-dt*5);this.bowCD=Math.max(0,this.bowCD-dt);this.kiteCD=Math.max(0,this.kiteCD-dt);if(this.impactDecay>0){this.impactDecay=Math.max(0,this.impactDecay-dt);this.impactVx*=Math.pow(0.04,dt);this.impactVy*=Math.pow(0.04,dt);}let target=null,td=Infinity;for(const s of spheres){if(s.alive&&!s.dying&&!sameFaction(this,s)){const d=Math.hypot(s.x-this.x,s.y-this.y);if(d<td){td=d;target=s;}}}if(target){const dx=target.x-this.x,dy=target.y-this.y,d=td||1;if(this.kiteCD<=0){this.kiteCD=.15;const danger=this.radius*4,mid=this.radius*8;if(d<danger){this.vx-=dx/d*this.speed*.55;this.vy-=dy/d*this.speed*.55;}else if(d>mid){this.vx+=dx/d*this.speed*.45;this.vy+=dy/d*this.speed*.45;}else{this.vx+=-dy/d*this.speed*.18;this.vy+=dx/d*this.speed*.18;}}if(this.bowCD<=0){this.bowCD=.35;const tip=this.getTip(),spd=360,arr=new Arrow(tip.x,tip.y,Math.cos(this.angle)*spd,Math.sin(this.angle)*spd,this.dmg,this);arr.col='#ff6600';arr.fireBurn=true;projectiles.push(arr);spawnSpark(tip.x,tip.y,'#ff6600',4);}}if(Math.random()<dt*.4){const a=Math.random()*Math.PI*2;this.vx+=Math.cos(a)*this.speed*.2;this.vy+=Math.sin(a)*this.speed*.2;}const spd=Math.hypot(this.vx,this.vy)||1;if(spd>this.speed*1.8){this.vx=this.vx/spd*this.speed*1.8;this.vy=this.vy/spd*this.speed*1.8;}this.vx*=Math.pow(.94,dt*10);this.vy*=Math.pow(.94,dt*10);this.vy+=GRAVITY*.04*dt;this.x+=(this.vx+this.impactVx)*dt;this.y+=(this.vy+this.impactVy)*dt;this.angle+=this.omegaCur*dt;const R=this.radius;if(this.x-R<0){this.x=R+1;this.vx=Math.abs(this.vx)*.55;this.impactVx=0;}if(this.x+R>W){this.x=W-R-1;this.vx=-Math.abs(this.vx)*.55;this.impactVx=0;}if(this.y-R<0){this.y=R+1;this.vy=Math.abs(this.vy)*.55;this.impactVy=0;}if(this.y+R>H){this.y=H-R-1;this.vy=-Math.abs(this.vy)*.55;this.impactVy=0;}}
+ constructor(x,y,queen){super(x,y,queen.faction);this.owner=queen;this.life=10;this.maxLife=10;this.hp=80;this.maxHp=80;this.arm=0;this.magDef=0;this.radius=queen.radius*.72;this.mass=3.5;this.speed=240;this.fullGravity=true;this.randomOnly=true;{const a=Math.random()*Math.PI*2;this.vx=Math.cos(a)*this.speed;this.vy=Math.sin(a)*this.speed;}this.omegaCur=5*Math.sign(queen.omegaCur||1);this.weaponType='bow';this.reach=2.1;this.tipR=.12;this.dmg=queen.d.dmg*.4;this.bowCD=.15;this.kiteCD=0;this.bodyCol='#331025';this.rimCol='#ff69b4';this.boneCol='#ffb8e6';this.hpCol='#ffe3f5';this.weaponCol='#ffb8e6';this.weaponDark='#b01872';this.weaponWood='#8a2a60';this.lifeCol='rgba(255,105,180,.3)';}
+ update(dt){super.update(dt)}
 }
 class GrapplingHook{
  constructor(x,y,vx,vy,dmg,owner){
@@ -1828,16 +1835,25 @@ class Sphere{
   this.locksmithLocks=0;this.locksmithJamT=0;
   this.gnawedArmorStacks=0;this.gnawedArmorT=0;
   this.glassBleedT=0;this.glassBleedTickT=0;
-  this.favor=0;this.crowdDouble=false;this.netRootT=0;this.netLockoutT=0;this.savedArm=null;this.ironStacks=0;this.sovereignArmBonus=0;this.sovereignDmgBonus=0;this.decreeT=0;this.queenDmgBonus=0;this.queenInvisible=false;this.queenInvisibleT=0;this.rushT=0;this.rushElapsed=0;this.wishClone=null;this.dustDropT=0;this.packHuntT=0;this.knowledge=0;this.foresightT=0;this.overloadActive=false;this.overloadT=0;this.arcaneCharge=0;this.hexBurstActive=false;this.hexBurstFired=false;this.hexBurstFiredT=0;
+  this.favor=0;this.crowdDouble=false;this.netRootT=0;this.netLockoutT=0;this.savedArm=null;this.ironStacks=0;this.sovereignArmBonus=0;this.sovereignDmgBonus=0;this.decreeT=0;this.queenDmgBonus=0;this.queenInvisible=false;this.queenInvisibleT=0;this.rushT=0;this.rushElapsed=0;this.wishClone=null;this.wishFireRateT=0;this.dustDropT=0;this.packHuntT=0;this.knowledge=0;this.foresightT=0;this.overloadActive=false;this.overloadT=0;this.arcaneCharge=0;this.hexBurstActive=false;this.hexBurstFired=false;this.hexBurstFiredT=0;this.abilityAimT=0;this.abilityAimAngle=null;
  }
  _nearestEnemy(){
   let nearest=null,nearDist=Infinity;
   for(const s of spheres){
-   if(s===this||!s.alive||s.dying)continue;
+   if(s===this||!s.alive||s.dying||sameFaction(this,s))continue;
    const d=Math.hypot(s.x-this.x,s.y-this.y);
    if(d<nearDist){nearDist=d;nearest=s;}
   }
   return nearest?{enemy:nearest,dist:nearDist}:null;
+ }
+ _aimAbilityAtNearestEnemy(duration=0.3){
+  const target=this._nearestEnemy();
+  if(!target)return false;
+  const dx=target.enemy.x-this.x,dy=target.enemy.y-this.y;
+  this.abilityAimAngle=Math.atan2(dy,dx);
+  this.abilityAimT=duration;
+  this.angle=this.abilityAimAngle;
+  return true;
  }
  _removePrinceModeBonuses(){
   if(this.key!=='prince')return;
@@ -1992,6 +2008,7 @@ class Sphere{
  }
  gainStack(){
   if(this.canTriggerTraits===false)return;
+  if(this.key==='queen'&&this.queenInvisible)return; // no stack gain during Royal Invisibility
   if(this.key==='monk'&&this.nirvanaActive)return; // no stack gain during Nirvana
   const cap=getStackThreshold(this.key);
   if(this.key==='druid'){
@@ -2431,19 +2448,19 @@ class Sphere{
      spawnPulse(this.x,this.y,'#82f4ff');
     } break;
    case 'witch':
-    if(this.stacks>=3){this.stacks=0;this.hexBurstFired=true;this.hexBurstFiredT=.5;const tip=this.getTip();for(const off of[-.16,0,.16]){const a=this.angle+off;projectiles.push(new RosterBolt(tip.x,tip.y,Math.cos(a)*240,Math.sin(a)*240,(this.d.dmg+8)*this.dmgMult,this,'hex'));}spawnBurst(this.x,this.y,'#d77bff','#5b1f86',16);} break;
+    if(this.stacks>=3){this.stacks=0;this._aimAbilityAtNearestEnemy(.38);this.hexBurstFired=true;this.hexBurstFiredT=.5;const tip=this.getTip();for(const off of[-.16,0,.16]){const a=this.angle+off;projectiles.push(new RosterBolt(tip.x,tip.y,Math.cos(a)*240,Math.sin(a)*240,(this.d.dmg+4)*this.dmgMult,this,'hex'));}spawnBurst(this.x,this.y,'#d77bff','#5b1f86',16);} break;
    case 'spartan':
-    if(this.stacks>=3||this.ironStacks>=5){this.stacks=0;this.ironStacks=0;this.ramActive=true;this.ramT=1.2;this.dmgMult=2.5;this.vx=Math.cos(this.angle)*this.baseSpd*3;this.vy=Math.sin(this.angle)*this.baseSpd*3;this.targetSpd=this.baseSpd*3;spawnBurst(this.x,this.y,'#d24634','#d8b060',18);} break;
+    if(this.stacks>=3||this.ironStacks>=5){this.stacks=0;this.ironStacks=0;this._aimAbilityAtNearestEnemy(.32);this.ramActive=true;this.ramT=1.2;this.dmgMult=2.5;this.vx=Math.cos(this.angle)*this.baseSpd*3;this.vy=Math.sin(this.angle)*this.baseSpd*3;this.targetSpd=this.baseSpd*3;spawnBurst(this.x,this.y,'#d24634','#d8b060',18);} break;
    case 'gladiator':
     if(this.stacks>=3&&this.netLockoutT<=0){this.stacks=0;const en=spheres.find(s=>s!==this&&s.alive&&!s.dying);if(en){en.netRootT=0.8;en.savedArm=en.d.arm;en.d=Object.assign({},en.d);en.d.arm=en.savedArm*.3;this.dmgMult=1.8;this.netLockoutT=2.0;spawnDmgNum(en.x,en.y-en.radius*1.8,'NET','#f0c08a');}} break;
    case 'king':
     if(this.stacks>=4){this.stacks=0;this.decreeT=6;this.dmgMult=1.6;this.omegaCur=(this.d.om*1.5)*Math.sign(this.omegaCur||1);for(let i=0;i<3;i++){const a=i*Math.PI*2/3+Math.random()*.4;skeletons.push(new BarbAlly(this.x+Math.cos(a)*this.radius*1.4,this.y+Math.sin(a)*this.radius*1.4,this));}spawnBurst(this.x,this.y,'#ffd35a','#d00020',30);spawnPulse(this.x,this.y,'#ffd35a');} break;
    case 'queen':
-    if(this.stacks>=3){this.stacks=0;this.queenInvisible=true;this.queenInvisibleT=3;this.untargetable=true;spawnBurst(this.x,this.y,'#ff69b4','#ffb8e6',18);} break;
+    if(this.stacks>=6){this.stacks=0;this.queenInvisible=true;this.queenInvisibleT=1;this.untargetable=true;spawnBurst(this.x,this.y,'#ff69b4','#ffb8e6',18);} break;
    case 'prince':
     if(this.stacks>=4)this._startPrinceRoyalBlood(); break;
    case 'fairy':
-    if(this.stacks>=4){this.stacks=0;const roll=Math.floor(Math.random()*4);if(roll===0){this.invincible=true;this.invincibleT=2;spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:SAFE','#fff0ff');}else if(roll===1){this.receiveHeal(this.maxHp*.35);spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:HEAL','#fff0ff');}else if(roll===2){this.targetSpd=this.baseSpd*3;this.wishDashT=1.5;spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:DASH','#fff0ff');}else{this._spawnTricksterMirrorReplica();spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:CLONE','#fff0ff');}} break;
+    if(this.stacks>=4){this.stacks=0;this.wishFireRateT=2;const roll=Math.floor(Math.random()*4);if(roll===0){this.invincible=true;this.invincibleT=2;spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:SAFE','#fff0ff');}else if(roll===1){this.receiveHeal(this.maxHp*.35);spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:HEAL','#fff0ff');}else if(roll===2){this.targetSpd=this.baseSpd*3;this.wishDashT=1.5;spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:DASH','#fff0ff');}else{this._spawnTricksterMirrorReplica();spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:CLONE','#fff0ff');}} break;
    case 'beastmaster':
     if(this.stacks>=4){this.stacks=0;this.packHuntT=10;for(const k of['wolf','boar','hawk'])noiseTraps.push(new BeastCompanion(this.x,this.y,this,k));spawnBurst(this.x,this.y,'#ffb060','#b85a13',20);} break;
    case 'sage':
@@ -2938,7 +2955,8 @@ class Sphere{
   }
   this.x+=(this.vx+this.impactVx)*dt;
   this.y+=(this.vy+this.impactVy)*dt;
-  this.angle+=this.omegaCur*dt;
+  if(this.abilityAimT>0){this.abilityAimT=Math.max(0,this.abilityAimT-dt);if(this.abilityAimAngle!==null)this.angle=this.abilityAimAngle;else this.angle+=this.omegaCur*dt;}
+  else {this.abilityAimAngle=null;this.angle+=this.omegaCur*dt;}
   const R=this.radius;
   if(this.x-R<0){this.x=R;this.vx=Math.max(Math.abs(this.vx)*WALL_REST,tgt*0.5);this.impactVx=0;this.vy+=(Math.random()-.5)*tgt*.12;
    if(this.ramActive)this.vx=Math.min(this.vx,this.targetSpd*1.2);
@@ -3303,13 +3321,13 @@ class Sphere{
     }
     break;
    case 'witch': if(this.hexBurstFiredT>0){this.hexBurstFiredT-=dt;if(this.hexBurstFiredT<=0)this.hexBurstFired=false;}if(this.shotCD<=0){this.shotCD=.28;const tip=this.getTip();projectiles.push(new RosterBolt(tip.x,tip.y,Math.cos(this.angle)*250,Math.sin(this.angle)*250,(this.d.dmg+8)*this.dmgMult,this,'hex'));}this._applyKite(dt);break;
-   case 'fairy': this.dustDropT-=dt;if(this.dustDropT<=0){this.dustDropT=.22;noiseTraps.push(new PixieDustPatch(this.x,this.y,this));}if(this.shotCD<=0){this.shotCD=.22;const tip=this.getTip();projectiles.push(new RosterBolt(tip.x,tip.y,Math.cos(this.angle)*360,Math.sin(this.angle)*360,(this.d.dmg+8)*.75,this,'dust'));}if(this.wishDashT>0){this.wishDashT-=dt;if(this.wishDashT<=0)this.targetSpd=this.baseSpd;}this._applyKite(dt);break;
+   case 'fairy': this.dustDropT-=dt;if(this.dustDropT<=0){this.dustDropT=.22;noiseTraps.push(new PixieDustPatch(this.x,this.y,this));}if(this.wishFireRateT>0)this.wishFireRateT=Math.max(0,this.wishFireRateT-dt);if(this.shotCD<=0){this.shotCD=this.wishFireRateT>0?.12:.22;const tip=this.getTip();projectiles.push(new RosterBolt(tip.x,tip.y,Math.cos(this.angle)*360,Math.sin(this.angle)*360,(this.d.dmg+8)*.75,this,'dust'));}if(this.wishDashT>0){this.wishDashT-=dt;if(this.wishDashT<=0)this.targetSpd=this.baseSpd;}this._applyKite(dt);break;
    case 'arcanist': this.arcaneCharge=Math.min(5,(this.arcaneCharge||0)+dt);if(this.overloadActive){this.overloadT-=dt;if(this.overloadT<=0)this.overloadActive=false;}if(this.shotCD<=0){this.shotCD=this.overloadActive?.20:.38;const tip=this.getTip(),spd=this.overloadActive?660:220;const b=new RosterBolt(tip.x,tip.y,Math.cos(this.angle)*spd,Math.sin(this.angle)*spd,(this.d.dmg+8)*this.dmgMult,this,'arcane');if(this.arcaneCharge>=5){const en=spheres.find(s=>s!==this&&s.alive&&!s.dying);if(en){b.x=en.x;b.y=en.y;b._explode(en);}this.arcaneCharge=0;}else projectiles.push(b);}this._applyKite(dt);break;
    case 'queen': if(this.queenInvisibleT>0){this.queenInvisibleT-=dt;if(this.queenInvisibleT<=0){this.queenInvisible=false;this.untargetable=false;for(let i=0;i<3;i++){const a=i*Math.PI*2/3+Math.random()*.4;skeletons.push(new ArcherAlly(this.x+Math.cos(a)*this.radius*1.3,this.y+Math.sin(a)*this.radius*1.3,this));}spawnBurst(this.x,this.y,'#ff69b4','#ffb8e6',18);}}for(const en of spheres){if(en!==this&&en.alive&&!en.dying&&Math.hypot(en.x-this.x,en.y-this.y)<this.radius*2.9+en.radius){en.courtlyT=1.5;en.vx*=.90;en.vy*=.90;}}break;
    case 'prince': this._updatePrinceWeaponMaster(dt);break;
    case 'king': if(this.decreeT>0){this.decreeT-=dt;if(this.decreeT<=0){this.dmgMult=1;this.omegaCur=this.d.om*Math.sign(this.omegaCur||1);}}break;
    case 'gladiator': if(this.netLockoutT>0){this.netLockoutT-=dt;if(this.netLockoutT<=0)this.dmgMult=1;}break;
-   case 'sage': if(this.shotCD<=0){this.shotCD=.32;this._fireSageWord();}this._applyKite(dt);if(this.foresightT>0){this.foresightT-=dt;const en=spheres.find(s=>s!==this&&s.alive&&!s.dying);if(en){this.vx=-(en.vx+en.impactVx);this.vy=-(en.vy+en.impactVy);}if(this.foresightT<=0){this.untargetable=false;for(const q of spheres){if(q!==this&&q.alive&&!q.dying&&Math.hypot(q.x-this.x,q.y-this.y)<this.radius*4)q.receiveMagicDamage(this.d.dmg*2);}spawnPulse(this.x,this.y,'#d6f0b2');}}break;
+   case 'sage': if(this.shotCD<=0){this.shotCD=.32;this._fireSageWord();}this._applyKite(dt);if(this.foresightT>0){this.foresightT-=dt;const en=spheres.find(s=>s!==this&&s.alive&&!s.dying);if(en){this.vx=-(en.vx+en.impactVx);this.vy=-(en.vy+en.impactVy);}if(this.foresightT<=0){this.untargetable=false;for(const q of spheres){if(q!==this&&q.alive&&!q.dying&&Math.hypot(q.x-this.x,q.y-this.y)<this.radius*4)q.receiveMagicDamage(this.d.dmg*2);}spawnDmgNum(this.x,this.y-this.radius*1.8,'2× WISDOM','#d6f0b2');spawnPulse(this.x,this.y,'#d6f0b2');}}break;
    case 'whelpling':
     // Mouth open timer countdown
     if(this.mouthOpenTimer>0)this.mouthOpenTimer=Math.max(0,this.mouthOpenTimer-dt);
