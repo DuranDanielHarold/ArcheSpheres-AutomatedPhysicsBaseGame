@@ -2310,19 +2310,23 @@ const WEAPONS={
   ctx.fillStyle=orb;ctx.beginPath();ctx.arc(0,0,r*.38,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#2a1304';ctx.lineWidth=r*.026;ctx.stroke();
   ctx.fillStyle='#d00020';ctx.beginPath();ctx.arc(-r*.09,-r*.08,r*.07,0,Math.PI*2);ctx.arc(r*.1,r*.09,r*.055,0,Math.PI*2);ctx.fill();
   ctx.fillStyle='#7df6ff';ctx.beginPath();ctx.arc(r*.08,-r*.09,r*.045,0,Math.PI*2);ctx.fill();
-  // Crown cup and prongs with fleur-de-lis center.
-  const cup=ctx.createLinearGradient(-r*.38,-r*.37,r*.38,-r*.08);cup.addColorStop(0,'#6c090f');cup.addColorStop(.45,'#d00020');cup.addColorStop(1,'#ff4960');
+  // Crown head belongs on the forward tip of the scepter, not hanging off the side.
+  ctx.save();
+  ctx.translate(r*.34,0);
+  ctx.shadowColor=d.rim;ctx.shadowBlur=8+p*10;
+  const cup=ctx.createLinearGradient(-r*.04,-r*.36,r*.28,r*.36);cup.addColorStop(0,'#6c090f');cup.addColorStop(.45,'#d00020');cup.addColorStop(1,'#ff4960');
   ctx.fillStyle=cup;ctx.strokeStyle='#ffd35a';ctx.lineWidth=r*.028;
-  ctx.beginPath();ctx.moveTo(-r*.39,-r*.17);ctx.quadraticCurveTo(0,-r*.04,r*.39,-r*.17);ctx.lineTo(r*.31,-r*.35);ctx.quadraticCurveTo(0,-r*.27,-r*.31,-r*.35);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.beginPath();ctx.moveTo(-r*.06,-r*.39);ctx.quadraticCurveTo(r*.12,0,-r*.06,r*.39);ctx.lineTo(r*.13,r*.31);ctx.quadraticCurveTo(r*.05,0,r*.13,-r*.31);ctx.closePath();ctx.fill();ctx.stroke();
   for(let i=-2;i<=2;i++){
-   const x=i*r*.16,h=i===0?r*.76:Math.abs(i)===1?r*.58:r*.46;
+   const y=i*r*.16,len=i===0?r*.76:Math.abs(i)===1?r*.58:r*.46;
    ctx.fillStyle=i===0?'#b60018':'#d00020';ctx.strokeStyle='#ffd35a';
-   ctx.beginPath();ctx.moveTo(x-r*.075,-r*.31);ctx.lineTo(x,-h);ctx.lineTo(x+r*.075,-r*.31);ctx.closePath();ctx.fill();ctx.stroke();
+   ctx.beginPath();ctx.moveTo(r*.09,y-r*.075);ctx.lineTo(len,y);ctx.lineTo(r*.09,y+r*.075);ctx.closePath();ctx.fill();ctx.stroke();
    const jewel=i===0?'#7df6ff':Math.abs(i)===1?'#ffd35a':'#fff1a8';
-   ctx.fillStyle=jewel;ctx.beginPath();ctx.arc(x,-h,r*(i===0?.055:.04),0,Math.PI*2);ctx.fill();ctx.strokeStyle='#7a4a08';ctx.lineWidth=r*.01;ctx.stroke();
+   ctx.fillStyle=jewel;ctx.beginPath();ctx.arc(len,y,r*(i===0?.055:.04),0,Math.PI*2);ctx.fill();ctx.strokeStyle='#7a4a08';ctx.lineWidth=r*.01;ctx.stroke();
   }
-  ctx.fillStyle='#ffd35a';ctx.beginPath();ctx.moveTo(0,-r*.53);ctx.bezierCurveTo(-r*.16,-r*.47,-r*.17,-r*.31,0,-r*.24);ctx.bezierCurveTo(r*.17,-r*.31,r*.16,-r*.47,0,-r*.53);ctx.fill();
-  ctx.fillRect(-r*.025,-r*.49,r*.05,r*.34);
+  ctx.fillStyle='#ffd35a';ctx.beginPath();ctx.moveTo(r*.52,0);ctx.bezierCurveTo(r*.46,-r*.16,r*.3,-r*.17,r*.24,0);ctx.bezierCurveTo(r*.3,r*.17,r*.46,r*.16,r*.52,0);ctx.fill();
+  ctx.fillRect(r*.18,-r*.025,r*.34,r*.05);
+  ctx.restore();
   if(s&&s.decreeT>0){
    ctx.strokeStyle=`rgba(255,211,90,${.45+p*.4})`;ctx.lineWidth=r*.07;ctx.setLineDash([r*.08,r*.05]);
    ctx.beginPath();ctx.arc(0,-r*.22,r*(.72+p*.1),0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
