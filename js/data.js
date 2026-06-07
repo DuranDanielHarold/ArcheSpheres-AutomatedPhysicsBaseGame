@@ -55,7 +55,7 @@ const DEF = {
   fairy:     {label:'Fairy',     weapon:'Pixie Wand',     ab:'Wish Granted',    color:'#ff5ac8',dark:'#9b1768',rim:'#fff0ff',out:'#42002b',wcol:'#fff0ff',wdrk:'#ff8ce2', mass:4,   spd:295, hp:360, om:10.5,dmg:3.2, arm:55,  magDef:65, rest:.86, reach:2.4, tipR:0.14, wt:'pixiewand'},
   beastmaster:{label:'Beastmaster',weapon:'Beast Whip',   ab:'Pack Hunt',       color:'#b85a13',dark:'#5a2608',rim:'#ffb060',out:'#220c02',wcol:'#c08a50',wdrk:'#6a3510', mass:7,   spd:215, hp:480, om:5.8, dmg:3.8, arm:95,  magDef:38, rest:.68, reach:4.6, tipR:0.16, wt:'beastwhip'},
   sage:      {label:'Sage',      weapon:'Ancient Tome',   ab:'Foresight',       color:'#6c8f52',dark:'#304525',rim:'#d6f0b2',out:'#132010',wcol:'#e6d8a0',wdrk:'#7a6040', mass:9,   spd:195, hp:500, om:4.8, dmg:2.8, arm:110, magDef:60, rest:.62, reach:2.4, tipR:0.48, wt:'ancienttome'},
-  arcanist:  {label:'Arcanist',  weapon:'Arcane Cannon',  ab:'Overload',        color:'#78d8ff',dark:'#1d6b92',rim:'#e8fbff',out:'#083044',wcol:'#e8fbff',wdrk:'#3388bb', mass:5,   spd:190, hp:400, om:4.2, dmg:6.5, arm:60,  magDef:55, rest:.72, reach:3.2, tipR:0.28, wt:'arcanecannon'},
+  arcanist:  {label:'Arcanist',  weapon:'Arcane Cannon',  ab:'Overload',        color:'#78d8ff',dark:'#1d6b92',rim:'#e8fbff',out:'#083044',wcol:'#e8fbff',wdrk:'#3388bb', mass:5,   spd:190, hp:400, om:4.2, dmg:8.5, arm:60,  magDef:55, rest:.72, reach:3.2, tipR:0.28, wt:'arcanecannon'},
 };
 
 // Audio placeholder map for future asset wiring.
@@ -513,16 +513,16 @@ const CLASS_DESC = {
     ability:'Kiln Detonation (4 stacks) — Detonates all surviving Glass Shards into small splinter bursts. Taking 3 or more shard blasts briefly blinds and reverses enemy spin.',
     passive:'Glass Litter — Wall bounces and weapon clashes drop fragile Glass Shards. High-speed enemies shatter shards, taking true damage and Bleeding Glass.'
   },
-  witch:{ability:'Hex Convergence (3 stacks) — Fires 3 warping Hex Bolts. Repeated hits briefly halve enemy damage and reverse spin; bolts now fizzle on wall impact.',passive:'Jinx — Hex Bolt hits stack Jinx up to 4, then trigger a random blind, burn, slow, or spin-reverse debuff for 3s.'},
-  spartan:{ability:'Phalanx Thrust (3 stacks) — Locks spear forward and charges for 1.2s with 2.5× true contact damage while the rear shield reflects melee pressure.',passive:'Iron Formation — Shield-side hits build stacks that reduce physical damage; at 5 stacks the next ability is primed for free.'},
+  witch:{ability:'Hex Convergence (3 stacks) — Staff snaps toward the nearest enemy and fires 3 lower-damage warping Hex Bolts before returning to normal rotation. Repeated hits briefly halve enemy damage and reverse spin; bolts now fizzle on wall impact.',passive:'Jinx — Hex Bolt hits stack Jinx up to 4, then trigger a random blind, burn, slow, or spin-reverse debuff for 3s.'},
+  spartan:{ability:'Phalanx Thrust (3 stacks) — Spear snaps toward the nearest enemy, then charges for 1.2s with 2.5× true contact damage while the rear shield reflects melee pressure.',passive:'Iron Formation — Shield-side hits build stacks that reduce physical damage; at 5 stacks the next ability is primed for free.'},
   gladiator:{ability:"Arena's Verdict (3 stacks) — Throws the net to root the enemy and heavily weaken armor; gladius attacks during the window deal 1.8× damage with extra reach.",passive:'Crowd Favor — Gladius hits build Favor more slowly for speed/spin. Taking damage removes Favor; at 10 Favor the next hit deals double damage.'},
   king:{ability:'Iron Fist Rage (4 stacks) — Enters a 6s bright rage aura with 1.6× damage and boosted spin, then summons 3 Barbarian Allies that hit harder inside the aura. Allies last 10s.',passive:'Sovereign Weight — Collision wins permanently add ARM and DMG up to a match cap, shown as crown pips.'},
-  queen:{ability:'Royal Invisibility (3 stacks) — Vanishes for 3s, becoming untargetable and nearly invisible. On reappear, summons 3 Archer Allies with fire arrows that burn targets on hit for 2.5s. Allies last 10s.',passive:"Courtly Menace — Nearby enemies lose damage and speed. Back hits permanently raise the Queen's damage."},
+  queen:{ability:'Royal Invisibility (6 stacks) — Vanishes for 1s, becoming untargetable and nearly invisible without gaining stacks. On reappear, summons 3 Archer Allies with fire arrows that burn targets on hit for 2.5s. Allies last 10s.',passive:"Courtly Menace — Nearby enemies lose damage and speed. Back hits permanently raise the Queen's damage."},
   prince:{ability:'Royal Blood (4 stacks) — Gains a 10-damage shield for 6s. While the shield holds, saber mode gains +2 damage and faster omega spin, while bow mode fires more quickly. If enemies break the shield early, gains +30 ARM and MDEF for 3s.',passive:'Weapon Master — Automatically swaps between a dueling sabre for enemies within sabre reach and a silver wood bow for longer range. Only the active weapon is equipped and drawn.'},
-  fairy:{ability:'Wish Granted (4 stacks) — Rolls invincibility, a heal burst, a triple-speed dash, or a one-hit mirror clone.',passive:'Pixie Dust Trail — Moving sheds charm dust that reverses enemy spin and slows them; Fairy heals in her own dust.'},
+  fairy:{ability:'Wish Granted (4 stacks) — Rolls invincibility, a heal burst, a triple-speed dash, or a one-hit mirror clone, and grants 2s of faster wand fire rate.',passive:'Pixie Dust Trail — Moving sheds charm dust that reverses enemy spin and slows them; Fairy heals in her own dust.'},
   beastmaster:{ability:'Pack Hunt (4 stacks) — Releases wolf, boar, and hawk companions that hunt enemies for 10s; damage rises while beasts live.',passive:'Wild Bond — Whip hits spawn ferrets; three ferrets on a target trigger an ARM-stripping Frenzy burst.'},
   sage:{ability:'Foresight (3 stacks) — Becomes untargetable for 2s, mirrors enemy motion in reverse, then releases a 2× Wisdom Wave.',passive:'Ancient Patience — Fires ranged gibberish wisdom words. Damage taken converts into permanent DMG and MDEF Knowledge, displayed above the sphere.'},
-  arcanist:{ability:'Overload (3 stacks) — For 4s shells fly faster, explode wider, and leave longer burn zones; each explosion hurts the Arcanist for true damage.',passive:'Volatile Charge — Avoiding damage builds charge; at full charge the next shell detonates on the enemy position. Taking damage resets charge and knocks self back.'},
+  arcanist:{ability:'Overload (3 stacks) — For 4s shells fly faster, explode wider, and leave longer burn zones; each explosion now deals reduced true self-harm.',passive:'Volatile Charge — Avoiding damage builds charge; at full charge the next shell detonates on the enemy position. Taking damage resets charge and knocks self back.'},
 };
 
 const STACK_THRESHOLD = {
@@ -554,7 +554,7 @@ const STACK_THRESHOLD = {
   ratcatcher: 3,
   locksmith: 3,
   glassblower: 4,
-  witch: 3, spartan: 3, gladiator: 3, king: 4, queen: 3, prince: 4, fairy: 4, beastmaster: 4, sage: 3, arcanist: 3,
+  witch: 3, spartan: 3, gladiator: 3, king: 4, queen: 6, prince: 4, fairy: 4, beastmaster: 4, sage: 3, arcanist: 3,
 };
 function getStackThreshold(key){
   return STACK_THRESHOLD[key] ?? 5;
