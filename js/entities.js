@@ -565,20 +565,22 @@ class Skeleton{
    this.impactVy*=Math.pow(0.04,dt);
   }
   let target=null,tDist=Infinity;
-  for(const s of spheres){
-   const isEnemy=!sameFaction(this,s);
-   if(!isEnemy||!s.alive||s.dying)continue;
-   const d=Math.hypot(s.x-this.x,s.y-this.y);
-   if(d<tDist){tDist=d;target=s;}
-  }
-  if(target){
-   if(this.weaponType==='bow'&&this.bowCD<=0){
-    this.bowCD=1.2;
-    const tip=this.getTip();
-    const bspd=280;
-    const wx=Math.cos(this.angle),wy=Math.sin(this.angle);
-    projectiles.push(new BoneArrow(tip.x,tip.y,wx*bspd,wy*bspd,this));
-    spawnSpark(tip.x,tip.y,'#c8c0a0',3);
+  if(!this.randomOnly){
+   for(const s of spheres){
+    const isEnemy=!sameFaction(this,s);
+    if(!isEnemy||!s.alive||s.dying)continue;
+    const d=Math.hypot(s.x-this.x,s.y-this.y);
+    if(d<tDist){tDist=d;target=s;}
+   }
+   if(target){
+    if(this.weaponType==='bow'&&this.bowCD<=0){
+     this.bowCD=1.2;
+     const tip=this.getTip();
+     const bspd=280;
+     const wx=Math.cos(this.angle),wy=Math.sin(this.angle);
+     projectiles.push(new BoneArrow(tip.x,tip.y,wx*bspd,wy*bspd,this));
+     spawnSpark(tip.x,tip.y,'#c8c0a0',3);
+    }
    }
   }
   // Wander — occasional random direction nudge so movement feels alive
@@ -594,13 +596,13 @@ class Skeleton{
   // Minimal friction — skeletons glide fast and change direction quickly
   this.vx*=Math.pow(0.96,dt*10);
   this.vy*=Math.pow(0.96,dt*10);
-  this.vy+=GRAVITY*0.04*dt; // near-zero gravity so it doesn't arc down
+  this.vy+=GRAVITY*(this.fullGravity?1:0.04)*dt; // player-like ally spawns use full arena gravity
   this.x+=(this.vx+this.impactVx)*dt;
   this.y+=(this.vy+this.impactVy)*dt;
   if(this.abilityAimT>0){this.abilityAimT=Math.max(0,this.abilityAimT-dt);if(this.abilityAimAngle!==null)this.angle=this.abilityAimAngle;else this.angle+=this.omegaCur*dt;}
   else {this.abilityAimAngle=null;this.angle+=this.omegaCur*dt;}
   const R=this.radius;
-  const SKW=0.55;
+  const SKW=this.fullGravity?WALL_REST:0.55;
   if(this.x-R<0){this.x=R+1;this.vx=Math.abs(this.vx)*SKW;this.impactVx=0;}
   if(this.x+R>W){this.x=W-R-1;this.vx=-Math.abs(this.vx)*SKW;this.impactVx=0;}
   if(this.y-R<0){this.y=R+1;this.vy=Math.abs(this.vy)*SKW;this.impactVy=0;}
@@ -681,12 +683,12 @@ class Skeleton{
 
 }
 class BarbAlly extends Skeleton{
- constructor(x,y,king){super(x,y,king.faction);this.owner=king;this.life=10;this.maxLife=10;this.hp=80;this.maxHp=80;this.arm=0;this.magDef=0;this.radius=king.radius*.75;this.mass=4;this.speed=260;this.omegaCur=6*Math.sign(king.omegaCur||1);this.weaponType='sword';this.reach=1.5;this.tipR=.30;this.dmg=king.d.dmg*.5;this.dmgMult=1;this.bodyCol='#3a3008';this.rimCol='#ffd35a';this.boneCol='#ffee88';this.hpCol='#fff3a0';this.weaponCol='#ffee88';this.weaponDark='#8a5a10';this.weaponWood='#6a3a00';this.lifeCol='rgba(255,211,90,.3)';}
+ constructor(x,y,king){super(x,y,king.faction);this.owner=king;this.life=10;this.maxLife=10;this.hp=80;this.maxHp=80;this.arm=0;this.magDef=0;this.radius=king.radius*.75;this.mass=4;this.speed=260;this.fullGravity=true;this.randomOnly=true;{const a=Math.random()*Math.PI*2;this.vx=Math.cos(a)*this.speed;this.vy=Math.sin(a)*this.speed;}this.omegaCur=6*Math.sign(king.omegaCur||1);this.weaponType='sword';this.reach=1.5;this.tipR=.30;this.dmg=king.d.dmg*.5;this.dmgMult=1;this.bodyCol='#3a3008';this.rimCol='#ffd35a';this.boneCol='#ffee88';this.hpCol='#fff3a0';this.weaponCol='#ffee88';this.weaponDark='#8a5a10';this.weaponWood='#6a3a00';this.lifeCol='rgba(255,211,90,.3)';}
  update(dt){if(this.owner&&this.owner.alive&&!this.owner.dying&&this.owner.decreeT>0&&Math.hypot(this.x-this.owner.x,this.y-this.owner.y)<this.owner.radius*2.5+this.radius)this.dmgMult=1.6;else this.dmgMult=1;super.update(dt)}
 }
 class ArcherAlly extends Skeleton{
- constructor(x,y,queen){super(x,y,queen.faction);this.owner=queen;this.life=10;this.maxLife=10;this.hp=80;this.maxHp=80;this.arm=0;this.magDef=0;this.radius=queen.radius*.72;this.mass=3.5;this.speed=240;this.omegaCur=5*Math.sign(queen.omegaCur||1);this.weaponType='bow';this.reach=2.1;this.tipR=.12;this.dmg=queen.d.dmg*.4;this.bowCD=.15;this.kiteCD=0;this.bodyCol='#331025';this.rimCol='#ff69b4';this.boneCol='#ffb8e6';this.hpCol='#ffe3f5';this.weaponCol='#ffb8e6';this.weaponDark='#b01872';this.weaponWood='#8a2a60';this.lifeCol='rgba(255,105,180,.3)';}
- update(dt){if(!this.alive)return;this.life-=dt;if(this.life<=0||this.hp<=0){this.alive=false;spawnToxicCloud(this.x,this.y);return;}this.hitFlash=Math.max(0,this.hitFlash-dt*5);this.bowCD=Math.max(0,this.bowCD-dt);this.kiteCD=Math.max(0,this.kiteCD-dt);if(this.impactDecay>0){this.impactDecay=Math.max(0,this.impactDecay-dt);this.impactVx*=Math.pow(0.04,dt);this.impactVy*=Math.pow(0.04,dt);}let target=null,td=Infinity;for(const s of spheres){if(s.alive&&!s.dying&&!sameFaction(this,s)){const d=Math.hypot(s.x-this.x,s.y-this.y);if(d<td){td=d;target=s;}}}if(target){const dx=target.x-this.x,dy=target.y-this.y,d=td||1;if(this.kiteCD<=0){this.kiteCD=.15;const danger=this.radius*4,mid=this.radius*8;if(d<danger){this.vx-=dx/d*this.speed*.55;this.vy-=dy/d*this.speed*.55;}else if(d>mid){this.vx+=dx/d*this.speed*.45;this.vy+=dy/d*this.speed*.45;}else{this.vx+=-dy/d*this.speed*.18;this.vy+=dx/d*this.speed*.18;}}if(this.bowCD<=0){this.bowCD=.35;const tip=this.getTip(),spd=360,arr=new Arrow(tip.x,tip.y,Math.cos(this.angle)*spd,Math.sin(this.angle)*spd,this.dmg,this);arr.col='#ff6600';arr.fireBurn=true;projectiles.push(arr);spawnSpark(tip.x,tip.y,'#ff6600',4);}}if(Math.random()<dt*.4){const a=Math.random()*Math.PI*2;this.vx+=Math.cos(a)*this.speed*.2;this.vy+=Math.sin(a)*this.speed*.2;}const spd=Math.hypot(this.vx,this.vy)||1;if(spd>this.speed*1.8){this.vx=this.vx/spd*this.speed*1.8;this.vy=this.vy/spd*this.speed*1.8;}this.vx*=Math.pow(.94,dt*10);this.vy*=Math.pow(.94,dt*10);this.vy+=GRAVITY*.04*dt;this.x+=(this.vx+this.impactVx)*dt;this.y+=(this.vy+this.impactVy)*dt;this.angle+=this.omegaCur*dt;const R=this.radius;if(this.x-R<0){this.x=R+1;this.vx=Math.abs(this.vx)*.55;this.impactVx=0;}if(this.x+R>W){this.x=W-R-1;this.vx=-Math.abs(this.vx)*.55;this.impactVx=0;}if(this.y-R<0){this.y=R+1;this.vy=Math.abs(this.vy)*.55;this.impactVy=0;}if(this.y+R>H){this.y=H-R-1;this.vy=-Math.abs(this.vy)*.55;this.impactVy=0;}}
+ constructor(x,y,queen){super(x,y,queen.faction);this.owner=queen;this.life=10;this.maxLife=10;this.hp=80;this.maxHp=80;this.arm=0;this.magDef=0;this.radius=queen.radius*.72;this.mass=3.5;this.speed=240;this.fullGravity=true;this.randomOnly=true;{const a=Math.random()*Math.PI*2;this.vx=Math.cos(a)*this.speed;this.vy=Math.sin(a)*this.speed;}this.omegaCur=5*Math.sign(queen.omegaCur||1);this.weaponType='bow';this.reach=2.1;this.tipR=.12;this.dmg=queen.d.dmg*.4;this.bowCD=.15;this.kiteCD=0;this.bodyCol='#331025';this.rimCol='#ff69b4';this.boneCol='#ffb8e6';this.hpCol='#ffe3f5';this.weaponCol='#ffb8e6';this.weaponDark='#b01872';this.weaponWood='#8a2a60';this.lifeCol='rgba(255,105,180,.3)';}
+ update(dt){super.update(dt)}
 }
 class GrapplingHook{
  constructor(x,y,vx,vy,dmg,owner){
