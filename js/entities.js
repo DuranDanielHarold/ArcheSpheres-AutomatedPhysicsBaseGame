@@ -687,8 +687,11 @@ class BarbAlly extends Skeleton{
  update(dt){if(this.owner&&this.owner.alive&&!this.owner.dying&&this.owner.decreeT>0&&Math.hypot(this.x-this.owner.x,this.y-this.owner.y)<this.owner.radius*2.5+this.radius)this.dmgMult=1.6;else this.dmgMult=1;super.update(dt)}
 }
 class ArcherAlly extends Skeleton{
- constructor(x,y,queen){super(x,y,queen.faction);this.owner=queen;this.life=10;this.maxLife=10;this.hp=1;this.maxHp=1;this.arm=0;this.magDef=0;this.radius=queen.radius*.72;this.mass=3.5;this.speed=240;this.fullGravity=true;this.randomOnly=true;{const a=Math.random()*Math.PI*2;this.vx=Math.cos(a)*this.speed;this.vy=Math.sin(a)*this.speed;}this.omegaCur=5*Math.sign(queen.omegaCur||1);this.weaponType='bow';this.reach=2.1;this.tipR=.12;this.dmg=queen.d.dmg*.4;this.bowCD=.15;this.kiteCD=0;this.bodyCol='#331025';this.rimCol='#ff69b4';this.boneCol='#ffb8e6';this.hpCol='#ffe3f5';this.weaponCol='#ffb8e6';this.weaponDark='#b01872';this.weaponWood='#8a2a60';this.lifeCol='rgba(255,105,180,.3)';}
- update(dt){super.update(dt)}
+ constructor(x,y,queen){super(x,y,queen.faction);this.owner=queen;this.life=10;this.maxLife=10;this.hp=1;this.maxHp=1;this.arm=0;this.magDef=0;this.radius=queen.radius*.72;this.mass=3.5;this.speed=240;this.fullGravity=true;this.randomOnly=false;{const a=Math.random()*Math.PI*2;this.vx=Math.cos(a)*this.speed;this.vy=Math.sin(a)*this.speed;}this.omegaCur=5*Math.sign(queen.omegaCur||1);this.weaponType='bow';this.reach=2.1;this.tipR=.12;this.dmg=queen.d.dmg*.4;this.bowCD=.15;this.kiteCD=0;this.bodyCol='#331025';this.rimCol='#ff69b4';this.boneCol='#ffb8e6';this.hpCol='#ffe3f5';this.weaponCol='#ffb8e6';this.weaponDark='#b01872';this.weaponWood='#8a2a60';this.lifeCol='rgba(255,105,180,.3)';}
+ update(dt){
+  // Keep Archer Allies firing from their current bow tip direction instead of aiming directly at enemies.
+  super.update(dt);
+ }
 }
 class GrapplingHook{
  constructor(x,y,vx,vy,dmg,owner){
