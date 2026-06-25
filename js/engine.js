@@ -605,7 +605,13 @@ function _weaponHit(att,def){
   // Samurai — Iaijutsu: first hit after spin reversal deals 2× dmg
   if(traits&&att.key==='samurai'&&att.iaijutsuReady){dmg*=2;att.iaijutsuReady=false;att.iaijutsuCD=3.0;spawnDmgNum(att.x,att.y-att.radius*1.5,'IAIJUTSU','#8a1f28');}
   if(isFinite(dmg)&&dmg>0.2){
-   if(att.key==='alchemist')def.receiveMagicDamage(dmg);
+   if(att.key==='queen'&&att.queenGambitT>0){
+    def.hp=Math.max(0,def.hp-dmg);def.hitFlash=1;
+    spawnDmgNum(def.x,def.y-def.radius*0.5,dmg,'#ff8bd1');
+    spawnSpark(hx,hy,att.d.color,7);
+    if(def.hp<=0&&!def.dying){def.alive=false;def.dying=true;spawnBurst(def.x,def.y,def.d.rim,def.d.color,28);}
+   }
+   else if(att.key==='alchemist')def.receiveMagicDamage(dmg);
    else def.receiveDamage(dmg);
     if(traits){att.gainStack();att._applyHitBuff();}
     // Whelpling: open the upper jaw, lunge forward, then clamp shut.
@@ -747,9 +753,9 @@ function _weaponClash(a,b){
  if(a.canTriggerTraits!==false&&a.key==='locksmith')_applyLocksmithLock(a,b);
  if(b.canTriggerTraits!==false&&b.key==='locksmith')_applyLocksmithLock(b,a);
  if(a.canTriggerTraits!==false&&a.key==='glassblower')a._dropGlassShard(mx,my);
- if(a.canTriggerTraits!==false&&b.key==='spartan'){b.ironStacks=Math.min(5,(b.ironStacks||0)+1);if(b.ramActive){a.receiveDamage(1);}}
+ if(a.canTriggerTraits!==false&&b.key==='spartan'){b.ironStacks=Math.min(5,(b.ironStacks||0)+1);if(b.ramActive){a.receiveDamage(2);}}
  if(b.canTriggerTraits!==false&&b.key==='glassblower')b._dropGlassShard(mx,my);
- if(b.canTriggerTraits!==false&&a.key==='spartan'){a.ironStacks=Math.min(5,(a.ironStacks||0)+1);if(a.ramActive){b.receiveDamage(1);}}
+ if(b.canTriggerTraits!==false&&a.key==='spartan'){a.ironStacks=Math.min(5,(a.ironStacks||0)+1);if(a.ramActive){b.receiveDamage(2);}}
  const bx=b.x-a.x,by2=b.y-a.y,bd=Math.hypot(bx,by2)||1;
  a.applyImpact(-(bx/bd)*80,-(by2/bd)*80);b.applyImpact((bx/bd)*80,(by2/bd)*80);
 }
