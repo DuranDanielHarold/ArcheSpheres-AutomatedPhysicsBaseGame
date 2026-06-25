@@ -1838,7 +1838,7 @@ class Sphere{
   this.locksmithLocks=0;this.locksmithJamT=0;
   this.gnawedArmorStacks=0;this.gnawedArmorT=0;
   this.glassBleedT=0;this.glassBleedTickT=0;
-  this.favor=0;this.crowdDouble=false;this.netRootT=0;this.netLockoutT=0;this.savedArm=null;this.ironStacks=0;this.sovereignArmBonus=0;this.sovereignDmgBonus=0;this.decreeT=0;this.queenDmgBonus=0;this.queenInvisible=false;this.queenInvisibleT=0;this.rushT=0;this.rushElapsed=0;this.wishClone=null;this.wishFireRateT=0;this.dustDropT=0;this.packHuntT=0;this.knowledge=0;this.foresightT=0;this.overloadActive=false;this.overloadT=0;this.arcaneCharge=0;this.hexBurstActive=false;this.hexBurstFired=false;this.hexBurstFiredT=0;this.abilityAimT=0;this.abilityAimAngle=null;
+  this.favor=0;this.crowdDouble=false;this.netRootT=0;this.netLockoutT=0;this.savedArm=null;this.ironStacks=0;this.sovereignArmBonus=0;this.sovereignDmgBonus=0;this.decreeT=0;this.queenDmgBonus=0;this.queenGambitT=0;this.queenGambitSavedDef=null;this.queenInvisible=false;this.queenInvisibleT=0;this.rushT=0;this.rushElapsed=0;this.wishClone=null;this.wishFireRateT=0;this.dustDropT=0;this.packHuntT=0;this.knowledge=0;this.foresightT=0;this.overloadActive=false;this.overloadT=0;this.arcaneCharge=0;this.hexBurstActive=false;this.hexBurstFired=false;this.hexBurstFiredT=0;this.abilityAimT=0;this.abilityAimAngle=null;
  }
  _nearestEnemy(){
   let nearest=null,nearDist=Infinity;
@@ -2459,11 +2459,17 @@ class Sphere{
    case 'king':
     if(this.stacks>=4){this.stacks=0;this.decreeT=6;this.dmgMult=1.6;this.omegaCur=(this.d.om*1.5)*Math.sign(this.omegaCur||1);for(let i=0;i<3;i++){const a=i*Math.PI*2/3+Math.random()*.4;skeletons.push(new BarbAlly(this.x+Math.cos(a)*this.radius*1.4,this.y+Math.sin(a)*this.radius*1.4,this));}spawnBurst(this.x,this.y,'#ffd35a','#d00020',30);spawnPulse(this.x,this.y,'#ffd35a');} break;
    case 'queen':
-    if(this.stacks>=6){this.stacks=0;this.queenInvisible=true;this.queenInvisibleT=1;this.untargetable=true;spawnBurst(this.x,this.y,'#ff69b4','#ffb8e6',18);} break;
+    if(this.stacks>=6){
+     this.stacks=0;this.queenGambitT=3;
+     if(!this.queenGambitSavedDef){this.queenGambitSavedDef={arm:this.d.arm,magDef:this.d.magDef};this.d=Object.assign({},this.d);this.d.arm*=2/3;this.d.magDef*=2/3;}
+     spawnDmgNum(this.x,this.y-this.radius*1.5,'GAMBIT','#ff8bd1');
+     spawnBurst(this.x,this.y,'#ff8bd1','#b01872',22);
+     spawnPulse(this.x,this.y,'#ff8bd1');
+    } break;
    case 'prince':
     if(this.stacks>=4)this._startPrinceRoyalBlood(); break;
    case 'fairy':
-    if(this.stacks>=4){this.stacks=0;this.wishFireRateT=2;const roll=Math.floor(Math.random()*4);if(roll===0){this.invincible=true;this.invincibleT=2;spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:SAFE','#fff0ff');}else if(roll===1){this.receiveHeal(this.maxHp*.35);spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:HEAL','#fff0ff');}else if(roll===2){this.targetSpd=this.baseSpd*3;this.wishDashT=1.5;spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:DASH','#fff0ff');}else{this._spawnTricksterMirrorReplica();spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:CLONE','#fff0ff');}} break;
+    if(this.stacks>=4){this.stacks=0;this.wishFireRateT=2.6;const roll=Math.floor(Math.random()*4);if(roll===0){this.invincible=true;this.invincibleT=2.6;spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:SAFE','#fff0ff');}else if(roll===1){this.receiveHeal(this.maxHp*.45);spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:HEAL','#fff0ff');}else if(roll===2){this.targetSpd=this.baseSpd*3.35;this.wishDashT=2.0;spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:DASH','#fff0ff');}else{this._spawnTricksterMirrorReplica();spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:CLONE','#fff0ff');}} break;
    case 'beastmaster':
     if(this.stacks>=4){this.stacks=0;this.packHuntT=10;for(const k of['wolf','boar','hawk'])noiseTraps.push(new BeastCompanion(this.x,this.y,this,k));spawnBurst(this.x,this.y,'#ffb060','#b85a13',20);} break;
    case 'sage':
@@ -3323,10 +3329,10 @@ class Sphere{
      }
     }
     break;
-   case 'witch': if(this.hexBurstFiredT>0){this.hexBurstFiredT-=dt;if(this.hexBurstFiredT<=0)this.hexBurstFired=false;}if(this.shotCD<=0){this.shotCD=.28;const tip=this.getTip();projectiles.push(new RosterBolt(tip.x,tip.y,Math.cos(this.angle)*250,Math.sin(this.angle)*250,(this.d.dmg+8)*this.dmgMult,this,'hex'));}this._applyKite(dt);break;
-   case 'fairy': this.dustDropT-=dt;if(this.dustDropT<=0){this.dustDropT=.22;noiseTraps.push(new PixieDustPatch(this.x,this.y,this));}if(this.wishFireRateT>0)this.wishFireRateT=Math.max(0,this.wishFireRateT-dt);if(this.shotCD<=0){this.shotCD=this.wishFireRateT>0?.12:.22;const tip=this.getTip();projectiles.push(new RosterBolt(tip.x,tip.y,Math.cos(this.angle)*360,Math.sin(this.angle)*360,(this.d.dmg+8)*.75,this,'dust'));}if(this.wishDashT>0){this.wishDashT-=dt;if(this.wishDashT<=0)this.targetSpd=this.baseSpd;}this._applyKite(dt);break;
+   case 'witch': if(this.hexBurstFiredT>0){this.hexBurstFiredT-=dt;if(this.hexBurstFiredT<=0)this.hexBurstFired=false;}if(this.shotCD<=0){this.shotCD=.22;const tip=this.getTip();projectiles.push(new RosterBolt(tip.x,tip.y,Math.cos(this.angle)*250,Math.sin(this.angle)*250,(this.d.dmg+9)*this.dmgMult,this,'hex'));}this._applyKite(dt);break;
+   case 'fairy': this.dustDropT-=dt;if(this.dustDropT<=0){this.dustDropT=.22;noiseTraps.push(new PixieDustPatch(this.x,this.y,this));}if(this.wishFireRateT>0)this.wishFireRateT=Math.max(0,this.wishFireRateT-dt);if(this.shotCD<=0){this.shotCD=this.wishFireRateT>0?.10:.17;const tip=this.getTip();projectiles.push(new RosterBolt(tip.x,tip.y,Math.cos(this.angle)*360,Math.sin(this.angle)*360,(this.d.dmg+9)*.85,this,'dust'));}if(this.wishDashT>0){this.wishDashT-=dt;if(this.wishDashT<=0)this.targetSpd=this.baseSpd;}this._applyKite(dt);break;
    case 'arcanist': this.arcaneCharge=Math.min(5,(this.arcaneCharge||0)+dt);if(this.overloadActive){this.overloadT-=dt;if(this.overloadT<=0)this.overloadActive=false;}if(this.shotCD<=0){this.shotCD=this.overloadActive?.20:.38;const tip=this.getTip(),spd=this.overloadActive?660:220;const b=new RosterBolt(tip.x,tip.y,Math.cos(this.angle)*spd,Math.sin(this.angle)*spd,(this.d.dmg+8)*this.dmgMult,this,'arcane');if(this.arcaneCharge>=5){const en=spheres.find(s=>s!==this&&s.alive&&!s.dying);if(en){b.x=en.x;b.y=en.y;b._explode(en);}this.arcaneCharge=0;}else projectiles.push(b);}this._applyKite(dt);break;
-   case 'queen': if(this.queenInvisibleT>0){this.queenInvisibleT-=dt;if(this.queenInvisibleT<=0){this.queenInvisible=false;this.untargetable=false;for(let i=0;i<3;i++){const a=i*Math.PI*2/3+Math.random()*.4;skeletons.push(new ArcherAlly(this.x+Math.cos(a)*this.radius*1.3,this.y+Math.sin(a)*this.radius*1.3,this));}spawnBurst(this.x,this.y,'#ff69b4','#ffb8e6',18);}}for(const en of spheres){if(en!==this&&en.alive&&!en.dying&&Math.hypot(en.x-this.x,en.y-this.y)<this.radius*2.9+en.radius){en.courtlyT=1.5;en.vx*=.90;en.vy*=.90;}}break;
+   case 'queen': if(this.queenGambitT>0){this.queenGambitT-=dt;if(this.queenGambitT<=0&&this.queenGambitSavedDef){this.d=Object.assign({},this.d);this.d.arm=this.queenGambitSavedDef.arm;this.d.magDef=this.queenGambitSavedDef.magDef;this.queenGambitSavedDef=null;spawnDmgNum(this.x,this.y-this.radius*1.5,'NORMAL','#ffb8e6');}}if(this.queenInvisibleT>0){this.queenInvisibleT-=dt;if(this.queenInvisibleT<=0){this.queenInvisible=false;this.untargetable=false;for(let i=0;i<3;i++){const a=i*Math.PI*2/3+Math.random()*.4;skeletons.push(new ArcherAlly(this.x+Math.cos(a)*this.radius*1.3,this.y+Math.sin(a)*this.radius*1.3,this));}spawnBurst(this.x,this.y,'#ff69b4','#ffb8e6',18);}}for(const en of spheres){if(en!==this&&en.alive&&!en.dying&&Math.hypot(en.x-this.x,en.y-this.y)<this.radius*2.9+en.radius){en.courtlyT=1.5;en.vx*=.90;en.vy*=.90;}}break;
    case 'prince': this._updatePrinceWeaponMaster(dt);break;
    case 'king': if(this.decreeT>0){this.decreeT-=dt;if(this.decreeT<=0){this.dmgMult=1;this.omegaCur=this.d.om*Math.sign(this.omegaCur||1);}}break;
    case 'gladiator': if(this.netLockoutT>0){this.netLockoutT-=dt;if(this.netLockoutT<=0)this.dmgMult=1;}break;
@@ -3981,6 +3987,7 @@ class Sphere{
    if(this.decreeT>0){ctx.shadowColor='#ffd35a';ctx.shadowBlur=18;ctx.strokeStyle=`rgba(255,211,90,${.55+p*.35})`;ctx.lineWidth=5;ctx.beginPath();for(let i=0;i<5;i++){const a=-Math.PI/2+i*Math.PI*2/5,rr=r*1.38+(i%2)*r*.25;ctx.lineTo(this.x+Math.cos(a)*rr,this.y+Math.sin(a)*rr);}ctx.closePath();ctx.stroke();ctx.shadowBlur=0;}
   }
   if(this.key==='queen'){
+   if(this.queenGambitT>0){ctx.shadowColor=this.d.color;ctx.shadowBlur=18;ctx.strokeStyle=`rgba(255,139,209,${.55+p*.35})`;ctx.lineWidth=4;ctx.beginPath();ctx.arc(this.x,this.y,r+10+p*4,0,Math.PI*2);ctx.stroke();ctx.shadowBlur=0;ctx.fillStyle='#ff8bd1';ctx.font=`bold ${Math.max(5,r*.2)}px 'Press Start 2P',monospace`;ctx.textAlign='center';ctx.fillText('TRUE',this.x,this.y-r-44);}
    ctx.strokeStyle=`rgba(255,139,209,${.16+p*.12})`;ctx.lineWidth=2;ctx.setLineDash([8,5]);ctx.beginPath();ctx.arc(this.x,this.y,r*2.9,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
    if(this.queenDmgBonus>0){ctx.fillStyle='#ff8bd1';ctx.font=`bold ${Math.max(5,r*.2)}px 'Press Start 2P',monospace`;ctx.textAlign='center';ctx.fillText(`MENACE +${Math.round(this.queenDmgBonus*100)}%`,this.x,this.y-r-28);}
   }
