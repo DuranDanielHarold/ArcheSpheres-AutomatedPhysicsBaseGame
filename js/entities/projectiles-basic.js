@@ -42,6 +42,81 @@ class BoneArrow{
   ctx.restore();
  }
 }
+class Arrow{
+ constructor(x,y,vx,vy,dmg,owner,spread=false){
+  this.x=x;this.y=y;this.vx=vx;this.vy=vy;
+  this.dmg=dmg;this.owner=owner;this.spread=spread;
+  this.alive=true;this.life=2.8;this.trail=[];
+  this.col='#88cc44';
+ }
+ update(dt){
+  this.trail.push({x:this.x,y:this.y});
+  if(this.trail.length>10)this.trail.shift();
+  this.x+=this.vx*dt;this.y+=this.vy*dt;
+  this.vy+=GRAVITY*0.22*dt;
+  this.life-=dt;
+  if(this.x<-30||this.x>W+30||this.y>H+40||this.life<=0){this.alive=false;return;}
+  if(this.x<16&&this.y<16||this.x>W-16&&this.y<16||this.x<16&&this.y>H-16||this.x>W-16&&this.y>H-16){
+   spawnSpark(this.x,this.y,'#88cc44',4);this.alive=false;return;
+  }
+  for(const s of spheres){
+   const isEnemy=s!==this.owner;
+   if(!isEnemy||sameFaction(this.owner,s)||!s.alive||s.dying)continue;
+   if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+8){
+    const nx=(s.x-this.x)/Math.hypot(s.x-this.x,s.y-this.y)||1;
+    const ny=(s.y-this.y)/Math.hypot(s.x-this.x,s.y-this.y)||0;
+    s.applyImpact(nx*Math.hypot(this.vx,this.vy)*0.32,ny*Math.hypot(this.vx,this.vy)*0.32);
+    s.receiveDamage(this.dmg);
+    if(this.fireBurn){s.burning=true;s.burnT=2.5;s.burnTickInterval=1.0;s.burnTickT=1.0;}
+    if(this.owner&&this.owner.gainStack){this.owner.gainStack();this.owner._applyHitBuff();}
+    if(this.isCrit){
+     spawnBurst(this.x,this.y,'#ff4400','#ffaa22',14);
+     spawnDmgNum(s.x,s.y-s.radius*1.4,this.dmg,'#ff4400');
+    } else {
+     spawnArrowHit(this.x,this.y);
+    }
+    this.alive=false;return;
+   }
+  }
+  for(const sk of skeletons){
+   const isEnemy=true;
+   if(!isEnemy||sk===this.owner||sameFaction(this.owner,sk)||!sk.alive)continue;
+   if(Math.hypot(sk.x-this.x,sk.y-this.y)<sk.radius+8){
+    const dmg=this.dmg/(sk.arm*0.004+1);
+    sk.hp=Math.max(0,sk.hp-dmg);sk.hitFlash=1;
+    const nx=(sk.x-this.x)/Math.hypot(sk.x-this.x,sk.y-this.y)||1;
+    const ny=(sk.y-this.y)/Math.hypot(sk.x-this.x,sk.y-this.y)||0;
+    sk.applyImpact(nx*80,ny*80);
+    spawnArrowHit(this.x,this.y);
+    spawnDmgNum(sk.x,sk.y-sk.radius*0.5,dmg,dmg>=8?'#ff4444':'#ffffff');
+    if(sk.hp<=0){sk.alive=false;spawnToxicCloud(sk.x,sk.y);spawnBurst(sk.x,sk.y,'#7c4dff','#c8c0a0',14);}
+    this.alive=false;return;
+   }
+  }
+ }
+ draw(){
+  if(!this.alive)return;
+  for(let i=1;i<this.trail.length;i++){
+   const t=this.trail[i],a=(i/this.trail.length)*0.5,sz=5*(i/this.trail.length);
+   ctx.save();ctx.globalAlpha=a;
+   ctx.fillStyle=this.isCrit?`hsl(${20+i*4},100%,55%)`:(this.col||'#5a9a20');
+   ctx.fillRect(t.x-sz/2,t.y-sz/2,sz,sz);ctx.restore();
+  }
+  const ang=Math.atan2(this.vy,this.vx);
+  ctx.save();ctx.translate(this.x,this.y);ctx.rotate(ang);
+  if(this.isCrit){
+   ctx.shadowColor='#ff4400';ctx.shadowBlur=10;
+  }
+  ctx.fillStyle=this.isCrit?'#5a1a00':'#8a5a20';ctx.fillRect(-22,-2.5,22,5);
+  ctx.fillStyle=this.isCrit?'#ff8844':(this.col||'#c0c8a0');
+  ctx.beginPath();ctx.moveTo(0,-5);ctx.lineTo(13,0);ctx.lineTo(0,5);ctx.closePath();ctx.fill();
+  ctx.fillStyle=this.isCrit?'#ff4400':(this.col||'#88cc44');
+  ctx.beginPath();ctx.moveTo(-22,-2);ctx.lineTo(-16,-8);ctx.lineTo(-12,-2);ctx.closePath();ctx.fill();
+  ctx.beginPath();ctx.moveTo(-22,2);ctx.lineTo(-16,8);ctx.lineTo(-12,2);ctx.closePath();ctx.fill();
+  ctx.shadowBlur=0;
+  ctx.restore();
+ }
+}
 class GrapplingHook{
  constructor(x,y,vx,vy,dmg,owner){
   this.x=x;this.y=y;this.vx=vx;this.vy=vy;
