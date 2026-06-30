@@ -7,83 +7,71 @@ It is intentionally ignored by Git and should not be pushed to GitHub.
 
 ### Rendering / App Shell
 
-- `index.html` defines the canvas surface and surrounding UI
+- `index.html` defines the canvas surface, surrounding UI, and classic-script load order
 - `styles.css` defines visual layout and control styling
+
+### Core Helpers
+
+- `js/core/constants.js` contains shared physics constants, burn tick intervals, and ranged-class keys
+- `js/core/rrect.js` contains the rounded-rectangle canvas helper shared by weapons and entities
 
 ### Game Data
 
-- `js/data.js` contains:
-  - sphere definitions
-  - role metadata
-  - class descriptions
-  - audio config
-  - audio volume defaults
+- `js/data/classDefs.js` contains the `DEF` sphere definitions
+- `js/data/classMeta.js` contains role metadata, role colors, and class descriptions
+- `js/data/classStacks.js` contains stack thresholds and stack display helpers
+- `js/data/audioConfig.js` contains sphere/arena audio paths, defaults, and volume settings
 
 ### Weapon Drawing
 
-- `js/weapons.js` contains weapon render functions only
+- `js/weapons/weapons-melee.js` contains melee-oriented weapon render functions
+- `js/weapons/weapons-ranged.js` contains ranged weapon render functions
+- `js/weapons/weapons-exotic.js` contains exotic and ability-heavy weapon render functions
+- `js/weapons/weapons-index.js` reconstructs the global `WEAPONS` map from grouped weapon maps
 
 ### Entities / Behaviors
 
-- `js/entities.js` contains:
-  - projectile classes
-  - helper entities such as afterimages, traps, terrain zones, and summons
-  - sphere behavior
-  - class-specific fire / ability methods
+- `js/entities/projectiles-basic.js` contains arrows, bullets, hooks, bolas, and holy-orb style projectiles
+- `js/entities/projectiles-roster.js` contains roster-specific projectiles and alchemy flask config
+- `js/entities/projectiles-shared.js` contains shared entity/effect classes formerly in the engine
+- `js/entities/zones-and-traps.js` contains terrain zones, patches, traps, mounds, shards, and rat minions
+- `js/entities/companions.js` contains companions and skeleton-derived allies
+- `js/entities/sphere.js` contains the main `Sphere` class and class-specific behavior methods
 
 ### Combat
 
-- `js/combat.js` contains:
-  - collision resolution
-  - weapon hit handling
-  - weapon clash rules
-  - skeleton combat interactions
+- `js/combat/collisions.js` contains collision resolution, weapon hit/clash rules, faction helpers, lock handling, and skeleton combat interactions
 
 ### Effects
 
-- `js/effects.js` contains:
-  - particle spawning / updates / drawing
-  - blood splats
-  - damage and heal number rendering
+- `js/combat/particles-fx.js` contains particle spawning / updates / drawing, blood splats, damage/heal numbers, and background rendering
 
 ### Audio
 
-- `js/audio.js` contains:
-  - SFX playback helpers
-  - audio preloading
-  - mute and volume state
-  - BGM lifecycle support
+- `js/audio/audio-engine.js` contains SFX playback, audio preloading, mute/volume state, and BGM lifecycle support
 
 ### Simulation / Engine
 
-- `js/engine.js` contains:
-  - background rendering
-  - HUD updates
-  - update / draw loop orchestration
-  - winner flow
+- `js/hud/hud.js` contains HUD stat and ability bar updates
+- `js/loop/game-loop.js` contains update/draw loop orchestration and winner flow
 
 ### Boot / State
 
-- `js/main.js` contains:
-  - canvas bootstrapping
-  - top-level mutable arrays
-  - battle creation
-  - resize logic
+- `js/main.js` contains canvas bootstrapping, top-level mutable arrays, battle creation, mode controls, and resize logic
 
 ### UI Flow
 
-- `js/ui.js` contains:
-  - start screen
-  - picker
-  - battle launch flow
-  - countdown
+- `js/ui/picker-styles.js` contains picker/start-screen style injection
+- `js/ui/start-screen.js` contains start screen rendering and sphere icon generation
+- `js/ui/picker-screen.js` contains picker state, slot selection, grid rendering, and detail panel rendering
+- `js/ui/battle-launch.js` contains battle launch flow and countdown
 
 ## Important Technical Decisions
 
 - stay in plain HTML/CSS/JS for now
 - do not introduce a framework until UI complexity clearly exceeds current structure
 - keep game logic separate from presentation whenever practical
-- centralize tunable balance and audio values in `js/data.js`
+- centralize tunable balance and audio values in `js/data/`
 - future balance systems should consume structured logs rather than scrape UI state
 
 ## Risks To Watch

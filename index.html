@@ -63,28 +63,44 @@
 </div>
 
 <!--
-  SCRIPT LOAD ORDER - each file depends on the ones above it.
+  SCRIPT LOAD ORDER - classic scripts share the same global scope, and each
+  file depends on symbols loaded above it. Keep this order when editing the
+  no-build, file:// friendly runtime.
 
-  1. data.js      - Pure data: DEF, RANGED_KEYS, CLASS_ROLE, ROLE_COLOR, CLASS_DESC
-  2. weapons.js   - WEAPONS render functions (reads DEF)
-  3. entities.js  - SlowZone, ThornPatch, all Projectile classes, Skeleton, Afterimage,
-                    SonicProjectile, NoiseTrap, Shuriken, and the main Sphere class
-                    (reads DEF, WEAPONS, GRAVITY, WALL_REST, particle/effect helpers,
-                     and the global arrays defined in main.js - resolved at call-time)
-  4. engine.js    - resolveAll, _weaponHit, _weaponClash, _skeletonWeaponHit,
-                    _sphereHitSkeleton, all spawn* helpers, particle/blood update & draw,
-                    drawBg, updateAbBar, fillStats, loop, showWinner
-  5. ui.js        - injectPickerStyles, showStartScreen, startPicker, renderPickerGrid,
-                    renderDetailPanel, launchBattle, showCountdown
-  6. main.js      - Canvas/ctx setup, global mutable arrays, gameMode, buildSelRow,
-                    setMode, newBattle, togglePause, resize, ResizeObserver,
-                    window.onload -> showStartScreen
+  1. core/*              - Shared constants and canvas helpers.
+  2. data/*              - DEF, class metadata, stack thresholds, and audio config.
+  3. weapons/*           - Grouped weapon render maps, then WEAPONS reconstruction.
+  4. entities/*          - Projectile, zone/trap, companion, shared entity, and Sphere classes.
+  5. combat/audio/hud/loop - Effects, audio subsystem, collision resolution, HUD, and loop.
+  6. ui/*                - Picker styles, start screen, picker flow, battle launch/countdown.
+  7. main.js             - Canvas/ctx setup, global mutable arrays, battle creation, resize,
+                           and window.onload -> showStartScreen.
 -->
-<script src="js/data.js"></script>
-<script src="js/weapons.js"></script>
-<script src="js/entities.js"></script>
-<script src="js/engine.js"></script>
-<script src="js/ui.js"></script>
+<script src="js/core/constants.js"></script>
+<script src="js/core/rrect.js"></script>
+<script src="js/data/classDefs.js"></script>
+<script src="js/data/classMeta.js"></script>
+<script src="js/data/classStacks.js"></script>
+<script src="js/data/audioConfig.js"></script>
+<script src="js/weapons/weapons-melee.js"></script>
+<script src="js/weapons/weapons-ranged.js"></script>
+<script src="js/weapons/weapons-exotic.js"></script>
+<script src="js/weapons/weapons-index.js"></script>
+<script src="js/entities/projectiles-basic.js"></script>
+<script src="js/entities/projectiles-roster.js"></script>
+<script src="js/entities/projectiles-shared.js"></script>
+<script src="js/entities/zones-and-traps.js"></script>
+<script src="js/entities/companions.js"></script>
+<script src="js/entities/sphere.js"></script>
+<script src="js/combat/particles-fx.js"></script>
+<script src="js/audio/audio-engine.js"></script>
+<script src="js/combat/collisions.js"></script>
+<script src="js/hud/hud.js"></script>
+<script src="js/loop/game-loop.js"></script>
+<script src="js/ui/picker-styles.js"></script>
+<script src="js/ui/start-screen.js"></script>
+<script src="js/ui/picker-screen.js"></script>
+<script src="js/ui/battle-launch.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>
