@@ -222,12 +222,12 @@ This project is released under the [MIT License](LICENSE).
 
 ## Balance baseline automation
 
-Click **BALANCE TEST** in the control bar to run the fast preset. It compresses a large sample into about one minute by fast-forwarding simulation steps without drawing particles, then downloads JSON and CSV reports.
+Click **BALANCE TEST** in the control bar to run the background baseline preset. It targets about 200 games per class by fast-forwarding simulation steps without drawing particles, updates the status text as a lightweight loading indicator, then downloads JSON and CSV reports.
 
 The browser runtime also exposes a console helper for custom baseline runs:
 
 ```js
-await runBalanceBaseline({ minutes: 1, roundsPerPair: 3, targetMatches: 900, noVisuals: true });
+await runBalanceBaseline({ minutes: 20, roundsPerPair: 6, targetGamesPerClass: 200, noVisuals: true });
 ```
 
 For deeper overnight-style sampling, raise the wall-clock budget and remove the match cap:
@@ -236,7 +236,7 @@ For deeper overnight-style sampling, raise the wall-clock budget and remove the 
 await runBalanceBaseline({ minutes: 120, roundsPerPair: 10, targetMatches: 0, noVisuals: true });
 ```
 
-The runner fast-forwards deterministic 1v1 battles in the loaded page, rotates both red/blue sides for each matchup, and downloads JSON plus CSV summaries. The report includes class win rates, average match duration, draw counts, hard-matchup flags, and first-pass buff/nerf investigation suggestions. The latest in-page report is also available as `window.lastBalanceReport` for manual inspection.
+The runner fast-forwards deterministic 1v1 battles in the loaded page without drawing particles by default, schedules matchups in round-robin order so capped runs stay evenly distributed across classes, rotates both red/blue sides for each matchup, and downloads JSON plus class/matchup CSV summaries. The class CSV includes weighted `balanceScore`, `action` (NERF/BUFF/WATCH/NEEDS_MORE_DATA), confidence, decisive win rate, draw rate, HP-margin columns, hard-counter counts, and best/worst matchup columns. The matchup CSV includes decisive games, draw rate, leader win rate, hard-counter flags, and impossible-match flags. The latest in-page report is also available as `window.lastBalanceReport` for manual inspection.
 
 Useful shorter smoke-test command:
 
