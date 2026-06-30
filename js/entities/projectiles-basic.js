@@ -117,6 +117,7 @@ class Arrow{
   ctx.restore();
  }
 }
+globalThis.Arrow=Arrow;
 class GrapplingHook{
  constructor(x,y,vx,vy,dmg,owner){
   this.x=x;this.y=y;this.vx=vx;this.vy=vy;
