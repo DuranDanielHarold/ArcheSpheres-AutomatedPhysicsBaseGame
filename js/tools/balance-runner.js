@@ -10,7 +10,10 @@
   dt:1/30,
   seed:1337,
   includeMirrors:false,
-  chunkSize:10,
+  chunkSize:25,
+  targetMatches:0,
+  noVisuals:true,
+  progress:null,
   exportJson:true,
   exportCsv:true,
  };
@@ -46,7 +49,7 @@
   for(const s of spheres)s.update(dt);
   for(const p of projectiles)p.update(dt);
   resolveAll();
-  updateParticles(dt);updateDmgNums(dt);updateBloodSplats(dt);updateAbBar();
+  if(!window._balanceNoVisuals){updateParticles(dt);updateDmgNums(dt);updateBloodSplats(dt);updateAbBar();}
   slowZones=slowZones.filter(z=>{z.update(dt);return z.life>0;});
   thornPatches=thornPatches.filter(p=>{p.update(dt);return p.life>0;});
   miasmaClouds=miasmaClouds.filter(m=>{m.update(dt);return m.life>0;});
@@ -54,6 +57,7 @@
   noiseTraps=noiseTraps.filter(n=>{n.update(dt);return n.alive;});
   skeletons=skeletons.filter(sk=>{sk.update(dt);return sk.alive;});
   projectiles=projectiles.filter(p=>p.alive);
+  if(window._balanceNoVisuals){particles=[];dmgNums=[];bloodSplats=[];}
   spheres=spheres.filter(s=>!s.isReplica||s.alive||s.dyingT<=0.8);
  }
  function summarizeClassRow(key,row,totalMatches){
@@ -98,8 +102,10 @@
   const keys=options.keys||Object.keys(DEF),pairs=[];
   for(let i=0;i<keys.length;i++)for(let j=0;j<keys.length;j++)if(options.includeMirrors||i!==j)if(options.includeMirrors||i<j)pairs.push([keys[i],keys[j]]);
   const planned=[];for(const p of pairs)for(let r=0;r<options.roundsPerPair;r++){planned.push([p[0],p[1],r]);planned.push([p[1],p[0],r]);}
+  if(options.targetMatches>0&&planned.length>options.targetMatches)planned.length=options.targetMatches;
   const deadline=performance.now()+options.minutes*60*1000,results=[],started=performance.now();let count=0;
-  const originalRandom=Math.random;
+  const originalRandom=Math.random,originalNoVisuals=window._balanceNoVisuals;
+  window._balanceNoVisuals=options.noVisuals!==false;
   try{
    for(const [redKey,blueKey,round] of planned){
     if(performance.now()>deadline)break;
@@ -115,9 +121,14 @@
     const blue=spheres.find(s=>s.faction===1&&!s.isReplica)||spheres.find(s=>s.faction===1);
     results.push({redKey,blueKey,winnerKey:winner?winner.key:null,winnerFaction:winner?winner.faction:null,duration:+t.toFixed(2),seed,redHp:red?+Math.max(0,red.hp).toFixed(2):0,blueHp:blue?+Math.max(0,blue.hp).toFixed(2):0,draw:!winner});
     count++;
-    if(count%options.chunkSize===0){console.log(`[balance] ${count}/${planned.length} matches complete`);await new Promise(r=>setTimeout(r,0));}
+    if(count%options.chunkSize===0){
+     const message=`${count}/${planned.length} matches`;
+     console.log(`[balance] ${message} complete`);
+     if(typeof options.progress==='function')options.progress({count,total:planned.length,message});
+     await new Promise(r=>setTimeout(r,0));
+    }
    }
-  }finally{Math.random=originalRandom;paused=false;}
+  }finally{Math.random=originalRandom;window._balanceNoVisuals=originalNoVisuals;paused=false;}
   const report=buildReport(results,options,performance.now()-started,count===planned.length);
   window.lastBalanceReport=report;
   console.table(report.classes.slice(0,12));
@@ -127,4 +138,27 @@
   if(options.exportCsv)download(`balance-class-summary-${stamp}.csv`,'text/csv',toCsv(report));
   return report;
  };
+
+window.startBalanceBaselineButton=function(){
+ const btn=document.getElementById('balance-btn'),status=document.getElementById('balance-status');
+ if(btn)btn.disabled=true;
+ if(status)status.textContent='running...';
+ return runBalanceBaseline({
+  minutes:1,
+  roundsPerPair:3,
+  maxMatchSeconds:60,
+  dt:1/20,
+  targetMatches:900,
+  chunkSize:20,
+  noVisuals:true,
+  progress:p=>{if(status)status.textContent=p.message;}
+ }).then(report=>{
+  if(status)status.textContent=`done: ${report.matchCount}`;
+  return report;
+ }).catch(err=>{
+  console.error(err);
+  if(status)status.textContent='failed';
+ }).finally(()=>{if(btn)btn.disabled=false;});
+};
+
 })();

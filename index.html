@@ -55,6 +55,8 @@
 <div id="controls">
   <button class="pbtn" id="pbtn" onclick="togglePause()">PAUSE</button>
   <button class="pbtn new" onclick="window.startPicker(gameMode)">REPICK</button>
+  <button class="pbtn balance" id="balance-btn" onclick="startBalanceBaselineButton()">BALANCE TEST</button>
+  <span id="balance-status">idle</span>
   <div id="audio-panel">
     <button class="pbtn audio" id="mute-btn" onclick="toggleAudioMute()">SOUND ON</button>
     <label class="avol">SFX <input id="sfx-vol" type="range" min="0" max="100" value="85" oninput="setAudioVolume('sfx', this.value)"></label>

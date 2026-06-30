@@ -328,6 +328,20 @@ body {
   flex-shrink: 0;
 }
 
+
+#balance-status {
+  font-family: 'VT323', monospace;
+  font-size: 12px;
+  color: #fff8c8;
+  text-shadow: 1px 1px 0 #000;
+  min-width: 72px;
+}
+
+.pbtn.balance {
+  background: #284c2f;
+  color: #b8ffb8;
+}
+
 #audio-panel {
   display: flex;
   align-items: center;

@@ -222,10 +222,18 @@ This project is released under the [MIT License](LICENSE).
 
 ## Balance baseline automation
 
-The browser runtime exposes a console helper for long baseline runs:
+Click **BALANCE TEST** in the control bar to run the fast preset. It compresses a large sample into about one minute by fast-forwarding simulation steps without drawing particles, then downloads JSON and CSV reports.
+
+The browser runtime also exposes a console helper for custom baseline runs:
 
 ```js
-await runBalanceBaseline({ minutes: 120, roundsPerPair: 3, includeMirrors: false });
+await runBalanceBaseline({ minutes: 1, roundsPerPair: 3, targetMatches: 900, noVisuals: true });
+```
+
+For deeper overnight-style sampling, raise the wall-clock budget and remove the match cap:
+
+```js
+await runBalanceBaseline({ minutes: 120, roundsPerPair: 10, targetMatches: 0, noVisuals: true });
 ```
 
 The runner fast-forwards deterministic 1v1 battles in the loaded page, rotates both red/blue sides for each matchup, and downloads JSON plus CSV summaries. The report includes class win rates, average match duration, draw counts, hard-matchup flags, and first-pass buff/nerf investigation suggestions. The latest in-page report is also available as `window.lastBalanceReport` for manual inspection.
