@@ -97,12 +97,38 @@
   for(const r of report.classes)lines.push([r.key,r.label,r.games,r.wins,r.losses,r.draws,r.winRate,r.avgDuration,`"${r.suggestions.join(' | ').replace(/"/g,'""')}"`].join(','));
   return lines.join('\n');
  }
+ function buildRoundRobinPairs(keys,includeMirrors){
+  const ordered=keys.slice();
+  const pairs=[];
+  if(includeMirrors)for(const key of ordered)pairs.push([key,key]);
+  if(ordered.length<2)return pairs;
+  if(ordered.length%2)ordered.push(null);
+  const n=ordered.length,rotating=ordered.slice();
+  for(let round=0;round<n-1;round++){
+   for(let i=0;i<n/2;i++){
+    const a=rotating[i],b=rotating[n-1-i];
+    if(a!==null&&b!==null)pairs.push(round%2?[b,a]:[a,b]);
+   }
+   rotating.splice(1,0,rotating.pop());
+  }
+  return pairs;
+ }
+ function buildPlannedMatches(keys,options){
+  const pairs=buildRoundRobinPairs(keys,options.includeMirrors);
+  const planned=[];
+  for(let r=0;r<options.roundsPerPair;r++){
+   for(const p of pairs){
+    planned.push([p[0],p[1],r]);
+    if(p[0]!==p[1])planned.push([p[1],p[0],r]);
+   }
+  }
+  if(options.targetMatches>0&&planned.length>options.targetMatches)planned.length=options.targetMatches;
+  return planned;
+ }
  window.runBalanceBaseline=async function(userOptions={}){
   const options=Object.assign({},DEFAULTS,userOptions);
-  const keys=options.keys||Object.keys(DEF),pairs=[];
-  for(let i=0;i<keys.length;i++)for(let j=0;j<keys.length;j++)if(options.includeMirrors||i!==j)if(options.includeMirrors||i<j)pairs.push([keys[i],keys[j]]);
-  const planned=[];for(const p of pairs)for(let r=0;r<options.roundsPerPair;r++){planned.push([p[0],p[1],r]);planned.push([p[1],p[0],r]);}
-  if(options.targetMatches>0&&planned.length>options.targetMatches)planned.length=options.targetMatches;
+  const keys=options.keys||Object.keys(DEF);
+  const planned=buildPlannedMatches(keys,options);
   const deadline=performance.now()+options.minutes*60*1000,results=[],started=performance.now();let count=0;
   const originalRandom=Math.random,originalNoVisuals=window._balanceNoVisuals;
   window._balanceNoVisuals=options.noVisuals!==false;

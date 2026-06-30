@@ -236,7 +236,7 @@ For deeper overnight-style sampling, raise the wall-clock budget and remove the 
 await runBalanceBaseline({ minutes: 120, roundsPerPair: 10, targetMatches: 0, noVisuals: true });
 ```
 
-The runner fast-forwards deterministic 1v1 battles in the loaded page, rotates both red/blue sides for each matchup, and downloads JSON plus CSV summaries. The report includes class win rates, average match duration, draw counts, hard-matchup flags, and first-pass buff/nerf investigation suggestions. The latest in-page report is also available as `window.lastBalanceReport` for manual inspection.
+The runner fast-forwards deterministic 1v1 battles in the loaded page, schedules matchups in round-robin order so capped runs stay evenly distributed across classes, rotates both red/blue sides for each matchup, and downloads JSON plus CSV summaries. The report includes class win rates, average match duration, draw counts, hard-matchup flags, and first-pass buff/nerf investigation suggestions. The latest in-page report is also available as `window.lastBalanceReport` for manual inspection.
 
 Useful shorter smoke-test command:
 
