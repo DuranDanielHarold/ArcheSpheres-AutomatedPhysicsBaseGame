@@ -63,6 +63,57 @@
  }
  function pct(n){return +(n*100).toFixed(1);}
  function clamp(n,min,max){return Math.max(min,Math.min(max,n));}
+ function patchMagnitude(score){const a=Math.abs(score);return a>=30?'large':a>=20?'medium':'small';}
+ function roleStatWeights(role){
+  const weights={
+   TANK:{hp:.35,arm:.30,magDef:.15,dmg:.10,spd:.10},
+   FIGHTER:{dmg:.30,spd:.20,hp:.20,arm:.15,reach:.15},
+   ASSASSIN:{spd:.30,dmg:.25,hp:.15,rest:.15,reach:.15},
+   MAGE:{dmg:.35,reach:.20,magDef:.15,hp:.15,spd:.15},
+   MARKSMAN:{reach:.30,dmg:.30,spd:.20,hp:.10,rest:.10},
+   SUPPORT:{hp:.25,magDef:.20,arm:.15,dmg:.15,abilityUptime:.15,spd:.10}
+  };
+  return Object.assign({},weights[role]||weights.FIGHTER);
+ }
+ function weightedStatAdjustment(score,confidence,role,avgHpMargin,drawRate,action){
+  if(action!=='NERF'&&action!=='BUFF')return{totalAdjustmentPct:0,statAdjustments:''};
+  const direction=action==='NERF'?-1:1,weights=roleStatWeights(role);
+  const marginPressure=clamp(Math.abs(avgHpMargin)/200,0,.45);
+  const drawPressure=clamp(drawRate,.0,.35);
+  if((action==='NERF'&&avgHpMargin>40)||(action==='BUFF'&&avgHpMargin<-40)){
+   if(weights.hp)weights.hp+=marginPressure*.45;
+   if(weights.arm)weights.arm+=marginPressure*.30;
+   if(weights.magDef)weights.magDef+=marginPressure*.20;
+  }else if((action==='NERF'&&avgHpMargin<40)||(action==='BUFF'&&avgHpMargin>-40)){
+   if(weights.dmg)weights.dmg+=marginPressure*.30;
+   if(weights.reach)weights.reach+=marginPressure*.20;
+   if(weights.spd)weights.spd+=marginPressure*.15;
+  }
+  if(drawPressure>0){
+   if(action==='NERF'){if(weights.hp)weights.hp+=drawPressure*.25;if(weights.arm)weights.arm+=drawPressure*.20;if(weights.magDef)weights.magDef+=drawPressure*.20;}
+   else{if(weights.dmg)weights.dmg+=drawPressure*.25;if(weights.reach)weights.reach+=drawPressure*.20;}
+  }
+  const totalWeight=Object.values(weights).reduce((a,b)=>a+b,0)||1;
+  const totalPct=+(clamp(Math.abs(score)*0.20,2,10)*confidence).toFixed(1);
+  const parts=Object.entries(weights).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([stat,w])=>`${stat} ${(direction*totalPct*w/totalWeight).toFixed(1)}%`);
+  return{totalAdjustmentPct:direction*totalPct,statAdjustments:parts.join('; ')};
+ }
+ function patchTargets(key,action,row,drawRate,avgHpMargin){
+  if(action==='WATCH'||action==='NEEDS_MORE_DATA')return '';
+  const d=DEF[key],role=typeof CLASS_ROLE!=='undefined'?CLASS_ROLE[key]:'';
+  const defensive=d.hp>=500||d.arm>=130||avgHpMargin>80;
+  const evasive=d.spd>=260||d.rest>=0.80;
+  const damage=d.dmg>=5||d.reach>=3.6;
+  if(action==='NERF'){
+   if(drawRate>=0.20||defensive)return 'Reduce sustain/defense first: hp, arm, magDef, ability invulnerability/heal uptime.';
+   if(evasive)return 'Reduce mobility/control first: spd, rest, untargetable duration, slow/knockback uptime.';
+   if(damage)return 'Reduce offense first: dmg, projectile rate, reach, ability burst multiplier.';
+   return `Trim the main ${role||'class'} strength by 3-6%, then rerun baseline.`;
+  }
+  if(row.avgDuration>75)return 'Increase threat/reliability first: dmg, reach, projectile cadence, or ability payoff.';
+  if(avgHpMargin<-80)return 'Increase survivability first: hp, arm, magDef, escape/defensive ability uptime.';
+  return 'Buff core reliability by 3-6%: weapon reach/tip radius, dmg, spd, or stack gain.';
+ }
  function summarizeClassRow(key,row,totalMatches,matchups){
   const wr=row.games?row.wins/row.games:0,decisive=row.wins+row.losses,decisiveWr=decisive?row.wins/decisive:0;
   const drawRate=row.games?row.draws/row.games:0,share=totalMatches?row.games/(totalMatches*2):0;
@@ -82,6 +133,10 @@
   const pressure=(wr-0.5)*120+(decisiveWr-0.5)*60+avgHpMargin*0.08+dominantMatchups*1.5-hardCounters*1.5-drawRate*20;
   const balanceScore=+(pressure*confidence).toFixed(1);
   const action=confidence<0.5?'NEEDS_MORE_DATA':balanceScore>=12?'NERF':balanceScore<=-12?'BUFF':'WATCH';
+  const role=typeof CLASS_ROLE!=='undefined'?(CLASS_ROLE[key]||'FIGHTER'):'FIGHTER';
+  const magnitude=action==='NERF'||action==='BUFF'?patchMagnitude(balanceScore):'';
+  const patchTarget=patchTargets(key,action,row,drawRate,avgHpMargin);
+  const adjustment=weightedStatAdjustment(balanceScore,confidence,role,avgHpMargin,drawRate,action);
   const suggestions=[];
   if(action==='NERF')suggestions.push('Nerf candidate: inspect survivability, damage uptime, ability impact, and dominant matchups.');
   else if(action==='BUFF')suggestions.push('Buff candidate: inspect weapon reliability, time-to-first-impact, survivability, and hard counters.');
@@ -89,7 +144,7 @@
   if(row.avgDuration>75)suggestions.push('Long-match profile: watch for stalemate, sustain, or low interaction.');
   if(drawRate>=0.20)suggestions.push('High draw rate: inspect timeout, sustain, and low-lethality interactions.');
   if(share<0.015)suggestions.push('Low sample share: run a larger or uncapped baseline.');
-  return{key,label:DEF[key].label,games:row.games,wins:row.wins,losses:row.losses,draws:row.draws,winRate:+wr.toFixed(4),winPct:pct(wr),decisiveWinRate:+decisiveWr.toFixed(4),drawRate:+drawRate.toFixed(4),avgDuration:+row.avgDuration.toFixed(2),avgEndHp:+avgEndHp.toFixed(2),avgHpMargin:+avgHpMargin.toFixed(2),avgWinHp:+avgWinHp.toFixed(2),avgLossOpponentHp:+avgLossOpponentHp.toFixed(2),hardCounters,dominantMatchups,worstMatchup:worst?`${worst.label} (${pct(worst.rate)}%)`:'',bestMatchup:best?`${best.label} (${pct(best.rate)}%)`:'',balanceScore,action,confidence:+confidence.toFixed(2),suggestions};
+  return{key,label:DEF[key].label,role,games:row.games,wins:row.wins,losses:row.losses,draws:row.draws,winRate:+wr.toFixed(4),winPct:pct(wr),decisiveWinRate:+decisiveWr.toFixed(4),drawRate:+drawRate.toFixed(4),avgDuration:+row.avgDuration.toFixed(2),avgEndHp:+avgEndHp.toFixed(2),avgHpMargin:+avgHpMargin.toFixed(2),avgWinHp:+avgWinHp.toFixed(2),avgLossOpponentHp:+avgLossOpponentHp.toFixed(2),hardCounters,dominantMatchups,worstMatchup:worst?`${worst.label} (${pct(worst.rate)}%)`:'',bestMatchup:best?`${best.label} (${pct(best.rate)}%)`:'',balanceScore,action,magnitude,patchTarget,totalAdjustmentPct:adjustment.totalAdjustmentPct,statAdjustments:adjustment.statAdjustments,confidence:+confidence.toFixed(2),suggestions};
  }
  function buildReport(results,options,elapsedMs,completedPlanned){
   const classes={};Object.keys(DEF).forEach(k=>classes[k]={games:0,wins:0,losses:0,draws:0,duration:0,avgDuration:0,endHp:0,hpMargin:0,winHp:0,lossOpponentHp:0});
@@ -118,8 +173,8 @@
   a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
  }
  function toCsv(report){
-  const lines=['key,label,action,balanceScore,confidence,games,wins,losses,draws,winPct,decisiveWinRate,drawRate,avgDuration,avgEndHp,avgHpMargin,avgWinHp,avgLossOpponentHp,hardCounters,dominantMatchups,worstMatchup,bestMatchup,suggestions'];
-  for(const r of report.classes)lines.push([r.key,r.label,r.action,r.balanceScore,r.confidence,r.games,r.wins,r.losses,r.draws,r.winPct,r.decisiveWinRate,r.drawRate,r.avgDuration,r.avgEndHp,r.avgHpMargin,r.avgWinHp,r.avgLossOpponentHp,r.hardCounters,r.dominantMatchups,`"${r.worstMatchup.replace(/"/g,'""')}"`,`"${r.bestMatchup.replace(/"/g,'""')}"`,`"${r.suggestions.join(' | ').replace(/"/g,'""')}"`].join(','));
+  const lines=['key,label,role,action,magnitude,balanceScore,totalAdjustmentPct,statAdjustments,patchTarget,confidence,games,wins,losses,draws,winPct,decisiveWinRate,drawRate,avgDuration,avgEndHp,avgHpMargin,avgWinHp,avgLossOpponentHp,hardCounters,dominantMatchups,worstMatchup,bestMatchup,suggestions'];
+  for(const r of report.classes)lines.push([r.key,r.label,r.role,r.action,r.magnitude,r.balanceScore,r.totalAdjustmentPct,`"${r.statAdjustments.replace(/"/g,'""')}"`,`"${r.patchTarget.replace(/"/g,'""')}"`,r.confidence,r.games,r.wins,r.losses,r.draws,r.winPct,r.decisiveWinRate,r.drawRate,r.avgDuration,r.avgEndHp,r.avgHpMargin,r.avgWinHp,r.avgLossOpponentHp,r.hardCounters,r.dominantMatchups,`"${r.worstMatchup.replace(/"/g,'""')}"`,`"${r.bestMatchup.replace(/"/g,'""')}"`,`"${r.suggestions.join(' | ').replace(/"/g,'""')}"`].join(','));
   return lines.join('\n');
  }
  function toMatchupCsv(report){

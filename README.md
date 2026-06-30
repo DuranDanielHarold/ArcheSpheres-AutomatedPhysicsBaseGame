@@ -171,6 +171,8 @@ Update the split data files:
 - `CLASS_DESC` in `js/data/classMeta.js`
 - `SPHERE_AUDIO` in `js/data/audioConfig.js`
 
+Class roles are intentionally normalized to six balance baselines only: `TANK`, `FIGHTER`, `ASSASSIN`, `MAGE`, `MARKSMAN`, and `SUPPORT`. Use these roles as the first-pass stat basis before making class-specific exceptions.
+
 ### Add audio
 
 1. Put the audio file into the matching `audio/<sphere-name>/` folder.
@@ -236,7 +238,7 @@ For deeper overnight-style sampling, raise the wall-clock budget and remove the 
 await runBalanceBaseline({ minutes: 120, roundsPerPair: 10, targetMatches: 0, noVisuals: true });
 ```
 
-The runner fast-forwards deterministic 1v1 battles in the loaded page without drawing particles by default, schedules matchups in round-robin order so capped runs stay evenly distributed across classes, rotates both red/blue sides for each matchup, and downloads JSON plus class/matchup CSV summaries. The class CSV includes weighted `balanceScore`, `action` (NERF/BUFF/WATCH/NEEDS_MORE_DATA), confidence, decisive win rate, draw rate, HP-margin columns, hard-counter counts, and best/worst matchup columns. The matchup CSV includes decisive games, draw rate, leader win rate, hard-counter flags, and impossible-match flags. The latest in-page report is also available as `window.lastBalanceReport` for manual inspection.
+The runner fast-forwards deterministic 1v1 battles in the loaded page without drawing particles by default, schedules matchups in round-robin order so capped runs stay evenly distributed across classes, rotates both red/blue sides for each matchup, and downloads JSON plus class/matchup CSV summaries. The class CSV includes weighted `balanceScore`, `action` (NERF/BUFF/WATCH/NEEDS_MORE_DATA), `magnitude`, `totalAdjustmentPct`, `statAdjustments`, `patchTarget`, normalized role, confidence, decisive win rate, draw rate, HP-margin columns, hard-counter counts, and best/worst matchup columns. The matchup CSV includes decisive games, draw rate, leader win rate, hard-counter flags, and impossible-match flags. The latest in-page report is also available as `window.lastBalanceReport` for manual inspection.
 
 Useful shorter smoke-test command:
 
