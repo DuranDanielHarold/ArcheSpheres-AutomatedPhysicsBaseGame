@@ -219,3 +219,19 @@ See [PRIVACY.md](PRIVACY.md) for a short privacy statement you can keep in the r
 ## License
 
 This project is released under the [MIT License](LICENSE).
+
+## Balance baseline automation
+
+The browser runtime exposes a console helper for long baseline runs:
+
+```js
+await runBalanceBaseline({ minutes: 120, roundsPerPair: 3, includeMirrors: false });
+```
+
+The runner fast-forwards deterministic 1v1 battles in the loaded page, rotates both red/blue sides for each matchup, and downloads JSON plus CSV summaries. The report includes class win rates, average match duration, draw counts, hard-matchup flags, and first-pass buff/nerf investigation suggestions. The latest in-page report is also available as `window.lastBalanceReport` for manual inspection.
+
+Useful shorter smoke-test command:
+
+```js
+await runBalanceBaseline({ minutes: 1, roundsPerPair: 1, keys: ['knight', 'samurai', 'wizard', 'ranger'], exportJson: false, exportCsv: false });
+```
