@@ -46,37 +46,101 @@ Start-Process msedge.exe .\index.html
 │   ├── README.md
 │   └── <sphere-name>/
 └── js/
-    ├── data.js
-    ├── weapons.js
-    ├── entities.js
-    ├── engine.js
-    ├── ui.js
+    ├── core/
+    ├── data/
+    ├── weapons/
+    ├── entities/
+    ├── combat/
+    ├── audio/
+    ├── hud/
+    ├── loop/
+    ├── ui/
     └── main.js
 ```
 
 ## Code Map
 
-`js/data.js`
-Defines core class data, descriptions, roles, and audio slot references.
+`js/core/constants.js`
+Defines shared physics constants, burn tick intervals, and `RANGED_KEYS`.
 
-`js/weapons.js`
-Contains the custom drawing logic for each weapon style.
+`js/core/rrect.js`
+Defines the shared rounded-rectangle canvas helper used by weapons and entities.
 
-`js/entities.js`
-Contains sphere behaviors, projectile classes, class-specific firing methods, and entity update logic.
+`js/data/classDefs.js`
+Defines the `DEF` class stat, weapon, and ability configuration block.
 
-`js/engine.js`
-Handles collision resolution, combat effects, particles, the game loop, and audio playback helpers.
+`js/data/classMeta.js`
+Defines class role metadata, role colors, and class descriptions.
 
-`js/ui.js`
-Controls the start screen, class picker, selection flow, and countdown overlays.
+`js/data/classStacks.js`
+Defines stack thresholds and stack display threshold helpers.
+
+`js/data/audioConfig.js`
+Defines sphere audio paths, arena audio paths, audio defaults, and volume settings.
+
+`js/weapons/weapons-melee.js`
+Contains melee-oriented weapon drawing functions.
+
+`js/weapons/weapons-ranged.js`
+Contains ranged weapon drawing functions.
+
+`js/weapons/weapons-exotic.js`
+Contains exotic and ability-heavy weapon drawing functions.
+
+`js/weapons/weapons-index.js`
+Reconstructs the single global `WEAPONS` map from the grouped weapon maps.
+
+`js/entities/projectiles-basic.js`
+Contains basic projectile classes such as arrows, bullets, hooks, bolas, and holy orbs.
+
+`js/entities/projectiles-roster.js`
+Contains roster-specific projectile classes and alchemy flask configuration.
+
+`js/entities/projectiles-shared.js`
+Contains shared entity-style projectile/effect classes formerly housed in the engine.
+
+`js/entities/zones-and-traps.js`
+Contains slow zones, patches, miasmas, void/singularity effects, burial mounds, shards, and rat minions.
+
+`js/entities/companions.js`
+Contains companion and summon classes, including skeleton-derived allies.
+
+`js/entities/sphere.js`
+Contains the main `Sphere` class and class-specific behavior methods.
+
+`js/combat/collisions.js`
+Handles collision resolution, faction helpers, weapon hits/clashes, locksmith locks, and skeleton combat interactions.
+
+`js/combat/particles-fx.js`
+Handles particle/effect spawning, damage and heal numbers, blood splats, and background drawing.
+
+`js/audio/audio-engine.js`
+Handles audio state, preloading, playback helpers, mute/volume controls, and arena BGM lifecycle.
+
+`js/hud/hud.js`
+Updates the ability bar and stat panel.
+
+`js/loop/game-loop.js`
+Runs the update/draw loop and winner/rematch overlay flow.
+
+`js/ui/picker-styles.js`
+Injects picker and start-screen styles.
+
+`js/ui/start-screen.js`
+Controls start-screen rendering and cached sphere icon generation.
+
+`js/ui/picker-screen.js`
+Controls class picker state, slot selection, card grid rendering, stat bars, and detail panels.
+
+`js/ui/battle-launch.js`
+Controls battle launch handoff and countdown overlays.
 
 `js/main.js`
-Bootstraps canvas state, mutable game arrays, battle creation, and resize handling.
+Bootstraps canvas state, mutable game arrays, battle creation, mode controls, and resize handling.
 
 ## Audio System
 
-Audio paths are configured in `js/data.js` under:
+Audio paths are configured in `js/data/audioConfig.js` under:
 
 - `SPHERE_AUDIO`
 - `ARENA_AUDIO`
@@ -99,19 +163,19 @@ See [audio/README.md](audio/README.md) for folder guidance.
 
 ### Add or edit a class
 
-Update `js/data.js`:
+Update the split data files:
 
-- `DEF`
-- `CLASS_ROLE`
-- `ROLE_COLOR`
-- `CLASS_DESC`
-- `SPHERE_AUDIO`
+- `DEF` in `js/data/classDefs.js`
+- `CLASS_ROLE` in `js/data/classMeta.js`
+- `ROLE_COLOR` in `js/data/classMeta.js`
+- `CLASS_DESC` in `js/data/classMeta.js`
+- `SPHERE_AUDIO` in `js/data/audioConfig.js`
 
 ### Add audio
 
 1. Put the audio file into the matching `audio/<sphere-name>/` folder.
 2. Add or update the relative path in `SPHERE_AUDIO`.
-3. Wire the event in `entities.js` or `engine.js` if that audio type is not already connected.
+3. Wire the event in the relevant `js/entities/`, `js/combat/`, or `js/audio/` file if that audio type is not already connected.
 
 ### Tune gameplay
 
