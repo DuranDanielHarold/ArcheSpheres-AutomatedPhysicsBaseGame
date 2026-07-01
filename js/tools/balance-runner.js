@@ -18,6 +18,31 @@
   exportJson:true,
   exportCsv:true,
  };
+ const pendingBalanceTimeouts=new Set();
+ function clearPendingBalanceTimeouts(){
+  for(const id of pendingBalanceTimeouts)clearTimeout(id);
+  pendingBalanceTimeouts.clear();
+ }
+ function installBalanceTimeoutTracker(){
+  const originalSetTimeout=window.setTimeout,originalClearTimeout=window.clearTimeout;
+  window.setTimeout=function(fn,delay,...args){
+   const id=originalSetTimeout(function(...cbArgs){
+    pendingBalanceTimeouts.delete(id);
+    fn(...cbArgs);
+   },delay,...args);
+   pendingBalanceTimeouts.add(id);
+   return id;
+  };
+  window.clearTimeout=function(id){
+   pendingBalanceTimeouts.delete(id);
+   return originalClearTimeout(id);
+  };
+  return function restoreBalanceTimeoutTracker(){
+   window.setTimeout=originalSetTimeout;
+   window.clearTimeout=originalClearTimeout;
+   clearPendingBalanceTimeouts();
+  };
+ }
  function mulberry32(seed){
   let t=seed>>>0;
   return function(){
@@ -29,6 +54,7 @@
  }
  function resetArenaForBalance(redKey,blueKey,rng){
   cancelAnimationFrame(animId);
+  clearPendingBalanceTimeouts();
   winDone=false;paused=true;
   spheres=[];particles=[];projectiles=[];afterimages=[];noiseTraps=[];slowZones=[];thornPatches=[];skeletons=[];dmgNums=[];bloodSplats=[];miasmaClouds=[];
   if(typeof _burialMoundSeq!=='undefined')_burialMoundSeq=0;
@@ -217,6 +243,7 @@
   const planned=buildPlannedMatches(keys,options);
   const deadline=performance.now()+options.minutes*60*1000,results=[],started=performance.now();let count=0;
   const originalRandom=Math.random,originalNoVisuals=window._balanceNoVisuals;
+  const restoreBalanceTimeoutTracker=installBalanceTimeoutTracker();
   window._balanceNoVisuals=options.noVisuals!==false;
   try{
    for(const [redKey,blueKey,round] of planned){
@@ -240,7 +267,7 @@
      await new Promise(r=>setTimeout(r,0));
     }
    }
-  }finally{Math.random=originalRandom;window._balanceNoVisuals=originalNoVisuals;paused=false;}
+  }finally{Math.random=originalRandom;window._balanceNoVisuals=originalNoVisuals;restoreBalanceTimeoutTracker();paused=false;}
   const report=buildReport(results,options,performance.now()-started,count===planned.length);
   window.lastBalanceReport=report;
   console.table(report.classes.slice(0,12));
