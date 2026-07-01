@@ -12,6 +12,7 @@
   includeMirrors:false,
   chunkSize:25,
   targetMatches:0,
+  targetGamesPerClass:0,
   noVisuals:true,
   progress:null,
   exportJson:true,
@@ -60,31 +61,110 @@
   if(window._balanceNoVisuals){particles=[];dmgNums=[];bloodSplats=[];}
   spheres=spheres.filter(s=>!s.isReplica||s.alive||s.dyingT<=0.8);
  }
- function summarizeClassRow(key,row,totalMatches){
-  const wr=row.games?row.wins/row.games:0;
-  const share=totalMatches?row.games/totalMatches:0;
+ function pct(n){return +(n*100).toFixed(1);}
+ function clamp(n,min,max){return Math.max(min,Math.min(max,n));}
+ function patchMagnitude(score){const a=Math.abs(score);return a>=30?'large':a>=20?'medium':'small';}
+ function roleStatWeights(role){
+  const weights={
+   TANK:{hp:.35,arm:.30,magDef:.15,dmg:.10,spd:.10},
+   FIGHTER:{dmg:.30,spd:.20,hp:.20,arm:.15,reach:.15},
+   ASSASSIN:{spd:.30,dmg:.25,hp:.15,rest:.15,reach:.15},
+   MAGE:{dmg:.35,reach:.20,magDef:.15,hp:.15,spd:.15},
+   MARKSMAN:{reach:.30,dmg:.30,spd:.20,hp:.10,rest:.10},
+   SUPPORT:{hp:.25,magDef:.20,arm:.15,dmg:.15,abilityUptime:.15,spd:.10}
+  };
+  return Object.assign({},weights[role]||weights.FIGHTER);
+ }
+ function weightedStatAdjustment(score,confidence,role,avgHpMargin,drawRate,action){
+  if(action!=='NERF'&&action!=='BUFF')return{totalAdjustmentPct:0,statAdjustments:''};
+  const direction=action==='NERF'?-1:1,weights=roleStatWeights(role);
+  const marginPressure=clamp(Math.abs(avgHpMargin)/200,0,.45);
+  const drawPressure=clamp(drawRate,.0,.35);
+  if((action==='NERF'&&avgHpMargin>40)||(action==='BUFF'&&avgHpMargin<-40)){
+   if(weights.hp)weights.hp+=marginPressure*.45;
+   if(weights.arm)weights.arm+=marginPressure*.30;
+   if(weights.magDef)weights.magDef+=marginPressure*.20;
+  }else if((action==='NERF'&&avgHpMargin<40)||(action==='BUFF'&&avgHpMargin>-40)){
+   if(weights.dmg)weights.dmg+=marginPressure*.30;
+   if(weights.reach)weights.reach+=marginPressure*.20;
+   if(weights.spd)weights.spd+=marginPressure*.15;
+  }
+  if(drawPressure>0){
+   if(action==='NERF'){if(weights.hp)weights.hp+=drawPressure*.25;if(weights.arm)weights.arm+=drawPressure*.20;if(weights.magDef)weights.magDef+=drawPressure*.20;}
+   else{if(weights.dmg)weights.dmg+=drawPressure*.25;if(weights.reach)weights.reach+=drawPressure*.20;}
+  }
+  const totalWeight=Object.values(weights).reduce((a,b)=>a+b,0)||1;
+  const totalPct=+(clamp(Math.abs(score)*0.20,2,10)*confidence).toFixed(1);
+  const parts=Object.entries(weights).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([stat,w])=>`${stat} ${(direction*totalPct*w/totalWeight).toFixed(1)}%`);
+  return{totalAdjustmentPct:direction*totalPct,statAdjustments:parts.join('; ')};
+ }
+ function patchTargets(key,action,row,drawRate,avgHpMargin){
+  if(action==='WATCH'||action==='NEEDS_MORE_DATA')return '';
+  const d=DEF[key],role=typeof CLASS_ROLE!=='undefined'?CLASS_ROLE[key]:'';
+  const defensive=d.hp>=500||d.arm>=130||avgHpMargin>80;
+  const evasive=d.spd>=260||d.rest>=0.80;
+  const damage=d.dmg>=5||d.reach>=3.6;
+  if(action==='NERF'){
+   if(drawRate>=0.20||defensive)return 'Reduce sustain/defense first: hp, arm, magDef, ability invulnerability/heal uptime.';
+   if(evasive)return 'Reduce mobility/control first: spd, rest, untargetable duration, slow/knockback uptime.';
+   if(damage)return 'Reduce offense first: dmg, projectile rate, reach, ability burst multiplier.';
+   return `Trim the main ${role||'class'} strength by 3-6%, then rerun baseline.`;
+  }
+  if(row.avgDuration>75)return 'Increase threat/reliability first: dmg, reach, projectile cadence, or ability payoff.';
+  if(avgHpMargin<-80)return 'Increase survivability first: hp, arm, magDef, escape/defensive ability uptime.';
+  return 'Buff core reliability by 3-6%: weapon reach/tip radius, dmg, spd, or stack gain.';
+ }
+ function summarizeClassRow(key,row,totalMatches,matchups){
+  const wr=row.games?row.wins/row.games:0,decisive=row.wins+row.losses,decisiveWr=decisive?row.wins/decisive:0;
+  const drawRate=row.games?row.draws/row.games:0,share=totalMatches?row.games/(totalMatches*2):0;
+  const avgHpMargin=row.games?row.hpMargin/row.games:0,avgEndHp=row.games?row.endHp/row.games:0,avgWinHp=row.wins?row.winHp/row.wins:0;
+  const avgLossOpponentHp=row.losses?row.lossOpponentHp/row.losses:0;
+  const rows=Object.values(matchups).filter(m=>m.a===key||m.b===key);
+  let worst=null,best=null,hardCounters=0,dominantMatchups=0;
+  for(const m of rows){
+   const dec=m.games-m.draws,rate=dec?(m.a===key?m.aWins:m.bWins)/dec:0;
+   const label=m.a===key?m.b:m.a;
+   if(dec>=4&&rate<=0.25)hardCounters++;
+   if(dec>=4&&rate>=0.75)dominantMatchups++;
+   if(!worst||rate<worst.rate)worst={label,rate,games:m.games};
+   if(!best||rate>best.rate)best={label,rate,games:m.games};
+  }
+  const confidence=clamp(row.games/200,0,1);
+  const pressure=(wr-0.5)*120+(decisiveWr-0.5)*60+avgHpMargin*0.08+dominantMatchups*1.5-hardCounters*1.5-drawRate*20;
+  const balanceScore=+(pressure*confidence).toFixed(1);
+  const action=confidence<0.5?'NEEDS_MORE_DATA':balanceScore>=12?'NERF':balanceScore<=-12?'BUFF':'WATCH';
+  const role=typeof CLASS_ROLE!=='undefined'?(CLASS_ROLE[key]||'FIGHTER'):'FIGHTER';
+  const magnitude=action==='NERF'||action==='BUFF'?patchMagnitude(balanceScore):'';
+  const patchTarget=patchTargets(key,action,row,drawRate,avgHpMargin);
+  const adjustment=weightedStatAdjustment(balanceScore,confidence,role,avgHpMargin,drawRate,action);
   const suggestions=[];
-  if(wr>=0.60&&row.games>=10)suggestions.push('Likely overtuned: inspect survivability, damage uptime, and ability impact.');
-  else if(wr<=0.40&&row.games>=10)suggestions.push('Likely undertuned: inspect weapon reliability, time-to-first-impact, and ability payoff.');
+  if(action==='NERF')suggestions.push('Nerf candidate: inspect survivability, damage uptime, ability impact, and dominant matchups.');
+  else if(action==='BUFF')suggestions.push('Buff candidate: inspect weapon reliability, time-to-first-impact, survivability, and hard counters.');
+  else if(action==='NEEDS_MORE_DATA')suggestions.push('Low confidence: gather closer to 200 games before changing stats.');
   if(row.avgDuration>75)suggestions.push('Long-match profile: watch for stalemate, sustain, or low interaction.');
-  if(share<0.03)suggestions.push('Low sample share: gather more games before changing stats.');
-  return{key,label:DEF[key].label,games:row.games,wins:row.wins,losses:row.losses,draws:row.draws,winRate:+wr.toFixed(4),avgDuration:+row.avgDuration.toFixed(2),suggestions};
+  if(drawRate>=0.20)suggestions.push('High draw rate: inspect timeout, sustain, and low-lethality interactions.');
+  if(share<0.015)suggestions.push('Low sample share: run a larger or uncapped baseline.');
+  return{key,label:DEF[key].label,role,games:row.games,wins:row.wins,losses:row.losses,draws:row.draws,winRate:+wr.toFixed(4),winPct:pct(wr),decisiveWinRate:+decisiveWr.toFixed(4),drawRate:+drawRate.toFixed(4),avgDuration:+row.avgDuration.toFixed(2),avgEndHp:+avgEndHp.toFixed(2),avgHpMargin:+avgHpMargin.toFixed(2),avgWinHp:+avgWinHp.toFixed(2),avgLossOpponentHp:+avgLossOpponentHp.toFixed(2),hardCounters,dominantMatchups,worstMatchup:worst?`${worst.label} (${pct(worst.rate)}%)`:'',bestMatchup:best?`${best.label} (${pct(best.rate)}%)`:'',balanceScore,action,magnitude,patchTarget,totalAdjustmentPct:adjustment.totalAdjustmentPct,statAdjustments:adjustment.statAdjustments,confidence:+confidence.toFixed(2),suggestions};
  }
  function buildReport(results,options,elapsedMs,completedPlanned){
-  const classes={};Object.keys(DEF).forEach(k=>classes[k]={games:0,wins:0,losses:0,draws:0,duration:0,avgDuration:0});
+  const classes={};Object.keys(DEF).forEach(k=>classes[k]={games:0,wins:0,losses:0,draws:0,duration:0,avgDuration:0,endHp:0,hpMargin:0,winHp:0,lossOpponentHp:0});
   const matchups={};
   for(const r of results){
-   for(const key of [r.redKey,r.blueKey]){classes[key].games++;classes[key].duration+=r.duration;if(r.winnerKey===key)classes[key].wins++;else if(r.winnerKey)classes[key].losses++;else classes[key].draws++;}
+   const redMargin=r.redHp-r.blueHp,blueMargin=r.blueHp-r.redHp;
+   for(const side of [{key:r.redKey,hp:r.redHp,oppHp:r.blueHp,margin:redMargin},{key:r.blueKey,hp:r.blueHp,oppHp:r.redHp,margin:blueMargin}]){
+    const c=classes[side.key];c.games++;c.duration+=r.duration;c.endHp+=side.hp;c.hpMargin+=side.margin;
+    if(r.winnerKey===side.key){c.wins++;c.winHp+=side.hp;}else if(r.winnerKey){c.losses++;c.lossOpponentHp+=side.oppHp;}else c.draws++;
+   }
    const ordered=[r.redKey,r.blueKey].sort();const id=ordered.join('__vs__');
    if(!matchups[id])matchups[id]={a:ordered[0],b:ordered[1],games:0,aWins:0,bWins:0,draws:0,duration:0};
    const m=matchups[id];m.games++;m.duration+=r.duration;if(r.winnerKey===m.a)m.aWins++;else if(r.winnerKey===m.b)m.bWins++;else m.draws++;
   }
   Object.values(classes).forEach(c=>{c.avgDuration=c.games?c.duration/c.games:0;});
-  const classRows=Object.keys(classes).map(k=>summarizeClassRow(k,classes[k],results.length)).sort((a,b)=>b.winRate-a.winRate);
+  const classRows=Object.keys(classes).map(k=>summarizeClassRow(k,classes[k],results.length,matchups)).sort((a,b)=>b.balanceScore-a.balanceScore);
   const matchupRows=Object.values(matchups).map(m=>{
    const decisive=m.games-m.draws,aRate=decisive?m.aWins/decisive:0,bRate=decisive?m.bWins/decisive:0;
    const leader=aRate>=bRate?m.a:m.b,leaderRate=Math.max(aRate,bRate);
-   return{matchup:`${m.a} vs ${m.b}`,a:m.a,b:m.b,games:m.games,aWins:m.aWins,bWins:m.bWins,draws:m.draws,aWinRate:+aRate.toFixed(4),bWinRate:+bRate.toFixed(4),avgDuration:+(m.games?m.duration/m.games:0).toFixed(2),hardCounter:leaderRate>=0.75?`${leader} at ${Math.round(leaderRate*100)}% decisive WR`:null};
+   return{matchup:`${m.a} vs ${m.b}`,a:m.a,b:m.b,games:m.games,decisiveGames:decisive,aWins:m.aWins,bWins:m.bWins,draws:m.draws,drawRate:+(m.games?m.draws/m.games:0).toFixed(4),aWinRate:+aRate.toFixed(4),bWinRate:+bRate.toFixed(4),leader,leaderWinRate:+leaderRate.toFixed(4),avgDuration:+(m.games?m.duration/m.games:0).toFixed(2),hardCounter:leaderRate>=0.75?`${leader} at ${Math.round(leaderRate*100)}% decisive WR`:null,impossibleMatch:decisive>=6&&leaderRate>=0.90};
   }).sort((a,b)=>Math.max(b.aWinRate,b.bWinRate)-Math.max(a.aWinRate,a.bWinRate));
   return{generatedAt:new Date().toISOString(),options,elapsedMs,completedPlanned,matchCount:results.length,classes:classRows,hardMatchups:matchupRows.filter(m=>m.hardCounter),matchups:matchupRows,results};
  }
@@ -93,16 +173,48 @@
   a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
  }
  function toCsv(report){
-  const lines=['key,label,games,wins,losses,draws,winRate,avgDuration,suggestions'];
-  for(const r of report.classes)lines.push([r.key,r.label,r.games,r.wins,r.losses,r.draws,r.winRate,r.avgDuration,`"${r.suggestions.join(' | ').replace(/"/g,'""')}"`].join(','));
+  const lines=['key,label,role,action,magnitude,balanceScore,totalAdjustmentPct,statAdjustments,patchTarget,confidence,games,wins,losses,draws,winPct,decisiveWinRate,drawRate,avgDuration,avgEndHp,avgHpMargin,avgWinHp,avgLossOpponentHp,hardCounters,dominantMatchups,worstMatchup,bestMatchup,suggestions'];
+  for(const r of report.classes)lines.push([r.key,r.label,r.role,r.action,r.magnitude,r.balanceScore,r.totalAdjustmentPct,`"${r.statAdjustments.replace(/"/g,'""')}"`,`"${r.patchTarget.replace(/"/g,'""')}"`,r.confidence,r.games,r.wins,r.losses,r.draws,r.winPct,r.decisiveWinRate,r.drawRate,r.avgDuration,r.avgEndHp,r.avgHpMargin,r.avgWinHp,r.avgLossOpponentHp,r.hardCounters,r.dominantMatchups,`"${r.worstMatchup.replace(/"/g,'""')}"`,`"${r.bestMatchup.replace(/"/g,'""')}"`,`"${r.suggestions.join(' | ').replace(/"/g,'""')}"`].join(','));
   return lines.join('\n');
+ }
+ function toMatchupCsv(report){
+  const lines=['matchup,a,b,games,decisiveGames,aWins,bWins,draws,drawRate,aWinRate,bWinRate,leader,leaderWinRate,avgDuration,hardCounter,impossibleMatch'];
+  for(const m of report.matchups)lines.push([`"${m.matchup.replace(/"/g,'""')}"`,m.a,m.b,m.games,m.decisiveGames,m.aWins,m.bWins,m.draws,m.drawRate,m.aWinRate,m.bWinRate,m.leader,m.leaderWinRate,m.avgDuration,`"${(m.hardCounter||'').replace(/"/g,'""')}"`,m.impossibleMatch].join(','));
+  return lines.join('\n');
+ }
+ function buildRoundRobinPairs(keys,includeMirrors){
+  const ordered=keys.slice();
+  const pairs=[];
+  if(includeMirrors)for(const key of ordered)pairs.push([key,key]);
+  if(ordered.length<2)return pairs;
+  if(ordered.length%2)ordered.push(null);
+  const n=ordered.length,rotating=ordered.slice();
+  for(let round=0;round<n-1;round++){
+   for(let i=0;i<n/2;i++){
+    const a=rotating[i],b=rotating[n-1-i];
+    if(a!==null&&b!==null)pairs.push(round%2?[b,a]:[a,b]);
+   }
+   rotating.splice(1,0,rotating.pop());
+  }
+  return pairs;
+ }
+ function buildPlannedMatches(keys,options){
+  const pairs=buildRoundRobinPairs(keys,options.includeMirrors);
+  const planned=[];
+  for(let r=0;r<options.roundsPerPair;r++){
+   for(const p of pairs){
+    planned.push([p[0],p[1],r]);
+    if(p[0]!==p[1])planned.push([p[1],p[0],r]);
+   }
+  }
+  if(options.targetMatches>0&&planned.length>options.targetMatches)planned.length=options.targetMatches;
+  return planned;
  }
  window.runBalanceBaseline=async function(userOptions={}){
   const options=Object.assign({},DEFAULTS,userOptions);
-  const keys=options.keys||Object.keys(DEF),pairs=[];
-  for(let i=0;i<keys.length;i++)for(let j=0;j<keys.length;j++)if(options.includeMirrors||i!==j)if(options.includeMirrors||i<j)pairs.push([keys[i],keys[j]]);
-  const planned=[];for(const p of pairs)for(let r=0;r<options.roundsPerPair;r++){planned.push([p[0],p[1],r]);planned.push([p[1],p[0],r]);}
-  if(options.targetMatches>0&&planned.length>options.targetMatches)planned.length=options.targetMatches;
+  const keys=options.keys||Object.keys(DEF);
+  if(options.targetGamesPerClass>0&&!userOptions.targetMatches)options.targetMatches=Math.ceil(keys.length*options.targetGamesPerClass/2);
+  const planned=buildPlannedMatches(keys,options);
   const deadline=performance.now()+options.minutes*60*1000,results=[],started=performance.now();let count=0;
   const originalRandom=Math.random,originalNoVisuals=window._balanceNoVisuals;
   window._balanceNoVisuals=options.noVisuals!==false;
@@ -135,7 +247,10 @@
   if(report.hardMatchups.length)console.table(report.hardMatchups.slice(0,20));
   const stamp=new Date().toISOString().replace(/[:.]/g,'-');
   if(options.exportJson)download(`balance-baseline-${stamp}.json`,'application/json',JSON.stringify(report,null,2));
-  if(options.exportCsv)download(`balance-class-summary-${stamp}.csv`,'text/csv',toCsv(report));
+  if(options.exportCsv){
+   download(`balance-class-summary-${stamp}.csv`,'text/csv',toCsv(report));
+   download(`balance-matchup-summary-${stamp}.csv`,'text/csv',toMatchupCsv(report));
+  }
   return report;
  };
 
@@ -144,14 +259,14 @@ window.startBalanceBaselineButton=function(){
  if(btn)btn.disabled=true;
  if(status)status.textContent='running...';
  return runBalanceBaseline({
-  minutes:1,
-  roundsPerPair:3,
+  minutes:20,
+  roundsPerPair:6,
   maxMatchSeconds:60,
   dt:1/20,
-  targetMatches:900,
-  chunkSize:20,
+  targetGamesPerClass:200,
+  chunkSize:25,
   noVisuals:true,
-  progress:p=>{if(status)status.textContent=p.message;}
+  progress:p=>{if(status)status.textContent=`${p.message} (${Math.round(p.count/p.total*100)}%)`;}
  }).then(report=>{
   if(status)status.textContent=`done: ${report.matchCount}`;
   return report;

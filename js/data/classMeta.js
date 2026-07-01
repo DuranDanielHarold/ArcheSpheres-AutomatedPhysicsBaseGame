@@ -3,38 +3,38 @@
 // Class role, color, and description metadata.
 
 const CLASS_ROLE = {
-  knight:'TANK',samurai:'DUELIST',viking:'BRAWLER',barbarian:'BRUISER',paladin:'SUPPORT',
-  ninja:'ASSASSIN',wizard:'RANGED',berserker:'JUGGERNAUT',ranger:'RANGED',templar:'TANK',
-  rogue:'ASSASSIN',warlord:'FIGHTER',druid:'CONTROL',necromancer:'RANGED',pirate:'SKIRMISHER',
-  jester:'CHAOS',golem:'TANK',phoenix:'FIGHTER',guardian:'TANK',trickster:'EVASION',
-  sheriff:'RANGED',priest:'RANGED',
-  inquisitor:'ZEALOT',
-  vampire:'PREDATOR',
-  monk:'MARTIAL',
-  alchemist:'ALCHEMIST',
-  dragoon:'LANCER',
-  bard:'BARD',
-  plague:'PESTILENCE',
-  tidecaller:'ELEMENTAL',
-  crusader:'VANGUARD',
-  mimic:'SHAPESHIFTER',
-  stormbringer:'ELEMENTAL',
-  voidwalker:'ANOMALY',
-  whelpling:'BEAST',
-  gravedigger:'ATTRITION',
-  flagellant:'MARTYR',
-  ratcatcher:'VERMIN',
-  locksmith:'DENIAL',
-  glassblower:'TRAP BURST',witch:'HEXER',spartan:'VANGUARD',gladiator:'DUELIST',king:'SOVEREIGN',queen:'SOVEREIGN',prince:'SKIRMISHER',fairy:'SUPPORT',beastmaster:'SUMMONER',sage:'WISDOM',arcanist:'ANOMALY'
+  knight:'TANK',samurai:'FIGHTER',viking:'FIGHTER',barbarian:'FIGHTER',paladin:'TANK',
+  ninja:'ASSASSIN',wizard:'MAGE',berserker:'FIGHTER',ranger:'MARKSMAN',templar:'TANK',
+  rogue:'ASSASSIN',warlord:'FIGHTER',druid:'MAGE',necromancer:'MAGE',pirate:'FIGHTER',
+  jester:'MAGE',golem:'TANK',phoenix:'FIGHTER',guardian:'TANK',trickster:'ASSASSIN',
+  sheriff:'MARKSMAN',priest:'SUPPORT',
+  inquisitor:'FIGHTER',
+  vampire:'ASSASSIN',
+  monk:'FIGHTER',
+  alchemist:'MAGE',
+  dragoon:'FIGHTER',
+  bard:'SUPPORT',
+  plague:'MAGE',
+  tidecaller:'MAGE',
+  crusader:'TANK',
+  mimic:'ASSASSIN',
+  stormbringer:'MAGE',
+  voidwalker:'MAGE',
+  whelpling:'FIGHTER',
+  gravedigger:'FIGHTER',
+  flagellant:'FIGHTER',
+  ratcatcher:'MARKSMAN',
+  locksmith:'ASSASSIN',
+  glassblower:'MAGE',witch:'MAGE',spartan:'FIGHTER',gladiator:'FIGHTER',king:'TANK',queen:'ASSASSIN',prince:'FIGHTER',fairy:'SUPPORT',beastmaster:'FIGHTER',sage:'SUPPORT',arcanist:'MAGE'
 };
 
 const ROLE_COLOR = {
-  TANK:'#6080a8',DUELIST:'#c8a030',BRAWLER:'#b04010',BRUISER:'#8b2000',SUPPORT:'#c8a000',
-  ASSASSIN:'#9b59b6',RANGED:'#2a8a8a',JUGGERNAUT:'#8b0000',FIGHTER:'#7a5030',
-  CONTROL:'#1b6e20',CHAOS:'#e91e63',EVASION:'#00bcd4',SKIRMISHER:'#5d4037',
-  ZEALOT:'#cc3300',PREDATOR:'#880022',MARTIAL:'#c8a040',ALCHEMIST:'#44aa22',LANCER:'#2255aa',BARD:'#9c27b0',
-  PESTILENCE:'#668800',ELEMENTAL:'#0088aa',VANGUARD:'#c8a840',SHAPESHIFTER:'#884499',ANOMALY:'#550088',BEAST:'#994400',
-  ATTRITION:'#8a6a40',MARTYR:'#b84a40',VERMIN:'#9aa050',DENIAL:'#d0b45a','TRAP BURST':'#82f4ff',HEXER:'#d77bff',SOVEREIGN:'#ffd35a',SUMMONER:'#ff9a38',WISDOM:'#d6f0b2'
+  TANK:'#6080a8',
+  FIGHTER:'#c07838',
+  ASSASSIN:'#9b59b6',
+  MAGE:'#8844cc',
+  MARKSMAN:'#2a8a8a',
+  SUPPORT:'#c8a000'
 };
 
 const CLASS_DESC = {
