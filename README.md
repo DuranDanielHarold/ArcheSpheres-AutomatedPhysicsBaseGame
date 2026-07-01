@@ -245,3 +245,9 @@ Useful shorter smoke-test command:
 ```js
 await runBalanceBaseline({ minutes: 1, roundsPerPair: 1, keys: ['knight', 'samurai', 'wizard', 'ranger'], exportJson: false, exportCsv: false });
 ```
+
+## Balance patch monitoring notes
+
+- Crusader: monitor next cycle. Decisive win rate was 67.7%, masked by a 50.5% draw rate; re-evaluate after anti-stall changes because fixing draw-heavy matches may raise practical win rate without Crusader stat changes.
+- T3 kit-integrity review (Sage, Locksmith, Templar, Queen): no obvious broken wiring was found in the current ability paths during this numeric patch. Sage fires wisdom-word projectiles and resolves Foresight, Locksmith applies lock/jam through weapon hits and clashes, Templar creates a SlowZone that is applied during sphere updates, and Queen's Gambit true-damage path is wired. These kits still need a design/ability review beyond stat tuning because near-0% decisive win rates are unlikely to be solved by numbers alone.
+- T4 stall review (Viking, King, Alchemist, Golem): the balance runner has a match timeout that records unresolved fights as draws, but no sudden-death or draw-resolution mechanic exists in the live loop. Consider adding a late-fight damage ramp, tiebreaker, or anti-defense-stacking rule before relying on stat buffs alone for high-draw classes.
