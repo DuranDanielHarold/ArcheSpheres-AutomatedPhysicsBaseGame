@@ -87,6 +87,32 @@
   if(window._balanceNoVisuals){particles=[];dmgNums=[];bloodSplats=[];}
   spheres=spheres.filter(s=>!s.isReplica||s.alive||s.dyingT<=0.8);
  }
+ function primaryForFaction(faction){
+  return spheres.find(s=>s.faction===faction&&!s.isReplica)||spheres.find(s=>s.faction===faction)||null;
+ }
+ function livingPrimaryFactions(){
+  const alive=spheres.filter(s=>s.alive&&!s.dying),factions=[...new Set(alive.map(s=>s.faction))];
+  return{alive,factions};
+ }
+ function resolveWinnerFromLivingFactions(alive,factions){
+  if(factions.length>=2||spheres.length<2)return null;
+  return alive.find(s=>s.faction===factions[0]&&!s.isReplica)||alive.find(s=>s.faction===factions[0])||null;
+ }
+ function resolveTimeoutWinner(){
+  // The browser game itself does not declare a draw just because a fixed
+  // analysis budget elapsed. Treat maxMatchSeconds as a simulation cutoff:
+  // award the side with the higher remaining HP percentage and only record a
+  // true draw for double KOs or practically tied HP at the cutoff.
+  const red=primaryForFaction(0),blue=primaryForFaction(1);
+  const redAlive=!!(red&&red.alive&&!red.dying),blueAlive=!!(blue&&blue.alive&&!blue.dying);
+  if(redAlive&&!blueAlive)return{winner:red,reason:'timeout_blue_dead'};
+  if(blueAlive&&!redAlive)return{winner:blue,reason:'timeout_red_dead'};
+  if(!redAlive&&!blueAlive)return{winner:null,reason:'double_ko'};
+  const redPct=red.maxHp>0?red.hp/red.maxHp:0,bluePct=blue.maxHp>0?blue.hp/blue.maxHp:0;
+  const diff=redPct-bluePct;
+  if(Math.abs(diff)<0.01)return{winner:null,reason:'timeout_hp_tie'};
+  return{winner:diff>0?red:blue,reason:'timeout_hp_pct_tiebreak',redHpPct:+redPct.toFixed(4),blueHpPct:+bluePct.toFixed(4)};
+ }
  function pct(n){return +(n*100).toFixed(1);}
  function clamp(n,min,max){return Math.max(min,Math.min(max,n));}
  function patchMagnitude(score){const a=Math.abs(score);return a>=30?'large':a>=20?'medium':'small';}
@@ -182,15 +208,15 @@
     if(r.winnerKey===side.key){c.wins++;c.winHp+=side.hp;}else if(r.winnerKey){c.losses++;c.lossOpponentHp+=side.oppHp;}else c.draws++;
    }
    const ordered=[r.redKey,r.blueKey].sort();const id=ordered.join('__vs__');
-   if(!matchups[id])matchups[id]={a:ordered[0],b:ordered[1],games:0,aWins:0,bWins:0,draws:0,duration:0};
-   const m=matchups[id];m.games++;m.duration+=r.duration;if(r.winnerKey===m.a)m.aWins++;else if(r.winnerKey===m.b)m.bWins++;else m.draws++;
+   if(!matchups[id])matchups[id]={a:ordered[0],b:ordered[1],games:0,aWins:0,bWins:0,draws:0,duration:0,timeoutTiebreaks:0,doubleKOs:0};
+   const m=matchups[id];m.games++;m.duration+=r.duration;if(r.endReason==='timeout_hp_pct_tiebreak')m.timeoutTiebreaks++;if(r.endReason==='double_ko')m.doubleKOs++;if(r.winnerKey===m.a)m.aWins++;else if(r.winnerKey===m.b)m.bWins++;else m.draws++;
   }
   Object.values(classes).forEach(c=>{c.avgDuration=c.games?c.duration/c.games:0;});
   const classRows=Object.keys(classes).map(k=>summarizeClassRow(k,classes[k],results.length,matchups)).sort((a,b)=>b.balanceScore-a.balanceScore);
   const matchupRows=Object.values(matchups).map(m=>{
    const decisive=m.games-m.draws,aRate=decisive?m.aWins/decisive:0,bRate=decisive?m.bWins/decisive:0;
    const leader=aRate>=bRate?m.a:m.b,leaderRate=Math.max(aRate,bRate);
-   return{matchup:`${m.a} vs ${m.b}`,a:m.a,b:m.b,games:m.games,decisiveGames:decisive,aWins:m.aWins,bWins:m.bWins,draws:m.draws,drawRate:+(m.games?m.draws/m.games:0).toFixed(4),aWinRate:+aRate.toFixed(4),bWinRate:+bRate.toFixed(4),leader,leaderWinRate:+leaderRate.toFixed(4),avgDuration:+(m.games?m.duration/m.games:0).toFixed(2),hardCounter:leaderRate>=0.75?`${leader} at ${Math.round(leaderRate*100)}% decisive WR`:null,impossibleMatch:decisive>=6&&leaderRate>=0.90};
+   return{matchup:`${m.a} vs ${m.b}`,a:m.a,b:m.b,games:m.games,decisiveGames:decisive,aWins:m.aWins,bWins:m.bWins,draws:m.draws,timeoutTiebreaks:m.timeoutTiebreaks,doubleKOs:m.doubleKOs,drawRate:+(m.games?m.draws/m.games:0).toFixed(4),aWinRate:+aRate.toFixed(4),bWinRate:+bRate.toFixed(4),leader,leaderWinRate:+leaderRate.toFixed(4),avgDuration:+(m.games?m.duration/m.games:0).toFixed(2),hardCounter:leaderRate>=0.75?`${leader} at ${Math.round(leaderRate*100)}% decisive WR`:null,impossibleMatch:decisive>=6&&leaderRate>=0.90};
   }).sort((a,b)=>Math.max(b.aWinRate,b.bWinRate)-Math.max(a.aWinRate,a.bWinRate));
   return{generatedAt:new Date().toISOString(),options,elapsedMs,completedPlanned,matchCount:results.length,classes:classRows,hardMatchups:matchupRows.filter(m=>m.hardCounter),matchups:matchupRows,results};
  }
@@ -204,8 +230,8 @@
   return lines.join('\n');
  }
  function toMatchupCsv(report){
-  const lines=['matchup,a,b,games,decisiveGames,aWins,bWins,draws,drawRate,aWinRate,bWinRate,leader,leaderWinRate,avgDuration,hardCounter,impossibleMatch'];
-  for(const m of report.matchups)lines.push([`"${m.matchup.replace(/"/g,'""')}"`,m.a,m.b,m.games,m.decisiveGames,m.aWins,m.bWins,m.draws,m.drawRate,m.aWinRate,m.bWinRate,m.leader,m.leaderWinRate,m.avgDuration,`"${(m.hardCounter||'').replace(/"/g,'""')}"`,m.impossibleMatch].join(','));
+  const lines=['matchup,a,b,games,decisiveGames,aWins,bWins,draws,timeoutTiebreaks,doubleKOs,drawRate,aWinRate,bWinRate,leader,leaderWinRate,avgDuration,hardCounter,impossibleMatch'];
+  for(const m of report.matchups)lines.push([`"${m.matchup.replace(/"/g,'""')}"`,m.a,m.b,m.games,m.decisiveGames,m.aWins,m.bWins,m.draws,m.timeoutTiebreaks,m.doubleKOs,m.drawRate,m.aWinRate,m.bWinRate,m.leader,m.leaderWinRate,m.avgDuration,`"${(m.hardCounter||'').replace(/"/g,'""')}"`,m.impossibleMatch].join(','));
   return lines.join('\n');
  }
  function buildRoundRobinPairs(keys,includeMirrors){
@@ -250,15 +276,18 @@
     if(performance.now()>deadline)break;
     const seed=(options.seed+count*2654435761+round*1013904223)>>>0,rng=mulberry32(seed);Math.random=rng;
     resetArenaForBalance(redKey,blueKey,rng);
-    let t=0,winner=null;
+    let t=0,winner=null,endReason='elimination';
     while(t<options.maxMatchSeconds){
      stepBalance(options.dt);t+=options.dt;
-     const alive=spheres.filter(s=>s.alive&&!s.dying),factions=[...new Set(alive.map(s=>s.faction))];
-     if(factions.length<2&&spheres.length>=2){winner=alive.find(s=>s.faction===factions[0]&&!s.isReplica)||alive.find(s=>s.faction===factions[0])||null;break;}
+     const living=livingPrimaryFactions();
+     if(living.factions.length<2&&spheres.length>=2){winner=resolveWinnerFromLivingFactions(living.alive,living.factions);endReason=winner?'elimination':'double_ko';break;}
     }
-    const red=spheres.find(s=>s.faction===0&&!s.isReplica)||spheres.find(s=>s.faction===0);
-    const blue=spheres.find(s=>s.faction===1&&!s.isReplica)||spheres.find(s=>s.faction===1);
-    results.push({redKey,blueKey,winnerKey:winner?winner.key:null,winnerFaction:winner?winner.faction:null,duration:+t.toFixed(2),seed,redHp:red?+Math.max(0,red.hp).toFixed(2):0,blueHp:blue?+Math.max(0,blue.hp).toFixed(2):0,draw:!winner});
+    if(!winner&&t>=options.maxMatchSeconds){
+     const timeoutResult=resolveTimeoutWinner();
+     winner=timeoutResult.winner;endReason=timeoutResult.reason;
+    }
+    const red=primaryForFaction(0),blue=primaryForFaction(1);
+    results.push({redKey,blueKey,winnerKey:winner?winner.key:null,winnerFaction:winner?winner.faction:null,duration:+t.toFixed(2),seed,redHp:red?+Math.max(0,red.hp).toFixed(2):0,blueHp:blue?+Math.max(0,blue.hp).toFixed(2):0,endReason,draw:!winner});
     count++;
     if(count%options.chunkSize===0){
      const message=`${count}/${planned.length} matches`;
