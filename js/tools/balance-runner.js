@@ -250,7 +250,35 @@
   }
   return pairs;
  }
+ function buildBalancedTargetMatches(keys,targetMatches,includeMirrors){
+  const planned=[];
+  if(targetMatches<=0)return planned;
+  if(includeMirrors&&keys.length===1){
+   for(let i=0;i<targetMatches;i++)planned.push([keys[0],keys[0],i]);
+   return planned;
+  }
+  const rotating=keys.slice();
+  if(rotating.length<2)return planned;
+  if(rotating.length%2)rotating.push(null);
+  const n=rotating.length;
+  let round=0;
+  while(planned.length<targetMatches){
+   for(let i=0;i<n/2&&planned.length<targetMatches;i++){
+    const a=rotating[i],b=rotating[n-1-i];
+    if(a===null||b===null)continue;
+    planned.push((round+i)%2?[b,a,round]:[a,b,round]);
+   }
+   if(includeMirrors){
+    const mirrorKey=keys[round%keys.length];
+    if(planned.length<targetMatches)planned.push([mirrorKey,mirrorKey,round]);
+   }
+   rotating.splice(1,0,rotating.pop());
+   round++;
+  }
+  return planned;
+ }
  function buildPlannedMatches(keys,options){
+  if(options.targetMatches>0)return buildBalancedTargetMatches(keys,options.targetMatches,options.includeMirrors);
   const pairs=buildRoundRobinPairs(keys,options.includeMirrors);
   const planned=[];
   for(let r=0;r<options.roundsPerPair;r++){
@@ -259,7 +287,6 @@
     if(p[0]!==p[1])planned.push([p[1],p[0],r]);
    }
   }
-  if(options.targetMatches>0&&planned.length>options.targetMatches)planned.length=options.targetMatches;
   return planned;
  }
  window.runBalanceBaseline=async function(userOptions={}){
@@ -315,12 +342,12 @@ window.startBalanceBaselineButton=function(){
  if(btn)btn.disabled=true;
  if(status)status.textContent='running...';
  return runBalanceBaseline({
-  minutes:20,
-  roundsPerPair:6,
+  minutes:240,
+  roundsPerPair:1,
   maxMatchSeconds:60,
   dt:1/20,
-  targetGamesPerClass:200,
-  chunkSize:25,
+  targetMatches:50000,
+  chunkSize:100,
   noVisuals:true,
   progress:p=>{if(status)status.textContent=`${p.message} (${Math.round(p.count/p.total*100)}%)`;}
  }).then(report=>{
