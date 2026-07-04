@@ -52,10 +52,26 @@
    return ((r^(r>>>14))>>>0)/4294967296;
   };
  }
+ function matchupSeed(baseSeed,redKey,blueKey,round){
+  const matchup=`${redKey}__vs__${blueKey}`;
+  let hash=2166136261>>>0;
+  for(let i=0;i<matchup.length;i++){
+   hash^=matchup.charCodeAt(i);
+   hash=Math.imul(hash,16777619)>>>0;
+  }
+  return (baseSeed^hash^Math.imul((round+1)>>>0,1000003))>>>0;
+ }
  function resetArenaForBalance(redKey,blueKey,rng){
   cancelAnimationFrame(animId);
   clearPendingBalanceTimeouts();
   winDone=false;paused=true;
+  window.matchTime=0;window.elapsedTime=0;
+  // CLEANUP VERIFIED: fighters are discarded and freshly constructed below, so HP, cooldowns, buffs, debuffs, charge counters, combo state, rotationSpeed, targets, aggro, and AI memory come from new Sphere instances.
+  // CLEANUP VERIFIED: active setTimeout callbacks are tracked by the balance runner and cleared between matches; per-entity crowd-control and defensive flags die with the discarded Sphere instances.
+  // CLEANUP VERIFIED: companion/summon/secondary objects are destroyed by clearing skeletons/projectiles/noiseTraps along with all other spawned entity arrays.
+  // CLEANUP VERIFIED: arena hazards, lingering zones, particles, damage numbers, blood, miasma, afterimages, slow zones, thorn patches, and terrain-like modifiers are reset to empty arrays.
+  // CLEANUP VERIFIED: match timer accumulators are reset to exactly 0 before the new match starts.
+  // CLEANUP VERIFIED: AI targeting/pathfinding/aggro memory is removed by replacing every combat object rather than mutating old ones in place.
   spheres=[];particles=[];projectiles=[];afterimages=[];noiseTraps=[];slowZones=[];thornPatches=[];skeletons=[];dmgNums=[];bloodSplats=[];miasmaClouds=[];
   if(typeof _burialMoundSeq!=='undefined')_burialMoundSeq=0;
   resize();
@@ -146,7 +162,7 @@
    else{if(weights.dmg)weights.dmg+=drawPressure*.25;if(weights.reach)weights.reach+=drawPressure*.20;}
   }
   const totalWeight=Object.values(weights).reduce((a,b)=>a+b,0)||1;
-  const totalPct=+(clamp(Math.abs(score)*0.20,2,10)*confidence).toFixed(1);
+  const totalPct=+(clamp(Math.abs(score)*0.20,2,5)*confidence).toFixed(1);
   const parts=Object.entries(weights).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([stat,w])=>`${stat} ${(direction*totalPct*w/totalWeight).toFixed(1)}%`);
   return{totalAdjustmentPct:direction*totalPct,statAdjustments:parts.join('; ')};
  }
@@ -301,7 +317,7 @@
   try{
    for(const [redKey,blueKey,round] of planned){
     if(performance.now()>deadline)break;
-    const seed=(options.seed+count*2654435761+round*1013904223)>>>0,rng=mulberry32(seed);Math.random=rng;
+    const seed=matchupSeed(options.seed,redKey,blueKey,round),rng=mulberry32(seed);Math.random=rng;
     resetArenaForBalance(redKey,blueKey,rng);
     let t=0,winner=null,endReason='elimination';
     while(t<options.maxMatchSeconds){
@@ -314,7 +330,7 @@
      winner=timeoutResult.winner;endReason=timeoutResult.reason;
     }
     const red=primaryForFaction(0),blue=primaryForFaction(1);
-    results.push({redKey,blueKey,winnerKey:winner?winner.key:null,winnerFaction:winner?winner.faction:null,duration:+t.toFixed(2),seed,redHp:red?+Math.max(0,red.hp).toFixed(2):0,blueHp:blue?+Math.max(0,blue.hp).toFixed(2):0,endReason,draw:!winner});
+    results.push({redKey,blueKey,winnerKey:winner?winner.key:null,winnerFaction:winner?winner.faction:null,duration:+t.toFixed(2),seed,redHp:red?+Math.max(0,red.hp).toFixed(2):0,blueHp:blue?+Math.max(0,blue.hp).toFixed(2):0,endReason,timeoutWinner:endReason&&endReason.startsWith('timeout_')?(winner?winner.key:null):null,draw:!winner});
     count++;
     if(count%options.chunkSize===0){
      const message=`${count}/${planned.length} matches`;

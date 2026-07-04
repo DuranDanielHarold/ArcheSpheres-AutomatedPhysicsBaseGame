@@ -81,6 +81,8 @@ class Sphere{
   this.volleyDmgBonus=0;
   this.abTimer=Math.random()*1.5;
   this.omegaCur=d.om*(faction===0?1:-1);
+  this.rotationSpeed=0;
+  this.maxRotationSpeed=10.0;
   this.weaponHitCD=0;
   this.hitBuffStacks=0;      // increments on each successful hit
   this.lowHpBuffApplied=false;
@@ -1223,6 +1225,15 @@ class Sphere{
   if(this.key==='barbarian'&&this.bloodlustBonus>0){
    this.bloodlustBonus=Math.max(0,this.bloodlustBonus-dt*4);
    this.targetSpd=this.baseSpd+this.bloodlustBonus;
+  }
+  if(this.d.sphereMelee){
+   const activeSpin=Math.abs(this.omegaCur||0);
+   if(activeSpin>Math.max(1,this.d.om*0.65)){
+    this.rotationSpeed=Math.min(this.maxRotationSpeed,Math.max(this.rotationSpeed,activeSpin));
+    this.rotationSpeed+=(this.maxRotationSpeed-this.rotationSpeed)*Math.min(1,dt*2.4);
+   }else{
+    this.rotationSpeed*=Math.pow(0.95,dt*30);
+   }
   }
   // ── Berserker: Iron Will – track cooldown and active window
   if(this.key==='berserker'){

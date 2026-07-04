@@ -168,6 +168,13 @@ function _weaponHit(att,def){
   const tipSpd=Math.hypot(tvx,tvy);
   const weaponWeight=att.mass*0.35;
   let dmg=(tipSpd*att.d.dmg*0.010+weaponWeight*0.12)*att.dmgMult/(def.d.arm*0.004+1);
+  if(att.d.sphereMelee){
+   const MIN_ROTATION_MULTIPLIER=0.7,MAX_ROTATION_MULTIPLIER=1.3;
+   const maxRotationSpeed=att.maxRotationSpeed||10.0;
+   const currentRotationSpeed=Math.max(0,Math.min(maxRotationSpeed,att.rotationSpeed||0));
+   const rotationMultiplier=MIN_ROTATION_MULTIPLIER+(currentRotationSpeed/maxRotationSpeed)*(MAX_ROTATION_MULTIPLIER-MIN_ROTATION_MULTIPLIER);
+   dmg*=rotationMultiplier;
+  }
   if(att.dmgHalvedT>0)dmg*=0.5;
   if(att.key==='gladiator'&&att.crowdDouble){dmg*=2;att.crowdDouble=false;att.favor=0;}
   if(att.key==='prince'){const wb=Math.min(5,att.wallBounceBonus||0);dmg*=1+wb*.08;if(Math.hypot(att.vx,att.vy)>att.baseSpd*.8)dmg*=1.18;}
