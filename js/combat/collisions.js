@@ -169,7 +169,7 @@ function _weaponHit(att,def){
   const weaponWeight=att.mass*0.35;
   let dmg=(tipSpd*att.d.dmg*0.010+weaponWeight*0.12)*att.dmgMult/(def.d.arm*0.004+1);
   if(att.d.sphereMelee){
-   const MIN_ROTATION_MULTIPLIER=0.7,MAX_ROTATION_MULTIPLIER=1.3;
+   const MIN_ROTATION_MULTIPLIER=0.80,MAX_ROTATION_MULTIPLIER=1.20;
    const maxRotationSpeed=att.maxRotationSpeed||10.0;
    const currentRotationSpeed=Math.max(0,Math.min(maxRotationSpeed,att.rotationSpeed||0));
    const rotationMultiplier=MIN_ROTATION_MULTIPLIER+(currentRotationSpeed/maxRotationSpeed)*(MAX_ROTATION_MULTIPLIER-MIN_ROTATION_MULTIPLIER);
@@ -196,14 +196,15 @@ function _weaponHit(att,def){
   // Samurai — Iaijutsu: first hit after spin reversal deals 2× dmg
   if(traits&&att.key==='samurai'&&att.iaijutsuReady){dmg*=2;att.iaijutsuReady=false;att.iaijutsuCD=3.0;spawnDmgNum(att.x,att.y-att.radius*1.5,'IAIJUTSU','#8a1f28');}
   if(isFinite(dmg)&&dmg>0.2){
+   if(window._balanceCombatTracker&&att.d&&att.d.sphereMelee)window._balanceCombatTracker.onRotationUpdate(att.key,att.rotationSpeed||0,true);
    if(att.key==='queen'&&att.queenGambitT>0){
-    def.hp=Math.max(0,def.hp-dmg);def.hitFlash=1;
+    const _qBefore=def.hp;def.hp=Math.max(0,def.hp-dmg);def.hitFlash=1;if(window._balanceCombatTracker)window._balanceCombatTracker.onDamage(att.key,Math.max(0,_qBefore-def.hp),'ability');
     spawnDmgNum(def.x,def.y-def.radius*0.5,dmg,'#ff8bd1');
     spawnSpark(hx,hy,att.d.color,7);
     if(def.hp<=0&&!def.dying){def.alive=false;def.dying=true;spawnBurst(def.x,def.y,def.d.rim,def.d.color,28);}
    }
-   else if(att.key==='alchemist')def.receiveMagicDamage(dmg);
-   else def.receiveDamage(dmg);
+   else if(att.key==='alchemist'){window._balanceDamageSource={key:att.key,type:'base'};def.receiveMagicDamage(dmg);window._balanceDamageSource=null;}
+   else{window._balanceDamageSource={key:att.key,type:'base'};def.receiveDamage(dmg);window._balanceDamageSource=null;}
     if(traits){att.gainStack();att._applyHitBuff();}
     // Whelpling: open the upper jaw, lunge forward, then clamp shut.
     if(att.key==='whelpling'&&att.mouthOpenMode!==2){att.mouthOpenTimer=0.42;att.mouthOpenMode=1;}
