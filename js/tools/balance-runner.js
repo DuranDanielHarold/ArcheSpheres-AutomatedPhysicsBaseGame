@@ -6,8 +6,8 @@
  const DEFAULTS={
   minutes:10,
   roundsPerPair:2,
-  maxMatchSeconds:90,
-  dt:1/30,
+  maxMatchSeconds:60,
+  dt:1/20,
   seed:1337,
   includeMirrors:false,
   chunkSize:25,
@@ -17,6 +17,9 @@
   progress:null,
   exportJson:true,
   exportCsv:true,
+  stallThresholdSeconds:42,
+  stallRampSecondsToKill:10,
+  debugStall:false,
  };
  const pendingBalanceTimeouts=new Set();
  function clearPendingBalanceTimeouts(){
@@ -88,10 +91,22 @@
   spheres.push(new Sphere(redKey,0,rd*2+rng()*(W/2-rd*3),rd*2+rng()*(H-rd*4),v0.vx,v0.vy));
   spheres.push(new Sphere(blueKey,1,W/2+bd+rng()*(W/2-bd*3),bd*2+rng()*(H-bd*4),v1.vx,v1.vy));
  }
- function stepBalance(dt){
+ function applyBalanceStallRamp(dt,elapsed,options){
+  if(elapsed<options.stallThresholdSeconds)return;
+  const damage=options._stallDamagePerSecond*dt;
+  for(const s of spheres){
+   if(!s.alive||s.dying||s.isReplica)continue;
+   s.hp=Math.max(0,s.hp-damage);
+   s.hitFlash=1;
+   if(options.debugStall)console.log(`[stall] ramp tick fired, damage=${damage.toFixed(2)}, ${s.key}_hp=${s.hp.toFixed(2)}`);
+   if(s.hp<=0&&!s.dying){s.alive=false;s.dying=true;spawnBurst(s.x,s.y,s.d.rim,s.d.color,28);}
+  }
+ }
+ function stepBalance(dt,elapsed,options){
   for(const s of spheres)s.update(dt);
   for(const p of projectiles)p.update(dt);
   resolveAll();
+  applyBalanceStallRamp(dt,elapsed,options);
   if(!window._balanceNoVisuals){updateParticles(dt);updateDmgNums(dt);updateBloodSplats(dt);updateAbBar();}
   slowZones=slowZones.filter(z=>{z.update(dt);return z.life>0;});
   thornPatches=thornPatches.filter(p=>{p.update(dt);return p.life>0;});
@@ -307,6 +322,8 @@
  }
  window.runBalanceBaseline=async function(userOptions={}){
   const options=Object.assign({},DEFAULTS,userOptions);
+  const maxHpInRoster=Math.max(...Object.keys(DEF).map(k=>DEF[k].hp||0));
+  options._stallDamagePerSecond=maxHpInRoster/options.stallRampSecondsToKill;
   const keys=options.keys||Object.keys(DEF);
   if(options.targetGamesPerClass>0&&!userOptions.targetMatches)options.targetMatches=Math.ceil(keys.length*options.targetGamesPerClass/2);
   const planned=buildPlannedMatches(keys,options);
@@ -321,7 +338,7 @@
     resetArenaForBalance(redKey,blueKey,rng);
     let t=0,winner=null,endReason='elimination';
     while(t<options.maxMatchSeconds){
-     stepBalance(options.dt);t+=options.dt;
+     stepBalance(options.dt,t,options);t+=options.dt;
      const living=livingPrimaryFactions();
      if(living.factions.length<2&&spheres.length>=2){winner=resolveWinnerFromLivingFactions(living.alive,living.factions);endReason=winner?'elimination':'double_ko';break;}
     }
