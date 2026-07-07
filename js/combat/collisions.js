@@ -169,7 +169,7 @@ function _weaponHit(att,def){
   const weaponWeight=att.mass*0.35;
   let dmg=(tipSpd*att.d.dmg*0.010+weaponWeight*0.12)*att.dmgMult/(def.d.arm*0.004+1);
   if(att.d.sphereMelee){
-   const MIN_ROTATION_MULTIPLIER=0.85,MAX_ROTATION_MULTIPLIER=1.15;
+   const MIN_ROTATION_MULTIPLIER=0.80,MAX_ROTATION_MULTIPLIER=1.20;
    const maxRotationSpeed=att.maxRotationSpeed||10.0;
    const currentRotationSpeed=Math.max(0,Math.min(maxRotationSpeed,att.rotationSpeed||0));
    const rotationMultiplier=MIN_ROTATION_MULTIPLIER+(currentRotationSpeed/maxRotationSpeed)*(MAX_ROTATION_MULTIPLIER-MIN_ROTATION_MULTIPLIER);
