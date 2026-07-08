@@ -147,6 +147,11 @@ function _weaponHit(att,def){
   if(d<def.radius+tipR&&d<hitDist){hit=true;hitPt=pt;hitDist=d;}
  }
  const tip=att.getTip();
+ if(!att.hasHitThisSwing&&window._balanceCombatTracker){
+  const centerDist=Math.hypot(def.x-att.x,def.y-att.y);
+  const distanceAtAttempt=Math.max(0,(centerDist-def.radius)/(att.radius||1));
+  window._balanceCombatTracker.onMeleeAttempt(att.key,distanceAtAttempt,att.d.reach,hit);
+ }
  if(hit)_unstickTricksterFromWeapon(att,def,pts,tipR);
  if(hit&&!att.hasHitThisSwing){
   att.hasHitThisSwing=true;
