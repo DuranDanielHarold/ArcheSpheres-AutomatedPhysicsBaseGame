@@ -6,12 +6,18 @@ let pendingSelections={};
 let pickerSlot=null;
 let pickerDetailMode=false;
 let countdownTimer=null;
+let pickerSlots=[],pickerSearch='',pickerRole='ALL',pickerLastPick=null;
+function pickerDefaults(mode){return mode==='2v2'?['knight','viking','samurai','ranger']:['knight','samurai'];}
+function pickRandomClassKey(){const keys=Object.keys(DEF);return keys[Math.floor(Math.random()*keys.length)];}
+function randomizeSelections(slotIds){slotIds.forEach(id=>{pendingSelections[id]=pickRandomClassKey();});}
+window.pickRandomClassKey=pickRandomClassKey;window.randomizeSelections=randomizeSelections;
+window.startRandomBattle=function(){gameMode='1v1';window.randomModeActive=true;pendingSelections={};const slots=getBattleSlots('1v1');randomizeSelections(slots.map(s=>s.id));launchBattle();};
 window.startPicker=function(mode){
- pickerDetailMode=false;pendingSelections={};
+ pickerDetailMode=false;pendingSelections={};pickerSearch='';pickerRole='ALL';pickerLastPick=null;gameMode=mode||'1v1';window.randomModeActive=false;
  const ss=document.getElementById('start-screen');if(ss)ss.style.display='none';
  const old=document.getElementById('picker-screen');if(old)old.remove();
- const defaults=['knight','samurai','barbarian','paladin','wizard','ranger','viking','rogue'];
- const slots=[{id:0,label:'RED',color:'#ff7755'},{id:1,label:'BLUE',color:'#88bbdd'}];
+ const defaults=pickerDefaults(gameMode);
+ const slots=getBattleSlots(gameMode);pickerSlots=slots;
  slots.forEach((s,i)=>{pendingSelections[s.id]=defaults[i%defaults.length];});
  pickerSlot=slots[0].id;
  const ps=document.createElement('div');ps.id='picker-screen';
@@ -21,13 +27,19 @@ window.startPicker=function(mode){
  const slotRow=document.createElement('div');slotRow.id='picker-slots';
  slots.forEach(s=>{
   const btn=document.createElement('div');
-  btn.className='pslot'+(s.id===pickerSlot?' active':'')+' filled';
+  btn.className='pslot team-'+s.faction+(s.id===pickerSlot?' active':'')+' filled';
   btn.dataset.slotId=s.id;
   btn.innerHTML=`<span class="pslot-label" style="color:${s.color}">${s.label}</span><span class="pslot-name">${DEF[pendingSelections[s.id]].label}</span>`;
   btn.onclick=()=>selectSlot(s.id);
   slotRow.appendChild(btn);
  });
  hdr.appendChild(slotRow);
+ const tools=document.createElement('div');tools.id='picker-tools';
+ const search=document.createElement('input');search.id='picker-search';search.type='search';search.placeholder='SEARCH';search.value=pickerSearch;search.oninput=()=>{pickerSearch=search.value.toLowerCase();renderPickerGrid();};tools.appendChild(search);
+ const roles=['ALL','TANK','FIGHTER','ASSASSIN','MAGE','MARKSMAN','SUPPORT'];roles.forEach(r=>{const b=document.createElement('button');b.className='role-chip'+(r===pickerRole?' active':'');b.textContent=r;b.onclick=()=>{pickerRole=r;document.querySelectorAll('.role-chip').forEach(c=>c.classList.toggle('active',c.textContent===r));renderPickerGrid();};tools.appendChild(b);});
+ const undo=document.createElement('button');undo.id='picker-undo';undo.textContent='↶ CHANGE LAST';undo.onclick=()=>{if(!pickerLastPick)return;pendingSelections[pickerLastPick.slot]=pickerLastPick.prev;updatePickerSlots();selectSlot(pickerLastPick.slot);pickerLastPick=null;};tools.appendChild(undo);
+ const rand=document.createElement('button');rand.id='picker-randomize';rand.textContent='🎲 RANDOMIZE';rand.onclick=()=>{randomizeSelections(slots.map(s=>s.id));updatePickerSlots();renderPickerGrid();renderDetailPanel(pendingSelections[pickerSlot]);};tools.appendChild(rand);
+ hdr.appendChild(tools);
  const detToggle=document.createElement('button');detToggle.id='detail-toggle';detToggle.textContent='📋 DETAILS';
  detToggle.onclick=()=>{
   pickerDetailMode=!pickerDetailMode;
@@ -36,6 +48,7 @@ window.startPicker=function(mode){
   renderPickerGrid();
  };
  hdr.appendChild(detToggle);
+ const confirmBtn=document.createElement('button');confirmBtn.id='picker-confirm';confirmBtn.textContent='CONFIRM ▶';confirmBtn.onclick=()=>{const allSlots=pickerSlots.map(s=>s.id);const cur=allSlots.indexOf(pickerSlot);if(cur<allSlots.length-1)selectSlot(allSlots[cur+1]);};hdr.appendChild(confirmBtn);
  const launchBtn=document.createElement('button');launchBtn.id='picker-launch';launchBtn.textContent='▶ FIGHT!';
  launchBtn.onclick=launchBattle;hdr.appendChild(launchBtn);
  ps.appendChild(hdr);
@@ -47,6 +60,9 @@ window.startPicker=function(mode){
  renderPickerGrid();
  renderDetailPanel(pendingSelections[pickerSlot]);
 };
+function updatePickerSlots(){
+ document.querySelectorAll('.pslot').forEach(btn=>{const id=+btn.dataset.slotId,key=pendingSelections[id];const name=btn.querySelector('.pslot-name');if(name&&DEF[key])name.textContent=DEF[key].label;});
+}
 function selectSlot(id){
  pickerSlot=id;
  document.querySelectorAll('.pslot').forEach(b=>b.classList.toggle('active',+b.dataset.slotId===id));
@@ -62,7 +78,7 @@ function renderPickerGrid(){
  const grid=document.getElementById('picker-grid');if(!grid)return;
  grid.innerHTML='';
  const curKey=pendingSelections[pickerSlot];
- Object.entries(DEF).forEach(([key,d])=>{
+ Object.entries(DEF).filter(([key,d])=>{const role=CLASS_ROLE[key]||'FIGHTER';const q=(d.label+' '+d.weapon+' '+d.ab+' '+role).toLowerCase();return (pickerRole==='ALL'||role===pickerRole)&&(!pickerSearch||q.includes(pickerSearch));}).forEach(([key,d])=>{
   const card=document.createElement('div');
   card.className='pcard'+(key===curKey?' selected':'');
   const role=CLASS_ROLE[key]||'FIGHTER';
@@ -103,14 +119,9 @@ function renderPickerGrid(){
     </div>`;
   }
   card.onclick=()=>{
-   pendingSelections[pickerSlot]=key;
-   const slotBtn=document.querySelector(`[data-slot-id="${pickerSlot}"] .pslot-name`);
-   if(slotBtn)slotBtn.textContent=d.label;
-   renderPickerGrid();
-   renderDetailPanel(key);
-   const allSlots=[...document.querySelectorAll('.pslot')].map(b=>+b.dataset.slotId);
-   const cur=allSlots.indexOf(pickerSlot);
-   if(cur<allSlots.length-1)selectSlot(allSlots[cur+1]);
+   const prev=pendingSelections[pickerSlot];
+   pendingSelections[pickerSlot]=key;pickerLastPick={slot:pickerSlot,prev};
+   updatePickerSlots();renderPickerGrid();renderDetailPanel(key);
   };
   grid.appendChild(card);
  });

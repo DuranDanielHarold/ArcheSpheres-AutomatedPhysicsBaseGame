@@ -96,17 +96,19 @@ body {
   text-shadow: 1px 1px 0 rgba(255, 255, 255, .4);
 }
 
+.sel-chip{display:inline-flex;align-items:center;gap:3px;background:var(--navy);border:2px solid var(--goldd);box-shadow:2px 2px 0 #000;padding:1px 2px;}
+.sel-icon{width:24px;height:24px;image-rendering:pixelated;flex:0 0 auto;}
 .sg select {
   font-family: 'Press Start 2P', monospace;
   font-size: clamp(5px, 1.5vw, 7px);
   background: var(--navy);
   color: var(--goldl);
-  border: 2px solid var(--goldd);
+  border: 0;
   padding: 2px 3px;
   cursor: pointer;
   -webkit-appearance: none;
-  box-shadow: 2px 2px 0 #000;
-  max-width: min(82px, 28vw);
+  box-shadow: none;
+  max-width: min(98px, 29vw);
 }
 
 .team-block { display: none; }
@@ -127,6 +129,7 @@ body {
 #card.mode-1v1 {
   width: min(400px, 100vw);
 }
+#card.mode-2v2{width:min(460px,100vw);}
 
 #titlebar {
   background: var(--sky);
@@ -171,7 +174,7 @@ body {
   overflow: hidden;
 }
 
-#card.mode-1v1 #arena-border {
+#card.mode-1v1 #arena-border,#card.mode-2v2 #arena-border {
   min-height: clamp(220px, 45vh, 400px);
 }
 

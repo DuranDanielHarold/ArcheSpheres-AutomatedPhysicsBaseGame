@@ -50,14 +50,15 @@ function showWinner(w){
  if(!w)wt.innerHTML=`<span style="color:#ffcc44">DRAW!</span><br><span style="color:#aac;font-size:.75em">ALL FELL</span>`;
  else{
   const col=w.faction===0?'#ff6633':'#88aaff';
-  wt.innerHTML=`<span style="color:${col}">${w.d.label.toUpperCase()}</span><br><span style="color:#ffcc44;font-size:.8em">WINS!</span>`;
+  const team=gameMode==='2v2'?(w.faction===0?'TEAM RED':'TEAM BLUE'):w.d.label.toUpperCase();
+  wt.innerHTML=`<span style="color:${col}">${team}</span><br><span style="color:#ffcc44;font-size:.8em">WINS!</span>`;
  }
  if(ws)ws.innerHTML='<div style="font-size:.75em">TAP — REMATCH</div><div style="font-size:.55em;color:#5a6a80;margin-top:3px">LONG PRESS — REPICK</div>';
  ov.classList.add('show');
  let pressTimer=null;
  const cleanup=()=>{ov.removeEventListener('mousedown',onDown);ov.removeEventListener('touchstart',onDown);ov.removeEventListener('mouseup',onUp);ov.removeEventListener('touchend',onUp);};
- const onDown=()=>{pressTimer=setTimeout(()=>{cleanup();ov.classList.remove('show');window.startPicker(gameMode);},600);};
- const onUp=()=>{if(pressTimer){clearTimeout(pressTimer);pressTimer=null;cleanup();ov.classList.remove('show');launchBattle();}};
+ const onDown=()=>{pressTimer=setTimeout(()=>{cleanup();window.randomModeActive=false;ov.classList.remove('show');window.startPicker(gameMode);},600);};
+ const onUp=()=>{if(pressTimer){clearTimeout(pressTimer);pressTimer=null;cleanup();ov.classList.remove('show');if(window.randomModeActive&&typeof window.startRandomBattle==='function')window.startRandomBattle();else launchBattle();}};
  ov.addEventListener('mousedown',onDown);ov.addEventListener('touchstart',onDown);
  ov.addEventListener('mouseup',onUp,{once:true});ov.addEventListener('touchend',onUp,{once:true});
 }

@@ -354,6 +354,7 @@ class Sphere{
    this.stacks=Math.min(cap,this.stacks+1);
   }
   if(this.key==='viking')this.rageDecayT=0;
+  if(window._balanceCombatTracker)window._balanceCombatTracker.onPassiveTrigger(this.key,0);
   this._checkAbilityTrigger();
  }
  _checkAbilityTrigger(){
@@ -1232,7 +1233,7 @@ class Sphere{
     this.rotationSpeed=Math.min(this.maxRotationSpeed,Math.max(this.rotationSpeed,activeSpin));
     this.rotationSpeed+=(this.maxRotationSpeed-this.rotationSpeed)*Math.min(1,dt*2.4);
    }else{
-    this.rotationSpeed*=Math.pow(0.95,dt*30);
+    this.rotationSpeed*=Math.pow(0.85,dt*30);
    }
   }
   // ── Berserker: Iron Will – track cooldown and active window
@@ -2189,6 +2190,7 @@ class Sphere{
   this.baseSpd*=1.17;this.targetSpd*=1.17;
   this.omegaCur*=1.17;
   spawnBurst(this.x,this.y,'#ff8800',this.d.rim,20);
+  if(window._balanceCombatTracker)window._balanceCombatTracker.onPassiveTrigger(this.key,0);
   fillStats(this.key,this.faction===0?'r':'b');
  }
  _applyHitBuff(){
