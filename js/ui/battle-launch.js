@@ -3,11 +3,10 @@
 // Battle launch handoff and countdown overlay.
 
 function launchBattle(){
- gameMode='1v1';
- document.getElementById('card').className='mode-1v1';
+ document.getElementById('card').className=`mode-${gameMode}`;
  buildSelRow();
  Object.entries(pendingSelections).forEach(([idx,key])=>{
-  const sel=document.getElementById(`sel-${idx}`);if(sel)sel.value=key;
+  const sel=document.getElementById(`sel-${idx}`);if(sel){sel.value=key;const img=sel.parentElement&&sel.parentElement.querySelector('.sel-icon');if(img)img.src=getSphereIcon(key,24);}
  });
  const ps=document.getElementById('picker-screen');if(ps)ps.remove();
  const ss=document.getElementById('start-screen');if(ss)ss.style.display='none';

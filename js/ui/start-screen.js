@@ -48,6 +48,8 @@ function showStartScreen(){
   </div>
   <div style="display:flex;flex-direction:column;gap:10px;">
    <button class="ss-mbtn" onclick="window.startPicker('1v1')">⚔&nbsp;&nbsp;1 V 1</button>
+   <button class="ss-mbtn" onclick="window.startPicker('2v2')">⚔&nbsp;&nbsp;2 V 2</button>
+   <button class="ss-mbtn" onclick="window.startRandomBattle()">🎲&nbsp;&nbsp;RANDOM</button>
   </div>`;
  ss.appendChild(inner);
  document.body.appendChild(ss);
