@@ -7,7 +7,15 @@ function loop(ts){
  if(paused){lastTime=ts;return;}
  const dt=Math.min((ts-lastTime)/1000,.05);lastTime=ts;
  for(const s of spheres)s.update(dt);
- for(const p of projectiles)p.update(dt);
+ for(const p of projectiles){
+  if(window._liveCombatTracker&&p.owner&&p.owner.d&&p.owner.d.rangedSphere&&!p._liveProjectileTracked){
+   window._liveCombatTracker.onProjectileFire(p.owner.key);
+   p._liveProjectileTracked=true;
+  }
+  window._balanceDamageSource=p.owner?{key:p.owner.key,type:'projectile'}:null;
+  p.update(dt);
+  window._balanceDamageSource=null;
+ }
  resolveAll();
  updateParticles(dt);
  updateDmgNums(dt);
@@ -42,6 +50,18 @@ function loop(ts){
 function concludeMatch(winner,endReason){
  if(winDone)return;
  winDone=true;
+ if(window._liveCombatTracker){
+  const duration=window.matchTime||0;
+  window._liveCombatTracker.onMatchEnd(duration);
+  const summary=window._liveCombatTracker.getSummary();
+  window._lastMatchReport={
+   redKey:window._liveCombatTracker.redKey,blueKey:window._liveCombatTracker.blueKey,
+   winnerKey:winner?winner.key:null,winnerFaction:winner?winner.faction:null,
+   endReason:endReason,duration:duration,
+   red:summary.red,blue:summary.blue
+  };
+  window._liveCombatTracker=null;
+ }
  showWinner(winner);
 }
 function checkEliminationWin(){
