@@ -82,7 +82,17 @@ function showWinner(w){
   const team=gameMode==='2v2'?(w.faction===0?'TEAM RED':'TEAM BLUE'):w.d.label.toUpperCase();
   wt.innerHTML=`<span style="color:${col}">${team}</span><br><span style="color:#ffcc44;font-size:.8em">WINS!</span>`;
  }
- if(ws)ws.innerHTML='<div style="font-size:.75em">TAP — REMATCH</div><div style="font-size:.55em;color:#5a6a80;margin-top:3px">LONG PRESS — REPICK</div>';
+ if(ws){
+  const reportBtn=window._lastMatchReport?'<button class="pbtn" id="report-btn" style="margin-top:6px">REPORT</button>':'';
+  ws.innerHTML=`<div style="font-size:.75em">TAP — REMATCH</div><div style="font-size:.55em;color:#5a6a80;margin-top:3px">LONG PRESS — REPICK</div>${reportBtn}`;
+  const btn=document.getElementById('report-btn');
+  if(btn){
+   const stop=ev=>{ev.stopPropagation();};
+   btn.addEventListener('mousedown',stop);btn.addEventListener('touchstart',stop);
+   btn.addEventListener('mouseup',stop);btn.addEventListener('touchend',stop);
+   btn.addEventListener('click',ev=>{ev.stopPropagation();if(typeof openBattleReport==='function')openBattleReport();});
+  }
+ }
  ov.classList.add('show');
  let pressTimer=null;
  const cleanup=()=>{ov.removeEventListener('mousedown',onDown);ov.removeEventListener('touchstart',onDown);ov.removeEventListener('mouseup',onUp);ov.removeEventListener('touchend',onUp);};
