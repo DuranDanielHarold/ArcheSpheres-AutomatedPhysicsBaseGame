@@ -21,16 +21,10 @@ function loop(ts){
   skeletons=skeletons.filter(sk=>{sk.update(dt);return sk.alive;});
   projectiles=projectiles.filter(p=>p.alive);
   spheres=spheres.filter(s=>!s.isReplica||s.alive||s.dyingT<=0.8);
-  if(!winDone){
-   const alive=spheres.filter(s=>s.alive&&!s.dying);
-   const factions=[...new Set(alive.map(s=>s.faction))];
-   if(factions.length<2&&spheres.length>=2){
-    winDone=true;
-    const winnerFaction=factions[0];
-    const winner=winnerFaction===undefined?null:(alive.find(s=>s.faction===winnerFaction&&!s.isReplica)||alive.find(s=>s.faction===winnerFaction)||null);
-    showWinner(winner);
-   }
-  }
+  updateStallState(dt);
+  checkEliminationWin();
+  const timeoutResult=checkMatchTimeout();
+  if(timeoutResult)concludeMatch(timeoutResult.winner,timeoutResult.endReason);
  drawBg();
  drawBloodSplats();
  for(const z of slowZones)z.draw();
@@ -44,6 +38,21 @@ function loop(ts){
  for(const s of spheres)if(s.dying)s.draw();
  for(const s of spheres)if(!s.dying&&s.alive)s.draw();
  drawDmgNums();
+}
+function concludeMatch(winner,endReason){
+ if(winDone)return;
+ winDone=true;
+ showWinner(winner);
+}
+function checkEliminationWin(){
+ if(winDone)return;
+ const alive=spheres.filter(s=>s.alive&&!s.dying);
+ const factions=[...new Set(alive.map(s=>s.faction))];
+ if(factions.length<2&&spheres.length>=2){
+  const winnerFaction=factions[0];
+  const winner=winnerFaction===undefined?null:(alive.find(s=>s.faction===winnerFaction&&!s.isReplica)||alive.find(s=>s.faction===winnerFaction)||null);
+  concludeMatch(winner,'elimination');
+ }
 }
 function showWinner(w){
  const ov=document.getElementById('winner'),wt=document.getElementById('wt'),ws=document.getElementById('ws');

@@ -50,6 +50,8 @@ function newBattle(){
  cancelAnimationFrame(animId);
  document.getElementById('winner').classList.remove('show');
  winDone=false;paused=false;
+ window.matchTime=0;
+ resetStallState();
  document.getElementById('pbtn').textContent='PAUSE';
  spheres=[];particles=[];projectiles=[];afterimages=[];noiseTraps=[];slowZones=[];thornPatches=[];skeletons=[];dmgNums=[];bloodSplats=[];miasmaClouds=[];
  if(typeof _burialMoundSeq!=='undefined')_burialMoundSeq=0;
