@@ -54,6 +54,8 @@ It is intentionally ignored by Git and should not be pushed to GitHub.
 
 - `js/hud/hud.js` contains HUD stat and ability bar updates
 - `js/loop/game-loop.js` contains update/draw loop orchestration and winner flow
+- Live 1v1 combat tracking uses `window._liveCombatTracker` in parallel with the balance-runner tracker; 2v2 is intentionally gated off until per-sphere or per-faction attribution exists.
+- The Battle Report UI is a presentation-only screen backed by `window._lastMatchReport` after tracked 1v1 matches.
 
 ### Boot / State
 

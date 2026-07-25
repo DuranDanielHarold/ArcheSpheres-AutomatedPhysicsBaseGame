@@ -152,6 +152,11 @@ function _weaponHit(att,def){
   const distanceAtAttempt=Math.max(0,(centerDist-def.radius)/(att.radius||1));
   window._balanceCombatTracker.onMeleeAttempt(att.key,distanceAtAttempt,att.d.reach,hit);
  }
+ if(!att.hasHitThisSwing&&window._liveCombatTracker){
+  const centerDist=Math.hypot(def.x-att.x,def.y-att.y);
+  const distanceAtAttempt=Math.max(0,(centerDist-def.radius)/(att.radius||1));
+  window._liveCombatTracker.onMeleeAttempt(att.key,distanceAtAttempt,att.d.reach,hit);
+ }
  if(hit)_unstickTricksterFromWeapon(att,def,pts,tipR);
  if(hit&&!att.hasHitThisSwing){
   att.hasHitThisSwing=true;
@@ -202,6 +207,7 @@ function _weaponHit(att,def){
   if(traits&&att.key==='samurai'&&att.iaijutsuReady){dmg*=2;att.iaijutsuReady=false;att.iaijutsuCD=3.0;spawnDmgNum(att.x,att.y-att.radius*1.5,'IAIJUTSU','#8a1f28');}
   if(isFinite(dmg)&&dmg>0.2){
    if(window._balanceCombatTracker&&att.d&&att.d.sphereMelee)window._balanceCombatTracker.onRotationUpdate(att.key,att.rotationSpeed||0,true);
+   if(window._liveCombatTracker&&att.d&&att.d.sphereMelee)window._liveCombatTracker.onRotationUpdate(att.key,att.rotationSpeed||0,true);
    if(att.key==='queen'&&att.queenGambitT>0){
     const _qBefore=def.hp;def.hp=Math.max(0,def.hp-dmg);def.hitFlash=1;if(window._balanceCombatTracker)window._balanceCombatTracker.onDamage(att.key,Math.max(0,_qBefore-def.hp),'ability');
     spawnDmgNum(def.x,def.y-def.radius*0.5,dmg,'#ff8bd1');

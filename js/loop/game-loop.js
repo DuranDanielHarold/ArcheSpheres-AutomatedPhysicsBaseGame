@@ -7,7 +7,15 @@ function loop(ts){
  if(paused){lastTime=ts;return;}
  const dt=Math.min((ts-lastTime)/1000,.05);lastTime=ts;
  for(const s of spheres)s.update(dt);
- for(const p of projectiles)p.update(dt);
+ for(const p of projectiles){
+  if(window._liveCombatTracker&&p.owner&&p.owner.d&&p.owner.d.rangedSphere&&!p._liveProjectileTracked){
+   window._liveCombatTracker.onProjectileFire(p.owner.key);
+   p._liveProjectileTracked=true;
+  }
+  window._balanceDamageSource=p.owner?{key:p.owner.key,type:'projectile'}:null;
+  p.update(dt);
+  window._balanceDamageSource=null;
+ }
  resolveAll();
  updateParticles(dt);
  updateDmgNums(dt);
@@ -21,16 +29,10 @@ function loop(ts){
   skeletons=skeletons.filter(sk=>{sk.update(dt);return sk.alive;});
   projectiles=projectiles.filter(p=>p.alive);
   spheres=spheres.filter(s=>!s.isReplica||s.alive||s.dyingT<=0.8);
-  if(!winDone){
-   const alive=spheres.filter(s=>s.alive&&!s.dying);
-   const factions=[...new Set(alive.map(s=>s.faction))];
-   if(factions.length<2&&spheres.length>=2){
-    winDone=true;
-    const winnerFaction=factions[0];
-    const winner=winnerFaction===undefined?null:(alive.find(s=>s.faction===winnerFaction&&!s.isReplica)||alive.find(s=>s.faction===winnerFaction)||null);
-    showWinner(winner);
-   }
-  }
+  updateStallState(dt);
+  checkEliminationWin();
+  const timeoutResult=checkMatchTimeout();
+  if(timeoutResult)concludeMatch(timeoutResult.winner,timeoutResult.endReason);
  drawBg();
  drawBloodSplats();
  for(const z of slowZones)z.draw();
@@ -45,6 +47,33 @@ function loop(ts){
  for(const s of spheres)if(!s.dying&&s.alive)s.draw();
  drawDmgNums();
 }
+function concludeMatch(winner,endReason){
+ if(winDone)return;
+ winDone=true;
+ if(window._liveCombatTracker){
+  const duration=window.matchTime||0;
+  window._liveCombatTracker.onMatchEnd(duration);
+  const summary=window._liveCombatTracker.getSummary();
+  window._lastMatchReport={
+   redKey:window._liveCombatTracker.redKey,blueKey:window._liveCombatTracker.blueKey,
+   winnerKey:winner?winner.key:null,winnerFaction:winner?winner.faction:null,
+   endReason:endReason,duration:duration,
+   red:summary.red,blue:summary.blue
+  };
+  window._liveCombatTracker=null;
+ }
+ showWinner(winner);
+}
+function checkEliminationWin(){
+ if(winDone)return;
+ const alive=spheres.filter(s=>s.alive&&!s.dying);
+ const factions=[...new Set(alive.map(s=>s.faction))];
+ if(factions.length<2&&spheres.length>=2){
+  const winnerFaction=factions[0];
+  const winner=winnerFaction===undefined?null:(alive.find(s=>s.faction===winnerFaction&&!s.isReplica)||alive.find(s=>s.faction===winnerFaction)||null);
+  concludeMatch(winner,'elimination');
+ }
+}
 function showWinner(w){
  const ov=document.getElementById('winner'),wt=document.getElementById('wt'),ws=document.getElementById('ws');
  if(!w)wt.innerHTML=`<span style="color:#ffcc44">DRAW!</span><br><span style="color:#aac;font-size:.75em">ALL FELL</span>`;
@@ -53,7 +82,17 @@ function showWinner(w){
   const team=gameMode==='2v2'?(w.faction===0?'TEAM RED':'TEAM BLUE'):w.d.label.toUpperCase();
   wt.innerHTML=`<span style="color:${col}">${team}</span><br><span style="color:#ffcc44;font-size:.8em">WINS!</span>`;
  }
- if(ws)ws.innerHTML='<div style="font-size:.75em">TAP — REMATCH</div><div style="font-size:.55em;color:#5a6a80;margin-top:3px">LONG PRESS — REPICK</div>';
+ if(ws){
+  const reportBtn=window._lastMatchReport?'<button class="pbtn" id="report-btn" style="margin-top:6px">REPORT</button>':'';
+  ws.innerHTML=`<div style="font-size:.75em">TAP — REMATCH</div><div style="font-size:.55em;color:#5a6a80;margin-top:3px">LONG PRESS — REPICK</div>${reportBtn}`;
+  const btn=document.getElementById('report-btn');
+  if(btn){
+   const stop=ev=>{ev.stopPropagation();};
+   btn.addEventListener('mousedown',stop);btn.addEventListener('touchstart',stop);
+   btn.addEventListener('mouseup',stop);btn.addEventListener('touchend',stop);
+   btn.addEventListener('click',ev=>{ev.stopPropagation();if(typeof openBattleReport==='function')openBattleReport();});
+  }
+ }
  ov.classList.add('show');
  let pressTimer=null;
  const cleanup=()=>{ov.removeEventListener('mousedown',onDown);ov.removeEventListener('touchstart',onDown);ov.removeEventListener('mouseup',onUp);ov.removeEventListener('touchend',onUp);};

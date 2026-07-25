@@ -355,10 +355,15 @@ class Sphere{
   }
   if(this.key==='viking')this.rageDecayT=0;
   if(window._balanceCombatTracker)window._balanceCombatTracker.onPassiveTrigger(this.key,0);
+  if(window._liveCombatTracker)window._liveCombatTracker.onPassiveTrigger(this.key,0);
   this._checkAbilityTrigger();
  }
  _checkAbilityTrigger(){
   if(this.canTriggerTraits===false)return;
+  const before=this.stacks,threshold=typeof getStackThreshold==='function'?getStackThreshold(this.key):0;
+  const liveTracking=!!window._liveCombatTracker,prior=window._liveCurrentAbilityKey;
+  if(liveTracking)window._liveCurrentAbilityKey=this.key;
+  try{
   switch(this.key){
     case 'knight':
     if(this.stacks>=5){
@@ -839,6 +844,8 @@ class Sphere{
      spawnPulse(this.x,this.y,'#fff8a0');
     } break;
   }
+  }finally{if(liveTracking)window._liveCurrentAbilityKey=prior;}
+  if(liveTracking&&before>=threshold&&this.stacks===0)window._liveCombatTracker.onAbilityUse(this.key,true);
  }
  update(dt){
   if(this.dying){this.dyingT+=dt;return;}
@@ -2072,6 +2079,13 @@ class Sphere{
   spawnDmgNum(this.x,this.y-this.radius*1.3,'SANCTUARY','#80cbc4');
   return true;
  }
+ _recordLiveCombatDamage(dealt){
+  const source=window._balanceDamageSource||(window._liveCurrentAbilityKey?{key:window._liveCurrentAbilityKey,type:'ability'}:null);
+  if(!window._liveCombatTracker||!source||!isFinite(dealt)||dealt<=0)return;
+  if(source.type==='projectile')window._liveCombatTracker.onProjectileHit(source.key,dealt);
+  else if(source.type==='passive')window._liveCombatTracker.onPassiveTrigger(source.key,dealt);
+  else window._liveCombatTracker.onDamage(source.key,dealt,source.type||'base');
+ }
  receiveDamage(dmg){
   if(this.dying)return;
   if(this.invincible)return; // knight bubble
@@ -2110,6 +2124,7 @@ class Sphere{
   // Crusader — Retribution counter charges on taking damage
   if(this.key==='crusader'&&fd>0.5){this.retributionCounter=Math.min(60,(this.retributionCounter||0)+fd);}
   this.hp=Math.max(0,this.hp-fd);this.hitFlash=1;
+  if(window._liveCombatTracker&&fd>0)this._recordLiveCombatDamage(fd);
   if(this.key==='flagellant')this._flagellantApplyWounds();
   if(this.key==='sage'&&fd>0){const gain=Math.floor(fd/10);if(gain>0){this.knowledge=(this.knowledge||0)+gain;this.d=Object.assign({},this.d);this.d.dmg+=gain*.25;this.d.magDef+=gain*2;}}
   if(this.key==='arcanist'&&fd>0){this.arcaneCharge=0;this.applyImpact((Math.random()-.5)*160,(Math.random()-.5)*160);}
@@ -2168,6 +2183,7 @@ class Sphere{
   }
   if(fd<=0)return;
   this.hp=Math.max(0,this.hp-fd);this.hitFlash=1;
+  if(window._liveCombatTracker&&fd>0)this._recordLiveCombatDamage(fd);
   if(this.key==='flagellant')this._flagellantApplyWounds();
   if(fd>0.5)spawnBloodSplat(this.x,this.y,this.d.color,fd);
   if(fd>0.2){
@@ -2191,6 +2207,7 @@ class Sphere{
   this.omegaCur*=1.17;
   spawnBurst(this.x,this.y,'#ff8800',this.d.rim,20);
   if(window._balanceCombatTracker)window._balanceCombatTracker.onPassiveTrigger(this.key,0);
+  if(window._liveCombatTracker)window._liveCombatTracker.onPassiveTrigger(this.key,0);
   fillStats(this.key,this.faction===0?'r':'b');
  }
  _applyHitBuff(){
