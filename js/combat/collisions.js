@@ -147,19 +147,19 @@ function _weaponHit(att,def){
   if(d<def.radius+tipR&&d<hitDist){hit=true;hitPt=pt;hitDist=d;}
  }
  const tip=att.getTip();
- if(!att.hasHitThisSwing&&window._balanceCombatTracker){
+ if(!att._hitDefenders.get(def)&&window._balanceCombatTracker){
   const centerDist=Math.hypot(def.x-att.x,def.y-att.y);
   const distanceAtAttempt=Math.max(0,(centerDist-def.radius)/(att.radius||1));
   window._balanceCombatTracker.onMeleeAttempt(att.key,distanceAtAttempt,att.d.reach,hit);
  }
- if(!att.hasHitThisSwing&&window._liveCombatTracker){
+ if(!att._hitDefenders.get(def)&&window._liveCombatTracker){
   const centerDist=Math.hypot(def.x-att.x,def.y-att.y);
   const distanceAtAttempt=Math.max(0,(centerDist-def.radius)/(att.radius||1));
   window._liveCombatTracker.onMeleeAttempt(att.key,distanceAtAttempt,att.d.reach,hit);
  }
  if(hit)_unstickTricksterFromWeapon(att,def,pts,tipR);
- if(hit&&!att.hasHitThisSwing){
-  att.hasHitThisSwing=true;
+ if(hit&&!att._hitDefenders.get(def)){
+  att._hitDefenders.set(def,true);
   if(att.blinded&&Math.random()<0.30){spawnDmgNum(att.x,att.y-att.radius*1.4,'MISS','#ffee44');return;} // blind: 30% miss
   const hx=hitPt.x,hy=hitPt.y,hdist=hitDist||0.01;
   const px=(hx-def.x)/hdist,py=(hy-def.y)/hdist;
@@ -309,7 +309,7 @@ function _weaponHit(att,def){
    }
   }
  const bladeStillInside=pts.some(pt=>Math.hypot(pt.x-def.x,pt.y-def.y)<def.radius+tipR);
- if(!bladeStillInside)att.hasHitThisSwing=false;
+ if(!bladeStillInside)att._hitDefenders.delete(def);
 }
 function _applyLocksmithLock(att,def){
  def.locksmithLocks=Math.min(2,(def.locksmithLocks||0)+1);
