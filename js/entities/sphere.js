@@ -27,7 +27,7 @@ class Sphere{
   this.replicaOwner=opts.replicaOwner||null;
   this.canTriggerTraits=opts.canTriggerTraits===false?false:!this.isReplica;
   this.impactVx=0;this.impactVy=0;this.impactDecay=0;
-  this.hasHitThisSwing=false;
+  this._hitDefenders=new Map();
   this.stacks=0;this.dmgMult=1;
   this.invincible=false;this.invincibleT=0;
   this.phaseInvincible=false;
