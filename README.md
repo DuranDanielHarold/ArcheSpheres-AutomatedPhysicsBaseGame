@@ -224,7 +224,7 @@ This project is released under the [MIT License](LICENSE).
 
 ## Balance baseline automation
 
-Click **BALANCE TEST** in the control bar to run the background baseline preset. It targets about 200 games per class by fast-forwarding simulation steps without drawing particles, updates the status text as a lightweight loading indicator, then downloads JSON and CSV reports.
+Click **BALANCE TEST** in the control bar to run the background baseline preset. It uses the live sudden-death timing from `js/data/stallConfig.js`, targets up to 50,000 evenly distributed matches by fast-forwarding simulation steps without drawing particles, updates the status text as a lightweight loading indicator, then downloads JSON and CSV reports.
 
 The browser runtime also exposes a console helper for custom baseline runs:
 
@@ -250,4 +250,4 @@ await runBalanceBaseline({ minutes: 1, roundsPerPair: 1, keys: ['knight', 'samur
 
 - Crusader: monitor next cycle. Decisive win rate was 67.7%, masked by a 50.5% draw rate; re-evaluate after anti-stall changes because fixing draw-heavy matches may raise practical win rate without Crusader stat changes.
 - T3 kit-integrity review (Sage, Locksmith, Templar, Queen): no obvious broken wiring was found in the current ability paths during this numeric patch. Sage fires wisdom-word projectiles and resolves Foresight, Locksmith applies lock/jam through weapon hits and clashes, Templar creates a SlowZone that is applied during sphere updates, and Queen's Gambit true-damage path is wired. These kits still need a design/ability review beyond stat tuning because near-0% decisive win rates are unlikely to be solved by numbers alone.
-- T4 stall review (Viking, King, Alchemist, Golem): the balance runner has a match timeout that records unresolved fights as draws, but no sudden-death or draw-resolution mechanic exists in the live loop. Consider adding a late-fight damage ramp, tiebreaker, or anti-defense-stacking rule before relying on stat buffs alone for high-draw classes.
+- T4 stall review (Viking, King, Alchemist, Golem): live matches and balance baselines now share sudden-death timing from `STALL_CONFIG`; re-evaluate high-draw classes against the synced timeout/ramp before relying on stat buffs alone.

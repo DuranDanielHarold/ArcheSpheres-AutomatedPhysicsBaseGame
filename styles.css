@@ -403,3 +403,12 @@ body {
   accent-color: var(--goldl);
   cursor: pointer;
 }
+
+#card.mode-testing{width:min(460px,100vw);}
+#card.mode-testing #arena-border{min-height:clamp(240px,48vh,440px);}
+#testing-controls{gap:6px;align-items:center;flex-wrap:wrap;}
+#testing-telemetry{position:absolute;right:8px;top:8px;z-index:20;max-width:min(330px,72vw);max-height:70%;overflow:auto;background:rgba(8,14,24,.86);border:2px solid var(--gold);padding:6px;pointer-events:none;}
+#testing-telemetry .tg-report-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+#testing-telemetry .battle-report-side{background:rgba(10,16,24,.75);padding:4px;}
+#testing-telemetry .battle-report-head img{width:28px;height:28px;}
+#testing-telemetry .sr{font-size:10px;}

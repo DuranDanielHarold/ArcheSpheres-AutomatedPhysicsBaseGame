@@ -3,6 +3,8 @@
 // Battle launch handoff and countdown overlay.
 
 function launchBattle(){
+ if(gameMode==='testing'&&typeof launchTestingGround==='function'){launchTestingGround();return;}
+ if(typeof restoreTestingRandom==='function')restoreTestingRandom();
  document.getElementById('card').className=`mode-${gameMode}`;
  buildSelRow();
  Object.entries(pendingSelections).forEach(([idx,key])=>{
