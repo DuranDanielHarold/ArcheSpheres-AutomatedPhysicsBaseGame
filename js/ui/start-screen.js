@@ -32,6 +32,10 @@ function showStartScreen(){
  document.getElementById('sel-row').style.display='none';
  document.getElementById('card').style.display='none';
  document.getElementById('controls').style.display='none';
+ if(typeof restoreTestingRandom==='function')restoreTestingRandom();
+ const tgControls=document.getElementById('testing-controls');if(tgControls)tgControls.style.display='none';
+ const tgTelemetry=document.getElementById('testing-telemetry');if(tgTelemetry)tgTelemetry.remove();
+ const card=document.getElementById('card');if(card)card.style.width='';
  let ss=document.getElementById('start-screen');
  if(ss){ss.style.display='flex';return;}
  ss=document.createElement('div');ss.id='start-screen';
@@ -50,6 +54,7 @@ function showStartScreen(){
    <button class="ss-mbtn" onclick="window.startPicker('1v1')">⚔&nbsp;&nbsp;1 V 1</button>
    <button class="ss-mbtn" onclick="window.startPicker('2v2')">⚔&nbsp;&nbsp;2 V 2</button>
    <button class="ss-mbtn" onclick="window.startRandomBattle()">🎲&nbsp;&nbsp;RANDOM</button>
+   <button class="ss-mbtn" onclick="window.startPicker('testing')">🧪&nbsp;&nbsp;TEST GROUND</button>
   </div>`;
  ss.appendChild(inner);
  document.body.appendChild(ss);

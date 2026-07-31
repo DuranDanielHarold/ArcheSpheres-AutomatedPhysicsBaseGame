@@ -2,10 +2,7 @@
 // ▓▓▓ MODULE: loop/game-loop.js — extracted from former js/engine.js ▓▓▓
 // Main animation loop and winner/rematch overlay flow.
 
-function loop(ts){
- animId=requestAnimationFrame(loop);
- if(paused){lastTime=ts;return;}
- const dt=Math.min((ts-lastTime)/1000,.05);lastTime=ts;
+function gameStep(dt){
  for(const s of spheres)s.update(dt);
  for(const p of projectiles){
   if(window._liveCombatTracker&&p.owner&&p.owner.d&&p.owner.d.rangedSphere&&!p._liveProjectileTracked){
@@ -25,14 +22,16 @@ function loop(ts){
  thornPatches=thornPatches.filter(p=>{p.update(dt);return p.life>0;});
  miasmaClouds=miasmaClouds.filter(m=>{m.update(dt);return m.life>0;});
  afterimages=afterimages.filter(a=>{a.update(dt);return a.alive;});
-  noiseTraps=noiseTraps.filter(n=>{n.update(dt);return n.alive;});
-  skeletons=skeletons.filter(sk=>{sk.update(dt);return sk.alive;});
-  projectiles=projectiles.filter(p=>p.alive);
-  spheres=spheres.filter(s=>!s.isReplica||s.alive||s.dyingT<=0.8);
-  updateStallState(dt);
-  checkEliminationWin();
-  const timeoutResult=checkMatchTimeout();
-  if(timeoutResult)concludeMatch(timeoutResult.winner,timeoutResult.endReason);
+ noiseTraps=noiseTraps.filter(n=>{n.update(dt);return n.alive;});
+ skeletons=skeletons.filter(sk=>{sk.update(dt);return sk.alive;});
+ projectiles=projectiles.filter(p=>p.alive);
+ spheres=spheres.filter(s=>!s.isReplica||s.alive||s.dyingT<=0.8);
+ updateStallState(dt);
+ checkEliminationWin();
+ const timeoutResult=checkMatchTimeout();
+ if(timeoutResult)concludeMatch(timeoutResult.winner,timeoutResult.endReason);
+}
+function drawGameFrame(){
  drawBg();
  drawBloodSplats();
  for(const z of slowZones)z.draw();
@@ -46,6 +45,20 @@ function loop(ts){
  for(const s of spheres)if(s.dying)s.draw();
  for(const s of spheres)if(!s.dying&&s.alive)s.draw();
  drawDmgNums();
+}
+function scaledGameDt(dt){
+ if(gameMode==='testing'&&typeof getTestingGroundSpeed==='function')return dt*getTestingGroundSpeed();
+ return dt;
+}
+function stepGameFrame(dt){
+ gameStep(scaledGameDt(dt));
+ drawGameFrame();
+}
+function loop(ts){
+ animId=requestAnimationFrame(loop);
+ if(paused){lastTime=ts;return;}
+ const dt=Math.min((ts-lastTime)/1000,.05);lastTime=ts;
+ stepGameFrame(dt);
 }
 function concludeMatch(winner,endReason){
  if(winDone)return;

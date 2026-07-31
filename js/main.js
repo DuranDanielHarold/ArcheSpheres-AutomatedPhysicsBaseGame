@@ -47,6 +47,7 @@ let gameMode='1v1';
 })();
 
 function newBattle(){
+ if(gameMode!=='testing'&&typeof restoreTestingRandom==='function')restoreTestingRandom();
  cancelAnimationFrame(animId);
  document.getElementById('winner').classList.remove('show');
  winDone=false;paused=false;
@@ -69,7 +70,7 @@ function newBattle(){
  document.getElementById('abilitybar').style.display='flex';
  const slots=getBattleSlots(gameMode),picked=slots.map(slot=>({slot,key:(document.getElementById(`sel-${slot.id}`)||{}).value||Object.keys(DEF)[slot.id%Object.keys(DEF).length]}));
  const red=picked.filter(p=>p.slot.faction===0),blue=picked.filter(p=>p.slot.faction===1);
- if(gameMode==='1v1')window._liveCombatTracker=window.CombatTracker?new window.CombatTracker(red[0].key,blue[0].key):null;
+ if(gameMode==='1v1'||gameMode==='testing')window._liveCombatTracker=window.CombatTracker?new window.CombatTracker(red[0].key,blue[0].key):null;
  else window._liveCombatTracker=null; // TODO: 2v2 needs per-sphere or per-faction tracking; CombatTracker currently keys by exact class.
  fillStats(red[0].key,'r');fillStats(blue[0].key,'b');
  document.getElementById('t-red').textContent=gameMode==='2v2'?'TEAM RED':DEF[red[0].key].label;

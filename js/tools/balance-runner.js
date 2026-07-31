@@ -6,7 +6,8 @@
  const DEFAULTS={
   minutes:10,
   roundsPerPair:2,
-  maxMatchSeconds:60,
+  // Keep live sudden-death defaults in sync with js/data/stallConfig.js unless explicitly overridden.
+  maxMatchSeconds:typeof STALL_CONFIG!=='undefined'?STALL_CONFIG.hardTimeoutSeconds:60,
   dt:1/20,
   seed:1337,
   includeMirrors:false,
@@ -17,8 +18,8 @@
   progress:null,
   exportJson:true,
   exportCsv:true,
-  stallThresholdSeconds:42,
-  stallRampSecondsToKill:10,
+  stallThresholdSeconds:typeof STALL_CONFIG!=='undefined'?STALL_CONFIG.stallThresholdSeconds:42,
+  stallRampSecondsToKill:typeof STALL_CONFIG!=='undefined'?STALL_CONFIG.rampDurationSeconds:10,
   debugStall:false,
  };
 
@@ -89,6 +90,7 @@
    return ((r^(r>>>14))>>>0)/4294967296;
   };
  }
+ window.mulberry32=mulberry32;
  function matchupSeed(baseSeed,redKey,blueKey,round){
   const matchup=`${redKey}__vs__${blueKey}`;
   let hash=2166136261>>>0;
@@ -436,7 +438,6 @@ window.startBalanceBaselineButton=function(){
  return runBalanceBaseline({
   minutes:240,
   roundsPerPair:1,
-  maxMatchSeconds:60,
   dt:1/20,
   targetMatches:50000,
   chunkSize:100,
