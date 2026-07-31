@@ -10,6 +10,7 @@ const TESTING_GROUND_ARENAS={small:{label:'SMALL',width:'min(340px,100vw)'},defa
 let testingGroundOptions={seed:'',speed:1,arena:'default',overrides:{0:{},1:{}}};
 let _testingOriginalRandom=null;
 let _testingLastKeys=null;
+let _testingTelemetryCollapsed=true;
 
 function isTestingGround(){return gameMode==='testing';}
 function getTestingGroundSpeed(){return isTestingGround()?Number(testingGroundOptions.speed||1):1;}
@@ -56,12 +57,21 @@ function ensureTestingGroundControls(){
  wrap.innerHTML='<button class="pbtn" onclick="restartTestingGround()">RESTART</button><button class="pbtn" onclick="testingFrameStep()">STEP</button><label class="avol">SPD <select id="tg-speed"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1">1×</option><option value="2">2×</option></select></label><button class="pbtn new" onclick="leaveTestingGround()">EXIT TEST</button>';
  const sel=document.getElementById('tg-speed');sel.value=String(testingGroundOptions.speed);sel.onchange=e=>{testingGroundOptions.speed=Number(e.target.value)||1;};
 }
+function setTestingTelemetryCollapsed(collapsed){
+ _testingTelemetryCollapsed=!!collapsed;
+ renderTestingTelemetry();
+}
+function toggleTestingTelemetry(){setTestingTelemetryCollapsed(!_testingTelemetryCollapsed);}
 function renderTestingTelemetry(){
  if(!isTestingGround())return;
- let panel=document.getElementById('testing-telemetry');if(!panel){panel=document.createElement('div');panel.id='testing-telemetry';document.getElementById('arena-border').appendChild(panel);} 
- if(!window._liveCombatTracker){panel.innerHTML='<div class="battle-report-section">NO TELEMETRY</div>';return;}
+ let panel=document.getElementById('testing-telemetry');if(!panel){panel=document.createElement('div');panel.id='testing-telemetry';document.getElementById('arena-border').appendChild(panel);}
+ panel.classList.toggle('collapsed',_testingTelemetryCollapsed);
+ const buttonText=_testingTelemetryCollapsed?'SHOW':'HIDE';
+ const header=`<button class="tg-telemetry-toggle" onclick="toggleTestingTelemetry()">${buttonText} TELEMETRY</button>`;
+ if(_testingTelemetryCollapsed){panel.innerHTML=header;return;}
+ if(!window._liveCombatTracker){panel.innerHTML=header+'<div class="battle-report-section">NO TELEMETRY</div>';return;}
  window._liveCombatTracker.onMatchEnd(window.matchTime||0);
  const summary=window._liveCombatTracker.getSummary();
- panel.innerHTML=`<div class="battle-report-section">LIVE TELEMETRY ${formatReportDuration(window.matchTime||0)}</div><div class="tg-report-grid">${renderReportSide(window._liveCombatTracker.redKey,summary.red,'r','#ff5533')}${renderReportSide(window._liveCombatTracker.blueKey,summary.blue,'b','#88aacc')}</div>`;
+ panel.innerHTML=`${header}<div class="battle-report-section">LIVE TELEMETRY ${formatReportDuration(window.matchTime||0)}</div><div class="tg-report-grid">${renderReportSide(window._liveCombatTracker.redKey,summary.red,'r','#ff5533')}${renderReportSide(window._liveCombatTracker.blueKey,summary.blue,'b','#88aacc')}</div>`;
 }
-window.isTestingGround=isTestingGround;window.getTestingGroundSpeed=getTestingGroundSpeed;window.renderTestingGroundPickerPanel=renderTestingGroundPickerPanel;window.launchTestingGround=launchTestingGround;window.restartTestingGround=restartTestingGround;window.testingFrameStep=testingFrameStep;window.leaveTestingGround=leaveTestingGround;window.renderTestingTelemetry=renderTestingTelemetry;window.restoreTestingRandom=restoreTestingRandom;window.resetTestingOptions=resetTestingOptions;
+window.isTestingGround=isTestingGround;window.getTestingGroundSpeed=getTestingGroundSpeed;window.renderTestingGroundPickerPanel=renderTestingGroundPickerPanel;window.launchTestingGround=launchTestingGround;window.restartTestingGround=restartTestingGround;window.testingFrameStep=testingFrameStep;window.leaveTestingGround=leaveTestingGround;window.renderTestingTelemetry=renderTestingTelemetry;window.toggleTestingTelemetry=toggleTestingTelemetry;window.setTestingTelemetryCollapsed=setTestingTelemetryCollapsed;window.restoreTestingRandom=restoreTestingRandom;window.resetTestingOptions=resetTestingOptions;
