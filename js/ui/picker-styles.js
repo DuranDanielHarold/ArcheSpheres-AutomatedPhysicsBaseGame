@@ -77,3 +77,19 @@ function injectPickerStyles(){
  `;
  document.head.appendChild(st);
 }
+function injectTestingGroundStyles(){
+ if(document.getElementById('testing-ground-styles'))return;
+ const st=document.createElement('style');st.id='testing-ground-styles';
+ st.textContent=`
+ #testing-ground-picker{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap;width:100%;order:6;background:#080e18;border:2px solid #2a3a50;padding:6px;}
+ #testing-ground-picker label{font-family:'VT323',monospace;font-size:13px;color:#ccddf0;display:flex;gap:4px;align-items:center;}
+ #testing-ground-picker input,#testing-ground-picker select{background:#0d1520;color:#ccddf0;border:1px solid #2a3a50;font-family:'VT323',monospace;font-size:13px;max-width:76px;}
+ #testing-ground-picker .tg-section{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+ #testing-ground-picker .tg-overrides{display:flex;gap:8px;flex-wrap:wrap;}
+ #testing-ground-picker .tg-side{border-left:2px solid #2a3a50;padding-left:6px;display:grid;grid-template-columns:repeat(4,auto);gap:4px 6px;align-items:center;}
+ #testing-ground-picker .tg-side-title{grid-column:1/-1;font-family:'Press Start 2P',monospace;font-size:6px;}
+ @media(max-width:650px){#testing-ground-picker .tg-side{grid-template-columns:repeat(2,auto);}}
+ `;
+ document.head.appendChild(st);
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',injectTestingGroundStyles);else injectTestingGroundStyles();

@@ -13,7 +13,7 @@ function randomizeSelections(slotIds){slotIds.forEach(id=>{pendingSelections[id]
 window.pickRandomClassKey=pickRandomClassKey;window.randomizeSelections=randomizeSelections;
 window.startRandomBattle=function(){gameMode='1v1';window.randomModeActive=true;pendingSelections={};const slots=getBattleSlots('1v1');randomizeSelections(slots.map(s=>s.id));launchBattle();};
 window.startPicker=function(mode){
- pickerDetailMode=false;pendingSelections={};pickerSearch='';pickerRole='ALL';pickerLastPick=null;gameMode=mode||'1v1';window.randomModeActive=false;
+ pickerDetailMode=false;pendingSelections={};pickerSearch='';pickerRole='ALL';pickerLastPick=null;gameMode=mode||'1v1';window.randomModeActive=false;if(gameMode==='testing'&&typeof resetTestingOptions==='function')resetTestingOptions();
  const ss=document.getElementById('start-screen');if(ss)ss.style.display='none';
  const old=document.getElementById('picker-screen');if(old)old.remove();
  const defaults=pickerDefaults(gameMode);
@@ -49,7 +49,7 @@ window.startPicker=function(mode){
  };
  hdr.appendChild(detToggle);
  const confirmBtn=document.createElement('button');confirmBtn.id='picker-confirm';confirmBtn.textContent='CONFIRM ▶';confirmBtn.onclick=()=>{const allSlots=pickerSlots.map(s=>s.id);const cur=allSlots.indexOf(pickerSlot);if(cur<allSlots.length-1)selectSlot(allSlots[cur+1]);};hdr.appendChild(confirmBtn);
- const launchBtn=document.createElement('button');launchBtn.id='picker-launch';launchBtn.textContent='▶ FIGHT!';
+ const launchBtn=document.createElement('button');launchBtn.id='picker-launch';launchBtn.textContent=gameMode==='testing'?'▶ START TEST':'▶ FIGHT!';
  launchBtn.onclick=launchBattle;hdr.appendChild(launchBtn);
  ps.appendChild(hdr);
  const body=document.createElement('div');body.id='picker-body';
@@ -57,6 +57,7 @@ window.startPicker=function(mode){
  const detail=document.createElement('div');detail.id='picker-detail';detail.classList.add('hidden');body.appendChild(detail);
  ps.appendChild(body);
  document.body.appendChild(ps);
+ if(gameMode==='testing'&&typeof renderTestingGroundPickerPanel==='function')renderTestingGroundPickerPanel();
  renderPickerGrid();
  renderDetailPanel(pendingSelections[pickerSlot]);
 };
@@ -121,7 +122,7 @@ function renderPickerGrid(){
   card.onclick=()=>{
    const prev=pendingSelections[pickerSlot];
    pendingSelections[pickerSlot]=key;pickerLastPick={slot:pickerSlot,prev};
-   updatePickerSlots();renderPickerGrid();renderDetailPanel(key);
+   updatePickerSlots();renderPickerGrid();renderDetailPanel(key);if(gameMode==='testing'&&typeof renderTestingGroundPickerPanel==='function')renderTestingGroundPickerPanel();
   };
   grid.appendChild(card);
  });
