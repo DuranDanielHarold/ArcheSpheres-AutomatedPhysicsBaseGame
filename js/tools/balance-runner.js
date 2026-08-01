@@ -150,7 +150,7 @@
   resolveAll();
   applyBalanceStallRamp(dt,elapsed,options);
   if(window._balanceCombatTracker){for(const s of spheres){if(s.d&&s.d.sphereMelee)window._balanceCombatTracker.onRotationUpdate(s.key,s.rotationSpeed||0,false);}}
-  if(!window._balanceNoVisuals){updateParticles(dt);updateDmgNums(dt);updateBloodSplats(dt);updateAbBar();}
+  if(!window._balanceNoVisuals){updateParticles(dt);updateDmgNums(dt);updateBloodSplats(dt);updateBattleHud();}
   slowZones=slowZones.filter(z=>{z.update(dt);return z.life>0;});
   thornPatches=thornPatches.filter(p=>{p.update(dt);return p.life>0;});
   miasmaClouds=miasmaClouds.filter(m=>{m.update(dt);return m.life>0;});
