@@ -53,6 +53,7 @@ function scaledGameDt(dt){
 function stepGameFrame(dt){
  gameStep(scaledGameDt(dt));
  drawGameFrame();
+ if(typeof renderTestingTelemetry==='function')renderTestingTelemetry();
 }
 function loop(ts){
  animId=requestAnimationFrame(loop);

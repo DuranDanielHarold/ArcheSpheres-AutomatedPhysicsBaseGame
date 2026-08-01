@@ -11,6 +11,8 @@ let testingGroundOptions={seed:'',speed:1,arena:'default',overrides:{0:{},1:{}}}
 let _testingOriginalRandom=null;
 let _testingLastKeys=null;
 let _testingTelemetryCollapsed=true;
+let _testingTelemetryLastRender=0;
+const TESTING_TELEMETRY_RENDER_INTERVAL_MS=175;
 
 function isTestingGround(){return gameMode==='testing';}
 function getTestingGroundSpeed(){return isTestingGround()?Number(testingGroundOptions.speed||1):1;}
@@ -48,10 +50,10 @@ function launchTestingGround(){
  document.getElementById('mode-row').style.display='none';document.getElementById('sel-row').style.display='none';document.getElementById('card').style.display='flex';document.getElementById('controls').style.display='flex';
  startTestingGroundBattle();
 }
-function startTestingGroundBattle(){applyTestingArenaPreset();applyTestingRandom();try{newBattle();applyTestingGroundOverrides();}catch(e){restoreTestingRandom();throw e;}paused=false;document.getElementById('pbtn').textContent='PAUSE';ensureTestingGroundControls();renderTestingTelemetry();}
+function startTestingGroundBattle(){applyTestingArenaPreset();applyTestingRandom();try{newBattle();applyTestingGroundOverrides();}catch(e){restoreTestingRandom();throw e;}paused=false;document.getElementById('pbtn').textContent='PAUSE';ensureTestingGroundControls();renderTestingTelemetry(true);}
 function restartTestingGround(){if(_testingLastKeys){pendingSelections={};_testingLastKeys.forEach(p=>{pendingSelections[p.slot.id]=p.key;});}startTestingGroundBattle();}
 function leaveTestingGround(){restoreTestingRandom();applyTestingArenaPreset();window.randomModeActive=false;showStartScreen();}
-function testingFrameStep(){if(!isTestingGround())return;if(!paused)togglePause();stepGameFrame(1/60);renderTestingTelemetry();}
+function testingFrameStep(){if(!isTestingGround())return;if(!paused)togglePause();stepGameFrame(1/60);renderTestingTelemetry(true);}
 function ensureTestingGroundControls(){
  let wrap=document.getElementById('testing-controls');if(!wrap){wrap=document.createElement('span');wrap.id='testing-controls';document.getElementById('controls').prepend(wrap);}wrap.style.display=isTestingGround()?'inline-flex':'none';
  wrap.innerHTML='<button class="pbtn" onclick="restartTestingGround()">RESTART</button><button class="pbtn" onclick="testingFrameStep()">STEP</button><label class="avol">SPD <select id="tg-speed"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1">1×</option><option value="2">2×</option></select></label><button class="pbtn new" onclick="leaveTestingGround()">EXIT TEST</button>';
@@ -59,11 +61,14 @@ function ensureTestingGroundControls(){
 }
 function setTestingTelemetryCollapsed(collapsed){
  _testingTelemetryCollapsed=!!collapsed;
- renderTestingTelemetry();
+ renderTestingTelemetry(true);
 }
 function toggleTestingTelemetry(){setTestingTelemetryCollapsed(!_testingTelemetryCollapsed);}
-function renderTestingTelemetry(){
+function renderTestingTelemetry(force){
  if(!isTestingGround())return;
+ const now=typeof performance!=='undefined'&&performance.now?performance.now():Date.now();
+ if(!force&&now-_testingTelemetryLastRender<TESTING_TELEMETRY_RENDER_INTERVAL_MS)return;
+ _testingTelemetryLastRender=now;
  let panel=document.getElementById('testing-telemetry');if(!panel){panel=document.createElement('div');panel.id='testing-telemetry';document.getElementById('arena-border').appendChild(panel);}
  panel.classList.toggle('collapsed',_testingTelemetryCollapsed);
  const buttonText=_testingTelemetryCollapsed?'SHOW':'HIDE';
