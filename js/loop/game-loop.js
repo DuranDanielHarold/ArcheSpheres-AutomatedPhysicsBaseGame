@@ -17,7 +17,7 @@ function gameStep(dt){
  updateParticles(dt);
  updateDmgNums(dt);
  updateBloodSplats(dt);
- updateAbBar();
+ updateBattleHud();
  slowZones=slowZones.filter(z=>{z.update(dt);return z.life>0;});
  thornPatches=thornPatches.filter(p=>{p.update(dt);return p.life>0;});
  miasmaClouds=miasmaClouds.filter(m=>{m.update(dt);return m.life>0;});

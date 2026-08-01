@@ -27,7 +27,6 @@ let gameMode='1v1';
   const tab=document.querySelector(`.mtab[onclick*=\"${m}\"]`);if(tab)tab.classList.add('active');
   document.getElementById('card').className=`mode-${m}`;
   document.getElementById('stats').style.display='grid';
-  document.getElementById('abilitybar').style.display='flex';
   document.getElementById('t-vs').textContent=' VS ';
   buildSelRow();newBattle();
  };
@@ -67,12 +66,10 @@ function newBattle(){
   return{vx:Math.cos(a)*rawSpd,vy:Math.sin(a)*rawSpd};
  }
  document.getElementById('stats').style.display='grid';
- document.getElementById('abilitybar').style.display='flex';
  const slots=getBattleSlots(gameMode),picked=slots.map(slot=>({slot,key:(document.getElementById(`sel-${slot.id}`)||{}).value||Object.keys(DEF)[slot.id%Object.keys(DEF).length]}));
  const red=picked.filter(p=>p.slot.faction===0),blue=picked.filter(p=>p.slot.faction===1);
  if(gameMode==='1v1'||gameMode==='testing')window._liveCombatTracker=window.CombatTracker?new window.CombatTracker(red[0].key,blue[0].key):null;
  else window._liveCombatTracker=null; // TODO: 2v2 needs per-sphere or per-faction tracking; CombatTracker currently keys by exact class.
- fillStats(red[0].key,'r');fillStats(blue[0].key,'b');
  document.getElementById('t-red').textContent=gameMode==='2v2'?'TEAM RED':DEF[red[0].key].label;
  document.getElementById('t-blue').textContent=gameMode==='2v2'?'TEAM BLUE':DEF[blue[0].key].label;
  document.getElementById('t-vs').textContent=' VS ';
@@ -83,6 +80,7 @@ function newBattle(){
   const y=Math.max(r*2,Math.min(H-r*2,yFor(teamIdx,teamCount,r)));
   spheres.push(new Sphere(p.key,p.slot.faction,x,y,v.vx,v.vy));
  });
+ updateBattleHud();
  lastTime=performance.now();animId=requestAnimationFrame(loop);
 }
 

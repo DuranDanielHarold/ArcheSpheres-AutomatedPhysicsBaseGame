@@ -2208,7 +2208,7 @@ class Sphere{
   spawnBurst(this.x,this.y,'#ff8800',this.d.rim,20);
   if(window._balanceCombatTracker)window._balanceCombatTracker.onPassiveTrigger(this.key,0);
   if(window._liveCombatTracker)window._liveCombatTracker.onPassiveTrigger(this.key,0);
-  fillStats(this.key,this.faction===0?'r':'b');
+  if(typeof updateBattleHud==='function')updateBattleHud();
  }
  _applyHitBuff(){
   if(this.canTriggerTraits===false)return;
