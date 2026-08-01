@@ -384,7 +384,7 @@ class Sphere{
     if(this.stacks>=5){
      this.stacks=0;
      this.blinking=true;
-     const en5=spheres.find(s=>(s!==this)&&s.alive&&!s.dying);
+     const en5=(this._nearestEnemy()||{}).enemy;
      if(en5){
       const dx=en5.x-this.x,dy=en5.y-this.y,dist=Math.hypot(dx,dy)||1;
       let bx=en5.x+(dx/dist)*-(en5.radius+this.radius+8);
@@ -405,12 +405,7 @@ class Sphere{
    case 'warlord':
     if(this.stacks>=5){
      this.stacks=0;
-     let enW=null,enWDist=Infinity;
-     for(const s of spheres){
-      if(!((s!==this)&&s.alive&&!s.dying))continue;
-      const d=Math.hypot(s.x-this.x,s.y-this.y);
-      if(d<enWDist){enWDist=d;enW=s;}
-     }
+     const enW=(this._nearestEnemy()||{}).enemy;
      if(enW){
       const dx=enW.x-this.x,dy=enW.y-this.y,dist=Math.hypot(dx,dy)||1;
       enW.applyImpact((dx/dist)*320,(dy/dist)*320);
@@ -447,7 +442,7 @@ class Sphere{
     if(this.stacks>=5){
      this.stacks=0;this.orbitActive=true;this.orbitT=2.5;
      this.dmgMult=1.1;
-     const enB=spheres.find(s=>(s!==this)&&s.alive&&!s.dying);
+     const enB=(this._nearestEnemy()||{}).enemy;
      if(enB)this.orbitTarget=enB;
     } break;
     case 'samurai':
@@ -460,7 +455,7 @@ class Sphere{
    case 'barbarian':
     if(this.stacks>=3){
      this.stacks=0;this.ramActive=true;this.ramT=0.7;
-     const enRam=spheres.find(s=>(s!==this)&&s.alive&&!s.dying);
+     const enRam=(this._nearestEnemy()||{}).enemy;
      if(enRam){
       const dx=enRam.x-this.x,dy=enRam.y-this.y,dist=Math.hypot(dx,dy)||1;
       this.vx=(dx/dist)*this.targetSpd*3.5;
@@ -489,7 +484,7 @@ class Sphere{
    case 'necromancer':
     if(this.stacks>=3){
      this.stacks=0;
-     const enNec=spheres.find(s=>(s!==this)&&s.alive&&!s.dying);
+     const enNec=(this._nearestEnemy()||{}).enemy;
      if(enNec&&enNec.deathMarkTicks===0){enNec.deathMarkTicks=7;enNec.deathMarkTimer=0.18;enNec.deathMarkDmg=this.d.dmg*0.70+1;}
     } break;
     case 'trickster':
@@ -587,7 +582,7 @@ class Sphere{
    case 'alchemist':
     if(this.stacks>=3){
      this.stacks=0;
-     const enAlch=spheres.find(s=>(s!==this)&&s.alive&&!s.dying);
+     const enAlch=(this._nearestEnemy()||{}).enemy;
      const atx=enAlch?enAlch.x:this.x+(this.faction===0?120:-120);
      const aty=enAlch?enAlch.y:this.y;
      const adx=atx-this.x,ady=aty-this.y,adist=Math.hypot(adx,ady)||1;
@@ -616,7 +611,7 @@ class Sphere{
    case 'plague':
     if(this.stacks>=3){
      this.stacks=0;
-     const enPlg=spheres.find(s=>(s!==this)&&s.alive&&!s.dying);
+     const enPlg=(this._nearestEnemy()||{}).enemy;
      if(enPlg){
       enPlg.virulenceStacks=Math.min(5,(enPlg.virulenceStacks||0)+2);
       enPlg.virulenceWallHitCD=0;
@@ -629,7 +624,7 @@ class Sphere{
      this.stacks=0;
      this.riptideCharged=true;
      // Fire riptide bolt toward enemy
-     const enTide=spheres.find(s=>(s!==this)&&s.alive&&!s.dying);
+     const enTide=(this._nearestEnemy()||{}).enemy;
      if(enTide){
       const dtx=enTide.x-this.x,dty=enTide.y-this.y,dtd=Math.hypot(dtx,dty)||1;
       projectiles.push(new RiptideBolt(this.x,this.y,(dtx/dtd)*540,(dty/dtd)*540,this.d.dmg*2.0,this));
@@ -650,7 +645,7 @@ class Sphere{
    case 'mimic':
     if(this.stacks>=3){
      this.stacks=0;
-     const enMimic=spheres.find(s=>(s!==this)&&s.alive&&!s.dying);
+     const enMimic=(this._nearestEnemy()||{}).enemy;
      if(enMimic){
       this.perfectCopyActive=true;this.perfectCopyT=4.0;
       // Temporarily add enemy stats on top
@@ -671,7 +666,7 @@ class Sphere{
      this.invincible=true;this.invincibleT=0.8;
      // Shockwave all enemies
      for(const s of spheres){
-      if(s===this||!s.alive||s.dying)continue;
+      if(sameFaction(this,s)||!s.alive||s.dying)continue;
       const dsx=s.x-this.x,dsy=s.y-this.y,dsd=Math.hypot(dsx,dsy)||1;
       s.applyImpact((dsx/dsd)*380,(dsy/dsd)*380);
       s.receiveMagicDamage(this.d.dmg*2.5*this.dmgMult);
@@ -681,7 +676,7 @@ class Sphere{
      const dischargeDmg=this.staticCharge*0.8;
      if(dischargeDmg>0){
       for(const s of spheres){
-       if(s===this||!s.alive||s.dying)continue;
+       if(sameFaction(this,s)||!s.alive||s.dying)continue;
        s.hp=Math.max(0,s.hp-dischargeDmg);
        if(s.hp<=0&&!s.dying){s.alive=false;s.dying=true;spawnBurst(s.x,s.y,s.d.rim,s.d.color,28);}
        spawnDmgNum(s.x,s.y-s.radius*1.5,dischargeDmg,'#88ccff');
@@ -735,7 +730,7 @@ class Sphere{
      this.invincible=true;this.invincibleT=1.5;
      this._flagellantSelfWound(10);
      for(const s of spheres){
-      if(s===this||!s.alive||s.dying)continue;
+      if(sameFaction(this,s)||!s.alive||s.dying)continue;
       const dx=s.x-this.x,dy=s.y-this.y,d=Math.hypot(dx,dy)||1;
       if(d<this.radius+s.radius+18){
        s.hp=Math.max(0,s.hp-10);s.hitFlash=1;
@@ -755,7 +750,7 @@ class Sphere{
    case 'locksmith':
     if(this.stacks>=3){
      this.stacks=0;
-     const enLock=spheres.find(s=>(s!==this)&&s.alive&&!s.dying);
+     const enLock=(this._nearestEnemy()||{}).enemy;
      if(enLock){
       const locks=enLock.locksmithLocks||0;
       enLock.stacks=Math.max(0,enLock.stacks-locks*0.25);
@@ -774,7 +769,7 @@ class Sphere{
      for(const n of noiseTraps){
       if(n instanceof GlassShard&&n.owner===this&&n.alive){
        for(const s of spheres){
-        if(s===this||!s.alive||s.dying)continue;
+        if(sameFaction(this,s)||!s.alive||s.dying)continue;
         const before=n.alive;
         if(Math.hypot(s.x-n.x,s.y-n.y)<s.radius+n.r*3.0){
          n.detonate();
@@ -795,7 +790,7 @@ class Sphere{
    case 'spartan':
     if(this.stacks>=3||this.ironStacks>=5){this.stacks=0;this.ironStacks=0;this._aimAbilityAtNearestEnemy(.32);this.ramActive=true;this.ramT=0.7;this.dmgMult=1;this.vx=Math.cos(this.angle)*this.baseSpd*3;this.vy=Math.sin(this.angle)*this.baseSpd*3;this.targetSpd=this.baseSpd*3;spawnBurst(this.x,this.y,'#d24634','#d8b060',18);} break;
    case 'gladiator':
-    if(this.stacks>=3&&this.netLockoutT<=0){this.stacks=0;const en=spheres.find(s=>s!==this&&s.alive&&!s.dying);if(en){en.netRootT=0.8;en.savedArm=en.d.arm;en.d=Object.assign({},en.d);en.d.arm=en.savedArm*.3;this.dmgMult=1.8;this.netLockoutT=2.0;spawnDmgNum(en.x,en.y-en.radius*1.8,'NET','#f0c08a');}} break;
+    if(this.stacks>=3&&this.netLockoutT<=0){this.stacks=0;const en=(this._nearestEnemy()||{}).enemy;if(en){en.netRootT=0.8;en.savedArm=en.d.arm;en.d=Object.assign({},en.d);en.d.arm=en.savedArm*.3;this.dmgMult=1.8;this.netLockoutT=2.0;spawnDmgNum(en.x,en.y-en.radius*1.8,'NET','#f0c08a');}} break;
    case 'king':
     if(this.stacks>=4){this.stacks=0;this.decreeT=6;this.dmgMult=1.6;this.omegaCur=(this.d.om*1.5)*Math.sign(this.omegaCur||1);for(let i=0;i<3;i++){const a=i*Math.PI*2/3+Math.random()*.4;skeletons.push(new BarbAlly(this.x+Math.cos(a)*this.radius*1.4,this.y+Math.sin(a)*this.radius*1.4,this));}spawnBurst(this.x,this.y,'#ffd35a','#d00020',30);spawnPulse(this.x,this.y,'#ffd35a');} break;
    case 'queen':
@@ -819,7 +814,7 @@ class Sphere{
    case 'dragoon':
     if(this.stacks>=3&&!this.isLeaping){
      this.stacks=0;
-     const enD=spheres.find(s=>(s!==this)&&s.alive&&!s.dying);
+     const enD=(this._nearestEnemy()||{}).enemy;
      if(!enD)break;
      this.leapTargetX=enD.x;this.leapTargetY=enD.y;
      this.isLeaping=true;this.untargetable=true;
@@ -880,7 +875,7 @@ class Sphere{
    this.spiralT-=dt;
    if(this.spiralT<=0){this.spiralActive=false;this.dmgMult=1;this.targetSpd=this.baseSpd;}
    else{
-    const en=spheres.find(s=>(s!==this)&&s.alive&&!s.dying);
+    const en=(this._nearestEnemy()||{}).enemy;
     if(en){
      this.spiralAngle+=dt*8;
      const orR=Math.max(en.radius*1.5,Math.hypot(en.x-this.x,en.y-this.y)*0.6);
@@ -957,7 +952,7 @@ class Sphere{
      if(this.deathMarkDoTHits>=7){
       this.deathMarkDoTHits=0; // reset for next skeleton
       const necro=spheres.find(s=>s.key==='necromancer'&&s.alive&&!s.dying&&
-       (s!==this));
+       (!sameFaction(this,s)));
       if(necro){
        skeletons.push(new Skeleton(this.x,this.y,necro.faction));
        spawnBurst(this.x,this.y,'#7c4dff','#1a0a2e',16);
@@ -984,7 +979,7 @@ class Sphere{
    if(this.wrathAuraTimer>=0.5){
     this.wrathAuraTimer=0;
     for(const s of spheres){
-     const isEnemy=s!==this;
+     const isEnemy=!sameFaction(this,s);
      if(!isEnemy||!s.alive||s.dying)continue;
      if(Math.hypot(s.x-this.x,s.y-this.y)<this.radius*2.5){
       s.receiveDamage(2.5);
@@ -1021,7 +1016,7 @@ class Sphere{
     if(this.pyreAuraTimer>=0.4){
      this.pyreAuraTimer=0;
      for(const s of spheres){
-      if(s===this||!s.alive||s.dying)continue;
+      if(sameFaction(this,s)||!s.alive||s.dying)continue;
       if(Math.hypot(s.x-this.x,s.y-this.y)<this.radius*2.8){
        s.receiveDamage(this.d.dmg*0.55*this.dmgMult);
        spawnSpark(s.x,s.y,'#ff4400',4);
@@ -1051,7 +1046,7 @@ class Sphere{
     h.life-=dt;
     if(h.life>0){
      for(const s of spheres){
-      if(s===this||!s.alive||s.dying)continue;
+      if(sameFaction(this,s)||!s.alive||s.dying)continue;
       if(Math.hypot(s.x-h.x,s.y-h.y)<h.r+s.radius*0.5){
        s.receiveDamage(this.d.dmg*0.08);
       }
@@ -1073,7 +1068,7 @@ class Sphere{
    if(this.thornAoeTimer>=4.0){
     this.thornAoeTimer=0;
     for(const s of spheres){
-     const isEnemy=s!==this;
+     const isEnemy=!sameFaction(this,s);
      if(!isEnemy||!s.alive||s.dying)continue;
      const dist=Math.hypot(s.x-this.x,s.y-this.y);
      if(dist<this.radius*this.d.reach+s.radius){
@@ -1149,7 +1144,7 @@ class Sphere{
    if(this.batTickT<=0){
     this.batTickT=0.28;
     for(const s of spheres){
-     if(s===this||!s.alive||s.dying)continue;
+     if(sameFaction(this,s)||!s.alive||s.dying)continue;
      const dist=Math.hypot(s.x-this.x,s.y-this.y);
      if(dist<this.radius+s.radius+12){
       const batDmg=this.d.dmg*0.55*this.dmgMult/(s.d.arm*0.004+1);
@@ -1323,7 +1318,7 @@ class Sphere{
    if(this.key==='monk'){this.vx*=1.1;this.vy*=1.1;spawnSpark(this.x,this.y,'#ffe0a0',4);}
    if(this.key==='phoenix'){this._phoenixAddEmber(16);spawnSpark(this.x,this.y,'#ffcc02',4);}
    if(this.key==='ninja')this._shadowStepBounce();
-   if(this.virulenceStacks>0&&this.virulenceWallHitCD<=0){this.virulenceWallHitCD=1.0;const _lpo=spheres.find(s=>s!==this&&s.alive);if(_lpo){thornPatches.push(new ToxicSmear(this.x,this.y,R*1.5,_lpo));}spawnDmgNum(this.x,this.y-R-10,'SMEAR!','#aadd44');}
+   if(this.virulenceStacks>0&&this.virulenceWallHitCD<=0){this.virulenceWallHitCD=1.0;thornPatches.push(new ToxicSmear(this.x,this.y,R*1.5,this));spawnDmgNum(this.x,this.y-R-10,'SMEAR!','#aadd44');}
    if(this.key==='voidwalker'){noiseTraps.push(new VoidTear(this.x,this.y,this));this.voidTearCount=(this.voidTearCount||0)+1;}
    this._onWallBounce();
   }
@@ -1332,7 +1327,7 @@ class Sphere{
    if(this.key==='monk'){this.vx*=1.1;this.vy*=1.1;spawnSpark(this.x,this.y,'#ffe0a0',4);}
    if(this.key==='phoenix'){this._phoenixAddEmber(16);spawnSpark(this.x,this.y,'#ffcc02',4);}
    if(this.key==='ninja')this._shadowStepBounce();
-   if(this.virulenceStacks>0&&this.virulenceWallHitCD<=0){this.virulenceWallHitCD=1.0;const _vpo=spheres.find(s=>s!==this&&s.alive);if(_vpo){const _vtp=new ToxicSmear(this.x,this.y,R*1.5,_vpo);thornPatches.push(_vtp);}spawnDmgNum(this.x,this.y-R-10,'SMEAR!','#aadd44');}
+   if(this.virulenceStacks>0&&this.virulenceWallHitCD<=0){this.virulenceWallHitCD=1.0;thornPatches.push(new ToxicSmear(this.x,this.y,R*1.5,this));spawnDmgNum(this.x,this.y-R-10,'SMEAR!','#aadd44');}
    if(this.key==='voidwalker'){noiseTraps.push(new VoidTear(this.x,this.y,this));this.voidTearCount=(this.voidTearCount||0)+1;}
    this._onWallBounce();
   }
@@ -1341,7 +1336,7 @@ class Sphere{
    if(this.key==='monk'){this.vx*=1.1;this.vy*=1.1;spawnSpark(this.x,this.y,'#ffe0a0',4);}
    if(this.key==='phoenix'){this._phoenixAddEmber(16);spawnSpark(this.x,this.y,'#ffcc02',4);}
    if(this.key==='ninja')this._shadowStepBounce();
-   if(this.virulenceStacks>0&&this.virulenceWallHitCD<=0){this.virulenceWallHitCD=1.0;const _tvpo=spheres.find(s=>s!==this&&s.alive);if(_tvpo){thornPatches.push(new ToxicSmear(this.x,this.y,R*1.5,_tvpo));}spawnDmgNum(this.x,this.y+R+10,'SMEAR!','#aadd44');}
+   if(this.virulenceStacks>0&&this.virulenceWallHitCD<=0){this.virulenceWallHitCD=1.0;thornPatches.push(new ToxicSmear(this.x,this.y,R*1.5,this));spawnDmgNum(this.x,this.y+R+10,'SMEAR!','#aadd44');}
    if(this.key==='voidwalker'){noiseTraps.push(new VoidTear(this.x,this.y,this));this.voidTearCount=(this.voidTearCount||0)+1;}
    this._onWallBounce();
   }
@@ -1350,7 +1345,7 @@ class Sphere{
    if(this.key==='monk'){this.vx*=1.1;this.vy*=1.1;spawnSpark(this.x,this.y,'#ffe0a0',4);}
    if(this.key==='phoenix'){this._phoenixAddEmber(16);spawnSpark(this.x,this.y,'#ffcc02',4);}
    if(this.key==='ninja')this._shadowStepBounce();
-   if(this.virulenceStacks>0&&this.virulenceWallHitCD<=0){this.virulenceWallHitCD=1.0;const _bvpo=spheres.find(s=>s!==this&&s.alive);if(_bvpo){thornPatches.push(new ToxicSmear(this.x,this.y,R*1.5,_bvpo));}spawnDmgNum(this.x,this.y-R-10,'SMEAR!','#aadd44');}
+   if(this.virulenceStacks>0&&this.virulenceWallHitCD<=0){this.virulenceWallHitCD=1.0;thornPatches.push(new ToxicSmear(this.x,this.y,R*1.5,this));spawnDmgNum(this.x,this.y-R-10,'SMEAR!','#aadd44');}
    if(this.key==='voidwalker'){noiseTraps.push(new VoidTear(this.x,this.y,this));this.voidTearCount=(this.voidTearCount||0)+1;}
    this._onWallBounce();
   }
@@ -1384,7 +1379,7 @@ class Sphere{
      const prevHpPal=this.hp;
      this.receiveHeal(healAmt);
      spawnSpark(this.x,this.y,'#f0c040',4);
-     const en=spheres.find(s=>(s!==this)&&s.alive&&!s.dying);
+     const en=(this._nearestEnemy()||{}).enemy;
      if(en){const dx=en.x-this.x,dy=en.y-this.y,dist=Math.hypot(dx,dy)||1;
       en.applyImpact((dx/dist)*280,(dy/dist)*280);
       const pulseDmg=12/(en.d.arm*0.004+1);
@@ -1662,7 +1657,7 @@ class Sphere{
       // Pull all enemies toward singularity
       this._singularityTickT=(this._singularityTickT||0)+dt;
       for(const s of spheres){
-       if(s===this||!s.alive||s.dying)continue;
+       if(sameFaction(this,s)||!s.alive||s.dying)continue;
        const sx=this.singularityX-s.x,sy=this.singularityY-s.y;
        const sd=Math.hypot(sx,sy)||1;
        const pullStr=Math.min(1,60/sd)*360;
@@ -1673,7 +1668,7 @@ class Sphere{
       if(this._singularityTickT>=0.35){
        this._singularityTickT=0;
        for(const s of spheres){
-        if(s===this||!s.alive||s.dying)continue;
+        if(sameFaction(this,s)||!s.alive||s.dying)continue;
         s.receiveMagicDamage(this.d.dmg*0.3);
        }
       }
@@ -1682,12 +1677,12 @@ class Sphere{
     break;
    case 'witch': if(this.hexBurstFiredT>0){this.hexBurstFiredT-=dt;if(this.hexBurstFiredT<=0)this.hexBurstFired=false;}if(this.shotCD<=0){this.shotCD=.22;const tip=this.getTip();projectiles.push(new RosterBolt(tip.x,tip.y,Math.cos(this.angle)*250,Math.sin(this.angle)*250,(this.d.dmg+9)*this.dmgMult,this,'hex'));}this._applyKite(dt);break;
    case 'fairy': this.dustDropT-=dt;if(this.dustDropT<=0){this.dustDropT=.22;noiseTraps.push(new PixieDustPatch(this.x,this.y,this));}if(this.wishFireRateT>0)this.wishFireRateT=Math.max(0,this.wishFireRateT-dt);if(this.shotCD<=0){this.shotCD=this.wishFireRateT>0?.10:.17;const tip=this.getTip();projectiles.push(new RosterBolt(tip.x,tip.y,Math.cos(this.angle)*360,Math.sin(this.angle)*360,(this.d.dmg+9)*.85,this,'dust'));}if(this.wishDashT>0){this.wishDashT-=dt;if(this.wishDashT<=0)this.targetSpd=this.baseSpd;}this._applyKite(dt);break;
-   case 'arcanist': this.arcaneCharge=Math.min(5,(this.arcaneCharge||0)+dt);if(this.overloadActive){this.overloadT-=dt;if(this.overloadT<=0)this.overloadActive=false;}if(this.shotCD<=0){this.shotCD=this.overloadActive?.20:.38;const tip=this.getTip(),spd=this.overloadActive?660:220;const b=new RosterBolt(tip.x,tip.y,Math.cos(this.angle)*spd,Math.sin(this.angle)*spd,(this.d.dmg+8)*this.dmgMult,this,'arcane');if(this.arcaneCharge>=5){const en=spheres.find(s=>s!==this&&s.alive&&!s.dying);if(en){b.x=en.x;b.y=en.y;b._explode(en);}this.arcaneCharge=0;}else projectiles.push(b);}this._applyKite(dt);break;
-   case 'queen': if(this.queenGambitT>0){this.queenGambitT-=dt;if(this.queenGambitT<=0&&this.queenGambitSavedDef){this.d=Object.assign({},this.d);this.d.arm=this.queenGambitSavedDef.arm;this.d.magDef=this.queenGambitSavedDef.magDef;this.queenGambitSavedDef=null;spawnDmgNum(this.x,this.y-this.radius*1.5,'NORMAL','#ffb8e6');}}if(this.queenInvisibleT>0){this.queenInvisibleT-=dt;if(this.queenInvisibleT<=0){this.queenInvisible=false;this.untargetable=false;for(let i=0;i<3;i++){const a=i*Math.PI*2/3+Math.random()*.4;skeletons.push(new ArcherAlly(this.x+Math.cos(a)*this.radius*1.3,this.y+Math.sin(a)*this.radius*1.3,this));}spawnBurst(this.x,this.y,'#ff69b4','#ffb8e6',18);}}for(const en of spheres){if(en!==this&&en.alive&&!en.dying&&Math.hypot(en.x-this.x,en.y-this.y)<this.radius*2.9+en.radius){en.courtlyT=1.5;en.vx*=.90;en.vy*=.90;}}break;
+   case 'arcanist': this.arcaneCharge=Math.min(5,(this.arcaneCharge||0)+dt);if(this.overloadActive){this.overloadT-=dt;if(this.overloadT<=0)this.overloadActive=false;}if(this.shotCD<=0){this.shotCD=this.overloadActive?.20:.38;const tip=this.getTip(),spd=this.overloadActive?660:220;const b=new RosterBolt(tip.x,tip.y,Math.cos(this.angle)*spd,Math.sin(this.angle)*spd,(this.d.dmg+8)*this.dmgMult,this,'arcane');if(this.arcaneCharge>=5){const en=(this._nearestEnemy()||{}).enemy;if(en){b.x=en.x;b.y=en.y;b._explode(en);}this.arcaneCharge=0;}else projectiles.push(b);}this._applyKite(dt);break;
+   case 'queen': if(this.queenGambitT>0){this.queenGambitT-=dt;if(this.queenGambitT<=0&&this.queenGambitSavedDef){this.d=Object.assign({},this.d);this.d.arm=this.queenGambitSavedDef.arm;this.d.magDef=this.queenGambitSavedDef.magDef;this.queenGambitSavedDef=null;spawnDmgNum(this.x,this.y-this.radius*1.5,'NORMAL','#ffb8e6');}}if(this.queenInvisibleT>0){this.queenInvisibleT-=dt;if(this.queenInvisibleT<=0){this.queenInvisible=false;this.untargetable=false;for(let i=0;i<3;i++){const a=i*Math.PI*2/3+Math.random()*.4;skeletons.push(new ArcherAlly(this.x+Math.cos(a)*this.radius*1.3,this.y+Math.sin(a)*this.radius*1.3,this));}spawnBurst(this.x,this.y,'#ff69b4','#ffb8e6',18);}}for(const en of spheres){if(!sameFaction(this,en)&&en.alive&&!en.dying&&Math.hypot(en.x-this.x,en.y-this.y)<this.radius*2.9+en.radius){en.courtlyT=1.5;en.vx*=.90;en.vy*=.90;}}break;
    case 'prince': this._updatePrinceWeaponMaster(dt);break;
    case 'king': if(this.decreeT>0){this.decreeT-=dt;if(this.decreeT<=0){this.dmgMult=1;this.omegaCur=this.d.om*Math.sign(this.omegaCur||1);}}break;
    case 'gladiator': if(this.netLockoutT>0){this.netLockoutT-=dt;if(this.netLockoutT<=0)this.dmgMult=1;}break;
-   case 'sage': if(this.shotCD<=0){this.shotCD=.32;this._fireSageWord();}this._applyKite(dt);if(this.foresightT>0){this.foresightT-=dt;const en=spheres.find(s=>s!==this&&s.alive&&!s.dying);if(en){this.vx=-(en.vx+en.impactVx);this.vy=-(en.vy+en.impactVy);}if(this.foresightT<=0){this.untargetable=false;for(const q of spheres){if(q!==this&&q.alive&&!q.dying&&Math.hypot(q.x-this.x,q.y-this.y)<this.radius*4)q.receiveMagicDamage(this.d.dmg*2);}spawnDmgNum(this.x,this.y-this.radius*1.8,'2× WISDOM','#d6f0b2');spawnPulse(this.x,this.y,'#d6f0b2');}}break;
+   case 'sage': if(this.shotCD<=0){this.shotCD=.32;this._fireSageWord();}this._applyKite(dt);if(this.foresightT>0){this.foresightT-=dt;const en=(this._nearestEnemy()||{}).enemy;if(en){this.vx=-(en.vx+en.impactVx);this.vy=-(en.vy+en.impactVy);}if(this.foresightT<=0){this.untargetable=false;for(const q of spheres){if(!sameFaction(this,q)&&q.alive&&!q.dying&&Math.hypot(q.x-this.x,q.y-this.y)<this.radius*4)q.receiveMagicDamage(this.d.dmg*2);}spawnDmgNum(this.x,this.y-this.radius*1.8,'2× WISDOM','#d6f0b2');spawnPulse(this.x,this.y,'#d6f0b2');}}break;
    case 'whelpling':
     // Mouth open timer countdown
     if(this.mouthOpenTimer>0)this.mouthOpenTimer=Math.max(0,this.mouthOpenTimer-dt);
@@ -1807,7 +1802,7 @@ class Sphere{
   }
   _triggerImpactAoE(radius,dmg){
   for(const s of spheres){
-   if(s===this||!s.alive||s.dying)continue;
+   if(sameFaction(this,s)||!s.alive||s.dying)continue;
    const dist=Math.hypot(s.x-this.x,s.y-this.y);
    if(dist<radius+s.radius){
     // True damage — bypasses armor, this is the lance strike on descent
@@ -1827,7 +1822,7 @@ class Sphere{
   if(this.kiteCD>0)return;
   const dangerR=this.radius*3.5;
   const threat=spheres.find(s=>{
-   const isEnemy=s!==this;
+   const isEnemy=!sameFaction(this,s);
    return isEnemy&&s.alive&&!s.dying&&Math.hypot(s.x-this.x,s.y-this.y)<dangerR;
   });
   if(!threat)return;
@@ -1873,7 +1868,7 @@ class Sphere{
   else spawnSpark(tip.x,tip.y,this.d.rim,8);
  }
  _fireFlameBolt(){
-  const en=spheres.find(s=>(s!==this)&&s.alive&&!s.dying);if(!en)return;
+  const en=(this._nearestEnemy()||{}).enemy;if(!en)return;
   const tip=this.getTip();
   const wx=Math.cos(this.angle),wy=Math.sin(this.angle);
   const ROD_COLORS=['#ffee00','#ff4400','#44aaff','#ffffff','#886633'];
@@ -1884,7 +1879,7 @@ class Sphere{
   if(this.key==='wizard')_playSphereAudio(this.key,'projectileThrow');
  }
  _fireSkullOrb(){
-  const en=spheres.find(s=>(s!==this)&&s.alive&&!s.dying);if(!en)return;
+  const en=(this._nearestEnemy()||{}).enemy;if(!en)return;
   const tip=this.getTip();
   const wx=Math.cos(this.angle),wy=Math.sin(this.angle);
   projectiles.push(new SkullOrb(tip.x,tip.y,wx*450,wy*450,(this.d.dmg+2)*this.dmgMult,this));
@@ -1899,7 +1894,7 @@ class Sphere{
  _fireBola(){
   let nearest=null,nearDist=Infinity;
   for(const s of spheres){
-   const isEnemy=s!==this;
+   const isEnemy=!sameFaction(this,s);
    if(!isEnemy||!s.alive||s.dying)continue;
    const d=Math.hypot(s.x-this.x,s.y-this.y);
    if(d<nearDist){nearDist=d;nearest=s;}
@@ -1956,7 +1951,7 @@ class Sphere{
   this.untargetable=true;
   spawnBurst(this.x,this.y,this.d.rim,'#1a1a2e',10);
   // fire 2 shurikens toward nearest enemy
-  const en=spheres.find(s=>(s!==this)&&s.alive&&!s.dying);
+  const en=(this._nearestEnemy()||{}).enemy;
   if(en){
    const dx=en.x-this.x,dy=en.y-this.y,dist=Math.hypot(dx,dy)||1;
    const spd=520;
@@ -2032,7 +2027,7 @@ class Sphere{
    spawnDmgNum(this.x,this.y-this.radius*1.7,'REBIRTH','#ffcc02');
    const flareR=this.radius*3.0;
    for(const s of spheres){
-    if(s===this||!s.alive||s.dying)continue;
+    if(sameFaction(this,s)||!s.alive||s.dying)continue;
     const dx=s.x-this.x,dy=s.y-this.y,dist=Math.hypot(dx,dy)||1;
     if(dist>flareR+s.radius)continue;
     s.applyImpact((dx/dist)*260,(dy/dist)*260);

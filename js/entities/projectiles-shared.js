@@ -97,7 +97,7 @@ class SonicProjectile{
   const spd=Math.hypot(this.vx,this.vy);
   if(spd>1100){const f=1100/spd;this.vx*=f;this.vy*=f;}
   for(const s of spheres){
-   if(s===this.owner||!s.alive||s.dying)continue;
+   if(sameFaction(this.owner,s)||!s.alive||s.dying)continue;
    if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+this.r){
     // Minimal HP damage via magic, massive knockback
     const magDmg=this.dmg/(s.d.magDef*0.01+1);
@@ -163,7 +163,7 @@ class NoiseTrap{
   this.t+=dt;this.life-=dt;
   if(this.life<=0){this.alive=false;return;}
   for(const s of spheres){
-   if(s===this.owner||!s.alive||s.dying)continue;
+   if(sameFaction(this.owner,s)||!s.alive||s.dying)continue;
    if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+this.r){
     // Zero out spin (melee threat) and slow ranged fire rate
     s.omegaCur=0;
@@ -218,7 +218,7 @@ class Shuriken{
   this.life-=dt;
   if(this.x<0||this.x>W||this.y<0||this.y>H||this.life<=0){this.alive=false;return;}
   for(const s of spheres){
-   if(s===this.owner||!s.alive||s.dying)continue;
+   if(sameFaction(this.owner,s)||!s.alive||s.dying)continue;
    if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+7){
     const fd=this.dmg/(s.d.arm*0.004+1);
     s.receiveDamage(fd);

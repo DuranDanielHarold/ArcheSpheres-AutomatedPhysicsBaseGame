@@ -15,9 +15,8 @@ class BoneArrow{
   this.life-=dt;
   if(this.x<0||this.x>W||this.y<0||this.y>H||this.life<=0){this.alive=false;return;}
   for(const s of spheres){
-   const isEnemy=true;
+   const isEnemy=!sameFaction(this.owner,s);
    if(!isEnemy||!s.alive||s.dying)continue;
-   if(s.key==='necromancer'&&s.faction===this.owner.faction)continue;
    if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+5){
     const fd=1.2/(s.d.arm*0.004+1);
     s.receiveDamage(fd);
@@ -60,8 +59,8 @@ class Arrow{
    spawnSpark(this.x,this.y,'#88cc44',4);this.alive=false;return;
   }
   for(const s of spheres){
-   const isEnemy=s!==this.owner;
-   if(!isEnemy||sameFaction(this.owner,s)||!s.alive||s.dying)continue;
+   const isEnemy=!sameFaction(this.owner,s);
+   if(!isEnemy||!s.alive||s.dying)continue;
    if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+8){
     const nx=(s.x-this.x)/Math.hypot(s.x-this.x,s.y-this.y)||1;
     const ny=(s.y-this.y)/Math.hypot(s.x-this.x,s.y-this.y)||0;
@@ -134,7 +133,7 @@ class GrapplingHook{
   if(this.x<0||this.x>W||this.y<0||this.y>H){this._hookWall();return;}
   if(this.life<=0){this.alive=false;return;}
   for(const s of spheres){
-   const isEnemy=s!==this.owner;
+   const isEnemy=!sameFaction(this.owner,s);
    if(!isEnemy||!s.alive||s.dying)continue;
    if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+10){
     s.receiveDamage(this.dmg);
@@ -199,7 +198,7 @@ class Bola{
    spawnSpark(this.x,this.y,'#d4a83a',4);this.alive=false;return;
   }
   for(const s of spheres){
-   const isEnemy=s!==this.owner;
+   const isEnemy=!sameFaction(this.owner,s);
    if(!isEnemy||!s.alive||s.dying)continue;
    if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+12){
    
@@ -313,7 +312,7 @@ class SheriffBullet{
    spawnSpark(this.x,this.y,'#d4a83a',3);this.alive=false;return;
   }
   for(const s of spheres){
-   const isEnemy=s!==this.owner;
+   const isEnemy=!sameFaction(this.owner,s);
    if(!isEnemy||!s.alive||s.dying)continue;
    if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+5){
        const penArm=s.d.arm*0.8;
@@ -328,7 +327,7 @@ class SheriffBullet{
    }
   }
    for(const sk of skeletons){
-   const isEnemy=true;
+   const isEnemy=!sameFaction(this.owner,sk);
    if(!isEnemy||!sk.alive)continue;
    if(Math.hypot(sk.x-this.x,sk.y-this.y)<sk.radius+5){
     const dmg=this.dmg/(sk.arm*0.004+1);
@@ -382,7 +381,7 @@ class HolyOrb{
    if(this.t>0.18){
    let nearEnemy=null,nearDist=Infinity;
    for(const s of spheres){
-    const isEnemy=s!==this.owner;
+    const isEnemy=!sameFaction(this.owner,s);
     if(!isEnemy||!s.alive||s.dying)continue;
     const d=Math.hypot(s.x-this.x,s.y-this.y);
     if(d<nearDist){nearDist=d;nearEnemy=s;}
@@ -399,7 +398,7 @@ class HolyOrb{
   }
    if(this.t>0.3){
   for(const s of spheres){
-   const isAlly=s===this.owner;
+   const isAlly=sameFaction(this.owner,s);
    if(!isAlly||!s.alive||s.dying)continue;
    if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+this.r){
        s.d=Object.assign({},s.d);
@@ -415,7 +414,7 @@ class HolyOrb{
   }
   }
    for(const s of spheres){
-   const isEnemy=s!==this.owner;
+   const isEnemy=!sameFaction(this.owner,s);
    if(!isEnemy||!s.alive||s.dying)continue;
    if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+this.r){
     s.receiveMagicDamage(this.dmg); // magic damage — uses magDef
@@ -430,7 +429,7 @@ class HolyOrb{
    }
   }
    for(const sk of skeletons){
-   const isEnemy=true;
+   const isEnemy=!sameFaction(this.owner,sk);
    if(!isEnemy||!sk.alive)continue;
    if(Math.hypot(sk.x-this.x,sk.y-this.y)<sk.radius+this.r){
     const dmg=this.dmg/(sk.arm*0.004+1);
@@ -511,7 +510,7 @@ class FlameBolt{
   }
   if(this.x<-30||this.x>W+30||this.y>H+40||this.life<=0){this.alive=false;return;}
   for(const s of spheres){
-   const isEnemy=s!==this.owner;
+   const isEnemy=!sameFaction(this.owner,s);
    if(!isEnemy||!s.alive||s.dying)continue;
    if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+this.r+3){
     const power=this.effectPower||0;
@@ -605,7 +604,7 @@ class SkullOrb{
    spawnToxicCloud(this.x,this.y);this.alive=false;return;
   }
   for(const s of spheres){
-   const isEnemy=s!==this.owner;
+   const isEnemy=!sameFaction(this.owner,s);
    if(!isEnemy||!s.alive||s.dying)continue;
    if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+this.r+3){
     s.receiveMagicDamage(this.dmg); // magic damage — uses magDef not arm
@@ -627,8 +626,8 @@ class SkullOrb{
    }
   }
   for(const sk of skeletons){
-   const isEnemy=true;
-   if(!isEnemy||!sk.alive||sk.faction===this.owner.faction)continue;
+   const isEnemy=!sameFaction(this.owner,sk);
+   if(!isEnemy||!sk.alive)continue;
    if(Math.hypot(sk.x-this.x,sk.y-this.y)<sk.radius+this.r+3){
     const dmg=this.dmg/(sk.arm*0.004+1);
     sk.hp=Math.max(0,sk.hp-dmg);sk.hitFlash=1;

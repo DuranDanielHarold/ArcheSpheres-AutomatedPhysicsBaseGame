@@ -13,7 +13,7 @@ class RosterBolt{
  }
  update(dt){
   this.t+=dt;this.life-=dt;this.trail.push({x:this.x,y:this.y,t:this.t});if(this.trail.length>18)this.trail.shift();
-  if(this.kind==='hex'&&this.life<1.5){const e=spheres.find(s=>s!==this.owner&&!sameFaction(this.owner,s)&&s.alive&&!s.dying);if(e){const dx=e.x-this.x,dy=e.y-this.y,d=Math.hypot(dx,dy)||1;this.vx+=(dx/d)*60*dt;this.vy+=(dy/d)*60*dt;}}
+  if(this.kind==='hex'&&this.life<1.5){const e=spheres.find(s=>!sameFaction(this.owner,s)&&s.alive&&!s.dying);if(e){const dx=e.x-this.x,dy=e.y-this.y,d=Math.hypot(dx,dy)||1;this.vx+=(dx/d)*60*dt;this.vy+=(dy/d)*60*dt;}}
   this.x+=this.vx*dt;this.y+=this.vy*dt;
   if(this.x<0||this.x>W||this.y<0||this.y>H){if(this.kind==='arcane'){this._explode();return;}spawnSpark(Math.max(4,Math.min(W-4,this.x)),Math.max(4,Math.min(H-4,this.y)),this.kind==='dust'?'#fff0ff':this.kind==='word'?'#d6f0b2':'#d77bff',4);this.alive=false;return;}
   if(this.life<=0){this.alive=false;return;}
@@ -78,7 +78,7 @@ class RiptideBolt{
   if(this.x<-20||this.x>W+20||this.y>H+30||this.life<=0){this.alive=false;return;}
   if(this.x<16&&this.y<16||this.x>W-16&&this.y<16||this.x<16&&this.y>H-16||this.x>W-16&&this.y>H-16){spawnRingBurst(this.x,this.y,'#44ccff');this.alive=false;return;}
   for(const s of spheres){
-   if(s===this.owner||!s.alive||s.dying)continue;
+   if(sameFaction(this.owner,s)||!s.alive||s.dying)continue;
    if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+this.r){
     // Find nearest wall and pull toward it
     const walls=[{d:s.x,nx:-1,ny:0},{d:W-s.x,nx:1,ny:0},{d:s.y,ny:-1,nx:0},{d:H-s.y,ny:1,nx:0}];
@@ -135,7 +135,7 @@ class BreathFlame{
    this.alive=false;return;
   }
   for(const s of spheres){
-   if(s===this.owner||!s.alive||s.dying)continue;
+   if(sameFaction(this.owner,s)||!s.alive||s.dying)continue;
    if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+this.r){
     s.receiveDamage(this.dmg);
      s.burning=true;s.burnT=2.0;s.burnTickInterval=WHELPLING_BURN_TICK_INTERVAL;s.burnTickT=WHELPLING_BURN_TICK_INTERVAL;
@@ -184,7 +184,7 @@ class LingeringMiasma{
   this.tickT=0;
   const cfg=VIAL_CFG[this.vialType];
   for(const s of spheres){
-   if(s===this.owner||!s.alive||s.dying)continue;
+   if(sameFaction(this.owner,s)||!s.alive||s.dying)continue;
    if(Math.hypot(s.x-this.x,s.y-this.y)>this.r+s.radius)continue;
    if(this.vialType==='purple'){
     // Poison: direct magic damage tick + stack corrosion
@@ -261,7 +261,7 @@ class AlchemyFlask{
   };
   if(this.y+6>H||this.y<0||this.x<0||this.x>W||this.life<=0){shatter();return;}
   for(const s of spheres){
-   if(s===this.owner||!s.alive||s.dying)continue;
+   if(sameFaction(this.owner,s)||!s.alive||s.dying)continue;
    if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+8){
     s.receiveMagicDamage(this.owner.d.dmg*2.8);
     spawnSpark(s.x,s.y,cfg.trail,8);
