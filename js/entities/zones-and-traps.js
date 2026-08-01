@@ -5,12 +5,12 @@
 let _burialMoundSeq=0;
 class PixieDustPatch{
  constructor(x,y,owner){this.x=x;this.y=y;this.owner=owner;this.r=owner.radius*0.8;this.life=3;this.maxLife=3;this.alive=true;this.t=0;this.tick=0;this.seed=Math.random()*10;}
- update(dt){this.life-=dt;this.t+=dt;if(this.life<=0)this.alive=false;for(const s of spheres){if(!s.alive||s.dying)continue;if(Math.hypot(s.x-this.x,s.y-this.y)<this.r+s.radius){if(s===this.owner){this.tick-=dt;if(this.tick<=0){this.tick=.5;s.receiveHeal(0.3);}}else{s.omegaCur=-Math.abs(s.omegaCur||1)*Math.sign(this.owner.omegaCur||1);s.charmedT=1.2;s.vx*=.75;s.vy*=.75;}}}}
+ update(dt){this.life-=dt;this.t+=dt;if(this.life<=0)this.alive=false;for(const s of spheres){if(!s.alive||s.dying)continue;if(Math.hypot(s.x-this.x,s.y-this.y)<this.r+s.radius){if(s===this.owner){this.tick-=dt;if(this.tick<=0){this.tick=.5;s.receiveHeal(0.3);}}else if(!sameFaction(this.owner,s)){s.omegaCur=-Math.abs(s.omegaCur||1)*Math.sign(this.owner.omegaCur||1);s.charmedT=1.2;s.vx*=.75;s.vy*=.75;}}}}
  draw(){ctx.save();const a=this.life/this.maxLife;ctx.globalAlpha=.12+.26*a;const g=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r);g.addColorStop(0,'rgba(255,255,255,.9)');g.addColorStop(.45,'rgba(255,184,239,.55)');g.addColorStop(1,'rgba(255,90,200,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fill();ctx.globalAlpha=.35*a;ctx.strokeStyle='#fff0ff';ctx.setLineDash([4,5]);ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(this.x,this.y,this.r*(.74+.08*Math.sin(this.t*4)),0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);for(let i=0;i<7;i++){const ang=this.seed+i*Math.PI*2/7+this.t*.7,rr=this.r*(.18+.62*((i*37)%100)/100);ctx.fillStyle=i%2?'#ff8ce2':'#fff0ff';ctx.beginPath();ctx.arc(this.x+Math.cos(ang)*rr,this.y+Math.sin(ang)*rr,1.4+i%3,0,Math.PI*2);ctx.fill();}ctx.restore();}
 }
 class ArcaneBurnZone{
  constructor(x,y,r,dur,owner){this.x=x;this.y=y;this.r=r;this.life=dur;this.maxLife=dur;this.owner=owner;this.tick=0;this.t=0;}
- update(dt){this.life-=dt;this.t+=dt;this.tick-=dt;if(this.tick<=0){this.tick=.5;for(const s of spheres){if(s!==this.owner&&s.alive&&!s.dying&&Math.hypot(s.x-this.x,s.y-this.y)<this.r+s.radius)s.receiveMagicDamage(2);}}}
+ update(dt){this.life-=dt;this.t+=dt;this.tick-=dt;if(this.tick<=0){this.tick=.5;for(const s of spheres){if(!sameFaction(this.owner,s)&&s.alive&&!s.dying&&Math.hypot(s.x-this.x,s.y-this.y)<this.r+s.radius)s.receiveMagicDamage(2);}}}
  apply(){}
  draw(){ctx.save();const a=this.life/this.maxLife;ctx.globalAlpha=.13+.2*a;const g=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r);g.addColorStop(0,'rgba(232,251,255,.75)');g.addColorStop(.42,'rgba(120,216,255,.36)');g.addColorStop(1,'rgba(255,122,34,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fill();ctx.globalAlpha=.45*a;ctx.strokeStyle='#78d8ff';ctx.lineWidth=2;for(let i=0;i<3;i++){ctx.save();ctx.translate(this.x,this.y);ctx.rotate(this.t*(.6+i*.25)+i*Math.PI/3);ctx.beginPath();ctx.ellipse(0,0,this.r*(.35+i*.22),this.r*(.18+i*.16),0,0,Math.PI*2);ctx.stroke();ctx.restore();}ctx.strokeStyle='#ff7a22';ctx.setLineDash([5,6]);ctx.beginPath();ctx.arc(this.x,this.y,this.r*(.92+.04*Math.sin(this.t*5)),0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.restore();}
 }
@@ -24,7 +24,7 @@ class BurialMound{
   if(!this.owner||!this.owner.alive)this.alive=false;
   if(this.triggerCD>0)return;
   for(const s of spheres){
-   if(s===this.owner||!s.alive||s.dying)continue;
+   if(sameFaction(this.owner,s)||!s.alive||s.dying)continue;
    if(Math.hypot(s.x-this.x,s.y-this.y)<this.r+s.radius*0.55){
     this.triggerCD=0.75;
     s.vx*=0.72;s.vy*=0.72;s.impactVx*=0.72;s.impactVy*=0.72;
@@ -61,7 +61,7 @@ class RatMinion{
  }
  update(dt){
   this.life-=dt;this.t+=dt;if(this.life<=0){this.alive=false;return;}
-  const target=spheres.find(s=>s!==this.owner&&s.alive&&!s.dying);
+  const target=spheres.find(s=>!sameFaction(this.owner,s)&&s.alive&&!s.dying);
   if(target){
    const dx=target.x-this.x,dy=target.y-this.y,d=Math.hypot(dx,dy)||1;
    const accel=this.gnaw?360:260;
@@ -100,7 +100,7 @@ class GlassShard{
  update(dt){
   this.life-=dt;this.t+=dt;if(this.life<=0){this.alive=false;return;}
   for(const s of spheres){
-   if(s===this.owner||!s.alive||s.dying)continue;
+   if(sameFaction(this.owner,s)||!s.alive||s.dying)continue;
    const spd=Math.hypot(s.vx+s.impactVx,s.vy+s.impactVy);
    if(spd>170&&Math.hypot(s.x-this.x,s.y-this.y)<s.radius+this.r){this.shatter(s,8);break;}
   }
@@ -119,7 +119,7 @@ class GlassShard{
   if(!this.alive)return 0;
   let hits=0;
   for(const s of spheres){
-   if(s===this.owner||!s.alive||s.dying)continue;
+   if(sameFaction(this.owner,s)||!s.alive||s.dying)continue;
    if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+this.r*3.0)hits+=this.shatter(s,6);
   }
   if(this.alive){this.alive=false;spawnBurst(this.x,this.y,'#82f4ff','#ffffff',8);}
@@ -138,7 +138,7 @@ class SlowZone{
  constructor(x,y,r,dur,owner){this.x=x;this.y=y;this.r=r;this.life=dur;this.maxLife=dur;this.owner=owner;}
  update(dt){this.life-=dt;}
  apply(s){
-  const isEnemy=s!==this.owner;
+  const isEnemy=!sameFaction(this.owner,s);
   if(!isEnemy) return;
   const d=Math.hypot(s.x-this.x,s.y-this.y);
   if(d<this.r+s.radius){
@@ -212,8 +212,8 @@ class ThornPatch{
   this.rootTimer+=dt;
   this.dotTimer+=dt;
   for(const s of spheres){
-   const isEnemy=!this.owner||s!==this.owner;
-   if(!isEnemy||sameFaction(this.owner,s)||!s.alive||s.dying)continue;
+   const isEnemy=!this.owner||!sameFaction(this.owner,s);
+   if(!isEnemy||!s.alive||s.dying)continue;
    if(s.hp<=0)continue;
    const d=Math.hypot(s.x-this.x,s.y-this.y);
    if(d<this.r+s.radius){
@@ -257,7 +257,7 @@ class ToxicSmear{
  update(dt){
   this.t+=dt;this.dotTimer+=dt;
   for(const s of spheres){
-   const isEnemy=!this.owner||s!==this.owner;
+   const isEnemy=!this.owner||!sameFaction(this.owner,s);
    if(!isEnemy||!s.alive||s.dying||s.hp<=0)continue;
    const d=Math.hypot(s.x-this.x,s.y-this.y);
    if(d<this.r+s.radius){
@@ -322,7 +322,7 @@ class FireBreathZone{
   this.tickT=0;
   const now=performance.now();
   for(const s of spheres){
-   if(s===this.owner||!s.alive||s.dying)continue;
+   if(sameFaction(this.owner,s)||!s.alive||s.dying)continue;
    if(Math.hypot(s.x-this.x,s.y-this.y)>this.r+s.radius)continue;
    // Anti-stack: only deal damage if not hit by any fire zone in last 0.45s
    if(s._fireZoneHitTime&&now-s._fireZoneHitTime<450)continue;
@@ -358,7 +358,7 @@ class VoidTear{
   if(this.tickT<0.6)return;
   this.tickT=0;
   for(const s of spheres){
-   if(s===this.owner||!s.alive||s.dying)continue;
+   if(sameFaction(this.owner,s)||!s.alive||s.dying)continue;
    if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+this.r){
     s.vx*=0.85;s.vy*=0.85;
     s.receiveMagicDamage(this.owner.d.dmg*0.4);

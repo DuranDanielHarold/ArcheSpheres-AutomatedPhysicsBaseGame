@@ -11,7 +11,7 @@ class BeastCompanion{
  update(dt){
   this.life-=dt;this.t+=dt;if(this.life<=0)this.alive=false;
   this.trail.push({x:this.x,y:this.y,t:this.t});if(this.trail.length>12)this.trail.shift();
-  const t=spheres.find(s=>s!==this.owner&&s.alive&&!s.dying);if(!t)return;
+  const t=spheres.find(s=>!sameFaction(this.owner,s)&&s.alive&&!s.dying);if(!t)return;
   const dx=t.x-this.x,dy=t.y-this.y,d=Math.hypot(dx,dy)||1;
   const spd=this.kind==='boar'?185:this.kind==='hawk'?310:this.kind==='ferret'?335:260;
   this.vx+=(dx/d)*spd*dt*3;this.vy+=(dy/d)*spd*dt*3;
