@@ -17,10 +17,9 @@ It is intentionally ignored by Git and should not be pushed to GitHub.
 
 ### Game Data
 
-- `js/data/classDefs.js` contains the `DEF` sphere definitions
-- `js/data/classMeta.js` contains role metadata, role colors, and class descriptions
-- `js/data/classStacks.js` contains stack thresholds and stack display helpers
-- `js/data/audioConfig.js` contains sphere/arena audio paths, defaults, and volume settings
+- `js/core/class-registry.js` declares the shared class registries and role colors
+- `js/classes/<key>.js` files populate per-class stats, metadata, stack thresholds, sphere audio, and class-owned behavior hooks
+- `js/data/audioConfig.js` now contains arena/default audio settings rather than sphere-keyed audio entries
 
 ### Weapon Drawing
 

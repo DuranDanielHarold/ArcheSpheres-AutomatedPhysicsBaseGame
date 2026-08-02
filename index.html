@@ -44,20 +44,69 @@
   file depends on symbols loaded above it. Keep this order when editing the
   no-build, file:// friendly runtime.
 
-  1. core/*              - Shared constants and canvas helpers.
-  2. data/*              - DEF, class metadata, stack thresholds, and audio config.
-  3. weapons/*           - Grouped weapon render maps, then WEAPONS reconstruction.
-  4. entities/*          - Projectile, zone/trap, companion, shared entity, and Sphere classes.
-  5. combat/audio/hud/loop - Effects, audio subsystem, collision resolution, HUD, and loop.
-  6. ui/*                - Picker styles, start screen, picker flow, battle reports, testing ground, and battle launch/countdown.
-  7. main.js             - Canvas/ctx setup, global mutable arrays, battle creation, resize,
+  1. core/*              - Shared constants, canvas helpers, and class registries.
+  2. classes/*           - One classic script per sphere class populating DEF/metadata/audio registries.
+  3. data/*              - Arena audio and stall config.
+  4. weapons/*           - Grouped weapon render maps, then WEAPONS reconstruction.
+  5. entities/*          - Projectile, zone/trap, companion, shared entity, and Sphere classes.
+  6. combat/audio/hud/loop - Effects, audio subsystem, collision resolution, HUD, and loop.
+  7. ui/*                - Picker styles, start screen, picker flow, battle reports, testing ground, and battle launch/countdown.
+  8. main.js             - Canvas/ctx setup, global mutable arrays, battle creation, resize,
                            and window.onload -> showStartScreen.
 -->
 <script src="js/core/constants.js"></script>
 <script src="js/core/rrect.js"></script>
-<script src="js/data/classDefs.js"></script>
-<script src="js/data/classMeta.js"></script>
-<script src="js/data/classStacks.js"></script>
+<script src="js/core/class-registry.js"></script>
+<script src="js/classes/alchemist.js"></script>
+<script src="js/classes/arcanist.js"></script>
+<script src="js/classes/barbarian.js"></script>
+<script src="js/classes/bard.js"></script>
+<script src="js/classes/beastmaster.js"></script>
+<script src="js/classes/berserker.js"></script>
+<script src="js/classes/crusader.js"></script>
+<script src="js/classes/dragoon.js"></script>
+<script src="js/classes/druid.js"></script>
+<script src="js/classes/fairy.js"></script>
+<script src="js/classes/flagellant.js"></script>
+<script src="js/classes/gladiator.js"></script>
+<script src="js/classes/glassblower.js"></script>
+<script src="js/classes/golem.js"></script>
+<script src="js/classes/gravedigger.js"></script>
+<script src="js/classes/guardian.js"></script>
+<script src="js/classes/inquisitor.js"></script>
+<script src="js/classes/jester.js"></script>
+<script src="js/classes/king.js"></script>
+<script src="js/classes/knight.js"></script>
+<script src="js/classes/locksmith.js"></script>
+<script src="js/classes/mimic.js"></script>
+<script src="js/classes/monk.js"></script>
+<script src="js/classes/necromancer.js"></script>
+<script src="js/classes/ninja.js"></script>
+<script src="js/classes/paladin.js"></script>
+<script src="js/classes/phoenix.js"></script>
+<script src="js/classes/pirate.js"></script>
+<script src="js/classes/plague.js"></script>
+<script src="js/classes/priest.js"></script>
+<script src="js/classes/prince.js"></script>
+<script src="js/classes/queen.js"></script>
+<script src="js/classes/ranger.js"></script>
+<script src="js/classes/ratcatcher.js"></script>
+<script src="js/classes/rogue.js"></script>
+<script src="js/classes/sage.js"></script>
+<script src="js/classes/samurai.js"></script>
+<script src="js/classes/sheriff.js"></script>
+<script src="js/classes/spartan.js"></script>
+<script src="js/classes/stormbringer.js"></script>
+<script src="js/classes/templar.js"></script>
+<script src="js/classes/tidecaller.js"></script>
+<script src="js/classes/trickster.js"></script>
+<script src="js/classes/vampire.js"></script>
+<script src="js/classes/viking.js"></script>
+<script src="js/classes/voidwalker.js"></script>
+<script src="js/classes/warlord.js"></script>
+<script src="js/classes/whelpling.js"></script>
+<script src="js/classes/witch.js"></script>
+<script src="js/classes/wizard.js"></script>
 <script src="js/data/audioConfig.js"></script>
 <script src="js/data/stallConfig.js"></script>
 <script src="js/weapons/weapons-melee.js"></script>

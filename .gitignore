@@ -46,3 +46,9 @@ exports/
 # Python cache, if tools/scripts are added later
 __pycache__/
 *.pyc
+
+# Local-only planning docs
+PROJECT_ROADMAP.md
+ARCHITECTURE_NOTES.md
+BALANCE_PLAN.md
+CLASS_REFACTOR_PLAN.md
