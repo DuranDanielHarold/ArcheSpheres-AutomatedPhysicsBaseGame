@@ -1,7 +1,7 @@
 'use strict';
 // ▓▓▓ MODULE: classes/spartan.js — Spartan sphere kit registry ▓▓▓
 
-DEF.spartan = {"label":"Spartan","weapon":"Doru+Aspis","ab":"Phalanx Thrust","color":"#5b1a16","dark":"#260807","rim":"#d24634","out":"#120302","wcol":"#d8b060","wdrk":"#7a4a20","mass":7,"spd":227,"hp":376,"om":2.6,"dmg":3.54,"arm":84,"magDef":20,"rest":0.58,"reach":2.8,"tipR":0.18,"abilityType":"damage","passiveType":"hybrid","wt":"doruaspis"};
+DEF.spartan = {"label":"Spartan","weapon":"Doru+Aspis","ab":"Phalanx Thrust","color":"#5b1a16","dark":"#260807","rim":"#d24634","out":"#120302","wcol":"#d8b060","wdrk":"#7a4a20","mass":7,"spd":227,"hp":376,"om":5.2,"dmg":3.54,"arm":84,"magDef":20,"rest":0.58,"reach":2.8,"tipR":0.18,"abilityType":"damage","passiveType":"hybrid","wt":"doruaspis"};
 CLASS_ROLE.spartan = "FIGHTER";
 CLASS_DESC.spartan = {
   "ability": "Phalanx Thrust (3 stacks) — Spear snaps toward the nearest enemy, then charges for 0.7s with only 1 true contact damage while the rear shield lightly reflects melee pressure.",

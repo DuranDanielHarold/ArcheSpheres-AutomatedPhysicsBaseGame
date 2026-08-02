@@ -794,7 +794,7 @@ class Sphere{
    case 'king':
     if(this.stacks>=4){this.stacks=0;this.decreeT=6;this.dmgMult=1.6;this.omegaCur=(this.d.om*1.5)*Math.sign(this.omegaCur||1);for(let i=0;i<3;i++){const a=i*Math.PI*2/3+Math.random()*.4;skeletons.push(new BarbAlly(this.x+Math.cos(a)*this.radius*1.4,this.y+Math.sin(a)*this.radius*1.4,this));}spawnBurst(this.x,this.y,'#ffd35a','#d00020',30);spawnPulse(this.x,this.y,'#ffd35a');} break;
    case 'queen':
-    if(this.stacks>=6){
+    if(this.stacks>=4){
      this.stacks=0;this.queenGambitT=3;
      if(!this.queenGambitSavedDef){this.queenGambitSavedDef={arm:this.d.arm,magDef:this.d.magDef};this.d=Object.assign({},this.d);this.d.arm*=2/3;this.d.magDef*=2/3;}
      spawnDmgNum(this.x,this.y-this.radius*1.5,'GAMBIT','#ff8bd1');
