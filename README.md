@@ -47,6 +47,7 @@ Start-Process msedge.exe .\index.html
 │   └── <sphere-name>/
 └── js/
     ├── core/
+    ├── classes/
     ├── data/
     ├── weapons/
     ├── entities/
@@ -66,17 +67,14 @@ Defines shared physics constants, burn tick intervals, and `RANGED_KEYS`.
 `js/core/rrect.js`
 Defines the shared rounded-rectangle canvas helper used by weapons and entities.
 
-`js/data/classDefs.js`
-Defines the `DEF` class stat, weapon, and ability configuration block.
+`js/core/class-registry.js`
+Declares the classic-script class registries (`DEF`, `CLASS_ROLE`, `CLASS_DESC`, stack thresholds, sphere audio, and behavior hook maps) populated by `js/classes/<key>.js`.
 
-`js/data/classMeta.js`
-Defines class role metadata, role colors, and class descriptions.
-
-`js/data/classStacks.js`
-Defines stack thresholds and stack display threshold helpers.
+`js/classes/<key>.js`
+Owns each sphere class's stats, role, descriptions, stack thresholds, sphere audio entry, and behavior registry hooks as they are migrated out of core Sphere/combat code.
 
 `js/data/audioConfig.js`
-Defines sphere audio paths, arena audio paths, audio defaults, and volume settings.
+Defines arena audio paths, audio defaults, and non-class volume settings.
 
 `js/weapons/weapons-melee.js`
 Contains melee-oriented weapon drawing functions.
@@ -163,13 +161,7 @@ See [audio/README.md](audio/README.md) for folder guidance.
 
 ### Add or edit a class
 
-Update the split data files:
-
-- `DEF` in `js/data/classDefs.js`
-- `CLASS_ROLE` in `js/data/classMeta.js`
-- `ROLE_COLOR` in `js/data/classMeta.js`
-- `CLASS_DESC` in `js/data/classMeta.js`
-- `SPHERE_AUDIO` in `js/data/audioConfig.js`
+Update one class registry file: `js/classes/<key>.js`. That file owns the class's `DEF` stats, `CLASS_ROLE`, `CLASS_DESC`, stack thresholds, `SPHERE_AUDIO`, and any class-specific handler registrations. Shared role colors remain in `js/core/class-registry.js`.
 
 Class roles are intentionally normalized to six balance baselines only: `TANK`, `FIGHTER`, `ASSASSIN`, `MAGE`, `MARKSMAN`, and `SUPPORT`. Use these roles as the first-pass stat basis before making class-specific exceptions.
 
