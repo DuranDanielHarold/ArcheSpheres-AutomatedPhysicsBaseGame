@@ -39,18 +39,19 @@ function showStartScreen(){
  let ss=document.getElementById('start-screen');
  if(ss){ss.style.display='flex';return;}
  ss=document.createElement('div');ss.id='start-screen';
- ss.style.cssText='position:fixed;inset:0;background:#0d1520;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;gap:0;overflow:hidden;';
+ ss.style.cssText='position:fixed;inset:0;background:#0d1520;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;gap:0;overflow:hidden;padding:max(0px,env(safe-area-inset-top)) max(0px,env(safe-area-inset-right)) max(0px,env(safe-area-inset-bottom)) max(0px,env(safe-area-inset-left));';
  const bgC=document.createElement('canvas');
  bgC.id='ss-bg';bgC.style.cssText='position:absolute;inset:0;width:100%;height:100%;opacity:.15;pointer-events:none;';
  ss.appendChild(bgC);
  const inner=document.createElement('div');
+ inner.className='ss-inner';
  inner.style.cssText='position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:26px;padding:20px;';
  inner.innerHTML=`
-  <div style="text-align:center;">
-   <div style="font-family:'Press Start 2P',monospace;font-size:clamp(20px,5.5vw,42px);color:#e8b430;text-shadow:0 0 30px #c8920a,3px 3px 0 #000;letter-spacing:2px;line-height:1.4;">MEDIEVAL<br>SPHERES</div>
-   <div style="font-family:'VT323',monospace;font-size:clamp(13px,2.8vw,20px);color:#4a6080;margin-top:5px;letter-spacing:4px;">SELECT BATTLE MODE</div>
+  <div class="ss-title-wrap" style="text-align:center;">
+   <div class="ss-title" style="font-family:'Press Start 2P',monospace;font-size:clamp(20px,5.5vw,42px);color:#e8b430;text-shadow:0 0 30px #c8920a,3px 3px 0 #000;letter-spacing:2px;line-height:1.4;">MEDIEVAL<br>SPHERES</div>
+   <div class="ss-subtitle" style="font-family:'VT323',monospace;font-size:clamp(13px,2.8vw,20px);color:#4a6080;margin-top:5px;letter-spacing:4px;">SELECT BATTLE MODE</div>
   </div>
-  <div style="display:flex;flex-direction:column;gap:10px;">
+  <div class="ss-menu" style="display:flex;flex-direction:column;gap:10px;">
    <button class="ss-mbtn" onclick="window.startPicker('1v1')">⚔&nbsp;&nbsp;1 V 1</button>
    <button class="ss-mbtn" onclick="window.startPicker('2v2')">⚔&nbsp;&nbsp;2 V 2</button>
    <button class="ss-mbtn" onclick="window.startRandomBattle()">🎲&nbsp;&nbsp;RANDOM</button>

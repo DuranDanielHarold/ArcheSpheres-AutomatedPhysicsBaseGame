@@ -472,3 +472,98 @@ body {
 #testing-telemetry .battle-report-side{background:rgba(10,16,24,.75);padding:4px;}
 #testing-telemetry .battle-report-head img{width:28px;height:28px;}
 #testing-telemetry .sr{font-size:10px;}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   Touch landscape layout bands: phones/tablets only (desktop landscape is
+   intentionally excluded by hover/pointer constraints).
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@media (orientation: landscape) and (hover: none) and (pointer: coarse) and (max-height: 500px) {
+  body {
+    gap: 2px;
+    padding: max(2px, env(safe-area-inset-top)) max(4px, env(safe-area-inset-right)) max(2px, env(safe-area-inset-bottom)) max(4px, env(safe-area-inset-left));
+    align-content: center;
+  }
+
+  #mode-row, #sel-row {
+    gap: 2px;
+    max-width: calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right) - 8px);
+  }
+
+  .mtab { padding: 2px 5px; font-size: clamp(5px, 1.15dvw, 6px); }
+  .sel-icon { width: 18px; height: 18px; }
+  .sel-chip { padding: 0 2px; border-width: 1px; }
+  .sg select { max-width: 86px; padding: 1px 2px; font-size: clamp(5px, 1.1dvw, 6px); }
+  .sl { font-size: clamp(5px, 1dvw, 6px); }
+
+  #card,
+  #card.mode-1v1,
+  #card.mode-2v2,
+  #card.mode-testing {
+    width: min(100%, calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right) - 8px)) !important;
+    max-width: 980px;
+    flex: 1 1 auto;
+    flex-direction: row;
+    align-items: stretch;
+    min-height: 0;
+    box-shadow: 3px 3px 0 var(--goldsh), 5px 5px 0 #2a1800;
+  }
+
+  #arena-outer { order: 1; flex: 1 1 auto; padding: 4px; min-width: 0; }
+  #titlebar { order: 2; width: clamp(108px, 20dvw, 152px); border-bottom: 0; border-left: 3px solid var(--goldd); padding: 4px; display: flex; align-items: center; justify-content: center; }
+  #title-text { font-size: clamp(5px, 1.15dvw, 7px); line-height: 1.45; }
+  #divider { order: 3; width: 5px; height: auto; border-top: 0; border-bottom: 0; border-left: 2px solid var(--goldsh); border-right: 2px solid var(--goldsh); }
+  #stats { order: 4; width: clamp(158px, 25dvw, 230px); grid-template-columns: 1fr; gap: 3px; padding: 3px; overflow-y: auto; min-height: 0; }
+  #stats > .sdiv { display: none; }
+  .hud-team { gap: 2px; }
+  .hud-card { padding: 2px; border-width: 1px; }
+  .hud-card-head { gap: 3px; margin-bottom: 0; }
+  .hud-rows { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 3px; }
+  .sr { font-size: clamp(8px, 1.8dvh, 10px); line-height: 1; }
+  .sn, .hud-out-tag, .hud-badge { font-size: clamp(3px, 1.05dvh, 5px); }
+  .hud-ability-name { font-size: clamp(8px, 1.9dvh, 10px); }
+  .hud-gauge { height: 4px; }
+  .hud-badges { min-height: 7px; gap: 1px; margin-top: 1px; }
+
+  #card.mode-1v1 #arena-border,
+  #card.mode-2v2 #arena-border,
+  #card.mode-testing #arena-border {
+    min-height: 0;
+    min-height: clamp(230px, 72vh, 390px);
+    min-height: clamp(230px, 72dvh, 390px);
+  }
+
+  #controls {
+    width: min(100%, calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right) - 8px));
+    gap: 3px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    justify-content: center;
+  }
+  .pbtn { padding: 4px 7px; font-size: clamp(5px, 1.1dvw, 6px); white-space: nowrap; }
+  #balance-status { min-width: 42px; font-size: 10px; }
+  #audio-panel { gap: 4px; padding: 2px 4px; flex-wrap: nowrap; }
+  .avol { font-size: clamp(5px, 1dvw, 6px); gap: 2px; white-space: nowrap; }
+  .avol input[type="range"] { width: 54px; }
+  #testing-controls { flex-wrap: nowrap; gap: 3px; }
+  #testing-telemetry { max-width: min(260px, 38vw); max-height: 62%; right: 6px; top: 6px; }
+
+  #wt { font-size: clamp(8px, 4dvh, 12px); }
+  #ws { font-size: clamp(12px, 5dvh, 17px); }
+}
+
+@media (orientation: landscape) and (hover: none) and (pointer: coarse) and (min-height: 501px) and (max-height: 900px) {
+  body { padding-left: max(4px, env(safe-area-inset-left)); padding-right: max(4px, env(safe-area-inset-right)); }
+  #card,
+  #card.mode-1v1,
+  #card.mode-2v2,
+  #card.mode-testing {
+    width: min(100%, calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right) - 12px)) !important;
+    max-width: 1180px;
+  }
+  #card.mode-1v1 #arena-border,
+  #card.mode-2v2 #arena-border,
+  #card.mode-testing #arena-border {
+    min-height: clamp(360px, 62vh, 660px);
+    min-height: clamp(360px, 62dvh, 660px);
+  }
+}
