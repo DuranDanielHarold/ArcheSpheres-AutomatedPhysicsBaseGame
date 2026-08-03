@@ -296,10 +296,15 @@ function _weaponHit(att,def){
     att.staticCharge=0;
     if(def.hp<=0&&!def.dying){def.alive=false;def.dying=true;spawnBurst(def.x,def.y,def.d.rim,def.d.color,28);}
    }
-   // Crusader — Retribution: discharge on hit, then reset
+   // Crusader — Retribution: convert stored damage into temporary holy shielding on hit
     if(traits&&att.key==='crusader'&&att.retributionCounter>0){
-     const rdmg=att.retributionCounter*0.5/(def.d.arm*0.004+1);
-     if(rdmg>0.1){def.receiveDamage(rdmg);spawnDmgNum(att.x,att.y-att.radius*1.5,rdmg,'#fffacc');}
+     const shield=att.retributionCounter*0.65;
+     if(shield>0.1){
+      att.crusaderRetributionShield=Math.min(45,(att.crusaderRetributionShield||0)+shield);
+      att.crusaderRetributionShieldT=4.0;
+      spawnDmgNum(att.x,att.y-att.radius*1.5,`SHIELD +${Math.ceil(shield)}`,'#fffacc');
+      spawnSpark(att.x,att.y,'#fffacc',8);
+     }
      att.retributionCounter=0;
     }
     if(att.replicaKind==='phase')att._destroyReplica('HIT');

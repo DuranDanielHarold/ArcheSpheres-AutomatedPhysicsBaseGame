@@ -146,7 +146,7 @@ class Sphere{
   this.riptideCharged=false;
   // Crusader state
   this.holyChargeActive=false;this.holyChargeT=0;this.holyChargeElapsed=0;this.holyChargeCD=0;this.holyChargeCollisionCD=0;
-  this.retributionCounter=0;
+  this.retributionCounter=0;this.crusaderRetributionShield=0;this.crusaderRetributionShieldT=0;
   // Mimic state
   this.perfectCopyActive=false;this.perfectCopyT=0;
   this.mimicDmgStolen=0;
@@ -1632,8 +1632,10 @@ class Sphere{
       this.dmgMult=1;
      }
     }
-    // Retribution: decay counter very slowly
+    // Retribution: decay stored charge very slowly; temporary shield expires faster
     if(this.retributionCounter>0) this.retributionCounter=Math.max(0,this.retributionCounter-dt*2);
+    if(this.crusaderRetributionShieldT>0)this.crusaderRetributionShieldT=Math.max(0,this.crusaderRetributionShieldT-dt);
+    if(this.crusaderRetributionShieldT<=0)this.crusaderRetributionShield=0;
     break;
    case 'mimic':
     if(this.perfectCopyActive){
@@ -2109,6 +2111,12 @@ class Sphere{
   if(this.key==='golem')fd*=0.65;
   if(this.key==='guardian'&&this.phalanxActive)fd*=0.45;
   if(this.sepsisWeakenedT>0)fd*=1.15;
+  if(this.key==='crusader'&&this.crusaderRetributionShield>0&&this.crusaderRetributionShieldT>0&&fd>0){
+   const absorbed=Math.min(fd,this.crusaderRetributionShield);
+   this.crusaderRetributionShield-=absorbed;fd-=absorbed;
+   spawnSpark(this.x,this.y,'#fffacc',5);
+   if(this.crusaderRetributionShield<=0){this.crusaderRetributionShield=0;this.crusaderRetributionShieldT=0;spawnDmgNum(this.x,this.y-this.radius*1.4,'SHIELD BREAK','#fffacc');}
+  }
   if(this.key==='prince'&&this.princeRoyalShield>0&&this.princeRoyalShieldT>0&&fd>0){
    const absorbed=Math.min(fd,this.princeRoyalShield);
    this.princeRoyalShield-=absorbed;fd-=absorbed;
@@ -2735,6 +2743,15 @@ class Sphere{
     ctx.font=`bold ${Math.max(5,r*.22)}px 'Press Start 2P',monospace`;
     ctx.textAlign='center';ctx.textBaseline='bottom';
     ctx.fillStyle='#fffacc';ctx.fillText('CHARGE!',this.x,this.y-r-14);
+   } else if((this.crusaderRetributionShield||0)>0&&this.crusaderRetributionShieldT>0){
+    const si=Math.min(1,this.crusaderRetributionShield/45);
+    ctx.shadowColor='#fffacc';ctx.shadowBlur=10+si*16;
+    ctx.strokeStyle=`rgba(255,250,204,${0.45+si*0.45})`;ctx.lineWidth=3;
+    ctx.beginPath();ctx.arc(this.x,this.y,r+7+si*3,0,Math.PI*2);ctx.stroke();
+    ctx.shadowBlur=0;
+    ctx.font=`bold ${Math.max(4,r*.18)}px 'Press Start 2P',monospace`;
+    ctx.textAlign='center';ctx.textBaseline='bottom';
+    ctx.fillStyle='#fffacc';ctx.fillText(`SHLD ${Math.ceil(this.crusaderRetributionShield)}`,this.x,this.y-r-14);
    } else if((this.retributionCounter||0)>5){
     const ri=Math.min(1,this.retributionCounter/30);
     ctx.shadowColor='#ff8800';ctx.shadowBlur=6+ri*12;

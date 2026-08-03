@@ -237,7 +237,7 @@ const EXOTIC_WEAPONS={
  flailshield(ctx,r,d,s){
   const t=s?s.abTimer:0;
   const charging=s&&s.holyChargeActive;
-  const retribPct=s?(Math.min(1,(s.retributionCounter||0)/30)):0;
+  const retribPct=s?(Math.min(1,Math.max(s.retributionCounter||0,s.crusaderRetributionShield||0)/30)):0;
   // ── SHIELD drawn on the BACK side — translate to behind the sphere ──
   ctx.save();
   // Move to the rear (negative x = opposite of weapon direction)
@@ -247,30 +247,31 @@ const EXOTIC_WEAPONS={
   ctx.fillStyle='#2a1a00';
   rrect(ctx,-shW/2-r*.04,-shH/2-r*.04,shW+r*.08,shH+r*.08,r*.18);ctx.fill();
   // Shield face — gold/brass
-  const shieldCol=charging?'#fffacc':'#d4a830';
+  const shielded=s&&s.crusaderRetributionShield>0&&s.crusaderRetributionShieldT>0;
+  const shieldCol=(charging||shielded)?'#fffacc':'#d4a830';
   ctx.fillStyle=shieldCol;
   rrect(ctx,-shW/2,-shH/2,shW,shH,r*.15);ctx.fill();
   // Inner panel
-  ctx.fillStyle=charging?'rgba(255,250,200,0.5)':'#b08820';
+  ctx.fillStyle=(charging||shielded)?'rgba(255,250,200,0.5)':'#b08820';
   rrect(ctx,-shW/2+r*.07,-shH/2+r*.07,shW-r*.14,shH-r*.14,r*.10);ctx.fill();
   // Bold cross on shield — white for maximum visibility
-  ctx.fillStyle=charging?'#ffffff':'#f8e890';
+  ctx.fillStyle=(charging||shielded)?'#ffffff':'#f8e890';
   ctx.strokeStyle='#5a3800';ctx.lineWidth=r*.025;
   ctx.fillRect(-r*.065,-shH*.42,r*.13,shH*.84);
   ctx.strokeRect(-r*.065,-shH*.42,r*.13,shH*.84);
   ctx.fillRect(-shW*.40,-r*.065,shW*.80,r*.13);
   ctx.strokeRect(-shW*.40,-r*.065,shW*.80,r*.13);
   // Boss (center knob)
-  ctx.fillStyle=charging?'#fffacc':'#ffd040';
+  ctx.fillStyle=(charging||shielded)?'#fffacc':'#ffd040';
   ctx.beginPath();ctx.arc(0,0,r*.18,0,Math.PI*2);ctx.fill();
   ctx.strokeStyle='#5a3800';ctx.lineWidth=r*.035;ctx.stroke();
-  ctx.fillStyle=charging?'#ffffff':'#ffe880';
+  ctx.fillStyle=(charging||shielded)?'#ffffff':'#ffe880';
   ctx.beginPath();ctx.arc(-r*.04,-r*.04,r*.08,0,Math.PI*2);ctx.fill();
   // Rim highlight
-  ctx.strokeStyle=charging?'rgba(255,255,200,0.9)':'rgba(255,220,80,0.6)';
+  ctx.strokeStyle=(charging||shielded)?'rgba(255,255,200,0.9)':'rgba(255,220,80,0.6)';
   ctx.lineWidth=r*.04;
   rrect(ctx,-shW/2,-shH/2,shW,shH,r*.15);ctx.stroke();
-  if(charging){
+  if(charging||shielded){
    ctx.shadowColor='#fffacc';ctx.shadowBlur=18;
    ctx.strokeStyle='rgba(255,250,180,0.9)';ctx.lineWidth=2.5;
    rrect(ctx,-shW/2-r*.04,-shH/2-r*.04,shW+r*.08,shH+r*.08,r*.18);ctx.stroke();
