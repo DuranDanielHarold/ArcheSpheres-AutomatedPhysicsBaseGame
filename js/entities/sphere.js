@@ -171,7 +171,7 @@ class Sphere{
   this.gravediggerWallContacts=0;
   this.exhumeSpinT=0;
   this.locksmithLocks=0;this.locksmithJamT=0;
-  this.gnawedArmorStacks=0;this.gnawedArmorT=0;
+  this.gnawedStacks=0;this.gnawedT=0;this.gnawedSpeedMult=1;
   this.glassBleedT=0;this.glassBleedTickT=0;
   this.favor=0;this.crowdDouble=false;this.netRootT=0;this.netLockoutT=0;this.savedArm=null;this.ironStacks=0;this.sovereignArmBonus=0;this.sovereignDmgBonus=0;this.decreeT=0;this.queenDmgBonus=0;this.queenGambitT=0;this.queenGambitSavedDef=null;this.queenInvisible=false;this.queenInvisibleT=0;this.rushT=0;this.rushElapsed=0;this.wishClone=null;this.wishFireRateT=0;this.dustDropT=0;this.packHuntT=0;this.knowledge=0;this.foresightT=0;this.overloadActive=false;this.overloadT=0;this.arcaneCharge=0;this.hexBurstActive=false;this.hexBurstFired=false;this.hexBurstFiredT=0;this.abilityAimT=0;this.abilityAimAngle=null;
  }
@@ -315,10 +315,14 @@ class Sphere{
    noiseTraps.push(new RatMinion(this.x+Math.cos(a)*this.radius*0.5,this.y+Math.sin(a)*this.radius*0.5,Math.cos(a)*spd,Math.sin(a)*spd,this,gnaw));
   }
  }
- _refreshGnawedArmor(){
-  const base=DEF[this.key]?.arm??this.d.arm;
-  this.d=Object.assign({},this.d);
-  this.d.arm=Math.max(0,base-(this.gnawedArmorStacks||0)*6);
+ _refreshGnawed(){
+  const stacks=this.gnawedStacks||0;
+  const mult=Math.max(0.7,1-stacks*0.06);
+  this.gnawedSpeedMult=mult;
+  const cappedSpd=this.baseSpd*mult;
+  this.targetSpd=Math.min(this.targetSpd||this.baseSpd,cappedSpd);
+  const curSpd=Math.hypot(this.vx,this.vy);
+  if(curSpd>cappedSpd&&curSpd>0){this.vx=this.vx/curSpd*cappedSpd;this.vy=this.vy/curSpd*cappedSpd;}
  }
  _flagellantApplyWounds(){
   if(this.key!=='flagellant')return;
@@ -1271,9 +1275,10 @@ class Sphere{
    this.locksmithHasteT-=dt;
    if(this.locksmithHasteT<=0)this.targetSpd=this.baseSpd;
   }
-  if(this.gnawedArmorT>0){
-   this.gnawedArmorT-=dt;
-   if(this.gnawedArmorT<=0){this.gnawedArmorStacks=0;this._refreshGnawedArmor();}
+  if(this.gnawedT>0){
+   this.gnawedT-=dt;
+   if(this.gnawedT<=0){this.gnawedStacks=0;this.gnawedSpeedMult=1;this.targetSpd=this.baseSpd;}
+   else this._refreshGnawed();
   }
   if(this.glassBleedT>0){
    this.glassBleedT-=dt;this.glassBleedTickT-=dt;
@@ -2883,7 +2888,7 @@ class Sphere{
   if((this.corrosionStacks||0)>0)add(`CORR×${this.corrosionStacks}`,'#2a8822');
   if((this.virulenceStacks||0)>0)add(`INFECT×${Math.ceil(this.virulenceStacks)}`,'#aadd44');
   if((this.sepsisWeakenedT||0)>0)add('WEAK','#aadd44');
-  if((this.gnawedArmorStacks||0)>0)add(`GNAW×${this.gnawedArmorStacks}`,'#b7c06a');
+  if((this.gnawedStacks||0)>0)add(`GNAW×${this.gnawedStacks}`,'#b7c06a');
   if((this.deathMarkTicks||0)>0)add(`MARK×${this.deathMarkTicks}`,'#7c4dff');
   if((this.subduedT||0)>0)add('SUBDUE','#ffd35a');
   if((this.dmgHalvedT||0)>0)add('CURSE','#d77bff');
