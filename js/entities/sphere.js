@@ -39,6 +39,7 @@ class Sphere{
   this.backstabCharged=false;this.backstabT=0;
   this.phaseOut=false;this.phaseOutT=0;
   this.slowFieldActive=false;this.slowFieldT=0;
+  this.templarAnchor=0;
   this.snareActive=false;this.snareT=0;
   this.spreadActive=false;
   this.phalanxActive=false;this.phalanxT=0;
@@ -1386,6 +1387,15 @@ class Sphere{
       spawnPulse(this.x,this.y,this.d.rim);
      }
     } break;
+   case 'templar': {
+    const speed=Math.hypot(this.vx,this.vy);
+    const anchorThreshold=Math.max(30,this.baseSpd*0.35);
+    const gainRate=this.slowFieldActive?0.9:0.45;
+    const decayRate=0.65;
+    if(speed<anchorThreshold)this.templarAnchor=Math.min(1,(this.templarAnchor||0)+gainRate*dt);
+    else this.templarAnchor=Math.max(0,(this.templarAnchor||0)-decayRate*dt);
+    if(this.slowFieldActive)this.templarAnchor=Math.max(this.templarAnchor,0.35);
+    break;}
    case 'guardian':
     this.guardianSanctuaryTimer+=dt;
     if(this.guardianSanctuaryTimer>=10.0){
@@ -2087,7 +2097,10 @@ class Sphere{
   if(this._consumeGuardianSanctuary())return;
   if(this.replicaKind==='phase'){this._destroyReplica('POOF');return;}
   let fd=dmg;
-  if(this.key==='templar')fd*=0.65;
+  if(this.key==='templar'){
+   const anchor=Math.max(0,Math.min(1,this.templarAnchor||0));
+   fd*=0.85-(0.30*anchor);
+  }
   if(this.key==='golem')fd*=0.65;
   if(this.key==='guardian'&&this.phalanxActive)fd*=0.45;
   if(this.sepsisWeakenedT>0)fd*=1.15;
