@@ -5,7 +5,7 @@ DEF.templar = {"label":"Templar","weapon":"Sacred Warhammer","ab":"Slow Field","
 CLASS_ROLE.templar = "TANK";
 CLASS_DESC.templar = {
   "ability": "Slow Field (3 stacks) — Drops a slow zone at current position for 3s with 2.5× sphere radius. Enemies inside are heavily decelerated each frame. Templar spins 2× while active.",
-  "passive": "Immovable — All incoming collision knockback is halved (50% reduction). Combined with 65% physical damage reduction and the highest armor in the game, the Templar is nearly impossible to bully off a position."
+  "passive": "Immovable — All incoming collision knockback is halved (50% reduction). Gains increasing physical damage mitigation while holding ground, scaling up further during Slow Field."
 };
 STACK_THRESHOLD.templar = 3;
 STACK_DISPLAY_THRESHOLD.templar = 3;
