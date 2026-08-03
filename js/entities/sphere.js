@@ -637,7 +637,6 @@ class Sphere{
      this.stacks=0;
      this.holyChargeActive=true;this.holyChargeT=2.2;this.holyChargeElapsed=0;this.holyChargeCollisionCD=0;
      this.holyChargeCD=8.0;
-     this.invincible=true;this.invincibleT=2.2;
      this.dmgMult=2.0;
      spawnBurst(this.x,this.y,'#fffacc','#c8b870',20);
      spawnPulse(this.x,this.y,'#fffacc');
@@ -1613,7 +1612,6 @@ class Sphere{
     if(this.holyChargeActive){
      this.holyChargeElapsed+=dt;
      this.holyChargeT-=dt;
-     this.invincible=true;this.invincibleT=Math.max(this.invincibleT,this.holyChargeT);
      if(this.holyChargeT<=0){
       this.holyChargeActive=false;
       this.dmgMult=1;
@@ -2007,7 +2005,6 @@ class Sphere{
    this.holyChargeCollisionCD=0.25;
    const remainingCap=Math.max(0,5.0-(this.holyChargeElapsed||0));
    this.holyChargeT=Math.min(remainingCap,this.holyChargeT+0.4);
-   this.invincible=true;this.invincibleT=Math.max(this.invincibleT,this.holyChargeT);
    target.receiveDamage(this.d.dmg*2.0);
    target.applyImpact(nx*260,ny*260);
    spawnBurst(target.x,target.y,'#fffacc','#c8b870',10);
