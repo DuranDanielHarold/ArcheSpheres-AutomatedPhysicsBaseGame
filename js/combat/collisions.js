@@ -187,12 +187,18 @@ function _weaponHit(att,def){
   if(att.key==='prince'){const wb=Math.min(5,att.wallBounceBonus||0);dmg*=1+wb*.08;if(Math.hypot(att.vx,att.vy)>att.baseSpd*.8)dmg*=1.18;}
   if(att.key==='queen'&&def.courtlyT>0)dmg*=0.92;
   if(def.key==='spartan'&&def.ironStacks>0)dmg*=Math.max(.8,1-def.ironStacks*.04);
-   if(traits&&att.key==='pirate'&&ON_HIT_DEALT_MODIFIERS[att.key])dmg=ON_HIT_DEALT_MODIFIERS[att.key].call(att,dmg,def,hx,hy);
+   if(traits&&att.key==='pirate'&&att.draining){
+   att.receiveHeal(dmg*0.15);
+   const pullX=att.x-def.x,pullY=att.y-def.y,pullD=Math.hypot(pullX,pullY)||1;
+   def.applyImpact((pullX/pullD)*120,(pullY/pullD)*120);
+  }
    if(traits&&att.key==='necromancer'){
    def.woundT=Math.max(def.woundT||0, 4.0);
   }
-   if(traits&&att.key==='guardian'&&ON_HIT_DEALT_MODIFIERS[att.key])dmg=ON_HIT_DEALT_MODIFIERS[att.key].call(att,dmg,def,hx,hy);
-   if(def.canTriggerTraits!==false&&def.key==='guardian'&&ON_HIT_TAKEN_MODIFIERS[def.key])dmg=ON_HIT_TAKEN_MODIFIERS[def.key].call(def,dmg,att,hx,hy);
+   if(traits&&att.key==='guardian')dmg*=1.22;
+   if(def.canTriggerTraits!==false&&def.key==='guardian'){
+   def.impactVx*=0.7;def.impactVy*=0.7; // reduce knockback taken
+  }
    if(traits&&att.key==='rogue'&&att.backstabCharged){dmg*=2;att.backstabCharged=false;att.backstabT=0;att.dmgMult=1;}
   // Samurai — Iaijutsu: first hit after spin reversal deals 2× dmg
   if(traits&&att.key==='samurai'&&att.iaijutsuReady){dmg*=2;att.iaijutsuReady=false;att.iaijutsuCD=3.0;spawnDmgNum(att.x,att.y-att.radius*1.5,'IAIJUTSU','#8a1f28');}
@@ -214,7 +220,12 @@ function _weaponHit(att,def){
     att.receiveHeal(dmg*0.25);
     spawnSpark(att.x,att.y,'#cc0044',3);
    }
-    if(traits&&att.key==='monk'&&ON_HIT_LANDED[att.key])ON_HIT_LANDED[att.key].call(att,def,hx,hy,dmg);
+    if(traits&&att.key==='monk'&&att.nirvanaActive){
+    const nx2=(def.x-att.x)||1,ny2=(def.y-att.y)||0;
+    const nd2=Math.hypot(nx2,ny2)||1;
+    def.applyImpact((nx2/nd2)*520,(ny2/nd2)*520);
+    spawnSpark(hx,hy,'#ffe0a0',6);
+   }
     if(traits&&att.key==='spartan'&&att.ramDisplace){
     const nx2=(def.x-att.x)||1,ny2=(def.y-att.y)||0;
     const nd2=Math.hypot(nx2,ny2)||1;
@@ -230,7 +241,14 @@ function _weaponHit(att,def){
     def.d.arm=Math.max(0,_baseA-def.corrosionStacks*5);
     spawnSpark(hx,hy,'#66ff44',4);
    }
-   if(traits&&att.key==='knight'&&ON_HIT_LANDED[att.key])ON_HIT_LANDED[att.key].call(att,def,hx,hy,dmg);
+   // Knight — Stalwart: permanent micro-buff per hit (capped at 30 stacks)
+    if(traits&&att.key==='knight'&&att.stalwartStacks<30){
+    att.stalwartStacks++;
+    att.d=Object.assign({},att.d);
+    att.d.dmg*=1.006;att.d.arm=Math.round(att.d.arm*1.006);att.d.om*=1.006;
+    att.omegaCur=Math.abs(att.omegaCur)*1.006*Math.sign(att.omegaCur||1);
+    if(att.stalwartStacks%5===0)spawnDmgNum(att.x,att.y-att.radius*1.5,'STALWART','#d8eaf8');
+   }
    // Barbarian — Bloodlust: +6 speed per hit, max +60, decays slowly
     if(traits&&att.key==='barbarian'){
     att.bloodlustBonus=Math.min(60,att.bloodlustBonus+6);
@@ -252,7 +270,7 @@ function _weaponHit(att,def){
     if(traits&&att.key==='prince'&&att.rushT>0){att.rushT=Math.min(2.5-(att.rushElapsed||0),att.rushT+.25);}
     spawnSpark(hx,hy,att.d.rim,7);
     spawnImpactBurst(hx,hy,att.d.rim,def.d.color);
-     if(traits&&att.key==='phoenix'&&ON_HIT_LANDED[att.key])ON_HIT_LANDED[att.key].call(att,def,hx,hy,dmg);
+     if(traits&&att.key==='phoenix')att._releasePhoenixEmber(def,hx,hy);
    // Plague Doctor — Sepsis: repeated hits on one enemy burst into DOT + weaken.
     if(traits&&att.key==='plague'){
     if(att.plagueSepsisTarget!==def){att.plagueSepsisTarget=def;att.plagueSepsisCount=0;}
