@@ -226,6 +226,13 @@ function _weaponHit(att,def){
     def.applyImpact((nx2/nd2)*520,(ny2/nd2)*520);
     spawnSpark(hx,hy,'#ffe0a0',6);
    }
+    if(traits&&att.key==='spartan'&&att.ramDisplace){
+    const nx2=(def.x-att.x)||1,ny2=(def.y-att.y)||0;
+    const nd2=Math.hypot(nx2,ny2)||1;
+    def.applyImpact((nx2/nd2)*360,(ny2/nd2)*360);
+    spawnDmgNum(def.x,def.y-def.radius*1.7,'SHOVE','#ffd35a');
+    spawnSpark(hx,hy,'#ffd35a',6);
+   }
     if(traits&&att.key==='alchemist'){
     def.corrosionStacks=Math.min(6,(def.corrosionStacks||0)+1);
     if(def.corrosionT<=0)def.corrosionT=1.2; // start decay timer if not already ticking

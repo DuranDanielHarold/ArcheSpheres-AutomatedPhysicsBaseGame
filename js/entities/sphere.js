@@ -33,7 +33,7 @@ class Sphere{
   this.phaseInvincible=false;
   this.preinvincibleDmgMult=undefined;
   this.spiralActive=false;this.spiralT=0;this.spiralAngle=0;
-  this.ramActive=false;this.ramT=0;
+  this.ramActive=false;this.ramT=0;this.ramDisplace=false;
   this.orbitActive=false;this.orbitT=0;this.orbitAngle=0;this.orbitTarget=null;
   this.blinking=false;
   this.backstabCharged=false;this.backstabT=0;
@@ -792,7 +792,7 @@ class Sphere{
    case 'witch':
     if(this.stacks>=3){this.stacks=0;this._aimAbilityAtNearestEnemy(.38);this.hexBurstFired=true;this.hexBurstFiredT=.5;const tip=this.getTip();for(const off of[-.16,0,.16]){const a=this.angle+off;projectiles.push(new RosterBolt(tip.x,tip.y,Math.cos(a)*240,Math.sin(a)*240,(this.d.dmg+4)*this.dmgMult,this,'hex'));}spawnBurst(this.x,this.y,'#d77bff','#5b1f86',16);} break;
    case 'spartan':
-    if(this.stacks>=3||this.ironStacks>=5){this.stacks=0;this.ironStacks=0;this._aimAbilityAtNearestEnemy(.32);this.ramActive=true;this.ramT=0.7;this.dmgMult=1;this.vx=Math.cos(this.angle)*this.baseSpd*3;this.vy=Math.sin(this.angle)*this.baseSpd*3;this.targetSpd=this.baseSpd*3;spawnBurst(this.x,this.y,'#d24634','#d8b060',18);} break;
+    if(this.stacks>=3||this.ironStacks>=5){this.stacks=0;this.ironStacks=0;this._aimAbilityAtNearestEnemy(.32);this.ramActive=true;this.ramDisplace=true;this.ramT=0.55;this.dmgMult=1;this.vx=Math.cos(this.angle)*this.baseSpd*2.6;this.vy=Math.sin(this.angle)*this.baseSpd*2.6;this.targetSpd=this.baseSpd*2.6;spawnBurst(this.x,this.y,'#d24634','#d8b060',18);} break;
    case 'gladiator':
     if(this.stacks>=3&&this.netLockoutT<=0){this.stacks=0;const en=(this._nearestEnemy()||{}).enemy;if(en){en.netRootT=0.8;en.savedArm=en.d.arm;en.d=Object.assign({},en.d);en.d.arm=en.savedArm*.3;this.dmgMult=1.8;this.netLockoutT=2.0;spawnDmgNum(en.x,en.y-en.radius*1.8,'NET','#f0c08a');}} break;
    case 'king':
@@ -893,7 +893,7 @@ class Sphere{
   }
   if(this.ramActive){
    this.ramT-=dt;
-   if(this.ramT<=0){this.ramActive=false;this.dmgMult=1;this.targetSpd=this.baseSpd;}
+   if(this.ramT<=0){this.ramActive=false;this.ramDisplace=false;this.dmgMult=1;this.targetSpd=this.baseSpd;}
   }
   if(this.orbitActive&&this.orbitTarget){
    this.orbitT-=dt;
