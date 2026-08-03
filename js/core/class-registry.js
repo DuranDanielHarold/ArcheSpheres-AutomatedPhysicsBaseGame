@@ -27,6 +27,9 @@ const ON_HIT_LANDED = {};
 const ON_CLASH_HANDLERS = {};
 const DAMAGE_TAKEN_MODIFIERS = {};
 const DRAW_OVERLAY_HANDLERS = {};
+const PRE_DEATH_HANDLERS = {};
+const WALL_BOUNCE_HANDLERS = {};
+const PROTOTYPE_METHOD_INSTALLERS = {};
 
 function getStackThreshold(key){
   return STACK_THRESHOLD[key] ?? 5;
