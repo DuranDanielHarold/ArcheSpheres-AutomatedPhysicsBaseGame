@@ -116,6 +116,7 @@ body {
 .ffa-block  { display: none; }
 
 #card {
+  position: relative;
   background: var(--sky);
   display: flex;
   flex-direction: column;
@@ -509,8 +510,28 @@ body {
   }
 
   #arena-outer { order: 1; flex: 1 1 auto; padding: 4px; min-width: 0; }
-  #titlebar { order: 2; width: clamp(108px, 20dvw, 152px); border-bottom: 0; border-left: 3px solid var(--goldd); padding: 4px; display: flex; align-items: center; justify-content: center; }
-  #title-text { font-size: clamp(5px, 1.15dvw, 7px); line-height: 1.45; }
+  #titlebar {
+    position: absolute;
+    z-index: 20;
+    top: 8px;
+    left: 8px;
+    right: calc(clamp(158px, 25dvw, 230px) + 13px);
+    width: auto;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    pointer-events: none;
+  }
+  #title-text {
+    background: rgba(168, 216, 234, .72);
+    border: 1px solid rgba(90, 58, 0, .55);
+    padding: 2px 4px;
+    font-size: clamp(5px, 1.15dvw, 7px);
+    line-height: 1.25;
+  }
   #divider { order: 3; width: 5px; height: auto; border-top: 0; border-bottom: 0; border-left: 2px solid var(--goldsh); border-right: 2px solid var(--goldsh); }
   #stats { order: 4; width: clamp(158px, 25dvw, 230px); grid-template-columns: 1fr; gap: 3px; padding: 3px; overflow-y: auto; min-height: 0; }
   #stats > .sdiv { display: none; }
