@@ -74,7 +74,7 @@ function injectBattleReportStyles(){
  if(document.getElementById('battle-report-styles'))return;
  const st=document.createElement('style');st.id='battle-report-styles';
  st.textContent=`
- #battle-report{position:fixed;inset:0;background:#0d1520;z-index:120;display:flex;flex-direction:column;overflow:hidden;}
+ #battle-report{position:fixed;inset:0;background:#0d1520;z-index:120;display:flex;flex-direction:column;overflow:hidden;padding:max(0px,env(safe-area-inset-top)) max(0px,env(safe-area-inset-right)) max(0px,env(safe-area-inset-bottom)) max(0px,env(safe-area-inset-left));}
  #battle-report-header{background:#111a2e;border-bottom:2px solid #8a6000;padding:6px 10px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
  #battle-report-back{font-family:'Press Start 2P',monospace;font-size:clamp(4px,1vw,6px);background:#1a2340;color:#6080a8;border:2px solid #2a3a50;padding:6px 10px;cursor:pointer;white-space:nowrap;}
  #battle-report-back:hover{background:#243060;}
@@ -87,6 +87,7 @@ function injectBattleReportStyles(){
  .battle-report-head .sn{font-family:'Press Start 2P',monospace;font-size:clamp(5px,1.4vw,8px);line-height:1.35;}
  .battle-report-section{font-family:'Press Start 2P',monospace;font-size:clamp(5px,1.1vw,7px);color:#ccddf0;margin:6px 0 3px;text-shadow:1px 1px 0 #000;}
  #battle-report .sr{font-size:clamp(9px,1.8vw,12px);}
+ @media (orientation:landscape) and (hover:none) and (pointer:coarse) and (max-height:500px){#battle-report-header{padding:4px 6px;}#battle-report-summary{padding:4px 6px;gap:8px;font-size:clamp(10px,3.4dvh,13px);}#battle-report-body{padding:6px;gap:6px;grid-template-columns:minmax(0,1fr) 4px minmax(0,1fr);}.battle-report-head img{width:30px;height:30px;}.battle-report-section{margin:4px 0 2px;}}
  @media(max-width:560px){#battle-report-body{grid-template-columns:1fr;}.battle-report-side{border-bottom:2px dashed #8a6000;padding-bottom:8px;}#battle-report-body>.sdiv{display:none;}}
  `;
  document.head.appendChild(st);
