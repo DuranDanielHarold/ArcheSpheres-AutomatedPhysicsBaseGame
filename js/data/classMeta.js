@@ -160,7 +160,7 @@ const CLASS_DESC = {
   },
   crusader:{
     ability:'Holy Charge (3 stacks) — Starts at 2.2s and becomes immune to knockback while dealing 2.0× collision damage. Each collision extends the charge by 0.4s, capped at 5s total.',
-    passive:'Retribution — Incoming damage charges a Retribution counter. The next weapon hit discharges all stored damage as a bonus, then resets. Big hits pay dividends.'
+    passive:'Retribution — Incoming damage charges a Retribution counter. The next weapon hit converts all stored damage into temporary holy shielding, then resets. Big hits become protection.'
   },
   mimic:{
     ability:'Perfect Copy (3 stacks) — For 4s, copies the enemy\'s current DMG and SPEED on top of its own, temporarily becoming a more powerful version of the foe.',

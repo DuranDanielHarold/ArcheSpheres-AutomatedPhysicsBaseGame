@@ -5,7 +5,7 @@ DEF.crusader = {"label":"Crusader","weapon":"Flail+Shield","ab":"Holy Charge","c
 CLASS_ROLE.crusader = "TANK";
 CLASS_DESC.crusader = {
   "ability": "Holy Charge (3 stacks) — Starts at 2.2s and becomes immune to knockback while dealing 2.0× collision damage. Each collision extends the charge by 0.4s, capped at 5s total.",
-  "passive": "Retribution — Incoming damage charges a Retribution counter. The next weapon hit discharges all stored damage as a bonus, then resets. Big hits pay dividends."
+  "passive": "Retribution — Incoming damage charges a Retribution counter. The next weapon hit converts all stored damage into temporary holy shielding, then resets. Big hits become protection."
 };
 STACK_THRESHOLD.crusader = 3;
 STACK_DISPLAY_THRESHOLD.crusader = 3;
