@@ -71,8 +71,8 @@ class RatMinion{
    if(d<target.radius+this.r+4){
     if(this.gnaw){
      target.receiveDamage(2);
-     target.gnawedArmorStacks=Math.min(5,(target.gnawedArmorStacks||0)+1);target.gnawedArmorT=8.0;
-     target._refreshGnawedArmor();
+     target.gnawedStacks=Math.min(5,(target.gnawedStacks||0)+1);target.gnawedT=8.0;
+     target._refreshGnawed();
      spawnDmgNum(target.x,target.y-target.radius*1.8,'GNAWED','#b7c06a');
      spawnSpark(target.x,target.y,'#9aa050',3);
      this.alive=false;
