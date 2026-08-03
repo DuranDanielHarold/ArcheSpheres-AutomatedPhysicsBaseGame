@@ -7,10 +7,28 @@ CLASS_DESC.jester = {
   "ability": "Chaos Lurch (3 stacks) — Fires in a completely random direction at 2.2× speed, reverses spin, and gains 2× damage for 1.5s.",
   "passive": "Spin accelerates with stacks (up to 2.5× base spin). Higher speed = wider bell swing = more chaotic hit angles."
 };
+STACK_THRESHOLD.jester = 3;
 STACK_DISPLAY_THRESHOLD.jester = 3;
 SPHERE_AUDIO.jester = {
   "weaponCollision": "audio/jester/weaponCollision.wav",
   "damage": "",
   "ability": ""
 };
+
+INIT_HANDLERS.jester = function(){
+  this.jesterLurchT=0;
+};
+
+ABILITY_HANDLERS.jester = function(){
+  this.omegaCur=this.d.om*(1+1.5*(this.stacks/5))*Math.sign(this.omegaCur||1);
+  if(this.stacks>=3){this.stacks=0;
+   const chaosA=Math.random()*Math.PI*2;
+   this.vx=Math.cos(chaosA)*this.targetSpd*2.2;
+   this.vy=Math.sin(chaosA)*this.targetSpd*2.2;
+   this.omegaCur*=-1;
+   this.dmgMult=2.0;
+   this.jesterLurchT=1.5;
+  }
+};
+
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.
