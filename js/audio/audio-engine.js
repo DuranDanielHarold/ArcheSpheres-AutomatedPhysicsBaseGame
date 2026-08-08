@@ -97,6 +97,7 @@ function _preloadConfiguredAudio(){
 }
 
 function _playAudioPath(path, volume=0.65){
+ if(window._balanceNoVisuals)return;
  if(!path)return;
  if(volume<=0)return;
  let pool=_audioPoolCache.get(path);
