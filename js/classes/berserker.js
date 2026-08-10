@@ -2,6 +2,7 @@
 // ▓▓▓ MODULE: classes/berserker.js — Berserker sphere kit registry ▓▓▓
 
 DEF.berserker = {"label":"Berserker","weapon":"Blood Maul","ab":"Orbit Frenzy","color":"#8b0000","dark":"#5a0000","rim":"#ff4444","out":"#3a0000","wcol":"#cc2200","wdrk":"#880000","mass":9,"spd":189.64,"hp":440.64,"om":7,"dmg":4.33,"arm":45,"magDef":25,"rest":0.8,"reach":2.35,"tipR":0.55,"abilityType":"hybrid","passiveType":"hybrid","wt":"maul"};
+DEF.berserker = {"label":"Berserker","weapon":"Blood Maul","ab":"Orbit Frenzy","color":"#8b0000","dark":"#5a0000","rim":"#ff4444","out":"#3a0000","wcol":"#cc2200","wdrk":"#880000","mass":9,"spd":191.07,"hp":443.97,"om":7,"dmg":4.38,"arm":45,"magDef":25,"rest":0.8,"reach":2.36,"tipR":0.55,"abilityType":"hybrid","passiveType":"hybrid","wt":"maul"};
 CLASS_ROLE.berserker = "FIGHTER";
 CLASS_DESC.berserker = {
   "ability": "Orbit Frenzy (5 stacks) — Locks onto enemy and orbits at 3× speed for 2.5s with 1.1× damage boost.",

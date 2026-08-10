@@ -1,7 +1,7 @@
 'use strict';
 // ▓▓▓ MODULE: classes/glassblower.js — Glassblower sphere kit registry ▓▓▓
 
-DEF.glassblower = {"label":"Glassblower","weapon":"Furnace Pipe","ab":"Kiln Detonation","color":"#ffffff","dark":"#dfefff","rim":"#82f4ff","out":"#d8ffff","bodyAlpha":0.52,"wcol":"#ffb060","wdrk":"#b34818","mass":5,"spd":229.86,"hp":371.54,"om":5.8,"dmg":3.01,"arm":58,"magDef":54,"rest":0.8,"reach":3.57,"tipR":0.13,"abilityType":"damage","passiveType":"hybrid","wt":"blowpipe"};
+DEF.glassblower = {"label":"Glassblower","weapon":"Furnace Pipe","ab":"Kiln Detonation","color":"#ffffff","dark":"#dfefff","rim":"#82f4ff","out":"#d8ffff","bodyAlpha":0.52,"wcol":"#ffb060","wdrk":"#b34818","mass":5,"spd":231.07,"hp":373.5,"om":5.8,"dmg":3.05,"arm":58,"magDef":54,"rest":0.8,"reach":3.6,"tipR":0.13,"abilityType":"damage","passiveType":"hybrid","wt":"blowpipe"};
 CLASS_ROLE.glassblower = "MAGE";
 CLASS_DESC.glassblower = {
   "ability": "Kiln Detonation (4 stacks) — Detonates all surviving Glass Shards into small splinter bursts. Taking 3 or more shard blasts briefly blinds and reverses enemy spin.",
