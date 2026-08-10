@@ -1,7 +1,7 @@
 'use strict';
 // ▓▓▓ MODULE: classes/knight.js — Knight sphere kit registry ▓▓▓
 
-DEF.knight = {"label":"Knight","weapon":"Broadsword","ab":"Shield Bubble","color":"#b0bec8","dark":"#506878","rim":"#d8eaf8","out":"#334455","wcol":"#d0dce8","wdrk":"#88a0b0","mass":12,"spd":210,"hp":454,"om":4.8,"dmg":3.16,"arm":141,"magDef":36,"rest":0.62,"reach":3.2,"tipR":0.22,"abilityType":"hybrid","passiveType":"hybrid","wt":"broadsword"};
+DEF.knight = {"label":"Knight","weapon":"Broadsword","ab":"Shield Bubble","color":"#b0bec8","dark":"#506878","rim":"#d8eaf8","out":"#334455","wcol":"#d0dce8","wdrk":"#88a0b0","mass":12,"spd":210,"hp":445.37,"om":4.8,"dmg":3.15,"arm":138.88,"magDef":35.71,"rest":0.62,"reach":3.2,"tipR":0.22,"abilityType":"hybrid","passiveType":"hybrid","wt":"broadsword"};
 CLASS_ROLE.knight = "TANK";
 CLASS_DESC.knight = {
   "ability": "Shield Bubble (5 stacks) — Grants full invincibility for 3.6s. During the bubble, spin doubles and damage output increases by 1.5×.",
