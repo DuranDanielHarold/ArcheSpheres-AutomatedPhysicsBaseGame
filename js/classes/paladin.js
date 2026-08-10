@@ -1,6 +1,7 @@
 'use strict';
 // ▓▓▓ MODULE: classes/paladin.js — Paladin sphere kit registry ▓▓▓
 
+DEF.paladin = {"label":"Paladin","weapon":"Holy Morningstar","ab":"Sacred Wrath","color":"#c0900a","dark":"#806000","rim":"#f0c040","out":"#503800","wcol":"#f0e090","wdrk":"#c0a040","mass":9,"spd":212,"hp":461.97,"om":4.3,"dmg":3.71,"arm":156.95,"magDef":51.29,"rest":0.62,"reach":2.8,"tipR":0.4,"abilityType":"hybrid","passiveType":"hybrid","wt":"morningstar"};
 DEF.paladin = {"label":"Paladin","weapon":"Holy Morningstar","ab":"Sacred Wrath","color":"#c0900a","dark":"#806000","rim":"#f0c040","out":"#503800","wcol":"#f0e090","wdrk":"#c0a040","mass":9,"spd":212,"hp":490.5,"om":4.3,"dmg":3.74,"arm":164.5,"magDef":52.58,"rest":0.62,"reach":2.8,"tipR":0.4,"abilityType":"hybrid","passiveType":"hybrid","wt":"morningstar"};
 CLASS_ROLE.paladin = "TANK";
 CLASS_DESC.paladin = {

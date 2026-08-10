@@ -1,6 +1,7 @@
 'use strict';
 // ▓▓▓ MODULE: classes/fairy.js — Fairy sphere kit registry ▓▓▓
 
+DEF.fairy = {"label":"Fairy","rangedSphere":true,"weapon":"Pixie Wand","ab":"Wish Granted","color":"#ff5ac8","dark":"#9b1768","rim":"#fff0ff","out":"#42002b","wcol":"#fff0ff","wdrk":"#ff8ce2","mass":4,"spd":295,"hp":390.56,"om":10.5,"dmg":4.86,"arm":57.83,"magDef":101.99,"rest":0.86,"reach":2.4,"tipR":0.14,"abilityType":"hybrid","passiveType":"hybrid","wt":"pixiewand"};
 DEF.fairy = {"label":"Fairy","rangedSphere":true,"weapon":"Pixie Wand","ab":"Wish Granted","color":"#ff5ac8","dark":"#9b1768","rim":"#fff0ff","out":"#42002b","wcol":"#fff0ff","wdrk":"#ff8ce2","mass":4,"spd":295,"hp":385.57,"om":10.5,"dmg":4.81,"arm":57.4,"magDef":100.9,"rest":0.86,"reach":2.4,"tipR":0.14,"abilityType":"hybrid","passiveType":"hybrid","wt":"pixiewand"};
 CLASS_ROLE.fairy = "SUPPORT";
 CLASS_DESC.fairy = {

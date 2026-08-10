@@ -1,6 +1,7 @@
 'use strict';
 // ▓▓▓ MODULE: classes/locksmith.js — Locksmith sphere kit registry ▓▓▓
 
+DEF.locksmith = {"label":"Locksmith","weapon":"Prison Keys","ab":"Master Key","color":"#24313a","dark":"#101920","rim":"#d0b45a","out":"#071014","wcol":"#d6c06a","wdrk":"#6a5320","mass":6.5,"spd":253.37,"hp":507.09,"om":7.6,"dmg":3.8,"arm":92,"magDef":42,"rest":0.72,"reach":2.41,"tipR":0.3,"abilityType":"utility","passiveType":"utility","wt":"keyring"};
 DEF.locksmith = {"label":"Locksmith","weapon":"Prison Keys","ab":"Master Key","color":"#24313a","dark":"#101920","rim":"#d0b45a","out":"#071014","wcol":"#d6c06a","wdrk":"#6a5320","mass":6.5,"spd":242.88,"hp":481.11,"om":7.6,"dmg":3.67,"arm":92,"magDef":42,"rest":0.72,"reach":2.36,"tipR":0.3,"abilityType":"utility","passiveType":"utility","wt":"keyring"};
 CLASS_ROLE.locksmith = "ASSASSIN";
 CLASS_DESC.locksmith = {

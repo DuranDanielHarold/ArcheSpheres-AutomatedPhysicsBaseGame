@@ -1,6 +1,7 @@
 'use strict';
 // ▓▓▓ MODULE: classes/beastmaster.js — Beastmaster sphere kit registry ▓▓▓
 
+DEF.beastmaster = {"label":"Beastmaster","weapon":"Beast Whip","ab":"Pack Hunt","color":"#b85a13","dark":"#5a2608","rim":"#ffb060","out":"#220c02","wcol":"#c08a50","wdrk":"#6a3510","mass":7,"spd":203.89,"hp":432.72,"om":5.8,"dmg":3.48,"arm":89.19,"magDef":38,"rest":0.68,"reach":4.59,"tipR":0.16,"abilityType":"damage","passiveType":"hybrid","wt":"beastwhip"};
 DEF.beastmaster = {"label":"Beastmaster","weapon":"Beast Whip","ab":"Pack Hunt","color":"#b85a13","dark":"#5a2608","rim":"#ffb060","out":"#220c02","wcol":"#c08a50","wdrk":"#6a3510","mass":7,"spd":207.33,"hp":445.67,"om":5.8,"dmg":3.57,"arm":91.08,"magDef":38,"rest":0.68,"reach":4.59,"tipR":0.16,"abilityType":"damage","passiveType":"hybrid","wt":"beastwhip"};
 CLASS_ROLE.beastmaster = "FIGHTER";
 CLASS_DESC.beastmaster = {

@@ -1,6 +1,7 @@
 'use strict';
 // ▓▓▓ MODULE: classes/crusader.js — Crusader sphere kit registry ▓▓▓
 
+DEF.crusader = {"label":"Crusader","weapon":"Flail+Shield","ab":"Holy Charge","color":"#c8b870","dark":"#806020","rim":"#fffacc","out":"#403010","wcol":"#fffacc","wdrk":"#c8a040","mass":11,"spd":204,"hp":592.9,"om":4.3,"dmg":4.07,"arm":177.54,"magDef":54.59,"rest":0.58,"reach":2.5,"tipR":0.4,"abilityType":"hybrid","passiveType":"hybrid","wt":"flailshield"};
 DEF.crusader = {"label":"Crusader","weapon":"Flail+Shield","ab":"Holy Charge","color":"#c8b870","dark":"#806020","rim":"#fffacc","out":"#403010","wcol":"#fffacc","wdrk":"#c8a040","mass":11,"spd":204,"hp":563.51,"om":4.3,"dmg":4.03,"arm":170.52,"magDef":53.42,"rest":0.58,"reach":2.5,"tipR":0.4,"abilityType":"hybrid","passiveType":"hybrid","wt":"flailshield"};
 CLASS_ROLE.crusader = "TANK";
 CLASS_DESC.crusader = {
