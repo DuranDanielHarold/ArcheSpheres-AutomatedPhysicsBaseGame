@@ -1,7 +1,7 @@
 'use strict';
 // ▓▓▓ MODULE: classes/arcanist.js — Arcanist sphere kit registry ▓▓▓
 
-DEF.arcanist = {"label":"Arcanist","rangedSphere":true,"weapon":"Arcane Cannon","ab":"Overload","color":"#78d8ff","dark":"#1d6b92","rim":"#e8fbff","out":"#083044","wcol":"#e8fbff","wdrk":"#3388bb","mass":5,"spd":190,"hp":472,"om":4.2,"dmg":8.94,"arm":70,"magDef":67,"rest":0.72,"reach":3.34,"tipR":0.28,"abilityType":"damage","passiveType":"hybrid","wt":"arcanecannon"};
+DEF.arcanist = {"label":"Arcanist","rangedSphere":true,"weapon":"Arcane Cannon","ab":"Overload","color":"#78d8ff","dark":"#1d6b92","rim":"#e8fbff","out":"#083044","wcol":"#e8fbff","wdrk":"#3388bb","mass":5,"spd":190,"hp":485,"om":4.2,"dmg":9.19,"arm":70,"magDef":68,"rest":0.72,"reach":3.39,"tipR":0.28,"abilityType":"damage","passiveType":"hybrid","wt":"arcanecannon"};
 CLASS_ROLE.arcanist = "MAGE";
 CLASS_DESC.arcanist = {
   "ability": "Overload (3 stacks) — For 4s shells fly faster, explode wider, and leave longer burn zones; each explosion now deals reduced true self-harm.",

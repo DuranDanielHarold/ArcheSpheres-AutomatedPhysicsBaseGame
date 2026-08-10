@@ -1,7 +1,7 @@
 'use strict';
 // ▓▓▓ MODULE: classes/ranger.js — Ranger sphere kit registry ▓▓▓
 
-DEF.ranger = {"label":"Ranger","rangedSphere":true,"weapon":"Longbow","ab":"Volley Shot","color":"#2d5a1b","dark":"#1a3610","rim":"#88cc44","out":"#0f1f0a","wcol":"#88cc44","wdrk":"#557733","mass":6,"spd":216,"hp":434,"om":5,"dmg":5.49,"arm":90,"magDef":33,"rest":0.72,"reach":3.24,"tipR":0.12,"abilityType":"hybrid","passiveType":"hybrid","wt":"longbow"};
+DEF.ranger = {"label":"Ranger","rangedSphere":true,"weapon":"Longbow","ab":"Volley Shot","color":"#2d5a1b","dark":"#1a3610","rim":"#88cc44","out":"#0f1f0a","wcol":"#88cc44","wdrk":"#557733","mass":6,"spd":218,"hp":436,"om":5,"dmg":5.58,"arm":90,"magDef":33,"rest":0.72,"reach":3.29,"tipR":0.12,"abilityType":"hybrid","passiveType":"hybrid","wt":"longbow"};
 CLASS_ROLE.ranger = "MARKSMAN";
 CLASS_DESC.ranger = {
   "ability": "Volley Shot (4 stacks) — Rapidly fires 3 bursts of 5 spread arrows (center + 4 flanking) every 0.6s with +2 volley bonus damage each. Single shots suppressed during volley.",
