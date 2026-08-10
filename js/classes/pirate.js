@@ -1,7 +1,7 @@
 'use strict';
 // ▓▓▓ MODULE: classes/pirate.js — Pirate sphere kit registry ▓▓▓
 
-DEF.pirate = {"label":"Pirate","weapon":"Cutlass","ab":"Boarding Action","color":"#3e2723","dark":"#1c1008","rim":"#ff7043","out":"#120a04","wcol":"#ffcc02","wdrk":"#e6a800","mass":7.5,"spd":236,"hp":506,"om":8,"dmg":4.28,"arm":94,"magDef":30,"rest":0.74,"reach":2.89,"tipR":0.24,"abilityType":"utility","passiveType":"hybrid","wt":"cutlass"};
+DEF.pirate = {"label":"Pirate","weapon":"Cutlass","ab":"Boarding Action","color":"#3e2723","dark":"#1c1008","rim":"#ff7043","out":"#120a04","wcol":"#ffcc02","wdrk":"#e6a800","mass":7.5,"spd":231.61,"hp":489.59,"om":8,"dmg":4.16,"arm":91.82,"magDef":30,"rest":0.74,"reach":2.89,"tipR":0.24,"abilityType":"utility","passiveType":"hybrid","wt":"cutlass"};
 CLASS_ROLE.pirate = "FIGHTER";
 CLASS_DESC.pirate = {
   "ability": "Boarding Action (3 stacks) — Fires a grappling hook that yanks the enemy toward the Pirate with 380 force, dealing 1.5× DMG on contact. Wall hits hook the Pirate toward the wall.",

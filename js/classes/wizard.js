@@ -1,7 +1,7 @@
 'use strict';
 // ▓▓▓ MODULE: classes/wizard.js — Wizard sphere kit registry ▓▓▓
 
-DEF.wizard = {"label":"Wizard","rangedSphere":true,"weapon":"Arcane Orb","ab":"Rod Cycle","color":"#4a0080","dark":"#2a0050","rim":"#cc88ff","out":"#1a0030","wcol":"#cc88ff","wdrk":"#884499","mass":5,"spd":180,"hp":434,"om":4.7,"dmg":6.28,"arm":70,"magDef":62,"rest":0.72,"reach":2.92,"tipR":0.3,"abilityType":"damage","passiveType":"hybrid","wt":"orbstaff"};
+DEF.wizard = {"label":"Wizard","rangedSphere":true,"weapon":"Arcane Orb","ab":"Rod Cycle","color":"#4a0080","dark":"#2a0050","rim":"#cc88ff","out":"#1a0030","wcol":"#cc88ff","wdrk":"#884499","mass":5,"spd":180,"hp":441.33,"om":4.7,"dmg":6.54,"arm":70,"magDef":63.29,"rest":0.72,"reach":2.99,"tipR":0.3,"abilityType":"damage","passiveType":"hybrid","wt":"orbstaff"};
 CLASS_ROLE.wizard = "MAGE";
 CLASS_DESC.wizard = {
   "ability": "Rod Cycle (4 stacks) — Advances to the next elemental rod, activating it for 8s plus staff power and firing 3 +5 damage bolts. Each staff cycle permanently increases rod duration, bolt damage, and stronger elemental effects. Rods cycle: ⚡Lightning (longer weaken) → 🔥Fire (longer, faster burn) → 💧Water (stronger, longer slow) → 🌀Wind (heavier knockback) → 🌍Earth (longer stun + heavier knockback).",

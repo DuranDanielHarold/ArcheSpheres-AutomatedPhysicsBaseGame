@@ -1,7 +1,7 @@
 'use strict';
 // ▓▓▓ MODULE: classes/trickster.js — Trickster sphere kit registry ▓▓▓
 
-DEF.trickster = {"label":"Trickster","weapon":"Illusory Blade","ab":"Phase Out","color":"#00bcd4","dark":"#006064","rim":"#e0f7fa","out":"#002025","wcol":"#e0f7fa","wdrk":"#80deea","mass":5,"spd":274,"hp":380,"om":9,"dmg":2.93,"arm":70,"magDef":35,"rest":0.79,"reach":3.29,"tipR":0.2,"abilityType":"utility","passiveType":"hybrid","wt":"illusoryblade"};
+DEF.trickster = {"label":"Trickster","weapon":"Illusory Blade","ab":"Phase Out","color":"#00bcd4","dark":"#006064","rim":"#e0f7fa","out":"#002025","wcol":"#e0f7fa","wdrk":"#80deea","mass":5,"spd":265.15,"hp":374.25,"om":9,"dmg":2.85,"arm":70,"magDef":35,"rest":0.79,"reach":3.23,"tipR":0.2,"abilityType":"utility","passiveType":"hybrid","wt":"illusoryblade"};
 CLASS_ROLE.trickster = "ASSASSIN";
 CLASS_DESC.trickster = {
   "ability": "Phase Out (2 stacks) - Turns semi-transparent, reverses direction at 1.4x speed, and gains 0.5s invincibility. After Phase Out ends, leaves a fragile 1 HP replica with no ARM/MDEF that can damage enemies, then vanishes when it hits or takes damage.",
