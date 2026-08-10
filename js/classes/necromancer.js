@@ -1,7 +1,7 @@
 'use strict';
 // ▓▓▓ MODULE: classes/necromancer.js — Necro sphere kit registry ▓▓▓
 
-DEF.necromancer = {"label":"Necro","rangedSphere":true,"weapon":"Soul Scythe","ab":"Death Mark","color":"#1a0a2e","dark":"#0d0518","rim":"#7c4dff","out":"#080310","wcol":"#7c4dff","wdrk":"#512da8","mass":6,"spd":196,"hp":410,"om":5.5,"dmg":5.63,"arm":85,"magDef":52,"rest":0.7,"reach":3.86,"tipR":0.24,"abilityType":"damage","passiveType":"hybrid","wt":"scythe"};
+DEF.necromancer = {"label":"Necro","rangedSphere":true,"weapon":"Soul Scythe","ab":"Death Mark","color":"#1a0a2e","dark":"#0d0518","rim":"#7c4dff","out":"#080310","wcol":"#7c4dff","wdrk":"#512da8","mass":6,"spd":196,"hp":404.67,"om":5.5,"dmg":5.55,"arm":85,"magDef":51.53,"rest":0.7,"reach":3.83,"tipR":0.24,"abilityType":"damage","passiveType":"hybrid","wt":"scythe"};
 CLASS_ROLE.necromancer = "MAGE";
 CLASS_DESC.necromancer = {
   "ability": "Death Mark (3 stacks) — Applies 7 fast delayed damage ticks (0.7× projectile DMG +1 each, every 0.18s) to the nearest enemy.",

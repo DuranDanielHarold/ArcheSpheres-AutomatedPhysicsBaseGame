@@ -1,7 +1,7 @@
 'use strict';
 // ▓▓▓ MODULE: classes/bard.js — Bard sphere kit registry ▓▓▓
 
-DEF.bard = {"label":"Bard","rangedSphere":true,"weapon":"Lute","ab":"Crescendo Blast","color":"#1a3a6e","dark":"#0d1f40","rim":"#f0c040","out":"#080e20","wcol":"#e040fb","wdrk":"#9c27b0","mass":5,"spd":226,"hp":404,"om":6,"dmg":3.9,"arm":65,"magDef":50,"rest":0.76,"reach":2.6,"tipR":0.18,"abilityType":"damage","passiveType":"hybrid","wt":"lute"};
+DEF.bard = {"label":"Bard","rangedSphere":true,"weapon":"Lute","ab":"Crescendo Blast","color":"#1a3a6e","dark":"#0d1f40","rim":"#f0c040","out":"#080e20","wcol":"#e040fb","wdrk":"#9c27b0","mass":5,"spd":226,"hp":407.64,"om":6,"dmg":3.92,"arm":65.32,"magDef":50.35,"rest":0.76,"reach":2.6,"tipR":0.18,"abilityType":"damage","passiveType":"hybrid","wt":"lute"};
 CLASS_ROLE.bard = "SUPPORT";
 CLASS_DESC.bard = {
   "ability": "Crescendo Blast (3 stacks) — Fires a +2 damage SonicProjectile that accelerates with every wall bounce (×1.3 speed per bounce, capped at 1100). On enemy hit: minimal magic damage but a massive knockback force (300 + 120 per bounce). More bounces = more devastation.",

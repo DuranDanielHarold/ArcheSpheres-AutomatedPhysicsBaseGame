@@ -909,7 +909,7 @@ class Sphere{
    }
   }
   if(this.warlordSpinT>0){
-   this.warlordSpinT-=dt;
+   this.warlordSpinT=Math.max(0,this.warlordSpinT-dt);
    this.omegaCur=this.d.om*2*Math.sign(this.omegaCur||1);
   }
   if(this.slowFieldActive){

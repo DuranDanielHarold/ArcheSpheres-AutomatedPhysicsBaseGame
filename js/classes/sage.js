@@ -1,7 +1,7 @@
 'use strict';
 // ▓▓▓ MODULE: classes/sage.js — Sage sphere kit registry ▓▓▓
 
-DEF.sage = {"label":"Sage","rangedSphere":true,"weapon":"Ancient Tome","ab":"Foresight","color":"#6c8f52","dark":"#304525","rim":"#d6f0b2","out":"#132010","wcol":"#e6d8a0","wdrk":"#7a6040","mass":9,"spd":195,"hp":593,"om":4.8,"dmg":2.84,"arm":115,"magDef":67,"rest":0.62,"reach":2.4,"tipR":0.48,"abilityType":"utility","passiveType":"hybrid","wt":"ancienttome"};
+DEF.sage = {"label":"Sage","rangedSphere":true,"weapon":"Ancient Tome","ab":"Foresight","color":"#6c8f52","dark":"#304525","rim":"#d6f0b2","out":"#132010","wcol":"#e6d8a0","wdrk":"#7a6040","mass":9,"spd":195,"hp":548.64,"om":4.8,"dmg":2.85,"arm":116.15,"magDef":63.63,"rest":0.62,"reach":2.4,"tipR":0.48,"abilityType":"utility","passiveType":"hybrid","wt":"ancienttome"};
 CLASS_ROLE.sage = "SUPPORT";
 CLASS_DESC.sage = {
   "ability": "Foresight (3 stacks) — Becomes untargetable for 2s, mirrors enemy motion in reverse, then releases a 2× Wisdom Wave.",
