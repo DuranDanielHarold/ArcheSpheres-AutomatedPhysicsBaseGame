@@ -91,3 +91,12 @@ Decision:
 ## Immediate Next Balance-Tech Step
 
 Add structured combat logging and a reusable match result object.
+
+## Patch Record — Cycle 2026-08-08 Severity-Scaled Full Pass
+
+Patch Name: Cycle 2026-08-08 severity-scaled full-pass stat patch
+Reason: The 50,000-match baseline from `balance-class-summary-2026-08-08T02-25-12-583Z.csv` and `balance-matchup-summary-2026-08-08T02-25-12-583Z.csv` flagged 44 of 50 classes as `NERF` or `BUFF`, with win rates spanning 2.3% Plague to 95.8% Warlord and 494 of 1,225 matchups resolving as impossible. The matchup concentration points to raw power skew rather than matchup-specific kit failures, so this cycle applies severity-scaled versions of the runner's role-weighted `statAdjustments` to live per-class `DEF` files only.
+Changed Values: Applied every NERF and BUFF row from the Cycle 2026-08-08 baseline patch table to `js/classes/<key>.js` for 44 classes. Neutral WATCH classes (`witch`, `glassblower`, `alchemist`, `gladiator`, `ninja`, `mimic`) and dead monolith data files were left untouched.
+Expected Outcome: `balanceScore` magnitude should shrink for all 44 touched classes, with the ≥35-point tier (`warlord`, `priest`, `templar`, `plague`, `locksmith`, `sage`) likely still requiring additional cycles. Follow-up findings remain open for ranged projectile hit rates, melee hitbox metric definition, and post-patch validation; Crusader and T4 stall/draw monitoring items should be considered resolved by the source baseline.
+Simulation Summary:
+Decision:
