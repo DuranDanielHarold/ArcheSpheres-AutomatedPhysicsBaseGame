@@ -1,7 +1,7 @@
 'use strict';
 // ▓▓▓ MODULE: classes/phoenix.js — Phoenix sphere kit registry ▓▓▓
 
-DEF.phoenix = {"label":"Phoenix","weapon":"Ashwing Talons","ab":"Cinder Wing","color":"#e65100","dark":"#bf360c","rim":"#ffcc02","out":"#6d1900","wcol":"#ffcc02","wdrk":"#f9a825","mass":6.5,"spd":240,"hp":377,"om":7.5,"dmg":4.18,"arm":78,"magDef":42,"rest":0.76,"reach":3.1,"tipR":0.3,"abilityType":"damage","passiveType":"hybrid","wt":"talon"};
+DEF.phoenix = {"label":"Phoenix","weapon":"Ashwing Talons","ab":"Cinder Wing","color":"#e65100","dark":"#bf360c","rim":"#ffcc02","out":"#6d1900","wcol":"#ffcc02","wdrk":"#f9a825","mass":6.5,"spd":240,"hp":346,"om":7.5,"dmg":3.9,"arm":78,"magDef":42,"rest":0.76,"reach":3.1,"tipR":0.3,"abilityType":"damage","passiveType":"hybrid","wt":"talon"};
 CLASS_ROLE.phoenix = "FIGHTER";
 CLASS_DESC.phoenix = {
   "ability": "Cinder Wing (3 stacks) — Ignites the Ashwing Talons for 2.2s, granting +18% speed, +35% spin, and a burst of Ember charge.",
