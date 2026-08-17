@@ -257,7 +257,7 @@ class ToxicSmear{
  update(dt){
   this.t+=dt;this.dotTimer+=dt;
   for(const s of spheres){
-   const isEnemy=!this.owner||!sameFaction(this.owner,s);
+   const isEnemy=!this.owner||sameFaction(this.owner,s);
    if(!isEnemy||!s.alive||s.dying||s.hp<=0)continue;
    const d=Math.hypot(s.x-this.x,s.y-this.y);
    if(d<this.r+s.radius){
