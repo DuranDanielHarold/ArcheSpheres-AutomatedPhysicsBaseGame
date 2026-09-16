@@ -29,13 +29,16 @@ window.startPicker=function(mode){
   const btn=document.createElement('div');
   btn.className='pslot team-'+s.faction+(s.id===pickerSlot?' active':'')+' filled';
   btn.dataset.slotId=s.id;
-  btn.innerHTML=`<span class="pslot-label" style="color:${s.color}">${s.label}</span><span class="pslot-name">${DEF[pendingSelections[s.id]].label}</span>`;
+  const key=pendingSelections[s.id];
+  btn.tabIndex=0;
+  btn.innerHTML=`<img class="pslot-icon" src="${getSphereIcon(key,20)}" width="20" height="20"><span class="pslot-text"><span class="pslot-label" style="color:${s.color}">${s.label}</span><span class="pslot-name">${DEF[key].label}</span></span>`;
   btn.onclick=()=>selectSlot(s.id);
   slotRow.appendChild(btn);
  });
  hdr.appendChild(slotRow);
  const tools=document.createElement('div');tools.id='picker-tools';
  const search=document.createElement('input');search.id='picker-search';search.type='search';search.placeholder='SEARCH';search.value=pickerSearch;search.oninput=()=>{pickerSearch=search.value.toLowerCase();renderPickerGrid();};tools.appendChild(search);
+ const count=document.createElement('span');count.id='picker-count';tools.appendChild(count);
  const roles=['ALL','TANK','FIGHTER','ASSASSIN','MAGE','MARKSMAN','SUPPORT'];roles.forEach(r=>{const b=document.createElement('button');b.className='role-chip'+(r===pickerRole?' active':'');b.textContent=r;b.onclick=()=>{pickerRole=r;document.querySelectorAll('.role-chip').forEach(c=>c.classList.toggle('active',c.textContent===r));renderPickerGrid();};tools.appendChild(b);});
  const undo=document.createElement('button');undo.id='picker-undo';undo.textContent='↶ CHANGE LAST';undo.onclick=()=>{if(!pickerLastPick)return;pendingSelections[pickerLastPick.slot]=pickerLastPick.prev;updatePickerSlots();selectSlot(pickerLastPick.slot);pickerLastPick=null;};tools.appendChild(undo);
  const rand=document.createElement('button');rand.id='picker-randomize';rand.textContent='🎲 RANDOMIZE';rand.onclick=()=>{randomizeSelections(slots.map(s=>s.id));updatePickerSlots();renderPickerGrid();renderDetailPanel(pendingSelections[pickerSlot]);};tools.appendChild(rand);
@@ -57,18 +60,26 @@ window.startPicker=function(mode){
  const detail=document.createElement('div');detail.id='picker-detail';detail.classList.add('hidden');body.appendChild(detail);
  ps.appendChild(body);
  document.body.appendChild(ps);
+ updatePickerConfirm();
  if(gameMode==='testing'&&typeof renderTestingGroundPickerPanel==='function')renderTestingGroundPickerPanel();
  renderPickerGrid();
  renderDetailPanel(pendingSelections[pickerSlot]);
 };
 function updatePickerSlots(){
- document.querySelectorAll('.pslot').forEach(btn=>{const id=+btn.dataset.slotId,key=pendingSelections[id];const name=btn.querySelector('.pslot-name');if(name&&DEF[key])name.textContent=DEF[key].label;});
+ document.querySelectorAll('.pslot').forEach(btn=>{const id=+btn.dataset.slotId,key=pendingSelections[id];const name=btn.querySelector('.pslot-name'),icon=btn.querySelector('.pslot-icon');if(name&&DEF[key])name.textContent=DEF[key].label;if(icon)icon.src=getSphereIcon(key,20);});
 }
 function selectSlot(id){
  pickerSlot=id;
  document.querySelectorAll('.pslot').forEach(b=>b.classList.toggle('active',+b.dataset.slotId===id));
  renderPickerGrid();
  renderDetailPanel(pendingSelections[id]);
+ updatePickerConfirm();
+}
+function updatePickerConfirm(){
+ const btn=document.getElementById('picker-confirm');
+ if(!btn)return;
+ const isLast=pickerSlots.length>0&&pickerSlot===pickerSlots[pickerSlots.length-1].id;
+ btn.classList.toggle('disabled',isLast);btn.disabled=isLast;
 }
 function statBar(label,val,max,col){
  const pct=Math.min(100,Math.round((val/max)*100));
@@ -77,11 +88,21 @@ function statBar(label,val,max,col){
 }
 function renderPickerGrid(){
  const grid=document.getElementById('picker-grid');if(!grid)return;
+ grid.scrollTop=0;
  grid.innerHTML='';
  const curKey=pendingSelections[pickerSlot];
- Object.entries(DEF).filter(([key,d])=>{const role=CLASS_ROLE[key]||'FIGHTER';const q=(d.label+' '+d.weapon+' '+d.ab+' '+role).toLowerCase();return (pickerRole==='ALL'||role===pickerRole)&&(!pickerSearch||q.includes(pickerSearch));}).forEach(([key,d])=>{
+ const entries=Object.entries(DEF).filter(([key,d])=>{const role=CLASS_ROLE[key]||'FIGHTER';const q=(d.label+' '+d.weapon+' '+d.ab+' '+role).toLowerCase();return (pickerRole==='ALL'||role===pickerRole)&&(!pickerSearch||q.includes(pickerSearch));});
+ const count=document.getElementById('picker-count');if(count)count.textContent=`${entries.length}/${Object.keys(DEF).length}`;
+ if(!entries.length){
+  const empty=document.createElement('div');empty.className='picker-empty';
+  empty.innerHTML=`<div class="picker-empty-title">NO MATCHES</div><div class="picker-empty-hint">Try a different search or role.</div><button class="role-chip">CLEAR FILTERS</button>`;
+  empty.querySelector('button').onclick=()=>{pickerSearch='';pickerRole='ALL';const search=document.getElementById('picker-search');if(search)search.value='';document.querySelectorAll('.role-chip').forEach(chip=>chip.classList.toggle('active',chip.textContent==='ALL'));renderPickerGrid();};
+  grid.appendChild(empty);return;
+ }
+ entries.forEach(([key,d])=>{
   const card=document.createElement('div');
   card.className='pcard'+(key===curKey?' selected':'');
+  card.tabIndex=0;
   const role=CLASS_ROLE[key]||'FIGHTER';
   const rolec=ROLE_COLOR[role]||'#6080a8';
   const isRanged=RANGED_KEYS.has(key);
@@ -109,6 +130,7 @@ function renderPickerGrid(){
     </div>`;
   } else {
    card.innerHTML=`
+    ${isRanged?'<span class="pcard-ranged">◎</span>':''}
     <div class="pcard-icon">${iconImg}</div>
     <div class="pcard-name">${d.label}</div>
     <span class="pcard-role" style="color:${rolec};background:${rolec}22">${role}</span>
