@@ -3,6 +3,19 @@
 
 let _stallWarningShown=false,_stallDamagePerSecond=null;
 
+function computeStallRampDps(matchSpheres){return Math.max(0,...matchSpheres.map(s=>s.maxHp||0))/STALL_CONFIG.rampDurationSeconds;}
+function applyStallRampDamage(matchSpheres,damageThisTick){
+ for(const s of matchSpheres){if(!s.alive||s.dying||s.isReplica)continue;s.hp=Math.max(0,s.hp-damageThisTick);s.hitFlash=1;if(s.hp<=0&&!s.dying){s.alive=false;s.dying=true;s._killedBySuddenDeath=true;spawnBurst(s.x,s.y,s.d.rim,s.d.color,28);}}
+}
+function resolveStallTimeoutWinner(matchSpheres){
+ const red=matchSpheres.find(s=>s.faction===0&&!s.isReplica)||matchSpheres.find(s=>s.faction===0),blue=matchSpheres.find(s=>s.faction===1&&!s.isReplica)||matchSpheres.find(s=>s.faction===1);
+ const redAlive=!!(red&&red.alive&&!red.dying),blueAlive=!!(blue&&blue.alive&&!blue.dying);
+ if(redAlive&&!blueAlive)return{winner:red,endReason:'timeout_blue_dead'};if(blueAlive&&!redAlive)return{winner:blue,endReason:'timeout_red_dead'};if(!redAlive&&!blueAlive)return{winner:null,endReason:'double_ko'};
+ const redPct=red.maxHp>0?red.hp/red.maxHp:0,bluePct=blue.maxHp>0?blue.hp/blue.maxHp:0,diff=redPct-bluePct;
+ if(Math.abs(diff)<0.01)return{winner:null,endReason:'timeout_hp_tie'};return{winner:diff>0?red:blue,endReason:'timeout_hp_pct_tiebreak'};
+}
+
+
 function resetStallState(){
  _stallWarningShown=false;
  _stallDamagePerSecond=null;
@@ -48,27 +61,8 @@ function updateStallState(dt){
  if(window.matchTime<STALL_CONFIG.stallThresholdSeconds)return;
  ensureStallStyles();
  const arena=document.getElementById('arena-border');if(arena)arena.classList.add('sudden-death-active');
- if(_stallDamagePerSecond===null){
-  const maxHp=Math.max(0,...spheres.map(s=>s.maxHp||0));
-  _stallDamagePerSecond=maxHp/STALL_CONFIG.rampDurationSeconds;
- }
- const damage=_stallDamagePerSecond*dt;
- for(const s of spheres){
-  if(!s.alive||s.dying||s.isReplica)continue;
-  s.hp=Math.max(0,s.hp-damage);s.hitFlash=1;
-  if(s.hp<=0&&!s.dying){s.alive=false;s.dying=true;spawnBurst(s.x,s.y,s.d.rim,s.d.color,28);}
- }
+ if(_stallDamagePerSecond===null)_stallDamagePerSecond=computeStallRampDps(spheres);
+ applyStallRampDamage(spheres,_stallDamagePerSecond*dt);
 }
 
-function checkMatchTimeout(){
- if((window.matchTime||0)<STALL_CONFIG.hardTimeoutSeconds)return null;
- const red=getFactionDisplaySphere(0),blue=getFactionDisplaySphere(1);
- const redAlive=!!(red&&red.alive&&!red.dying),blueAlive=!!(blue&&blue.alive&&!blue.dying);
- if(redAlive&&!blueAlive)return{winner:red,endReason:'timeout_blue_dead'};
- if(blueAlive&&!redAlive)return{winner:blue,endReason:'timeout_red_dead'};
- if(!redAlive&&!blueAlive)return{winner:null,endReason:'double_ko'};
- const redPct=red.maxHp>0?red.hp/red.maxHp:0,bluePct=blue.maxHp>0?blue.hp/blue.maxHp:0;
- const diff=redPct-bluePct;
- if(Math.abs(diff)<0.01)return{winner:null,endReason:'timeout_hp_tie'};
- return{winner:diff>0?red:blue,endReason:'timeout_hp_pct_tiebreak'};
-}
+function checkMatchTimeout(){if((window.matchTime||0)<STALL_CONFIG.hardTimeoutSeconds)return null;return resolveStallTimeoutWinner(spheres);}
