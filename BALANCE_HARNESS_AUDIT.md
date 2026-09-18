@@ -1,0 +1,95 @@
+# Balance Harness Audit
+
+## Phase 0 — source-of-truth cleanup
+
+- **`js/data/classDefs.js`, `js/data/classMeta.js`, `js/data/classStacks.js`:** stale pre-refactor snapshots could mislead tooling. **Fixed:** removed after confirming they are absent from `index.html` and have no repository references.
+- **`js/classes/{beastmaster,berserker,crusader,dragoon,fairy,flagellant,locksmith,necromancer,paladin,prince}.js`:** each file assigned its `DEF` entry twice. **Fixed:** removed the first superseded assignment, retained the runtime-winning second assignment unchanged, and documented the single-assignment rule.
+
+## Remaining phases
+
+Phases 1–4 are intentionally deferred to the next bounded implementation session. No measurement, simulation, or gameplay behavior was changed in Phase 0.
+
+## Baseline invalidation notice
+
+All pre-existing balance CSVs, including the 2026-08-08 and 2026-08-10 cycles, were produced by the broken harness and must not be used as a comparison baseline for future patches. Capture a fresh full baseline after the harness-repair session is complete.
+
+## Phase 1 — Real-clock coupling
+
+- **`js/entities/sphere.js:Sphere._firePiercingShot`:** the piercing round used a 220 ms real-clock timeout, so fast-forward simulation reset the match before it fired. **Fixed:** the existing simulated-time `sheriffPiercingTimer` and `sheriffPiercingTarget` now defer projectile creation by 0.22 seconds and `_resolvePiercingShot` re-aims at the live target position.
+- **`js/entities/sphere.js:Sphere._checkAbilityTrigger` (ninja):** Blink Strike used a real-clock reset, leaving `blinking` active through a simulation. **Fixed:** `blinkVisualT` now expires through `Sphere.update(dt)`.
+- **`js/entities/sphere.js:Sphere._passiveAbility` (dragoon):** landing ring particles were queued by real-clock timers. **Fixed:** all three visual bursts spawn in the landing frame, and are skipped under `_balanceNoVisuals`.
+- **`js/entities/zones-and-traps.js:FireBreathZone.update`:** the cross-zone anti-stack gate compared `performance.now()` values, making its 0.45-second simulated interval depend on wall time. **Fixed:** each sphere owns a `_fireZoneCooldown` decremented once per `Sphere.update(dt)`.
+- **`js/tools/balance-runner.js:clearPendingBalanceTimeouts`:** retained as a safety net and now warns with the exact pending-timeout count when it clears anything.
+
+### Real-clock sweep classification
+
+| Site | Classification | Disposition |
+| --- | --- | --- |
+| `Sphere._firePiercingShot`, ninja Blink Strike, dragoon landing rings | Gameplay | Converted to simulated-time state / same-frame visual spawn. |
+| `FireBreathZone.update` anti-stack gate | Gameplay | Converted to `_fireZoneCooldown` seconds. |
+| `Sphere.hpBarLastUpdate`, `_syncHpBarVisual`, `_drawHpBar` | Visual-only | Annotated `// visual-only: safe under fast-forward`. |
+| `Sphere._drawPowerOverlay` `Date.now()` calls | Visual-only | Annotated `// visual-only: safe under fast-forward`. |
+| Monk chi trail and dragoon leap-shadow pulse | Visual-only | Annotated; no game state depends on them. |
+| `js/main.js` / `js/loop/game-loop.js` frame pacing | Correct as-is | Wall clock is required for browser frame pacing. |
+| `js/tools/balance-runner.js` elapsed-time budget/export cleanup | Correct as-is | Wall clock is intentionally used for the run budget and deferred URL cleanup. |
+| `js/weapons/*` draw functions and UI telemetry throttle | Correct as-is | Draw paths are not invoked by no-visual balance simulation; UI is out of scope. |
+
+**Deferred — render inside update:** `Sphere._passiveAbility` still draws the Dragoon leap shadow through direct `ctx` calls from update logic. Those calls run during `_balanceNoVisuals` simulation. It is a render-architecture issue rather than a real-clock gameplay dependency and is deferred.
+
+### Phase 1 baseline invalidation notice
+
+Phase 1 restores intended gameplay timing. Any baseline captured after Phase 0 but before this change is also invalid. Sheriff, Whelpling, and Ninja win rates are expected to move, with Sheriff expected to move the most.
+
+### Owner-executed runtime verification
+
+Paste this complete block into the browser console after loading the game:
+
+```js
+(async()=>{
+  const options={minutes:1,roundsPerPair:1,keys:['sheriff','whelpling','ninja','dragoon','knight'],exportJson:false,exportCsv:false};
+  const warnings=[];
+  const originalWarn=console.warn;
+  console.warn=(...args)=>{if(String(args[0]).includes('[balance] cleared'))warnings.push(args);originalWarn(...args);};
+  try{
+    const first=await runBalanceBaseline(options);
+    const rows=first.classRows||first.classes||first.rows;
+    const row=key=>rows.find(entry=>entry.key===key||entry.classKey===key);
+    const sheriff=row('sheriff'),whelpling=row('whelpling');
+    console.table([{
+      key:'sheriff',avgProjectilesFiredPerMatch:sheriff.avgProjectilesFiredPerMatch,
+      avgProjectileHitRate:sheriff.avgProjectileHitRate,avgProjectileDmgPct:sheriff.avgProjectileDmgPct,
+      avgDmgDealt:sheriff.avgDmgDealt,winPct:sheriff.winPct
+    },{key:'whelpling',avgDmgDealt:whelpling.avgDmgDealt,winPct:whelpling.winPct}]);
+    console.log('clearPendingBalanceTimeouts warnings (expected 0):',warnings.length);
+    const second=await runBalanceBaseline(options);
+    const secondRows=second.classRows||second.classes||second.rows;
+    console.assert(JSON.stringify(rows)===JSON.stringify(secondRows),'Class rows must be byte-identical for the default seed');
+  } finally { console.warn=originalWarn; }
+})();
+```
+
+Expected direction: Sheriff's projectile share and total damage should rise substantially; Whelpling's fire-zone contribution should rise; Ninja and Dragoon should be near-unchanged; Knight is the control and should be unchanged except for opponent effects.
+
+### Owner-executed live-play checklist
+
+- Sheriff 1v1: land two weapon hits; verify the bola, the gold piercing laser about 0.2 seconds later, the full shotgun-swap window, and armour penetration.
+- Whelpling 1v1: trigger Firebreath and verify the lingering zone retains its visible tick cadence.
+- Ninja 1v1: trigger Blink Strike and verify its purple blink ring clears.
+- Dragoon 1v1: trigger Wyrm's Descent and verify the landing shockwave rings render.
+- Complete one 2v2 and one Testing Ground launch with no console errors.
+
+## Phase 2 — Stall/timeout unification
+
+- **Pre-flight:** branch history is a squash commit (`1be0a8`) containing the prior Phase 0/1 work; no unexplained working-tree changes were present. Phase 1 warning text is exactly ``[balance] cleared ${pendingBalanceTimeouts.size} pending real-clock timeout(s)``. Added the required UI-only annotations to the orientation resize debounce and winner long-press callback.
+- **Ramp calibration:** `computeStallRampDps(matchSpheres)`, `applyStallRampDamage(matchSpheres, damageThisTick)`, and `resolveStallTimeoutWinner(matchSpheres)` now replace duplicated live/runner math. The runner caches the computed DPS per match at the stall threshold. A Vampire/Flagellant-only matchup formerly used roster-max approximately 594–609 / 24 = 24.75–25.4 DPS; it now uses that match's maximum HP / 24.
+- **Sudden-death labeling:** `applyStallRampDamage` is the sole setter of `_killedBySuddenDeath`. The runner labels a deciding all-ramp death `sudden_death_kill` or `sudden_death_double_ko`; ordinary combat decisions retain their existing labels. Deliberate asymmetry: live still displays ramp kills as `elimination`.
+- **Report fields:** class rows/CSV add `suddenDeathWinRate`; matchup rows/CSV add `suddenDeathKills`.
+- **Baseline invalidation:** all prior baselines, including Phase-1-era captures, use the wrong HP pool for ramp DPS in stall-reaching matches. Capture a fresh full baseline before making stall-affected balance decisions.
+
+### Owner runtime verification
+
+```js
+(async()=>{const o={minutes:1,roundsPerPair:1,keys:['vampire','flagellant','templar','golem'],includeMirrors:true,exportJson:false,exportCsv:false,debugStall:true,targetMatches:200};const a=await runBalanceBaseline(o),counts=a.results.reduce((m,r)=>(m[r.endReason]=(m[r.endReason]||0)+1,m),{});console.table(counts);for(const r of a.classes)console.assert(Math.abs((r.eliminationWinRate+r.suddenDeathWinRate+r.tiebreakWinRate)-r.winRate)<.0005,r.key);const b=await runBalanceBaseline(o);console.assert(JSON.stringify(a.classes)===JSON.stringify(b.classes),'deterministic class rows');})();
+```
+
+Expected: debug output for a ramping Vampire/Flagellant match shows its own max-HP / 24 DPS, rather than 24.75–25.4; sudden-death labels appear in sufficiently long matches. Live check: Knight vs Templar still shows the warning/banner/pulse/ramp and Battle Report still says elimination; complete a 2v2 without console errors.

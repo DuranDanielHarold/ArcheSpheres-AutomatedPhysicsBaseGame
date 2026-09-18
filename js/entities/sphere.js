@@ -20,7 +20,7 @@ class Sphere{
   this.hpBarDisplayHp=hp;this.hpBarLastHp=hp;
   this.hpBarDamageGhostHp=hp;this.hpBarDamageHoldT=0;this.hpBarDamageAlpha=0;
   this.hpBarHealTargetHp=hp;this.hpBarHealHoldT=0;this.hpBarHealAlpha=0;
-  this.hpBarLastUpdate=performance.now();
+  this.hpBarLastUpdate=performance.now(); // visual-only: safe under fast-forward
   this.alive=true;this.dying=false;this.dyingT=0;this.hitFlash=0;
   this.isReplica=!!opts.isReplica;
   this.replicaKind=opts.replicaKind||null;
@@ -35,7 +35,7 @@ class Sphere{
   this.spiralActive=false;this.spiralT=0;this.spiralAngle=0;
   this.ramActive=false;this.ramT=0;this.ramDisplace=false;
   this.orbitActive=false;this.orbitT=0;this.orbitAngle=0;this.orbitTarget=null;
-  this.blinking=false;
+  this.blinking=false;this.blinkVisualT=0;
   this.backstabCharged=false;this.backstabT=0;
   this.phaseOut=false;this.phaseOutT=0;
   this.slowFieldActive=false;this.slowFieldT=0;
@@ -97,6 +97,7 @@ class Sphere{
   this.sheriffSwitching=false;this.sheriffSwitchT=0; // buckshot swap animation
   this.sheriffPiercingTimer=0;
   this.sheriffPiercingTarget=null;
+  this._fireZoneCooldown=0;
   this._sheriffArmPen=false;
   this.priestShieldStacks=0;  // 0-10, each stack = 2 HP absorption
   this.priestShieldT=0;
@@ -405,7 +406,7 @@ class Sphere{
       this.x=bx;this.y=by;
       spawnBurst(this.x,this.y,this.d.rim,'#ffffff',14);
      }
-     setTimeout(()=>{this.blinking=false;},300);
+     this.blinkVisualT=0.3;
     } break;
    case 'warlord':
     if(this.stacks>=5){
@@ -1256,9 +1257,11 @@ class Sphere{
     spawnDmgNum(this.x,this.y-this.radius*1.5,'IRON WILL','#ff4444');
    }
   }
+  if(this._fireZoneCooldown>0)this._fireZoneCooldown=Math.max(0,this._fireZoneCooldown-dt);
   // ── Ninja: Shadow Step cooldown
   if(this.key==='ninja'){
    this.shadowStepCD=Math.max(0,this.shadowStepCD-dt);
+   if(this.blinkVisualT>0){this.blinkVisualT-=dt;if(this.blinkVisualT<=0){this.blinkVisualT=0;this.blinking=false;}}
    if(this.shadowStepActive){
     this.shadowStepT-=dt;
     if(this.shadowStepT<=0){this.shadowStepActive=false;this.untargetable=false;}
@@ -1464,6 +1467,10 @@ class Sphere{
      this.sheriffSwitchT-=dt;
      if(this.sheriffSwitchT<=0)this.sheriffSwitching=false;
     }
+    if(this.sheriffPiercingTimer>0){
+     this.sheriffPiercingTimer-=dt;
+     if(this.sheriffPiercingTimer<=0){this.sheriffPiercingTimer=0;this._resolvePiercingShot();}
+    }
     if(this.sheriffReloading){
      const hpLossPct=this.maxHp>0?Math.max(0,(1-this.hp/this.maxHp)*100):0;
      this.sheriffReloadDuration=Math.max(0.35,0.75-Math.min(0.4,hpLossPct*0.05));
@@ -1514,7 +1521,7 @@ class Sphere{
      this.omegaCur=this.d.om*2.5*Math.sign(this.omegaCur||1);
      // Chi trail — tight golden sparks orbiting the monk while Nirvana burns
      for(let i=0;i<2;i++){
-      const a=Date.now()*0.014+i*Math.PI;
+      const a=Date.now()*0.014+i*Math.PI; // visual-only: safe under fast-forward
       const orb=this.radius*1.3;
       particles.push({
        x:this.x+Math.cos(a)*orb, y:this.y+Math.sin(a)*orb,
@@ -1551,7 +1558,7 @@ class Sphere{
      const prog=(1.2-this.leapT)/1.2; // 0→1 as time passes
      // Growing shadow ring at target — intensifies as dragoon approaches
      if(prog>0.25){
-      const shadowPulse=0.4+0.5*Math.sin(Date.now()*.025);
+      const shadowPulse=0.4+0.5*Math.sin(Date.now()*.025); // visual-only: safe under fast-forward
       const shadowR=this.radius*(0.55+prog*1.1);
       ctx.save();ctx.globalAlpha=(prog-0.25)*0.80;
       // Perfect circle shadow — no angle/perspective distortion
@@ -1567,12 +1574,9 @@ class Sphere{
       this.isLeaping=false;this.untargetable=false;
       this.justLanded=true;this.justLandedT=0.45;
       this._triggerImpactAoE(this.radius*3.5,this.d.dmg*1.6*this.dmgMult);
-      // Shockwave rings
-      for(let i=0;i<3;i++){
-       setTimeout(()=>{
-        spawnRingBurst(this.x,this.y,'#4488cc');
-        spawnBurst(this.x,this.y,'#4488cc','#ffffff',i===0?28:14);
-       },i*80);
+      // Shockwave rings are visual-only and must not schedule real-clock callbacks.
+      if(!window._balanceNoVisuals){
+       for(let i=0;i<3;i++){spawnRingBurst(this.x,this.y,'#4488cc');spawnBurst(this.x,this.y,'#4488cc','#ffffff',i===0?28:14);}
       }
       spawnPulse(this.x,this.y,'#88bbdd');
       const bouncA=Math.atan2(this.y-this.leapTargetY,this.x-this.leapTargetX)||Math.random()*Math.PI*2;
@@ -1930,21 +1934,21 @@ class Sphere{
   if(target){
    const dx=target.x-this.x,dy=target.y-this.y;
    this.angle=Math.atan2(dy,dx);
+   target._sheriffArmPen=true;
   }
   this.sheriffSwitching=true;this.sheriffSwitchT=0.55;
-  if(target){target._sheriffArmPen=true;}
-  const snapAngle=this.angle;
-  const owner=this;
-  const doFire=()=>{
-   if(!target||!target.alive||target.dying)return;
-   const dx=target.x-owner.x,dy=target.y-owner.y;
-   owner.angle=Math.atan2(dy,dx);
-   const tip=owner.getTip();
-   const dist=Math.hypot(dx,dy)||1;
-   projectiles.push(new PiercingBullet(tip.x,tip.y,(dx/dist)*700,(dy/dist)*700,owner,target,32));
-   spawnSpark(tip.x,tip.y,'#c8b840',8);
-  };
-  setTimeout(doFire,220);
+  this.sheriffPiercingTarget=target;this.sheriffPiercingTimer=0.22;
+ }
+ _resolvePiercingShot(){
+  const target=this.sheriffPiercingTarget;
+  this.sheriffPiercingTarget=null;
+  if(!target||!target.alive||target.dying)return;
+  const dx=target.x-this.x,dy=target.y-this.y;
+  this.angle=Math.atan2(dy,dx);
+  const tip=this.getTip();
+  const dist=Math.hypot(dx,dy)||1;
+  projectiles.push(new PiercingBullet(tip.x,tip.y,(dx/dist)*700,(dy/dist)*700,this,target,32));
+  spawnSpark(tip.x,tip.y,'#c8b840',8);
  }
  _fireHolyOrb(){
   const tip=this.getTip();
@@ -2294,7 +2298,7 @@ class Sphere{
   if(!this.dying){this._drawHpBar();this._drawStatusEffectBadges();}
  }
  _drawPowerOverlay(){
-  const r=this.radius,p=0.5+0.5*Math.sin(Date.now()*.016);
+  const r=this.radius,p=0.5+0.5*Math.sin(Date.now()*.016); // visual-only: safe under fast-forward
   if(this.invincible){
    ctx.shadowColor='#fff';ctx.shadowBlur=20;
    ctx.beginPath();ctx.arc(this.x,this.y,r+8,0,Math.PI*2);
@@ -2353,7 +2357,7 @@ class Sphere{
   // New roster polish: passive/ability identity rings and counters.
   if(this.key==='witch'){
    ctx.strokeStyle=`rgba(215,123,255,${0.25+p*0.35})`;ctx.lineWidth=2;ctx.setLineDash([3,5]);ctx.beginPath();ctx.arc(this.x,this.y,r+7+p*3,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
-   for(let i=0;i<4;i++){const a=Date.now()*.002+i*Math.PI/2;ctx.fillStyle=i<this.stacks?'#d77bff':'rgba(215,123,255,.22)';ctx.beginPath();ctx.arc(this.x+Math.cos(a)*(r+13),this.y+Math.sin(a)*(r+13),2.4,0,Math.PI*2);ctx.fill();}
+   for(let i=0;i<4;i++){const a=Date.now()*.002+i*Math.PI/2;ctx.fillStyle=i<this.stacks?'#d77bff':'rgba(215,123,255,.22)';ctx.beginPath();ctx.arc(this.x+Math.cos(a)*(r+13),this.y+Math.sin(a)*(r+13),2.4,0,Math.PI*2);ctx.fill();} // visual-only: safe under fast-forward
   }
   if(this.key==='spartan'){
    const iron=Math.min(5,this.ironStacks||0);if(iron>0){ctx.strokeStyle=`rgba(216,176,96,${.25+iron*.1})`;ctx.lineWidth=2+iron*.35;ctx.beginPath();ctx.arc(this.x,this.y,r+5+iron,Math.PI*.62,Math.PI*1.38);ctx.stroke();}
@@ -2377,7 +2381,7 @@ class Sphere{
   }
   if(this.key==='fairy'){
    ctx.strokeStyle=`rgba(255,240,255,${.28+p*.22})`;ctx.lineWidth=2;ctx.beginPath();ctx.arc(this.x,this.y,r+6+p*3,0,Math.PI*2);ctx.stroke();
-   for(let i=0;i<5;i++){const a=Date.now()*.003+i*Math.PI*2/5;ctx.fillStyle=i%2?'#ff8ce2':'#fff0ff';ctx.beginPath();ctx.arc(this.x+Math.cos(a)*(r+11),this.y+Math.sin(a)*(r+11),1.8,0,Math.PI*2);ctx.fill();}
+   for(let i=0;i<5;i++){const a=Date.now()*.003+i*Math.PI*2/5;ctx.fillStyle=i%2?'#ff8ce2':'#fff0ff';ctx.beginPath();ctx.arc(this.x+Math.cos(a)*(r+11),this.y+Math.sin(a)*(r+11),1.8,0,Math.PI*2);ctx.fill();} // visual-only: safe under fast-forward
   }
   if(this.key==='beastmaster'){
    if(this.packHuntT>0){ctx.strokeStyle=`rgba(255,176,96,${.42+p*.32})`;ctx.lineWidth=3;ctx.setLineDash([5,4]);ctx.beginPath();ctx.arc(this.x,this.y,r+11+p*3,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);}
@@ -2395,7 +2399,7 @@ class Sphere{
   if(this.slowFieldActive){ctx.beginPath();ctx.arc(this.x,this.y,r*3,0,Math.PI*2);ctx.strokeStyle='rgba(255,230,80,.22)';ctx.lineWidth=2;ctx.setLineDash([5,5]);ctx.stroke();ctx.setLineDash([]);ctx.shadowBlur=0;}
   if(this.snareActive){ctx.beginPath();ctx.arc(this.x,this.y,r+6,0,Math.PI*2);ctx.strokeStyle='rgba(105,240,174,.7)';ctx.lineWidth=3;ctx.stroke();ctx.shadowBlur=0;}
   if(this.woundT>0){
-   const wp=0.5+0.5*Math.sin(Date.now()*.018);
+   const wp=0.5+0.5*Math.sin(Date.now()*.018); // visual-only: safe under fast-forward
    ctx.shadowColor='#9b00ff';ctx.shadowBlur=12;
    ctx.beginPath();ctx.arc(this.x,this.y,r+8,0,Math.PI*2);
    ctx.strokeStyle=`rgba(155,0,255,${0.55+wp*0.35})`;ctx.lineWidth=2.5;ctx.setLineDash([3,4]);ctx.stroke();
@@ -2405,7 +2409,7 @@ class Sphere{
    ctx.fillStyle='rgba(180,50,255,0.9)';ctx.fillText('WOUND',this.x,this.y-r-10);
   }
   if(this.deathMarkTicks>0){
-   const t2=Date.now()*.005;
+   const t2=Date.now()*.005; // visual-only: safe under fast-forward
    for(let i=0;i<this.deathMarkTicks;i++){
     const a=i/this.deathMarkTicks*Math.PI*2+t2;
     ctx.fillStyle='rgba(124,77,255,.8)';ctx.beginPath();ctx.arc(this.x+Math.cos(a)*(r+10),this.y+Math.sin(a)*(r+10),4,0,Math.PI*2);ctx.fill();
@@ -2459,7 +2463,7 @@ class Sphere{
    ctx.setLineDash([4,4]);ctx.stroke();ctx.setLineDash([]);ctx.shadowBlur=0;
   }
   if(this.electrifiedT>0){
-   const et=Date.now()*.02;
+   const et=Date.now()*.02; // visual-only: safe under fast-forward
    ctx.shadowColor='#ffee00';ctx.shadowBlur=10;
    ctx.strokeStyle='rgba(255,238,0,0.8)';ctx.lineWidth=1.5;
    for(let i=0;i<3;i++){
@@ -2541,7 +2545,7 @@ class Sphere{
   }
   if(this.priestShieldStacks>0){
    const sIntensity=this.priestShieldStacks/10;
-   const sTime=Date.now()*.002;
+   const sTime=Date.now()*.002; // visual-only: safe under fast-forward
    ctx.shadowColor='#fff8c0';ctx.shadowBlur=12*sIntensity;
    ctx.beginPath();ctx.arc(this.x,this.y,r+7+p*3,0,Math.PI*2);
    ctx.strokeStyle=`rgba(255,248,192,${0.35+sIntensity*0.45})`;ctx.lineWidth=2.5;ctx.stroke();
@@ -2558,7 +2562,7 @@ class Sphere{
    ctx.fillText(`${this.priestShieldStacks*2}`,this.x,this.y-r-14);
   }
   if(this.benedictionActive){
-   const bPulse=0.5+0.5*Math.sin(Date.now()*.012);
+   const bPulse=0.5+0.5*Math.sin(Date.now()*.012); // visual-only: safe under fast-forward
    ctx.shadowColor='#fff8a0';ctx.shadowBlur=16;
    ctx.beginPath();ctx.arc(this.x,this.y,r+10+bPulse*4,0,Math.PI*2);
    ctx.strokeStyle=`rgba(255,248,160,${0.55+bPulse*0.35})`;ctx.lineWidth=3;ctx.stroke();
@@ -2577,7 +2581,7 @@ class Sphere{
     ctx.lineWidth=1.5+spdFrac*2;ctx.stroke();ctx.shadowBlur=0;
    }
    if(this.pyreActive){
-    const pp=0.5+0.5*Math.sin(Date.now()*.02);
+    const pp=0.5+0.5*Math.sin(Date.now()*.02); // visual-only: safe under fast-forward
     ctx.shadowColor='#ff4400';ctx.shadowBlur=20+pp*10;
     ctx.beginPath();ctx.arc(this.x,this.y,r*2.8,0,Math.PI*2);
     ctx.strokeStyle=`rgba(255,80,0,${0.25+pp*0.2})`;ctx.lineWidth=3+pp*3;ctx.stroke();
@@ -2602,7 +2606,7 @@ class Sphere{
   }
   if(this.key==='vampire'){
    if(this.ghostMode){
-    const swp=0.4+0.4*Math.sin(Date.now()*.018);
+    const swp=0.4+0.4*Math.sin(Date.now()*.018); // visual-only: safe under fast-forward
     ctx.shadowColor='#cc0044';ctx.shadowBlur=18;
     ctx.beginPath();ctx.arc(this.x,this.y,r+10+swp*5,0,Math.PI*2);
     ctx.strokeStyle=`rgba(200,0,68,${0.5+swp*0.4})`;ctx.lineWidth=3;ctx.setLineDash([4,3]);ctx.stroke();
@@ -2623,7 +2627,7 @@ class Sphere{
   }
   if(this.key==='monk'){
    if(this.nirvanaActive){
-    const np=0.5+0.5*Math.sin(Date.now()*.022);
+    const np=0.5+0.5*Math.sin(Date.now()*.022); // visual-only: safe under fast-forward
     ctx.shadowColor='#ffe0a0';ctx.shadowBlur=20+np*10;
     ctx.beginPath();ctx.arc(this.x,this.y,r+10+np*6,0,Math.PI*2);
     ctx.strokeStyle=`rgba(255,224,160,${0.55+np*0.35})`;ctx.lineWidth=3;ctx.stroke();
@@ -2639,7 +2643,7 @@ class Sphere{
    }
   }
   if(this.corrosionStacks>0){
-   const cp=0.5+0.5*Math.sin(Date.now()*.02);
+   const cp=0.5+0.5*Math.sin(Date.now()*.02); // visual-only: safe under fast-forward
    const ci=this.corrosionStacks/6;
    ctx.shadowColor='#66ff44';ctx.shadowBlur=8+ci*8;
    ctx.beginPath();ctx.arc(this.x,this.y,r+4,0,Math.PI*2);
@@ -2657,7 +2661,7 @@ class Sphere{
     ctx.strokeStyle=`rgba(68,136,204,${0.5+p*0.35})`;ctx.lineWidth=2.5;ctx.stroke();
     ctx.shadowBlur=0;
     for(let i=0;i<4;i++){
-     const a=(i/4)*Math.PI*2+Date.now()*.0008;
+     const a=(i/4)*Math.PI*2+Date.now()*.0008; // visual-only: safe under fast-forward
      ctx.fillStyle='#88bbdd';ctx.beginPath();ctx.arc(this.x+Math.cos(a)*(r+10),this.y+Math.sin(a)*(r+10),2.5,0,Math.PI*2);ctx.fill();
     }
    } else {
@@ -2667,7 +2671,7 @@ class Sphere{
     ctx.setLineDash([]);
    }
    if(this.isLeaping){
-    const lp2=0.5+0.5*Math.sin(Date.now()*.025);
+    const lp2=0.5+0.5*Math.sin(Date.now()*.025); // visual-only: safe under fast-forward
     ctx.shadowColor='#4488cc';ctx.shadowBlur=28+lp2*12;
     ctx.beginPath();ctx.arc(this.x,this.y,r+10+lp2*6,0,Math.PI*2);
     ctx.strokeStyle=`rgba(68,136,204,${0.65+lp2*0.3})`;ctx.lineWidth=4;ctx.stroke();
@@ -2702,7 +2706,7 @@ class Sphere{
    }
   }
   if(this.blinded){
-   const bp=0.5+0.5*Math.sin(Date.now()*.022);
+   const bp=0.5+0.5*Math.sin(Date.now()*.022); // visual-only: safe under fast-forward
    const r=this.radius;
    ctx.save();
    ctx.globalAlpha=0.55+bp*0.35;
@@ -2735,7 +2739,7 @@ class Sphere{
   // ── Crusader overlays
   if(this.key==='crusader'){
    if(this.holyChargeActive){
-    const cp=0.5+0.5*Math.sin(Date.now()*.025);
+    const cp=0.5+0.5*Math.sin(Date.now()*.025); // visual-only: safe under fast-forward
     ctx.shadowColor='#fffacc';ctx.shadowBlur=22+cp*8;
     ctx.strokeStyle=`rgba(255,250,204,${0.75+cp*0.25})`;ctx.lineWidth=4;
     ctx.beginPath();ctx.arc(this.x,this.y,r+10+cp*4,0,Math.PI*2);ctx.stroke();
@@ -2766,7 +2770,7 @@ class Sphere{
   // ── Mimic overlays
   if(this.key==='mimic'){
    if(this.perfectCopyActive){
-    const hue=Math.floor((Date.now()*.03)%360);
+    const hue=Math.floor((Date.now()*.03)%360); // visual-only: safe under fast-forward
     ctx.shadowColor=`hsl(${hue},100%,70%)`;ctx.shadowBlur=18;
     ctx.strokeStyle=`hsla(${hue},90%,70%,0.85)`;ctx.lineWidth=3.5;
     ctx.beginPath();ctx.arc(this.x,this.y,r+10,0,Math.PI*2);ctx.stroke();
@@ -2796,7 +2800,7 @@ class Sphere{
     }
    }
    if(this.thunderclapActive){
-    const tp=0.5+0.5*Math.sin(Date.now()*.03);
+    const tp=0.5+0.5*Math.sin(Date.now()*.03); // visual-only: safe under fast-forward
     ctx.shadowColor='#ffffff';ctx.shadowBlur=28+tp*10;
     ctx.strokeStyle=`rgba(200,230,255,${0.8+tp*0.2})`;ctx.lineWidth=4;
     ctx.beginPath();ctx.arc(this.x,this.y,r+12+tp*6,0,Math.PI*2);ctx.stroke();
@@ -2849,7 +2853,7 @@ class Sphere{
   if(this.hitFlash>0){ctx.beginPath();ctx.arc(px,py,r,0,Math.PI*2);ctx.fillStyle=`rgba(255,255,60,${this.hitFlash*.45})`;ctx.fill();}
  }
  _syncHpBarVisual(){
-  const now=performance.now();
+  const now=performance.now(); // visual-only: safe under fast-forward
   const dt=Math.min(0.05,Math.max(0,(now-(this.hpBarLastUpdate||now))/1000));
   this.hpBarLastUpdate=now;
   const curHp=Math.max(0,Math.min(this.maxHp,this.hp));
@@ -2953,7 +2957,7 @@ class Sphere{
   const truePct=clampPct(this.hp);
   const ghostPct=clampPct(this.hpBarDamageGhostHp||0);
   const healPct=clampPct(this.hpBarHealTargetHp||0);
-  const lowPulse=truePct<0.3?0.5+0.5*Math.sin(performance.now()*0.009):0;
+  const lowPulse=truePct<0.3?0.5+0.5*Math.sin(performance.now()*0.009):0; // visual-only: safe under fast-forward
   ctx.save();
   ctx.fillStyle='#050608';ctx.fillRect(bx-2,by-2,bw+4,bh+4);
   ctx.fillStyle='#18202a';ctx.fillRect(bx,by,bw,bh);

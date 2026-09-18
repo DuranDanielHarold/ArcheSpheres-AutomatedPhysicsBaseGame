@@ -320,13 +320,12 @@ class FireBreathZone{
   this.life-=dt;this.tickT+=dt;this.rot+=dt;
   if(this.tickT<0.5)return;
   this.tickT=0;
-  const now=performance.now();
   for(const s of spheres){
    if(sameFaction(this.owner,s)||!s.alive||s.dying)continue;
    if(Math.hypot(s.x-this.x,s.y-this.y)>this.r+s.radius)continue;
    // Anti-stack: only deal damage if not hit by any fire zone in last 0.45s
-   if(s._fireZoneHitTime&&now-s._fireZoneHitTime<450)continue;
-   s._fireZoneHitTime=now;
+   if(s._fireZoneCooldown>0)continue;
+   s._fireZoneCooldown=0.45;
    s.receiveDamage(2);
     s.burning=true;s.burnT=Math.max(s.burnT||0,2.0);s.burnTickInterval=WHELPLING_BURN_TICK_INTERVAL;s.burnTickT=Math.min(s.burnTickT||WHELPLING_BURN_TICK_INTERVAL,WHELPLING_BURN_TICK_INTERVAL);
    spawnSpark(s.x,s.y,'#ff4400',3);

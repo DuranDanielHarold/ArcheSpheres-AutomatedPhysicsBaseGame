@@ -110,7 +110,8 @@ function showWinner(w){
  ov.classList.add('show');
  let pressTimer=null;
  const cleanup=()=>{ov.removeEventListener('mousedown',onDown);ov.removeEventListener('touchstart',onDown);ov.removeEventListener('mouseup',onUp);ov.removeEventListener('touchend',onUp);};
- const onDown=()=>{pressTimer=setTimeout(()=>{cleanup();window.randomModeActive=false;ov.classList.remove('show');window.startPicker(gameMode);},600);};
+ // UI-only: not reached during balance simulation
+const onDown=()=>{pressTimer=setTimeout(()=>{cleanup();window.randomModeActive=false;ov.classList.remove('show');window.startPicker(gameMode);},600);};
  const onUp=()=>{if(pressTimer){clearTimeout(pressTimer);pressTimer=null;cleanup();ov.classList.remove('show');if(window.randomModeActive&&typeof window.startRandomBattle==='function')window.startRandomBattle();else launchBattle();}};
  ov.addEventListener('mousedown',onDown);ov.addEventListener('touchstart',onDown);
  ov.addEventListener('mouseup',onUp,{once:true});ov.addEventListener('touchend',onUp,{once:true});

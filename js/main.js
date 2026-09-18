@@ -97,5 +97,6 @@ function resize(){
 if(window.ResizeObserver){
  new ResizeObserver(()=>{resize();}).observe(document.getElementById('arena-border'));
 }
+// UI-only: not reached during balance simulation
 window.addEventListener('orientationchange',()=>setTimeout(()=>{resize();},150));
 window.addEventListener('load',()=>{resize();if(typeof initAudioUi==='function')initAudioUi();});
