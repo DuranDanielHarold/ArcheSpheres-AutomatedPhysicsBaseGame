@@ -5,7 +5,7 @@
 function gameStep(dt){
  for(const s of spheres)s.update(dt);
  for(const p of projectiles){
-  if(window._liveCombatTracker&&p.owner&&p.owner.d&&p.owner.d.rangedSphere&&!p._liveProjectileTracked){
+  if(window._liveCombatTracker&&p.owner&&!p._liveProjectileTracked){
    window._liveCombatTracker.onProjectileFire(p.owner.key);
    p._liveProjectileTracked=true;
   }

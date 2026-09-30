@@ -2,6 +2,12 @@
 // ▓▓▓ MODULE: combat/collisions.js — extracted from former js/engine.js ▓▓▓
 // Physics resolution, weapon hits/clashes, faction helpers, and skeleton combat.
 
+function recordDamageEvent(sourceKey,sourceType,amount){
+ if(!sourceKey||!isFinite(amount)||amount<=0)return;
+ const route=tracker=>{if(!tracker)return;if(sourceType==='projectile')tracker.onProjectileHit(sourceKey,amount);else if(sourceType==='passive')tracker.onPassiveTrigger(sourceKey,amount);else tracker.onDamage(sourceKey,amount,sourceType);};
+ route(window._liveCombatTracker);route(window._balanceCombatTracker);
+}
+
 function sameFaction(a,b){
  return a&&b&&a.faction!==undefined&&b.faction!==undefined&&a.faction===b.faction;
 }
@@ -147,16 +153,17 @@ function _weaponHit(att,def){
   if(d<def.radius+tipR&&d<hitDist){hit=true;hitPt=pt;hitDist=d;}
  }
  const tip=att.getTip();
- if(!att._hitDefenders.get(def)&&window._balanceCombatTracker){
+ if(!att._meleeAttemptDefenders.get(def)&&window._balanceCombatTracker){
   const centerDist=Math.hypot(def.x-att.x,def.y-att.y);
   const distanceAtAttempt=Math.max(0,(centerDist-def.radius)/(att.radius||1));
   window._balanceCombatTracker.onMeleeAttempt(att.key,distanceAtAttempt,att.d.reach,hit);
  }
- if(!att._hitDefenders.get(def)&&window._liveCombatTracker){
+ if(!att._meleeAttemptDefenders.get(def)&&window._liveCombatTracker){
   const centerDist=Math.hypot(def.x-att.x,def.y-att.y);
   const distanceAtAttempt=Math.max(0,(centerDist-def.radius)/(att.radius||1));
   window._liveCombatTracker.onMeleeAttempt(att.key,distanceAtAttempt,att.d.reach,hit);
  }
+ if(!att._meleeAttemptDefenders.get(def))att._meleeAttemptDefenders.set(def,true);
  if(hit)_unstickTricksterFromWeapon(att,def,pts,tipR);
  if(hit&&!att._hitDefenders.get(def)){
   att._hitDefenders.set(def,true);
@@ -206,7 +213,7 @@ function _weaponHit(att,def){
    if(window._balanceCombatTracker&&att.d&&att.d.sphereMelee)window._balanceCombatTracker.onRotationUpdate(att.key,att.rotationSpeed||0,true);
    if(window._liveCombatTracker&&att.d&&att.d.sphereMelee)window._liveCombatTracker.onRotationUpdate(att.key,att.rotationSpeed||0,true);
    if(att.key==='queen'&&att.queenGambitT>0){
-    const _qBefore=def.hp;def.hp=Math.max(0,def.hp-dmg);def.hitFlash=1;if(window._balanceCombatTracker)window._balanceCombatTracker.onDamage(att.key,Math.max(0,_qBefore-def.hp),'ability');
+    const _qBefore=def.hp;def.hp=Math.max(0,def.hp-dmg);def.hitFlash=1;recordDamageEvent(att.key,'ability',Math.max(0,_qBefore-def.hp));
     spawnDmgNum(def.x,def.y-def.radius*0.5,dmg,'#ff8bd1');
     spawnSpark(hx,hy,att.d.color,7);
     if(def.hp<=0&&!def.dying){def.alive=false;def.dying=true;spawnBurst(def.x,def.y,def.d.rim,def.d.color,28);}
@@ -258,7 +265,7 @@ function _weaponHit(att,def){
    // Rogue — Hemorrhage: apply/refresh bleed stacks on target (max 3)
     if(traits&&att.key==='rogue'){
     def.bleedStacks=Math.min(3,(def.bleedStacks||0)+1);
-    def.bleedT=1.8;
+    def.bleedSourceKey=att.key;def.bleedT=1.8;
     if(def.bleedTickT<=0)def.bleedTickT=0.5;
     spawnSpark(hx,hy,'#e74c3c',4);
     }
@@ -279,7 +286,7 @@ function _weaponHit(att,def){
     if(att.plagueSepsisCount>=5){
      att.plagueSepsisCount=0;
      def.sepsisWeakenedT=5.0;
-     def.sepsisDotTicks=4;def.sepsisDotTimer=0.5;def.sepsisDotDmg=Math.max(1,def.hp*0.08/4);
+     def.sepsisDotTicks=4;def.sepsisDotTimer=0.5;def.sepsisSourceKey=att.key;def.sepsisDotDmg=Math.max(1,def.hp*0.08/4);
      spawnBurst(def.x,def.y,'#aadd44','#2a3a1a',18);
      spawnDmgNum(def.x,def.y-def.radius*2.1,'WEAKENED','#aadd44');
     }
@@ -297,8 +304,8 @@ function _weaponHit(att,def){
    // Stormbringer — discharge static charge on hit
     if(traits&&att.key==='stormbringer'&&att.staticCharge>0){
     const trueDmg=att.staticCharge*0.6;
-    def.hp=Math.max(0,def.hp-trueDmg);
-    def.hitFlash=1;
+    const _staticBefore=def.hp;def.hp=Math.max(0,def.hp-trueDmg);
+    def.hitFlash=1;recordDamageEvent(att.key,'passive',_staticBefore-def.hp);
     if(trueDmg>0.5){spawnDmgNum(def.x,def.y-def.radius*1.8,trueDmg,'#88ccff');spawnSpark(def.x,def.y,'#88ccff',5);}
     att.staticCharge=0;
     if(def.hp<=0&&!def.dying){def.alive=false;def.dying=true;spawnBurst(def.x,def.y,def.d.rim,def.d.color,28);}
@@ -318,7 +325,7 @@ function _weaponHit(att,def){
    }
   }
  const bladeStillInside=pts.some(pt=>Math.hypot(pt.x-def.x,pt.y-def.y)<def.radius+tipR);
- if(!bladeStillInside)att._hitDefenders.delete(def);
+ if(!bladeStillInside){att._hitDefenders.delete(def);att._meleeAttemptDefenders.delete(def);}
 }
 function _applyLocksmithLock(att,def){
  def.locksmithLocks=Math.min(2,(def.locksmithLocks||0)+1);

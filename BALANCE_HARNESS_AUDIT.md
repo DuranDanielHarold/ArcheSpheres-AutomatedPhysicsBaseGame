@@ -93,3 +93,34 @@ Expected direction: Sheriff's projectile share and total damage should rise subs
 ```
 
 Expected: debug output for a ramping Vampire/Flagellant match shows its own max-HP / 24 DPS, rather than 24.75–25.4; sudden-death labels appear in sufficiently long matches. Live check: Knight vs Templar still shows the warning/banner/pulse/ramp and Battle Report still says elimination; complete a 2v2 without console errors.
+
+## Phase 3 — Damage attribution
+
+- **Pre-flight:** Phase 0 → Phase 1 → Phase 2 (`5fd36dc`, “Unify live and simulated stall resolution”) is the trusted starting point. Phase 2's `computeStallRampDps`, `applyStallRampDamage`, and `resolveStallTimeoutWinner` remain closed; Phase 3 starts with no prior attribution artifact.
+- **Foundational tracking:** `recordDamageEvent(sourceKey, sourceType, amount)` routes explicit, positive post-mitigation HP deltas to both live and balance trackers. It deliberately does not extend the fragile inference-global pattern. Each new call is either a direct HP write or a victim/passive-frame `receiveDamage` call where the globals are unset, so it does not duplicate ordinary hit/projectile accounting. Stack gains now use `onStackGain`; `_applyLowHpBuff()`'s two zero-damage `onPassiveTrigger` calls were removed rather than misclassified. `CombatTracker` now exposes `stackGains` and `abilityBlocked` only through `getSummary()`.
+- **Tier B — DoT sources/ticks:** burn sources are stamped by FlameBolt, BreathFlame, FireBreathZone, LingeringMiasma, and fire rod applications (`projectiles-basic.js`, `projectiles-roster.js`, `zones-and-traps.js`); burn, bleed, glass-bleed, death-mark, sepsis, and inquisitor heat-trail ticks explicitly report `dot` in `sphere.js`. Rogue stamps `bleedSourceKey`; plague stamps `sepsisSourceKey`; GlassShard stamps `glassBleedSourceKey`; SkullOrb (both branches) and necromancer stamp `deathMarkSourceKey`.
+- **Tier C — passive damage:** paladin holy pulse in `_passiveAbility`, plus druid auto-whip AoE and vampire ghost-bat ticks in `Sphere.update()` (not `_passiveAbility`) report post-damage deltas as passive damage.
+- **Tier D — bypass writes:** PiercingBullet (ability), BurialMound (passive), GlassShard contact (passive) / detonation (ability), stormbringer static discharge (passive) and thunderclap discharge (ability), dragoon impact AoE (ability), flagellant enemy Penitence shockwave (ability), and Queen's Gambit (ability) now use explicit routes. `GlassShard.shatter(target,dmg,sourceType='passive')` preserves contact behavior while `detonate(sourceType='ability')` threads ability typing to every shatter call.
+- **Remaining corrections:** melee attempts have an independent per-defender latch that is cleared with the existing swing-contact latch. Ability-blocked events cover crusader, whelpling, gladiator, gravedigger, and dragoon (the leap and no-enemy branches). Projectile-fire tracking now includes every owned projectile. The dragoon branch still clears stacks before discovering no enemy: **observed, not fixed** to preserve gameplay behavior.
+- **Mirror matches:** the full identity/faction attribution fix remains deferred because it requires threading side identity through all event call sites. `CombatTracker` now warns once and marks mirror match construction defensively; pairing code documents the limitation.
+- **Baseline invalidation #4:** every earlier baseline, including Phase 2, undercounted or dropped DoT and several ability/passive mechanics and over-counted melee attempts. Rogue, plague, whelpling, inquisitor, sheriff, gravedigger, glassblower, stormbringer, dragoon, flagellant, paladin, druid, vampire, and queen are most affected. Capture a fresh full baseline before a patch decision.
+
+### Owner-executed runtime verification
+
+Paste the Session 5 verification block supplied for this phase into the browser console. Expected direction: rogue/plague/whelpling/inquisitor show material `dotDmgPct`; sheriff/gravedigger/glassblower/stormbringer/dragoon/flagellant/paladin/druid/vampire/queen gain ability/passive attribution; melee hit rate rises and `VISUAL_OUTPACING_HITBOX` drops well below the prior approximately 36/50; knight is the control. The block must report no damage-share sum failures and byte-identical repeated seeded class rows.
+
+### Owner-executed live-play checklist
+
+- Rogue bleed ticks with no console error.
+- Paladin holy pulse heal/damage/knockback remains unchanged.
+- Sheriff bola then piercing-shot sequence remains unchanged.
+- Glassblower Kiln Detonation and passive shard shatter remain visually unchanged.
+- Run one 2v2 with no console errors.
+
+### Implemented attribution map (source/tick references)
+
+| Tier | Mechanics | Implemented references |
+|---|---|---|
+| B | burn, bleed, glass-bleed, death-mark, sepsis, heat trail | `sphere.js`: 951, 1056, 1115, 1205, 1289, 1298; source stamps: `collisions.js`: 268, 289; `projectiles-basic.js`: 616, 619; `zones-and-traps.js`: 112, 330; `projectiles-roster.js`: 141, 208. |
+| C | paladin pulse, druid whip, vampire bats | `sphere.js`: 1394, 1080, 1157. |
+| D | Queen, static/thunderclap, piercing, mound, glass shard, dragoon impact, Penitence | `collisions.js`: 216, 308; `sphere.js`: 685, 741, 1828–1829; `projectiles-basic.js`: 260; `zones-and-traps.js`: 32, 108–123. |
