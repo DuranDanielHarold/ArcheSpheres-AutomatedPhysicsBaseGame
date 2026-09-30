@@ -29,7 +29,7 @@ class BurialMound{
     this.triggerCD=0.75;
     s.vx*=0.72;s.vy*=0.72;s.impactVx*=0.72;s.impactVy*=0.72;
     const tdmg=Math.max(1,s.hp*0.03);
-    s.hp=Math.max(0,s.hp-tdmg);s.hitFlash=1;
+    const _moundBefore=s.hp;s.hp=Math.max(0,s.hp-tdmg);s.hitFlash=1;recordDamageEvent(this.owner.key,'passive',_moundBefore-s.hp);
     spawnDmgNum(s.x,s.y-s.radius*1.4,tdmg,'#a7834b');
     spawnSpark(s.x,s.y,'#8a6a40',4);
     if(s.hp<=0&&!s.dying){s.alive=false;s.dying=true;spawnBurst(s.x,s.y,s.d.rim,s.d.color,28);}
@@ -105,22 +105,22 @@ class GlassShard{
    if(spd>170&&Math.hypot(s.x-this.x,s.y-this.y)<s.radius+this.r){this.shatter(s,8);break;}
   }
  }
- shatter(target,dmg=8){
+ shatter(target,dmg=8,sourceType='passive'){
   if(!this.alive)return 0;
   this.alive=false;
   if(target&&target.alive&&!target.dying){
-   target.hp=Math.max(0,target.hp-dmg);target.hitFlash=1;target.glassBleedT=Math.max(target.glassBleedT||0,4.0);
+   const _shatterBefore=target.hp;target.hp=Math.max(0,target.hp-dmg);target.hitFlash=1;recordDamageEvent(this.owner.key,sourceType,_shatterBefore-target.hp);target.glassBleedSourceKey=this.owner.key;target.glassBleedT=Math.max(target.glassBleedT||0,4.0);
    spawnDmgNum(target.x,target.y-target.radius*1.4,dmg,'#82f4ff');
    if(target.hp<=0&&!target.dying){target.alive=false;target.dying=true;spawnBurst(target.x,target.y,target.d.rim,target.d.color,28);}
   }
   spawnBurst(this.x,this.y,'#82f4ff','#ffffff',10);return target?1:0;
  }
- detonate(){
+ detonate(sourceType='ability'){
   if(!this.alive)return 0;
   let hits=0;
   for(const s of spheres){
    if(sameFaction(this.owner,s)||!s.alive||s.dying)continue;
-   if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+this.r*3.0)hits+=this.shatter(s,6);
+   if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+this.r*3.0)hits+=this.shatter(s,6,sourceType);
   }
   if(this.alive){this.alive=false;spawnBurst(this.x,this.y,'#82f4ff','#ffffff',8);}
   return hits;
@@ -327,7 +327,7 @@ class FireBreathZone{
    if(s._fireZoneCooldown>0)continue;
    s._fireZoneCooldown=0.45;
    s.receiveDamage(2);
-    s.burning=true;s.burnT=Math.max(s.burnT||0,2.0);s.burnTickInterval=WHELPLING_BURN_TICK_INTERVAL;s.burnTickT=Math.min(s.burnTickT||WHELPLING_BURN_TICK_INTERVAL,WHELPLING_BURN_TICK_INTERVAL);
+    s.burnSourceKey=this.owner.key;s.burning=true;s.burnT=Math.max(s.burnT||0,2.0);s.burnTickInterval=WHELPLING_BURN_TICK_INTERVAL;s.burnTickT=Math.min(s.burnTickT||WHELPLING_BURN_TICK_INTERVAL,WHELPLING_BURN_TICK_INTERVAL);
    spawnSpark(s.x,s.y,'#ff4400',3);
   }
  }

@@ -66,7 +66,7 @@ class Arrow{
     const ny=(s.y-this.y)/Math.hypot(s.x-this.x,s.y-this.y)||0;
     s.applyImpact(nx*Math.hypot(this.vx,this.vy)*0.32,ny*Math.hypot(this.vx,this.vy)*0.32);
     s.receiveDamage(this.dmg);
-    if(this.fireBurn){s.burning=true;s.burnT=2.5;s.burnTickInterval=1.0;s.burnTickT=1.0;}
+    if(this.fireBurn){s.burnSourceKey=this.owner.key;s.burning=true;s.burnT=2.5;s.burnTickInterval=1.0;s.burnTickT=1.0;}
     if(this.owner&&this.owner.gainStack){this.owner.gainStack();this.owner._applyHitBuff();}
     if(this.isCrit){
      spawnBurst(this.x,this.y,'#ff4400','#ffaa22',14);
@@ -257,7 +257,7 @@ class PiercingBullet{
    if(Math.hypot(this.target.x-this.x,this.target.y-this.y)<this.target.radius+8){
        let finalDmg=this.damage+(this.target.maxHp*0.05);
 if(this.target._sheriffArmPen){const penBonus=this.target.d.arm*0.40*0.004;finalDmg+=penBonus;this.target._sheriffArmPen=false;}
-    this.target.hp=Math.max(0,this.target.hp-finalDmg);
+    const _pierceBefore=this.target.hp;this.target.hp=Math.max(0,this.target.hp-finalDmg);recordDamageEvent(this.owner.key,'ability',_pierceBefore-this.target.hp);
     this.target.hitFlash=1;
     spawnBloodSplat(this.target.x,this.target.y,this.target.d.color,finalDmg);
    
@@ -421,7 +421,7 @@ class HolyOrb{
        s.d=Object.assign({},s.d);
     const baseMagDef=DEF[s.key].magDef;
     s.d.magDef=Math.max(Math.max(0,baseMagDef-30),s.d.magDef-5);
-    if(this.fireBurn){s.burning=true;s.burnT=2.5;s.burnTickInterval=1.0;s.burnTickT=1.0;}
+    if(this.fireBurn){s.burnSourceKey=this.owner.key;s.burning=true;s.burnT=2.5;s.burnTickInterval=1.0;s.burnTickT=1.0;}
     if(this.owner&&this.owner.gainStack){this.owner.gainStack();this.owner._applyHitBuff();}
     spawnSpark(this.x,this.y,'#fff8c0',8);
     spawnBurst(this.x,this.y,'#f0e890','#fff',10);
@@ -520,7 +520,7 @@ class FlameBolt{
      s.electrified=true;s.electrifiedT=1.4+power*0.3;
      spawnSpark(s.x,s.y,'#ffee00',8);
      } else if(this.rodType===1){// Fire: longer, faster burn ticks
-      s.burning=true;s.burnT=4.0+power*0.65;s.burnTickInterval=Math.max(0.5,DEFAULT_BURN_TICK_INTERVAL-power*0.14);s.burnTickT=Math.min(0.75,s.burnTickInterval);
+      s.burnSourceKey=this.owner.key;s.burning=true;s.burnT=4.0+power*0.65;s.burnTickInterval=Math.max(0.5,DEFAULT_BURN_TICK_INTERVAL-power*0.14);s.burnTickT=Math.min(0.75,s.burnTickInterval);
      spawnFlameExplosion(s.x,s.y);
     } else if(this.rodType===2){// Water: stronger, longer slow stacking
      s.waterSlow=Math.min(2.8+power*0.35,s.waterSlow+1.35+power*0.22);s.waterSlowT=2.6+power*0.35;
@@ -608,13 +608,15 @@ class SkullOrb{
    if(!isEnemy||!s.alive||s.dying)continue;
    if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+this.r+3){
     s.receiveMagicDamage(this.dmg); // magic damage — uses magDef not arm
-    if(this.fireBurn){s.burning=true;s.burnT=2.5;s.burnTickInterval=1.0;s.burnTickT=1.0;}
+    if(this.fireBurn){s.burnSourceKey=this.owner.key;s.burning=true;s.burnT=2.5;s.burnTickInterval=1.0;s.burnTickT=1.0;}
     if(this.owner&&this.owner.gainStack){this.owner.gainStack();this.owner._applyHitBuff();}
     if(s.deathMarkTicks<=0){
      s.deathMarkTicks=7;
      s.deathMarkTimer=0.18;
+     s.deathMarkSourceKey=this.owner.key;
      s.deathMarkDmg=this.dmg*0.70+1;
     } else {
+     s.deathMarkSourceKey=this.owner.key;
      s.deathMarkDmg=this.dmg*0.70+1;
      s.deathMarkDoTHits=(s.deathMarkDoTHits||0)+7; // credit a full sequence
     }

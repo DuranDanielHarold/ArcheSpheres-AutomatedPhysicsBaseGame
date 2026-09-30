@@ -138,7 +138,7 @@ class BreathFlame{
    if(sameFaction(this.owner,s)||!s.alive||s.dying)continue;
    if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+this.r){
     s.receiveDamage(this.dmg);
-     s.burning=true;s.burnT=2.0;s.burnTickInterval=WHELPLING_BURN_TICK_INTERVAL;s.burnTickT=WHELPLING_BURN_TICK_INTERVAL;
+     s.burnSourceKey=this.owner.key;s.burning=true;s.burnT=2.0;s.burnTickInterval=WHELPLING_BURN_TICK_INTERVAL;s.burnTickT=WHELPLING_BURN_TICK_INTERVAL;
     this.owner._applyHitBuff();
     if(!this.hasSpawnedZone){this.hasSpawnedZone=true;thornPatches.push(new FireBreathZone(this.x,this.y,this.owner));}
     spawnFlameExplosion(s.x,s.y);
@@ -205,7 +205,7 @@ class LingeringMiasma{
     spawnDmgNum(s.x,s.y-s.radius*1.6,'BLIND','#ffee44');
    } else {
     // Green: burn + blind
-     s.burning=true;s.burnT=Math.max(s.burnT||0,4.5);s.burnTickInterval=DEFAULT_BURN_TICK_INTERVAL;s.burnTickT=0;
+     s.burnSourceKey=this.owner.key;s.burning=true;s.burnT=Math.max(s.burnT||0,4.5);s.burnTickInterval=DEFAULT_BURN_TICK_INTERVAL;s.burnTickT=0;
     s.blinded=true;s.blindT=Math.max(s.blindT||0,2.0);
     spawnSpark(s.x,s.y,cfg.spark,6);
     spawnDmgNum(s.x,s.y-s.radius*1.6,cfg.label,cfg.labelCol);

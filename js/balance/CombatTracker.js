@@ -9,6 +9,8 @@ class CombatTracker{
   this._proj={red:{fired:0,hits:0,dmg:0},blue:{fired:0,hits:0,dmg:0}};
   this._rotation={red:{peak:0,sum:0,count:0,firstHitSpeed:null},blue:{peak:0,sum:0,count:0,firstHitSpeed:null}};
   this._melee={red:{attempts:0,hits:0,distSum:0,reachSum:0},blue:{attempts:0,hits:0,distSum:0,reachSum:0}};
+  this._stackGain={red:0,blue:0};this._abilityBlocked={red:0,blue:0};
+  this._mirrorMatch=redKey===blueKey;if(this._mirrorMatch)console.warn(`[balance] mirror-match attribution is unreliable for ${redKey} vs ${blueKey}`);
   this._matchDuration=0;
  }
  _side(key){return key===this.redKey?'red':'blue';}
@@ -18,6 +20,8 @@ class CombatTracker{
   d[type]=(d[type]||0)+damage;
  }
  onAbilityUse(userKey,hit=false){if(!userKey)return;const a=this._ability[this._side(userKey)];a.uses++;if(hit)a.hits++;}
+ onStackGain(userKey){if(!userKey)return;this._stackGain[this._side(userKey)]++;}
+ onAbilityBlocked(userKey){if(!userKey)return;this._abilityBlocked[this._side(userKey)]++;}
  onPassiveTrigger(userKey,damageIfAny=0){if(!userKey)return;const p=this._passive[this._side(userKey)];p.triggers++;p.dmg+=isFinite(damageIfAny)?damageIfAny:0;if(damageIfAny>0)this.onDamage(userKey,damageIfAny,'passive');}
  onProjectileFire(shooterKey){if(!shooterKey)return;this._proj[this._side(shooterKey)].fired++;}
  onProjectileHit(shooterKey,damage){if(!shooterKey||!isFinite(damage)||damage<=0)return;const p=this._proj[this._side(shooterKey)];p.hits++;p.dmg+=damage;this.onDamage(shooterKey,damage,'projectile');}
@@ -29,7 +33,7 @@ class CombatTracker{
   const safeDiv=(a,b)=>b>0?+(a/b).toFixed(4):0;
   const sideSummary=side=>{const d=this._dmg[side],total=d.base+d.ability+d.passive+d.dot+d.projectile,dur=this._matchDuration||1,r=this._rotation[side],a=this._ability[side],p=this._passive[side],pr=this._proj[side],m=this._melee[side];return{
    dmgDealt:+total.toFixed(2),baseDmgPct:safeDiv(d.base,total),abilityDmgPct:safeDiv(d.ability,total),passiveDmgPct:safeDiv(d.passive,total),dotDmgPct:safeDiv(d.dot,total),projectileDmgPct:safeDiv(d.projectile,total),
-   abilityUses:a.uses,abilityHits:a.hits,abilityHitRate:safeDiv(a.hits,a.uses),abilityUsesPerSec:safeDiv(a.uses,dur),
+   abilityUses:a.uses,abilityHits:a.hits,abilityHitRate:safeDiv(a.hits,a.uses),abilityUsesPerSec:safeDiv(a.uses,dur),stackGains:this._stackGain[side],abilityBlocked:this._abilityBlocked[side],
    passiveTriggers:p.triggers,passiveTriggersPerSec:safeDiv(p.triggers,dur),passiveDmg:+p.dmg.toFixed(2),
    projectilesFired:pr.fired,projectilesHit:pr.hits,projectileHitRate:safeDiv(pr.hits,pr.fired),projectileDmgTotal:+pr.dmg.toFixed(2),avgProjectileDmgPerHit:pr.hits>0?+(pr.dmg/pr.hits).toFixed(2):0,
    meleeAttempts:m.attempts,meleeHits:m.hits,meleeHitRate:safeDiv(m.hits,m.attempts),avgMeleeAttemptDistance:m.attempts>0?+(m.distSum/m.attempts).toFixed(4):0,avgReachStatAtAttempt:m.attempts>0?+(m.reachSum/m.attempts).toFixed(4):0,
