@@ -27,7 +27,7 @@ class Sphere{
   this.replicaOwner=opts.replicaOwner||null;
   this.canTriggerTraits=opts.canTriggerTraits===false?false:!this.isReplica;
   this.impactVx=0;this.impactVy=0;this.impactDecay=0;
-  this._hitDefenders=new Map();
+  this._hitDefenders=new Map();this._meleeAttemptDefenders=new Map();
   this.stacks=0;this.dmgMult=1;
   this.invincible=false;this.invincibleT=0;
   this.phaseInvincible=false;
@@ -48,7 +48,7 @@ class Sphere{
   this.golemFortifyActive=false;
   this.rebirthDone=false;
   this.phoenixEmber=0;this.phoenixEmberFlash=0;this.ashwingActive=false;this.ashwingT=0;
-  this.deathMarkTicks=0;this.deathMarkTimer=0;this.deathMarkDmg=0;this.deathMarkDoTHits=0;
+  this.deathMarkTicks=0;this.deathMarkTimer=0;this.deathMarkDmg=0;this.deathMarkDoTHits=0;this.deathMarkSourceKey=null;
   this.woundT=0;
   this.pulseTimer=0;this.pulseWave=null;
   this.warlordSpinT=0; // spin window after earthquake
@@ -73,7 +73,7 @@ class Sphere{
   this.rodActive=false; // rod effect window active
   this.rodT=0;
   this.electrified=false;this.electrifiedT=0;  // lightning: -1 dmg per hit for 1s
-  this.burning=false;this.burnT=0;this.burnTickT=0;this.burnTickInterval=DEFAULT_BURN_TICK_INTERVAL; // fire: 3 true dmg ticks over 3s
+  this.burning=false;this.burnSourceKey=null;this.burnT=0;this.burnTickT=0;this.burnTickInterval=DEFAULT_BURN_TICK_INTERVAL; // fire: 3 true dmg ticks over 3s
   this.blinded=false;this.blindT=0;                 // green vial: 30% miss chance on attacks
   this.waterSlow=0;this.waterSlowT=0;          // water: slow stacking up to 2 in 2s
   this.stunned=false;this.stunnedT=0;          // earth: 0.3s freeze
@@ -133,7 +133,7 @@ class Sphere{
   this.ironWillActive=false;this.ironWillT=0;this.ironWillCD=0;
   this.tricksterMirrorSpawned=this.isReplica;
   // Rogue — Hemorrhage: hits apply bleed DoT, up to 3 stacks, 1.5s each
-  this.bleedStacks=0;this.bleedT=0;this.bleedTickT=0;
+  this.bleedStacks=0;this.bleedSourceKey=null;this.bleedT=0;this.bleedTickT=0;
   // Bard state
   this.crescendoActive=false;this.crescendoT=0;
   this.noiseTrapCD=0;
@@ -142,7 +142,7 @@ class Sphere{
   // Plague Doctor state
   this.virulenceStacks=0;this.virulenceWallHitCD=0;
   this.plagueSepsisTarget=null;this.plagueSepsisCount=0;
-  this.sepsisWeakenedT=0;this.sepsisDotTicks=0;this.sepsisDotTimer=0;this.sepsisDotDmg=0;
+  this.sepsisWeakenedT=0;this.sepsisDotTicks=0;this.sepsisDotTimer=0;this.sepsisDotDmg=0;this.sepsisSourceKey=null;
   // Tidecaller state
   this.riptideCharged=false;
   // Crusader state
@@ -173,7 +173,7 @@ class Sphere{
   this.exhumeSpinT=0;
   this.locksmithLocks=0;this.locksmithJamT=0;
   this.gnawedStacks=0;this.gnawedT=0;this.gnawedSpeedMult=1;
-  this.glassBleedT=0;this.glassBleedTickT=0;
+  this.glassBleedT=0;this.glassBleedTickT=0;this.glassBleedSourceKey=null;
   this.favor=0;this.crowdDouble=false;this.netRootT=0;this.netLockoutT=0;this.savedArm=null;this.ironStacks=0;this.sovereignArmBonus=0;this.sovereignDmgBonus=0;this.decreeT=0;this.queenDmgBonus=0;this.queenGambitT=0;this.queenGambitSavedDef=null;this.queenInvisible=false;this.queenInvisibleT=0;this.rushT=0;this.rushElapsed=0;this.wishClone=null;this.wishFireRateT=0;this.dustDropT=0;this.packHuntT=0;this.knowledge=0;this.foresightT=0;this.overloadActive=false;this.overloadT=0;this.arcaneCharge=0;this.hexBurstActive=false;this.hexBurstFired=false;this.hexBurstFiredT=0;this.abilityAimT=0;this.abilityAimAngle=null;
  }
  _nearestEnemy(){
@@ -360,8 +360,8 @@ class Sphere{
    this.stacks=Math.min(cap,this.stacks+1);
   }
   if(this.key==='viking')this.rageDecayT=0;
-  if(window._balanceCombatTracker)window._balanceCombatTracker.onPassiveTrigger(this.key,0);
-  if(window._liveCombatTracker)window._liveCombatTracker.onPassiveTrigger(this.key,0);
+  window._balanceCombatTracker?.onStackGain(this.key);
+  window._liveCombatTracker?.onStackGain(this.key);
   this._checkAbilityTrigger();
  }
  _checkAbilityTrigger(){
@@ -491,7 +491,7 @@ class Sphere{
     if(this.stacks>=3){
      this.stacks=0;
      const enNec=(this._nearestEnemy()||{}).enemy;
-     if(enNec&&enNec.deathMarkTicks===0){enNec.deathMarkTicks=7;enNec.deathMarkTimer=0.18;enNec.deathMarkDmg=this.d.dmg*0.70+1;}
+     if(enNec&&enNec.deathMarkTicks===0){enNec.deathMarkTicks=7;enNec.deathMarkTimer=0.18;enNec.deathMarkSourceKey=this.key;enNec.deathMarkDmg=this.d.dmg*0.70+1;}
     } break;
     case 'trickster':
     if(this.stacks>=2){
@@ -646,7 +646,7 @@ class Sphere{
      this.dmgMult=2.0;
      spawnBurst(this.x,this.y,'#fffacc','#c8b870',20);
      spawnPulse(this.x,this.y,'#fffacc');
-    } break;
+    } else if(this.stacks>=3&&this.holyChargeCD>0){window._balanceCombatTracker?.onAbilityBlocked(this.key);window._liveCombatTracker?.onAbilityBlocked(this.key);} break;
    case 'mimic':
     if(this.stacks>=3){
      this.stacks=0;
@@ -682,7 +682,7 @@ class Sphere{
      if(dischargeDmg>0){
       for(const s of spheres){
        if(sameFaction(this,s)||!s.alive||s.dying)continue;
-       s.hp=Math.max(0,s.hp-dischargeDmg);
+       const _dischargeBefore=s.hp;s.hp=Math.max(0,s.hp-dischargeDmg);recordDamageEvent(this.key,'ability',_dischargeBefore-s.hp);
        if(s.hp<=0&&!s.dying){s.alive=false;s.dying=true;spawnBurst(s.x,s.y,s.d.rim,s.d.color,28);}
        spawnDmgNum(s.x,s.y-s.radius*1.5,dischargeDmg,'#88ccff');
       }
@@ -714,7 +714,7 @@ class Sphere{
       projectiles.push(new BreathFlame(fbTip.x,fbTip.y,Math.cos(fa)*fspd,Math.sin(fa)*fspd,this.d.dmg*0.4,this));
      }
      spawnBurst(this.x,this.y,'#ff6600','#ff2200',18);
-    } break;
+    } else if(this.stacks>=3&&this.whelplingFireCooldown>0){window._balanceCombatTracker?.onAbilityBlocked(this.key);window._liveCombatTracker?.onAbilityBlocked(this.key);} break;
    case 'gravedigger':
     if(this.stacks>=4){
      const mound=this._oldestBurialMound();
@@ -727,7 +727,7 @@ class Sphere{
       this.omegaCur=this.d.om*1.8*Math.sign(this.omegaCur||1);
       spawnBurst(this.x,this.y,'#a7834b','#3f3326',22);
       spawnPulse(this.x,this.y,'#a7834b');
-     }
+     } else {window._balanceCombatTracker?.onAbilityBlocked(this.key);window._liveCombatTracker?.onAbilityBlocked(this.key);}
     } break;
    case 'flagellant':
     if(this.stacks>=3){
@@ -738,7 +738,7 @@ class Sphere{
       if(sameFaction(this,s)||!s.alive||s.dying)continue;
       const dx=s.x-this.x,dy=s.y-this.y,d=Math.hypot(dx,dy)||1;
       if(d<this.radius+s.radius+18){
-       s.hp=Math.max(0,s.hp-10);s.hitFlash=1;
+       const _penitenceBefore=s.hp;s.hp=Math.max(0,s.hp-10);s.hitFlash=1;recordDamageEvent(this.key,'ability',_penitenceBefore-s.hp);
        s.applyImpact((dx/d)*180,(dy/d)*180);
        spawnDmgNum(s.x,s.y-s.radius*1.5,10,'#d8b06a');
        if(s.hp<=0&&!s.dying){s.alive=false;s.dying=true;spawnBurst(s.x,s.y,s.d.rim,s.d.color,28);}
@@ -795,7 +795,7 @@ class Sphere{
    case 'spartan':
     if(this.stacks>=3||this.ironStacks>=5){this.stacks=0;this.ironStacks=0;this._aimAbilityAtNearestEnemy(.32);this.ramActive=true;this.ramDisplace=true;this.ramT=0.55;this.dmgMult=1;this.vx=Math.cos(this.angle)*this.baseSpd*2.6;this.vy=Math.sin(this.angle)*this.baseSpd*2.6;this.targetSpd=this.baseSpd*2.6;spawnBurst(this.x,this.y,'#d24634','#d8b060',18);} break;
    case 'gladiator':
-    if(this.stacks>=3&&this.netLockoutT<=0){this.stacks=0;const en=(this._nearestEnemy()||{}).enemy;if(en){en.netRootT=0.8;en.savedArm=en.d.arm;en.d=Object.assign({},en.d);en.d.arm=en.savedArm*.3;this.dmgMult=1.8;this.netLockoutT=2.0;spawnDmgNum(en.x,en.y-en.radius*1.8,'NET','#f0c08a');}} break;
+    if(this.stacks>=3&&this.netLockoutT<=0){this.stacks=0;const en=(this._nearestEnemy()||{}).enemy;if(en){en.netRootT=0.8;en.savedArm=en.d.arm;en.d=Object.assign({},en.d);en.d.arm=en.savedArm*.3;this.dmgMult=1.8;this.netLockoutT=2.0;spawnDmgNum(en.x,en.y-en.radius*1.8,'NET','#f0c08a');}}else if(this.stacks>=3&&this.netLockoutT>0){window._balanceCombatTracker?.onAbilityBlocked(this.key);window._liveCombatTracker?.onAbilityBlocked(this.key);} break;
    case 'king':
     if(this.stacks>=4){this.stacks=0;this.decreeT=6;this.dmgMult=1.6;this.omegaCur=(this.d.om*1.5)*Math.sign(this.omegaCur||1);for(let i=0;i<3;i++){const a=i*Math.PI*2/3+Math.random()*.4;skeletons.push(new BarbAlly(this.x+Math.cos(a)*this.radius*1.4,this.y+Math.sin(a)*this.radius*1.4,this));}spawnBurst(this.x,this.y,'#ffd35a','#d00020',30);spawnPulse(this.x,this.y,'#ffd35a');} break;
    case 'queen':
@@ -820,14 +820,14 @@ class Sphere{
     if(this.stacks>=3&&!this.isLeaping){
      this.stacks=0;
      const enD=(this._nearestEnemy()||{}).enemy;
-     if(!enD)break;
+     if(!enD){window._balanceCombatTracker?.onAbilityBlocked(this.key);window._liveCombatTracker?.onAbilityBlocked(this.key);break;}
      this.leapTargetX=enD.x;this.leapTargetY=enD.y;
      this.isLeaping=true;this.untargetable=true;
      this.leapT=1.2;
      this.vx=0;this.vy=0;this.impactVx=0;this.impactVy=0;
      spawnBurst(this.x,this.y,'#4488cc','#88bbdd',18);
      spawnPulse(this.x,this.y,'#4488cc');
-    } break;
+    } else if(this.stacks>=3&&this.isLeaping){window._balanceCombatTracker?.onAbilityBlocked(this.key);window._liveCombatTracker?.onAbilityBlocked(this.key);} break;
    case 'priest':
     if(this.stacks>=8){
      this.stacks=0;
@@ -948,7 +948,7 @@ class Sphere{
   if(this.deathMarkTicks>0){
    this.deathMarkTimer-=dt;
    if(this.deathMarkTimer<=0){
-    this.receiveDamage(this.deathMarkDmg);
+    const _markBefore=this.hp;this.receiveDamage(this.deathMarkDmg);recordDamageEvent(this.deathMarkSourceKey,'dot',_markBefore-this.hp);
     spawnToxicCloud(this.x,this.y);
     this.deathMarkDoTHits=(this.deathMarkDoTHits||0)+1;
     this.deathMarkTicks--;
@@ -1053,7 +1053,7 @@ class Sphere{
      for(const s of spheres){
       if(sameFaction(this,s)||!s.alive||s.dying)continue;
       if(Math.hypot(s.x-h.x,s.y-h.y)<h.r+s.radius*0.5){
-       s.receiveDamage(this.d.dmg*0.08);
+       const _heatBefore=s.hp;s.receiveDamage(this.d.dmg*0.08);recordDamageEvent(this.key,'dot',_heatBefore-s.hp);
       }
      }
     }
@@ -1077,7 +1077,7 @@ class Sphere{
      if(!isEnemy||!s.alive||s.dying)continue;
      const dist=Math.hypot(s.x-this.x,s.y-this.y);
      if(dist<this.radius*this.d.reach+s.radius){
-      s.receiveDamage(this.d.dmg*0.4);
+      const _thornBefore=s.hp;s.receiveDamage(this.d.dmg*0.4);recordDamageEvent(this.key,'passive',_thornBefore-s.hp);
       const nx=(s.x-this.x)/dist||1,ny=(s.y-this.y)/dist||0;
       s.applyImpact(nx*80,ny*80);
       spawnSpark(s.x,s.y,this.d.rim,5);
@@ -1112,7 +1112,7 @@ class Sphere{
    this.sepsisDotTimer-=dt;
    if(this.sepsisDotTimer<=0){
     const sdmg=this.sepsisDotDmg;
-    this.hp=Math.max(0,this.hp-sdmg);this.hitFlash=1;
+    const _sepsisBefore=this.hp;this.hp=Math.max(0,this.hp-sdmg);this.hitFlash=1;recordDamageEvent(this.sepsisSourceKey,'dot',_sepsisBefore-this.hp);
     spawnDmgNum(this.x,this.y-this.radius*1.2,sdmg,'#aadd44');
     spawnToxicCloud(this.x,this.y);
     this.sepsisDotTicks--;this.sepsisDotTimer=0.5;
@@ -1154,7 +1154,7 @@ class Sphere{
      if(dist<this.radius+s.radius+12){
       const batDmg=this.d.dmg*0.55*this.dmgMult/(s.d.arm*0.004+1);
       if(batDmg>0.1){
-       s.receiveDamage(batDmg);
+       const _batBefore=s.hp;s.receiveDamage(batDmg);recordDamageEvent(this.key,'passive',_batBefore-s.hp);
        this.receiveHeal(batDmg*0.4);
        spawnSpark(s.x,s.y,'#cc0044',4);
       }
@@ -1202,7 +1202,7 @@ class Sphere{
   if(this.burning){
    this.burnT-=dt;this.burnTickT-=dt;
    if(this.burnTickT<=0){
-    this.receiveDamage(2);
+    const _burnBefore=this.hp;this.receiveDamage(2);recordDamageEvent(this.burnSourceKey,'dot',_burnBefore-this.hp);
     spawnSpark(this.x,this.y,'#ff4400',4);
     this.burnTickT=this.burnTickInterval||DEFAULT_BURN_TICK_INTERVAL;
    }
@@ -1286,7 +1286,7 @@ class Sphere{
   if(this.glassBleedT>0){
    this.glassBleedT-=dt;this.glassBleedTickT-=dt;
    this.vx*=Math.pow(0.96,dt*10);this.vy*=Math.pow(0.96,dt*10);
-   if(this.glassBleedTickT<=0){this.glassBleedTickT=0.65;this.receiveDamage(1.5);spawnSpark(this.x,this.y,'#82f4ff',2);}
+   if(this.glassBleedTickT<=0){this.glassBleedTickT=0.65;const _glassBefore=this.hp;this.receiveDamage(1.5);recordDamageEvent(this.glassBleedSourceKey,'dot',_glassBefore-this.hp);spawnSpark(this.x,this.y,'#82f4ff',2);}
   }
   // ── Hemorrhage bleed ticks — runs on the VICTIM, not the rogue
   if(this.bleedStacks>0){
@@ -1295,7 +1295,7 @@ class Sphere{
    if(this.bleedTickT<=0){
     this.bleedTickT=0.5;
     const bdmg=this.bleedStacks*0.18*this.d.dmg*0.5; // flat tick, no arm reduction (it's a bleed)
-    this.receiveDamage(bdmg);
+    const _bleedBefore=this.hp;this.receiveDamage(bdmg);recordDamageEvent(this.bleedSourceKey,'dot',_bleedBefore-this.hp);
     spawnSpark(this.x,this.y,'#e74c3c',3);
    }
    if(this.bleedT<=0){this.bleedStacks=0;this.bleedTickT=0;}
@@ -1391,7 +1391,7 @@ class Sphere{
      if(en){const dx=en.x-this.x,dy=en.y-this.y,dist=Math.hypot(dx,dy)||1;
       en.applyImpact((dx/dist)*280,(dy/dist)*280);
       const pulseDmg=12/(en.d.arm*0.004+1);
-      en.receiveDamage(pulseDmg);
+      const _pulseBefore=en.hp;en.receiveDamage(pulseDmg);recordDamageEvent(this.key,'passive',_pulseBefore-en.hp);
       spawnPulse(this.x,this.y,this.d.rim);
      }
     } break;
@@ -1688,7 +1688,7 @@ class Sphere{
        this._singularityTickT=0;
        for(const s of spheres){
         if(sameFaction(this,s)||!s.alive||s.dying)continue;
-        s.receiveMagicDamage(this.d.dmg*0.3);
+        const _singularityBefore=s.hp;s.receiveMagicDamage(this.d.dmg*0.3);recordDamageEvent(this.key,'ability',_singularityBefore-s.hp);
        }
       }
      }
@@ -1825,8 +1825,8 @@ class Sphere{
    const dist=Math.hypot(s.x-this.x,s.y-this.y);
    if(dist<radius+s.radius){
     // True damage — bypasses armor, this is the lance strike on descent
-    s.hp=Math.max(0,s.hp-dmg);
-    s.hitFlash=1;
+    const _impactBefore=s.hp;s.hp=Math.max(0,s.hp-dmg);
+    s.hitFlash=1;recordDamageEvent(this.key,'ability',_impactBefore-s.hp);
     if(dmg>0.5)spawnBloodSplat(s.x,s.y,s.d.color,dmg);
     if(dmg>0.2)spawnDmgNum(s.x,s.y-s.radius*0.5,dmg,'#4488cc');
     // Heavy radial knockback
@@ -2228,8 +2228,6 @@ class Sphere{
   this.baseSpd*=1.17;this.targetSpd*=1.17;
   this.omegaCur*=1.17;
   spawnBurst(this.x,this.y,'#ff8800',this.d.rim,20);
-  if(window._balanceCombatTracker)window._balanceCombatTracker.onPassiveTrigger(this.key,0);
-  if(window._liveCombatTracker)window._liveCombatTracker.onPassiveTrigger(this.key,0);
   if(typeof updateBattleHud==='function')updateBattleHud();
  }
  _applyHitBuff(){

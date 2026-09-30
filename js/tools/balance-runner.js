@@ -105,7 +105,7 @@
   cancelAnimationFrame(animId);
   clearPendingBalanceTimeouts();
   winDone=false;paused=true;
-  window.matchTime=0;window.elapsedTime=0;
+  window.matchTime=0;window.elapsedTime=0;window._liveCombatTracker=null;window._liveCurrentAbilityKey=null;
   // CLEANUP VERIFIED: fighters are discarded and freshly constructed below, so HP, cooldowns, buffs, debuffs, charge counters, combo state, rotationSpeed, targets, aggro, and AI memory come from new Sphere instances.
   // CLEANUP VERIFIED: active setTimeout callbacks are tracked by the balance runner and cleared between matches; per-entity crowd-control and defensive flags die with the discarded Sphere instances.
   // CLEANUP VERIFIED: companion/summon/secondary objects are destroyed by clearing skeletons/projectiles/noiseTraps along with all other spawned entity arrays.
@@ -140,7 +140,7 @@
   for(const s of spheres)s.update(dt);
   for(const p of projectiles){
    const owner=p.owner;
-   if(window._balanceCombatTracker&&owner&&owner.d&&owner.d.rangedSphere&&!p._balanceProjectileTracked){window._balanceCombatTracker.onProjectileFire(owner.key);p._balanceProjectileTracked=true;}
+   if(window._balanceCombatTracker&&owner&&!p._balanceProjectileTracked){window._balanceCombatTracker.onProjectileFire(owner.key);p._balanceProjectileTracked=true;}
    window._balanceDamageSource=owner?{key:owner.key,type:'projectile'}:null;
    p.update(dt);
    window._balanceDamageSource=null;
@@ -308,6 +308,7 @@
  function buildRoundRobinPairs(keys,includeMirrors){
   const ordered=keys.slice();
   const pairs=[];
+  // Mirror per-side attribution is unreliable pending the dedicated identity/faction fix; see BALANCE_HARNESS_AUDIT.md.
   if(includeMirrors)for(const key of ordered)pairs.push([key,key]);
   if(ordered.length<2)return pairs;
   if(ordered.length%2)ordered.push(null);
@@ -369,6 +370,8 @@
   const planned=buildPlannedMatches(keys,options);
   const deadline=performance.now()+options.minutes*60*1000,results=[],started=performance.now();let count=0;
   const originalRandom=Math.random,originalNoVisuals=window._balanceNoVisuals;
+  const savedLiveTracker=window._liveCombatTracker,savedLiveAbilityKey=window._liveCurrentAbilityKey;
+  window._liveCombatTracker=null;window._liveCurrentAbilityKey=null;
   const restoreBalanceTimeoutTracker=installBalanceTimeoutTracker();
   const restoreCombatTrackerHooks=installCombatTrackerHooks();
   window._balanceNoVisuals=options.noVisuals!==false;
@@ -402,7 +405,7 @@
      await new Promise(r=>setTimeout(r,0));
     }
    }
-  }finally{Math.random=originalRandom;window._balanceNoVisuals=originalNoVisuals;window._balanceCombatTracker=null;window._balanceDamageSource=null;window._balanceCurrentAbilityKey=null;restoreCombatTrackerHooks();restoreBalanceTimeoutTracker();paused=false;}
+  }finally{Math.random=originalRandom;window._liveCombatTracker=savedLiveTracker;window._liveCurrentAbilityKey=savedLiveAbilityKey;window._balanceNoVisuals=originalNoVisuals;window._balanceCombatTracker=null;window._balanceDamageSource=null;window._balanceCurrentAbilityKey=null;restoreCombatTrackerHooks();restoreBalanceTimeoutTracker();paused=false;}
   const report=buildReport(results,options,performance.now()-started,count===planned.length);
   window.lastBalanceReport=report;
   console.table(report.classes.slice(0,12));

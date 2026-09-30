@@ -26,7 +26,7 @@ class RosterBolt{
   q.receiveMagicDamage(this.dmg);
   q.hexRecent=(q.hexRecent||[]).filter(t=>this.t-t<0.5);q.hexRecent.push(this.t);q.jinxStacks=(q.jinxStacks||0)+1;
   if(q.hexRecent.length>=2){q.dmgHalvedT=Math.max(q.dmgHalvedT||0,4);q.omegaCur*=-1;spawnDmgNum(q.x,q.y-q.radius*1.8,'CURSE','#d77bff');spawnPulse(q.x,q.y,'#d77bff');}
-  if(q.jinxStacks>=4){q.jinxStacks=0;const roll=Math.floor(Math.random()*4);if(roll===0){q.blinded=true;q.blindT=3;}else if(roll===1){q.burning=true;q.burnT=3;q.burnTickT=0.4;}else if(roll===2){q.waterSlow=Math.max(q.waterSlow||0,2);q.waterSlowT=3;}else{q.omegaCur*=-1;q.spinReverseT=3;}spawnDmgNum(q.x,q.y-q.radius*2,'JINX','#d77bff');spawnBurst(q.x,q.y,'#d77bff','#12051f',12);}
+  if(q.jinxStacks>=4){q.jinxStacks=0;const roll=Math.floor(Math.random()*4);if(roll===0){q.blinded=true;q.blindT=3;}else if(roll===1){q.burnSourceKey=this.owner.key;q.burning=true;q.burnT=3;q.burnTickT=0.4;}else if(roll===2){q.waterSlow=Math.max(q.waterSlow||0,2);q.waterSlowT=3;}else{q.omegaCur*=-1;q.spinReverseT=3;}spawnDmgNum(q.x,q.y-q.radius*2,'JINX','#d77bff');spawnBurst(q.x,q.y,'#d77bff','#12051f',12);}
   if(this.owner&&this.owner.canTriggerTraits!==false&&this.owner.gainStack&&!this.owner.hexBurstFired&&(this.owner.stacks||0)<getStackThreshold(this.owner.key)){this.owner.gainStack();this.owner._applyHitBuff();}
   this.alive=false;spawnBurst(this.x,this.y,'#d77bff','#5b1f86',8);
  }
@@ -138,7 +138,7 @@ class BreathFlame{
    if(sameFaction(this.owner,s)||!s.alive||s.dying)continue;
    if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+this.r){
     s.receiveDamage(this.dmg);
-     s.burning=true;s.burnT=2.0;s.burnTickInterval=WHELPLING_BURN_TICK_INTERVAL;s.burnTickT=WHELPLING_BURN_TICK_INTERVAL;
+     s.burnSourceKey=this.owner.key;s.burning=true;s.burnT=2.0;s.burnTickInterval=WHELPLING_BURN_TICK_INTERVAL;s.burnTickT=WHELPLING_BURN_TICK_INTERVAL;
     this.owner._applyHitBuff();
     if(!this.hasSpawnedZone){this.hasSpawnedZone=true;thornPatches.push(new FireBreathZone(this.x,this.y,this.owner));}
     spawnFlameExplosion(s.x,s.y);
@@ -189,7 +189,7 @@ class LingeringMiasma{
    if(this.vialType==='purple'){
     // Poison: direct magic damage tick + stack corrosion
     const pdmg=this.owner.d.dmg*0.9;
-    s.receiveMagicDamage(pdmg);
+    const _miasmaBefore=s.hp;s.receiveMagicDamage(pdmg);recordDamageEvent(this.owner.key,'ability',_miasmaBefore-s.hp);
     s.corrosionStacks=Math.min(6,(s.corrosionStacks||0)+1);
     if(s.corrosionT<=0)s.corrosionT=1.2;
     const _bA=s.baseArm||DEF[s.key]?.arm||s.d.arm||0;
@@ -205,7 +205,7 @@ class LingeringMiasma{
     spawnDmgNum(s.x,s.y-s.radius*1.6,'BLIND','#ffee44');
    } else {
     // Green: burn + blind
-     s.burning=true;s.burnT=Math.max(s.burnT||0,4.5);s.burnTickInterval=DEFAULT_BURN_TICK_INTERVAL;s.burnTickT=0;
+     s.burnSourceKey=this.owner.key;s.burning=true;s.burnT=Math.max(s.burnT||0,4.5);s.burnTickInterval=DEFAULT_BURN_TICK_INTERVAL;s.burnTickT=0;
     s.blinded=true;s.blindT=Math.max(s.blindT||0,2.0);
     spawnSpark(s.x,s.y,cfg.spark,6);
     spawnDmgNum(s.x,s.y-s.radius*1.6,cfg.label,cfg.labelCol);
