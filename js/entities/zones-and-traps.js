@@ -10,7 +10,7 @@ class PixieDustPatch{
 }
 class ArcaneBurnZone{
  constructor(x,y,r,dur,owner){this.x=x;this.y=y;this.r=r;this.life=dur;this.maxLife=dur;this.owner=owner;this.tick=0;this.t=0;}
- update(dt){this.life-=dt;this.t+=dt;this.tick-=dt;if(this.tick<=0){this.tick=.5;for(const s of spheres){if(!sameFaction(this.owner,s)&&s.alive&&!s.dying&&Math.hypot(s.x-this.x,s.y-this.y)<this.r+s.radius)s.receiveMagicDamage(2);}}}
+ update(dt){this.life-=dt;this.t+=dt;this.tick-=dt;if(this.tick<=0){this.tick=.5;for(const s of spheres){if(!sameFaction(this.owner,s)&&s.alive&&!s.dying&&Math.hypot(s.x-this.x,s.y-this.y)<this.r+s.radius){const _arcaneBurnBefore=s.hp;s.receiveMagicDamage(2);recordDamageEvent(this.owner.key,'passive',_arcaneBurnBefore-s.hp);}}}}
  apply(){}
  draw(){ctx.save();const a=this.life/this.maxLife;ctx.globalAlpha=.13+.2*a;const g=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r);g.addColorStop(0,'rgba(232,251,255,.75)');g.addColorStop(.42,'rgba(120,216,255,.36)');g.addColorStop(1,'rgba(255,122,34,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fill();ctx.globalAlpha=.45*a;ctx.strokeStyle='#78d8ff';ctx.lineWidth=2;for(let i=0;i<3;i++){ctx.save();ctx.translate(this.x,this.y);ctx.rotate(this.t*(.6+i*.25)+i*Math.PI/3);ctx.beginPath();ctx.ellipse(0,0,this.r*(.35+i*.22),this.r*(.18+i*.16),0,0,Math.PI*2);ctx.stroke();ctx.restore();}ctx.strokeStyle='#ff7a22';ctx.setLineDash([5,6]);ctx.beginPath();ctx.arc(this.x,this.y,this.r*(.92+.04*Math.sin(this.t*5)),0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.restore();}
 }
@@ -70,7 +70,7 @@ class RatMinion{
    if(spd>max){this.vx=this.vx/spd*max;this.vy=this.vy/spd*max;}
    if(d<target.radius+this.r+4){
     if(this.gnaw){
-     target.receiveDamage(2);
+     const _gnawBefore=target.hp;target.receiveDamage(2);recordDamageEvent(this.owner.key,'ability',_gnawBefore-target.hp);
      target.gnawedStacks=Math.min(5,(target.gnawedStacks||0)+1);target.gnawedT=8.0;
      target._refreshGnawed();
      spawnDmgNum(target.x,target.y-target.radius*1.8,'GNAWED','#b7c06a');
@@ -78,7 +78,7 @@ class RatMinion{
      this.alive=false;
     } else {
      this.tick-=dt;
-     if(this.tick<=0){this.tick=1;target.receiveDamage(1);spawnSpark(target.x,target.y,'#9aa050',2);}
+     if(this.tick<=0){this.tick=1;const _ratBefore=target.hp;target.receiveDamage(1);recordDamageEvent(this.owner.key,'passive',_ratBefore-target.hp);spawnSpark(target.x,target.y,'#9aa050',2);}
     }
    }
   }
@@ -220,7 +220,7 @@ class ThornPatch{
     s.vx*=Math.pow(0.02,dt);s.vy*=Math.pow(0.02,dt);
     s.impactVx*=Math.pow(0.02,dt);s.impactVy*=Math.pow(0.02,dt);
     if(this.dotTimer>=0.8&&this.owner&&this.owner.d){
-     s.receiveDamage(this.owner.d.dmg*0.7);
+     const _thornPatchBefore=s.hp;s.receiveDamage(this.owner.d.dmg*0.7);recordDamageEvent(this.owner.key,'ability',_thornPatchBefore-s.hp);
      spawnSpark(s.x,s.y,this.owner.d.rim,3);
     }
    }
@@ -264,7 +264,7 @@ class ToxicSmear{
     s.vx*=Math.pow(0.78,dt);s.vy*=Math.pow(0.78,dt);
     s.impactVx*=Math.pow(0.72,dt);s.impactVy*=Math.pow(0.72,dt);
     if(this.dotTimer>=0.8&&this.owner&&this.owner.d){
-     s.receiveDamage(this.owner.d.dmg*0.55);
+     const _toxicSmearBefore=s.hp;s.receiveDamage(this.owner.d.dmg*0.55);recordDamageEvent(this.owner.key,'passive',_toxicSmearBefore-s.hp);
      spawnSpark(s.x,s.y,'#aadd44',4);
     }
    }
@@ -326,7 +326,7 @@ class FireBreathZone{
    // Anti-stack: only deal damage if not hit by any fire zone in last 0.45s
    if(s._fireZoneCooldown>0)continue;
    s._fireZoneCooldown=0.45;
-   s.receiveDamage(2);
+   const _breathBefore=s.hp;s.receiveDamage(2);recordDamageEvent(this.owner.key,'ability',_breathBefore-s.hp);
     s.burnSourceKey=this.owner.key;s.burning=true;s.burnT=Math.max(s.burnT||0,2.0);s.burnTickInterval=WHELPLING_BURN_TICK_INTERVAL;s.burnTickT=Math.min(s.burnTickT||WHELPLING_BURN_TICK_INTERVAL,WHELPLING_BURN_TICK_INTERVAL);
    spawnSpark(s.x,s.y,'#ff4400',3);
   }
@@ -360,7 +360,7 @@ class VoidTear{
    if(sameFaction(this.owner,s)||!s.alive||s.dying)continue;
    if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+this.r){
     s.vx*=0.85;s.vy*=0.85;
-    s.receiveMagicDamage(this.owner.d.dmg*0.4);
+    const _voidTearBefore=s.hp;s.receiveMagicDamage(this.owner.d.dmg*0.4);recordDamageEvent(this.owner.key,'passive',_voidTearBefore-s.hp);
     spawnSpark(s.x,s.y,'#aa44ff',3);
    }
   }

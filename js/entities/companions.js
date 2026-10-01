@@ -18,7 +18,7 @@ class BeastCompanion{
   const m=Math.hypot(this.vx,this.vy)||1;if(m>spd){this.vx=this.vx/m*spd;this.vy=this.vy/m*spd;}
   this.x+=this.vx*dt;this.y+=this.vy*dt;
   if(d<t.radius+this.r){
-   t.receiveDamage(this.kind==='boar'?9:this.kind==='ferret'?1:6);
+   const _companionBefore=t.hp;t.receiveDamage(this.kind==='boar'?9:this.kind==='ferret'?1:6);recordDamageEvent(this.owner.key,this.kind==='ferret'?'passive':'ability',_companionBefore-t.hp);
    t.applyImpact((dx/d)*(this.kind==='boar'?360:120),(dy/d)*(this.kind==='boar'?360:120));
    spawnBurst(this.x,this.y,this.kind==='hawk'?'#f3df8f':this.kind==='ferret'?'#d0c090':this.kind==='wolf'?'#9aa080':'#ffb060','#5a2608',8);
    this.alive=false;

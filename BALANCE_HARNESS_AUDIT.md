@@ -124,3 +124,34 @@ Paste the Session 5 verification block supplied for this phase into the browser 
 | B | burn, bleed, glass-bleed, death-mark, sepsis, heat trail | `sphere.js`: 951, 1056, 1115, 1205, 1289, 1298; source stamps: `collisions.js`: 268, 289; `projectiles-basic.js`: 616, 619; `zones-and-traps.js`: 112, 330; `projectiles-roster.js`: 141, 208. |
 | C | paladin pulse, druid whip, vampire bats | `sphere.js`: 1394, 1080, 1157. |
 | D | Queen, static/thunderclap, piercing, mound, glass shard, dragoon impact, Penitence | `collisions.js`: 216, 308; `sphere.js`: 685, 741, 1828–1829; `projectiles-basic.js`: 260; `zones-and-traps.js`: 32, 108–123. |
+
+## Phase 3 follow-up — Zone and companion attribution gaps
+
+- **Root cause:** `thornPatches`, `slowZones`, `miasmaClouds`, and `noiseTraps` do not receive the `_balanceDamageSource` wrapper used by the `projectiles` loop. Phase 3's Tier B/C/D review therefore missed damage that occurs wholly inside classes updated from those arrays.
+- **Fix 1 — `projectiles-roster.js: RosterBolt._hit` (witch Jinx burn):** stamps `burnSourceKey=this.owner.key`; the status burn remains a DoT and is now attributed to the witch.
+- **Fix 2 — `zones-and-traps.js: FireBreathZone.update`:** reports the zone's direct hit as `ability`; it is the persistent effect of Whelpling's named Firebreath ability.
+- **Fix 3 — `projectiles-roster.js: LingeringMiasma.update` (purple vial):** reports its magic tick as `ability`; Unstable Concoction creates the miasma.
+- **Fix 4 — `zones-and-traps.js: ArcaneBurnZone.update`:** reports its tick as `passive`; the zone is created by Arcanist's Volatile-Charge/arcane-cannon mechanic.
+- **Fix 5 — `zones-and-traps.js: ThornPatch.update`:** reports its tick as `ability`; Thorn Patch is Druid's named 3-stack ability.
+- **Fix 6 — `zones-and-traps.js: ToxicSmear.update`:** reports its tick as `passive`; it comes from Plague Doctor's Virulence wall-hit effect.
+- **Fix 7 — `zones-and-traps.js: VoidTear.update`:** reports its tick as `passive`; Void Tears are wall-bounce passive effects.
+- **Fix 8 — `zones-and-traps.js: RatMinion.update`:** gnaw rats report `ability` (Infestation), and ordinary rats report `passive` (Rat Pack/Wild Bond per-hit effects).
+- **Fix 9 — `companions.js: BeastCompanion.update`:** ferrets report `passive` (Wild Bond); wolf, boar, and hawk report `ability` (Pack Hunt).
+- **Fix 10 — `sphere.js: Sphere._passiveAbility` voidwalker Singularity tick:** reports `ability`; Singularity is the named 3-stack active window.
+- **Skeleton deferral:** skeleton-derived damage needs an owner-key field on `Skeleton` itself. None of `Skeleton`, `BarbAlly`, or `ArcherAlly` expose a form `_skeletonWeaponHit` can read, so this remains reserved for a dedicated session.
+- **Open question for owner:** nothing in the current ability logic appears to set `queenInvisible = true`, so the Archer-Ally spawn path in `_passiveAbility`'s queen case may be unreachable dead code; flagged for the owner to confirm, not fixed here.
+- **Baseline invalidation #5:** any baseline captured before this follow-up, including immediately after Phase 3 landed, still undercounts witch (Jinx burn), whelpling (Firebreath direct tick), alchemist (Miasma purple tick), arcanist (burn zone), druid (Thorn Patch), plague (Toxic Smear), voidwalker (Void Tears and Singularity), ratcatcher (both rat types), and beastmaster (all four companion kinds).
+
+### Owner-executed runtime verification
+
+```js
+(async()=>{
+  const keys=['witch','whelpling','alchemist','arcanist','druid','plague','voidwalker','ratcatcher','beastmaster','knight'];
+  const first=await runBalanceBaseline({minutes:2,roundsPerPair:1,keys,exportJson:false,exportCsv:false});
+  console.table(first.classes.map(r=>({key:r.key,avgDmgDealt:r.avgDmgDealt,ability:r.avgAbilityDmgPct,passive:r.avgPassiveDmgPct,dot:r.avgDotDmgPct})));
+  const second=await runBalanceBaseline({minutes:2,roundsPerPair:1,keys,exportJson:false,exportCsv:false});
+  console.assert(JSON.stringify(first.classes)===JSON.stringify(second.classes),'Class rows must be byte-identical for the default seed');
+})();
+```
+
+Expected direction: ability/passive damage share rises for every listed class compared with a pre-follow-up capture; knight is the control. Live checks: trigger witch Jinx burn, keep an enemy in Whelpling Firebreath for its full duration, then run one 2v2 without console errors.

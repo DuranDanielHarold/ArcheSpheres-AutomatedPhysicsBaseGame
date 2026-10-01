@@ -1688,7 +1688,7 @@ class Sphere{
        this._singularityTickT=0;
        for(const s of spheres){
         if(sameFaction(this,s)||!s.alive||s.dying)continue;
-        s.receiveMagicDamage(this.d.dmg*0.3);
+        const _singularityBefore=s.hp;s.receiveMagicDamage(this.d.dmg*0.3);recordDamageEvent(this.key,'ability',_singularityBefore-s.hp);
        }
       }
      }
