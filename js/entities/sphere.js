@@ -15,7 +15,7 @@ class Sphere{
   // Use the viewport's short edge so portrait matches its landscape counterpart.
   const landscapeViewportHeight=Math.min(window.innerWidth,window.innerHeight);
   const landscapeHeightCap=landscapeViewportHeight<=500?Math.min(390,landscapeViewportHeight*.72):Math.min(660,landscapeViewportHeight*.62);
-  const base=Math.min(W,H,landscapeHeightCap);
+  const base=landscapeHeightCap;
   this.radius=base*(d.mass>=20?0.115:d.mass>=12?0.105:d.mass>=8?0.095:0.085);
   this.mass=d.mass;
   const hp=hpOverride||d.hp;
