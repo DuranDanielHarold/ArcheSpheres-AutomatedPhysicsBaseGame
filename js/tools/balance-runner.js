@@ -21,6 +21,7 @@
   stallThresholdSeconds:typeof STALL_CONFIG!=='undefined'?STALL_CONFIG.stallThresholdSeconds:42,
   stallRampSecondsToKill:typeof STALL_CONFIG!=='undefined'?STALL_CONFIG.rampDurationSeconds:10,
   debugStall:false,
+  maxRetainedResults:5000,
  };
 
  function mean(vals){const filtered=vals.filter(v=>v!==undefined&&v!==null&&!isNaN(v));return filtered.length?filtered.reduce((a,b)=>a+b,0)/filtered.length:0;}
@@ -174,6 +175,24 @@
  }
  function pct(n){return +(n*100).toFixed(1);}
  function clamp(n,min,max){return Math.max(min,Math.min(max,n));}
+ function wilsonInterval(wins,n,z=1.96){
+  if(!n)return{low:0,high:0,center:0};
+  const p=wins/n,z2=z*z;
+  const denom=1+z2/n;
+  const center=(p+z2/(2*n))/denom;
+  const halfWidth=(z*Math.sqrt((p*(1-p))/n+z2/(4*n*n)))/denom;
+  return{low:clamp(center-halfWidth,0,1),high:clamp(center+halfWidth,0,1),center};
+ }
+ function reservoirSample(results,maxRetainedResults,seed){
+  if(maxRetainedResults<=0)return[];
+  if(results.length<=maxRetainedResults)return results.slice();
+  const rng=mulberry32((seed^0xA5A5A5A5)>>>0),reservoir=results.slice(0,maxRetainedResults);
+  for(let i=maxRetainedResults;i<results.length;i++){
+   const j=Math.floor(rng()*(i+1));
+   if(j<maxRetainedResults)reservoir[j]=results[i];
+  }
+  return reservoir;
+ }
  function patchMagnitude(score){const a=Math.abs(score);return a>=30?'large':a>=20?'medium':'small';}
  function roleStatWeights(role){
   const weights={
@@ -186,10 +205,10 @@
   };
   return Object.assign({},weights[role]||weights.FIGHTER);
  }
- function weightedStatAdjustment(score,confidence,role,avgHpMargin,drawRate,action){
+ function weightedStatAdjustment(score,confidence,role,avgHpMarginPct,drawRate,hpMax,action){
   if(action!=='NERF'&&action!=='BUFF')return{totalAdjustmentPct:0,statAdjustments:''};
   const direction=action==='NERF'?-1:1,weights=roleStatWeights(role);
-  const marginPressure=clamp(Math.abs(avgHpMargin)/200,0,.45);
+  const marginPressure=clamp(Math.abs(avgHpMarginPct)*hpMax/200,0,.45);
   const drawPressure=clamp(drawRate,.0,.35);
   if((action==='NERF'&&avgHpMargin>40)||(action==='BUFF'&&avgHpMargin<-40)){
    if(weights.hp)weights.hp+=marginPressure*.45;
@@ -240,14 +259,19 @@
    if(!worst||rate<worst.rate)worst={label,rate,games:m.games};
    if(!best||rate>best.rate)best={label,rate,games:m.games};
   }
-  const confidence=clamp(row.games/200,0,1);
-  const pressure=(wr-0.5)*120+(decisiveWr-0.5)*60+avgHpMargin*0.08+dominantMatchups*1.5-hardCounters*1.5-drawRate*20;
+  const decisiveGames=row.games-row.draws;
+  const eliminationWins=row.wins-(row.tiebreakWins||0)-(row.suddenDeathWins||0);
+  const wilson=wilsonInterval(eliminationWins,decisiveGames);
+  const ciWidth=wilson.high-wilson.low;
+  const confidence=clamp(1-ciWidth,0,1);
+  const avgHpMarginPct=row.games&&DEF[key]?.hp?avgHpMargin/DEF[key].hp:0;
+  const pressure=(wr-0.5)*120+(decisiveWr-0.5)*60+avgHpMarginPct*DEF[key].hp*0.08+dominantMatchups*1.5-hardCounters*1.5-drawRate*20;
   const balanceScore=+(pressure*confidence).toFixed(1);
-  const action=confidence<0.5?'NEEDS_MORE_DATA':balanceScore>=12?'NERF':balanceScore<=-12?'BUFF':'WATCH';
+  const action=ciWidth>0.15?'NEEDS_MORE_DATA':balanceScore>=12?'NERF':balanceScore<=-12?'BUFF':'WATCH';
   const role=typeof CLASS_ROLE!=='undefined'?(CLASS_ROLE[key]||'FIGHTER'):'FIGHTER';
   const magnitude=action==='NERF'||action==='BUFF'?patchMagnitude(balanceScore):'';
   const patchTarget=patchTargets(key,action,row,drawRate,avgHpMargin);
-  const adjustment=weightedStatAdjustment(balanceScore,confidence,role,avgHpMargin,drawRate,action);
+  const adjustment=weightedStatAdjustment(balanceScore,confidence,role,avgHpMarginPct,drawRate,DEF[key]?.hp||0,action);
   const sums=row.summaries||[];
   const avgDmgDealt=+mean(sums.map(s=>s.dmgDealt)).toFixed(2),avgBaseDmgPct=+mean(sums.map(s=>s.baseDmgPct)).toFixed(4),avgAbilityDmgPct=+mean(sums.map(s=>s.abilityDmgPct)).toFixed(4),avgPassiveDmgPct=+mean(sums.map(s=>s.passiveDmgPct)).toFixed(4),avgDotDmgPct=+mean(sums.map(s=>s.dotDmgPct)).toFixed(4),avgProjectileDmgPct=+mean(sums.map(s=>s.projectileDmgPct)).toFixed(4);
   const avgAbilityUsesPerSec=+mean(sums.map(s=>s.abilityUsesPerSec)).toFixed(4),avgAbilityHitRate=+mean(sums.map(s=>s.abilityHitRate)).toFixed(4),avgPassiveTriggersPerSec=+mean(sums.map(s=>s.passiveTriggersPerSec)).toFixed(4);
@@ -262,12 +286,12 @@
   const suggestions=[];
   if(action==='NERF')suggestions.push('Nerf candidate: inspect survivability, damage uptime, ability impact, and dominant matchups.');
   else if(action==='BUFF')suggestions.push('Buff candidate: inspect weapon reliability, time-to-first-impact, survivability, and hard counters.');
-  else if(action==='NEEDS_MORE_DATA')suggestions.push('Low confidence: gather closer to 200 games before changing stats.');
+  else if(action==='NEEDS_MORE_DATA')suggestions.push(`Uncertain estimate: 95% Wilson interval width is ${(ciWidth*100).toFixed(1)} percentage points — gather more decisive games before changing stats.`);
   if(row.avgDuration>75)suggestions.push('Long-match profile: watch for stalemate, sustain, or low interaction.');
   if(drawRate>=0.20)suggestions.push('High draw rate: inspect timeout, sustain, and low-lethality interactions.');
   if(share<0.015)suggestions.push('Low sample share: run a larger or uncapped baseline.');
   appendCombatSuggestions(combatCols,suggestions);
-  return{key,label:DEF[key].label,role,games:row.games,wins:row.wins,losses:row.losses,draws:row.draws,winRate:+wr.toFixed(4),winPct:pct(wr),decisiveWinRate:+decisiveWr.toFixed(4),drawRate:+drawRate.toFixed(4),avgDuration:+row.avgDuration.toFixed(2),avgEndHp:+avgEndHp.toFixed(2),avgHpMargin:+avgHpMargin.toFixed(2),avgWinHp:+avgWinHp.toFixed(2),avgLossOpponentHp:+avgLossOpponentHp.toFixed(2),hardCounters,dominantMatchups,worstMatchup:worst?`${worst.label} (${pct(worst.rate)}%)`:'',bestMatchup:best?`${best.label} (${pct(best.rate)}%)`:'',balanceScore,action,magnitude,patchTarget,totalAdjustmentPct:adjustment.totalAdjustmentPct,statAdjustments:adjustment.statAdjustments,confidence:+confidence.toFixed(2),...combatCols,suggestions};
+  return{key,label:DEF[key].label,role,games:row.games,wins:row.wins,losses:row.losses,draws:row.draws,winRate:+wr.toFixed(4),winPct:pct(wr),decisiveWinRate:+decisiveWr.toFixed(4),drawRate:+drawRate.toFixed(4),avgDuration:+row.avgDuration.toFixed(2),avgEndHp:+avgEndHp.toFixed(2),avgHpMargin:+avgHpMargin.toFixed(2),avgHpMarginPct:+avgHpMarginPct.toFixed(4),winRateCI95Low:+wilson.low.toFixed(4),winRateCI95High:+wilson.high.toFixed(4),avgWinHp:+avgWinHp.toFixed(2),avgLossOpponentHp:+avgLossOpponentHp.toFixed(2),hardCounters,dominantMatchups,worstMatchup:worst?`${worst.label} (${pct(worst.rate)}%)`:'',bestMatchup:best?`${best.label} (${pct(best.rate)}%)`:'',balanceScore,action,magnitude,patchTarget,totalAdjustmentPct:adjustment.totalAdjustmentPct,statAdjustments:adjustment.statAdjustments,confidence:+confidence.toFixed(2),...combatCols,suggestions};
  }
  function buildReport(results,options,elapsedMs,completedPlanned){
   const classes={};Object.keys(DEF).forEach(k=>classes[k]={games:0,wins:0,losses:0,draws:0,duration:0,avgDuration:0,endHp:0,hpMargin:0,winHp:0,lossOpponentHp:0,summaries:[],tiebreakWins:0,suddenDeathWins:0});
@@ -286,23 +310,24 @@
   const classRows=Object.keys(classes).map(k=>summarizeClassRow(k,classes[k],results.length,matchups)).sort((a,b)=>b.balanceScore-a.balanceScore);
   const matchupRows=Object.values(matchups).map(m=>{
    const decisive=m.games-m.draws,aRate=decisive?m.aWins/decisive:0,bRate=decisive?m.bWins/decisive:0;
-   const leader=aRate>=bRate?m.a:m.b,leaderRate=Math.max(aRate,bRate);
-   const sums=m.summaries||[];return{matchup:`${m.a} vs ${m.b}`,a:m.a,b:m.b,games:m.games,decisiveGames:decisive,aWins:m.aWins,bWins:m.bWins,draws:m.draws,timeoutTiebreaks:m.timeoutTiebreaks,doubleKOs:m.doubleKOs,suddenDeathKills:m.suddenDeathKills,drawRate:+(m.games?m.draws/m.games:0).toFixed(4),aWinRate:+aRate.toFixed(4),bWinRate:+bRate.toFixed(4),leader,leaderWinRate:+leaderRate.toFixed(4),avgDuration:+(m.games?m.duration/m.games:0).toFixed(2),hardCounter:leaderRate>=0.75?`${leader} at ${Math.round(leaderRate*100)}% decisive WR`:null,impossibleMatch:decisive>=6&&leaderRate>=0.90,a_avgDmgDealt:+mean(sums.map(s=>s.a?.dmgDealt)).toFixed(2),b_avgDmgDealt:+mean(sums.map(s=>s.b?.dmgDealt)).toFixed(2),a_avgAbilityDmgPct:+mean(sums.map(s=>s.a?.abilityDmgPct)).toFixed(4),b_avgAbilityDmgPct:+mean(sums.map(s=>s.b?.abilityDmgPct)).toFixed(4),a_avgPassiveDmgPct:+mean(sums.map(s=>s.a?.passiveDmgPct)).toFixed(4),b_avgPassiveDmgPct:+mean(sums.map(s=>s.b?.passiveDmgPct)).toFixed(4),a_avgProjectileDmgPct:+mean(sums.map(s=>s.a?.projectileDmgPct)).toFixed(4),b_avgProjectileDmgPct:+mean(sums.map(s=>s.b?.projectileDmgPct)).toFixed(4),a_projectileHitRate:+mean(sums.map(s=>s.a?.projectileHitRate)).toFixed(4),b_projectileHitRate:+mean(sums.map(s=>s.b?.projectileHitRate)).toFixed(4),a_meleeHitRate:+mean(sums.map(s=>s.a?.meleeHitRate)).toFixed(4),b_meleeHitRate:+mean(sums.map(s=>s.b?.meleeHitRate)).toFixed(4),a_reachUtilizationRatio:+mean(sums.map(s=>s.a?.avgReachStatAtAttempt>0?s.a.avgMeleeAttemptDistance/s.a.avgReachStatAtAttempt:0)).toFixed(4),b_reachUtilizationRatio:+mean(sums.map(s=>s.b?.avgReachStatAtAttempt>0?s.b.avgMeleeAttemptDistance/s.b.avgReachStatAtAttempt:0)).toFixed(4),eliminationRate:+(m.games?m.eliminations/m.games:0).toFixed(4)};
+   const leader=aRate>=bRate?m.a:m.b,leaderRate=Math.max(aRate,bRate),leaderWilson=wilsonInterval(Math.max(m.aWins,m.bWins),decisive);
+   const sums=m.summaries||[];return{matchup:`${m.a} vs ${m.b}`,a:m.a,b:m.b,games:m.games,decisiveGames:decisive,aWins:m.aWins,bWins:m.bWins,draws:m.draws,timeoutTiebreaks:m.timeoutTiebreaks,doubleKOs:m.doubleKOs,suddenDeathKills:m.suddenDeathKills,drawRate:+(m.games?m.draws/m.games:0).toFixed(4),aWinRate:+aRate.toFixed(4),bWinRate:+bRate.toFixed(4),leader,leaderWinRate:+leaderRate.toFixed(4),leaderWinRateCI95Low:+leaderWilson.low.toFixed(4),leaderWinRateCI95High:+leaderWilson.high.toFixed(4),avgDuration:+(m.games?m.duration/m.games:0).toFixed(2),hardCounter:leaderRate>=0.75?`${leader} at ${Math.round(leaderRate*100)}% decisive WR`:null,impossibleMatch:decisive>=6&&leaderRate>=0.90,a_avgDmgDealt:+mean(sums.map(s=>s.a?.dmgDealt)).toFixed(2),b_avgDmgDealt:+mean(sums.map(s=>s.b?.dmgDealt)).toFixed(2),a_avgAbilityDmgPct:+mean(sums.map(s=>s.a?.abilityDmgPct)).toFixed(4),b_avgAbilityDmgPct:+mean(sums.map(s=>s.b?.abilityDmgPct)).toFixed(4),a_avgPassiveDmgPct:+mean(sums.map(s=>s.a?.passiveDmgPct)).toFixed(4),b_avgPassiveDmgPct:+mean(sums.map(s=>s.b?.passiveDmgPct)).toFixed(4),a_avgProjectileDmgPct:+mean(sums.map(s=>s.a?.projectileDmgPct)).toFixed(4),b_avgProjectileDmgPct:+mean(sums.map(s=>s.b?.projectileDmgPct)).toFixed(4),a_projectileHitRate:+mean(sums.map(s=>s.a?.projectileHitRate)).toFixed(4),b_projectileHitRate:+mean(sums.map(s=>s.b?.projectileHitRate)).toFixed(4),a_meleeHitRate:+mean(sums.map(s=>s.a?.meleeHitRate)).toFixed(4),b_meleeHitRate:+mean(sums.map(s=>s.b?.meleeHitRate)).toFixed(4),a_reachUtilizationRatio:+mean(sums.map(s=>s.a?.avgReachStatAtAttempt>0?s.a.avgMeleeAttemptDistance/s.a.avgReachStatAtAttempt:0)).toFixed(4),b_reachUtilizationRatio:+mean(sums.map(s=>s.b?.avgReachStatAtAttempt>0?s.b.avgMeleeAttemptDistance/s.b.avgReachStatAtAttempt:0)).toFixed(4),eliminationRate:+(m.games?m.eliminations/m.games:0).toFixed(4)};
   }).sort((a,b)=>Math.max(b.aWinRate,b.bWinRate)-Math.max(a.aWinRate,a.bWinRate));
-  return{generatedAt:new Date().toISOString(),options,elapsedMs,completedPlanned,matchCount:results.length,classes:classRows,hardMatchups:matchupRows.filter(m=>m.hardCounter),matchups:matchupRows,results};
+  const totalMatches=results.length,retained=reservoirSample(results,options.maxRetainedResults,options.seed);
+  return{generatedAt:new Date().toISOString(),schemaVersion:1,runId:String(options.seed)+'-'+new Date().toISOString(),options,elapsedMs,completedPlanned,matchCount:totalMatches,totalMatches,retainedResults:retained.length,classes:classRows,hardMatchups:matchupRows.filter(m=>m.hardCounter),matchups:matchupRows,results:retained};
  }
  function download(name,mime,text){
   const blob=new Blob([text],{type:mime}),url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
  }
  function toCsv(report){
-  const lines=['key,label,role,action,magnitude,balanceScore,totalAdjustmentPct,statAdjustments,patchTarget,confidence,games,wins,losses,draws,winPct,decisiveWinRate,drawRate,avgDuration,avgEndHp,avgHpMargin,avgWinHp,avgLossOpponentHp,hardCounters,dominantMatchups,worstMatchup,bestMatchup,suggestions,avgDmgDealt,avgBaseDmgPct,avgAbilityDmgPct,avgPassiveDmgPct,avgDotDmgPct,avgProjectileDmgPct,avgAbilityUsesPerSec,avgAbilityHitRate,avgPassiveTriggersPerSec,avgProjectilesFiredPerMatch,avgProjectileHitRate,avgProjectileDmgPerHit,avgRotationPeak,avgRotationAvg,avgRotationFirstHitSpeed,eliminationWinRate,suddenDeathWinRate,tiebreakWinRate,avgMeleeHitRate,avgMeleeAttemptDistance,avgReachStatAtAttempt,reachUtilizationRatio,meleeHitboxAction,abilityAction,passiveAction,projectileAction'];
-  for(const r of report.classes)lines.push([r.key,r.label,r.role,r.action,r.magnitude,r.balanceScore,r.totalAdjustmentPct,`"${r.statAdjustments.replace(/"/g,'""')}"`,`"${r.patchTarget.replace(/"/g,'""')}"`,r.confidence,r.games,r.wins,r.losses,r.draws,r.winPct,r.decisiveWinRate,r.drawRate,r.avgDuration,r.avgEndHp,r.avgHpMargin,r.avgWinHp,r.avgLossOpponentHp,r.hardCounters,r.dominantMatchups,`"${r.worstMatchup.replace(/"/g,'""')}"`,`"${r.bestMatchup.replace(/"/g,'""')}"`,`"${r.suggestions.join(' | ').replace(/"/g,'""')}"`,r.avgDmgDealt,r.avgBaseDmgPct,r.avgAbilityDmgPct,r.avgPassiveDmgPct,r.avgDotDmgPct,r.avgProjectileDmgPct,r.avgAbilityUsesPerSec,r.avgAbilityHitRate,r.avgPassiveTriggersPerSec,r.avgProjectilesFiredPerMatch,r.avgProjectileHitRate,r.avgProjectileDmgPerHit,r.avgRotationPeak,r.avgRotationAvg,r.avgRotationFirstHitSpeed,r.eliminationWinRate,r.suddenDeathWinRate,r.tiebreakWinRate,r.avgMeleeHitRate,r.avgMeleeAttemptDistance,r.avgReachStatAtAttempt,r.reachUtilizationRatio,r.meleeHitboxAction,r.abilityAction,r.passiveAction,r.projectileAction].join(','));
+  const lines=['key,label,role,action,magnitude,balanceScore,totalAdjustmentPct,statAdjustments,patchTarget,confidence,winRateCI95Low,winRateCI95High,avgHpMarginPct,games,wins,losses,draws,winPct,decisiveWinRate,drawRate,avgDuration,avgEndHp,avgHpMargin,avgWinHp,avgLossOpponentHp,hardCounters,dominantMatchups,worstMatchup,bestMatchup,suggestions,avgDmgDealt,avgBaseDmgPct,avgAbilityDmgPct,avgPassiveDmgPct,avgDotDmgPct,avgProjectileDmgPct,avgAbilityUsesPerSec,avgAbilityHitRate,avgPassiveTriggersPerSec,avgProjectilesFiredPerMatch,avgProjectileHitRate,avgProjectileDmgPerHit,avgRotationPeak,avgRotationAvg,avgRotationFirstHitSpeed,eliminationWinRate,suddenDeathWinRate,tiebreakWinRate,avgMeleeHitRate,avgMeleeAttemptDistance,avgReachStatAtAttempt,reachUtilizationRatio,meleeHitboxAction,abilityAction,passiveAction,projectileAction'];
+  for(const r of report.classes)lines.push([r.key,r.label,r.role,r.action,r.magnitude,r.balanceScore,r.totalAdjustmentPct,`"${r.statAdjustments.replace(/"/g,'""')}"`,`"${r.patchTarget.replace(/"/g,'""')}"`,r.confidence,r.winRateCI95Low,r.winRateCI95High,r.avgHpMarginPct,r.games,r.wins,r.losses,r.draws,r.winPct,r.decisiveWinRate,r.drawRate,r.avgDuration,r.avgEndHp,r.avgHpMargin,r.avgWinHp,r.avgLossOpponentHp,r.hardCounters,r.dominantMatchups,`"${r.worstMatchup.replace(/"/g,'""')}"`,`"${r.bestMatchup.replace(/"/g,'""')}"`,`"${r.suggestions.join(' | ').replace(/"/g,'""')}"`,r.avgDmgDealt,r.avgBaseDmgPct,r.avgAbilityDmgPct,r.avgPassiveDmgPct,r.avgDotDmgPct,r.avgProjectileDmgPct,r.avgAbilityUsesPerSec,r.avgAbilityHitRate,r.avgPassiveTriggersPerSec,r.avgProjectilesFiredPerMatch,r.avgProjectileHitRate,r.avgProjectileDmgPerHit,r.avgRotationPeak,r.avgRotationAvg,r.avgRotationFirstHitSpeed,r.eliminationWinRate,r.suddenDeathWinRate,r.tiebreakWinRate,r.avgMeleeHitRate,r.avgMeleeAttemptDistance,r.avgReachStatAtAttempt,r.reachUtilizationRatio,r.meleeHitboxAction,r.abilityAction,r.passiveAction,r.projectileAction].join(','));
   return lines.join('\n');
  }
  function toMatchupCsv(report){
   const lines=['matchup,a,b,games,decisiveGames,aWins,bWins,draws,timeoutTiebreaks,doubleKOs,suddenDeathKills,drawRate,aWinRate,bWinRate,leader,leaderWinRate,avgDuration,hardCounter,impossibleMatch,a_avgDmgDealt,b_avgDmgDealt,a_avgAbilityDmgPct,b_avgAbilityDmgPct,a_avgPassiveDmgPct,b_avgPassiveDmgPct,a_avgProjectileDmgPct,b_avgProjectileDmgPct,a_projectileHitRate,b_projectileHitRate,a_meleeHitRate,b_meleeHitRate,a_reachUtilizationRatio,b_reachUtilizationRatio,eliminationRate'];
-  for(const m of report.matchups)lines.push([`"${m.matchup.replace(/"/g,'""')}"`,m.a,m.b,m.games,m.decisiveGames,m.aWins,m.bWins,m.draws,m.timeoutTiebreaks,m.doubleKOs,m.suddenDeathKills,m.drawRate,m.aWinRate,m.bWinRate,m.leader,m.leaderWinRate,m.avgDuration,`"${(m.hardCounter||'').replace(/"/g,'""')}"`,m.impossibleMatch,m.a_avgDmgDealt,m.b_avgDmgDealt,m.a_avgAbilityDmgPct,m.b_avgAbilityDmgPct,m.a_avgPassiveDmgPct,m.b_avgPassiveDmgPct,m.a_avgProjectileDmgPct,m.b_avgProjectileDmgPct,m.a_projectileHitRate,m.b_projectileHitRate,m.a_meleeHitRate,m.b_meleeHitRate,m.a_reachUtilizationRatio,m.b_reachUtilizationRatio,m.eliminationRate].join(','));
+  for(const m of report.matchups)lines.push([`"${m.matchup.replace(/"/g,'""')}"`,m.a,m.b,m.games,m.decisiveGames,m.aWins,m.bWins,m.draws,m.timeoutTiebreaks,m.doubleKOs,m.suddenDeathKills,m.drawRate,m.aWinRate,m.bWinRate,m.leader,m.leaderWinRate,m.leaderWinRateCI95Low,m.leaderWinRateCI95High,m.avgDuration,`"${(m.hardCounter||'').replace(/"/g,'""')}"`,m.impossibleMatch,m.a_avgDmgDealt,m.b_avgDmgDealt,m.a_avgAbilityDmgPct,m.b_avgAbilityDmgPct,m.a_avgPassiveDmgPct,m.b_avgPassiveDmgPct,m.a_avgProjectileDmgPct,m.b_avgProjectileDmgPct,m.a_projectileHitRate,m.b_projectileHitRate,m.a_meleeHitRate,m.b_meleeHitRate,m.a_reachUtilizationRatio,m.b_reachUtilizationRatio,m.eliminationRate].join(','));
   return lines.join('\n');
  }
  function buildRoundRobinPairs(keys,includeMirrors){
