@@ -179,3 +179,44 @@ With replicas excluded from `livingPrimaryFactions()`, a phase replica can no lo
 ### Baseline invalidation notice — final harness-repair notice
 
 Every baseline captured before this Phase 4 session used a degenerate confidence metric, an unnormalized HP-margin term in patch recommendations, and the replica-winner bug. This is the **fifth and final invalidation notice** in the harness-repair arc. Once a fresh baseline is captured after this session, the harness is trusted; future invalidation notices should be issued only for genuine new regressions, not accumulated backlog.
+## Phase 4 follow-up — HP-margin normalization correction (2026-10-07)
+
+The original Phase 4 Item 2 implementation was verified after merge and found to cancel its own normalization. It computed `avgHpMarginPct = avgHpMargin / DEF[key].hp` correctly, but then multiplied that value by `DEF[key].hp * 0.08` in `summarizeClassRow` and reconstructed `avgHpMargin` again inside `weightedStatAdjustment`. Therefore a fixed raw +20 HP margin produced the same pressure contribution for low-, mid-, and high-HP classes. The previous audit wording that described this cancellation as intentional was incorrect and is retained only as history.
+
+### Corrected coefficient derivation
+
+Use real roster values spanning the requested HP range: Vampire = **179.11 HP**, Bard = **407.64 HP**, King = **594 HP**. The old raw-margin coefficient was `0.08`. For a representative fixed raw margin of +20 HP, the mid-HP Bard has `20 / 407.64 = 0.04906`. The old mid-class pressure contribution was `20 * 0.08 = 1.60`. Choosing the new normalized coefficient as `1.60 / 0.04906 ≈ 32.61` preserves that representative mid-HP magnitude while making fixed raw margins scale inversely with each class's HP pool. This follow-up uses **32.61** rather than the rough 32 starting point suggested by the prompt.
+
+The resulting fixed-raw +20 contributions are approximately:
+
+| Class | HP | `avgHpMarginPct` | New pressure contribution (`pct × 32.61`) |
+| --- | ---: | ---: | ---: |
+| Vampire | 179.11 | 0.11166 | 3.64 |
+| Bard | 407.64 | 0.04906 | 1.60 |
+| King | 594.00 | 0.03367 | 1.10 |
+
+This is the required divergence: the same +20 raw HP margin is a much larger fraction of Vampire's pool than King's. For a fixed `avgHpMarginPct = 0.10`, all three classes contribute `0.10 × 32.61 = 3.261`, independent of HP pool.
+
+### Corrected `weightedStatAdjustment` derivation
+
+The old `200` raw-HP denominator is anchored to the same 400-HP midpoint used by the original design intent. Converted to a fraction: `200 / 400 = 0.50`. Therefore `marginPressure = clamp(abs(avgHpMarginPct) / 0.50, 0, 0.45)` uses the normalized metric directly and preserves the old notion of 200 raw HP being near the top of the pressure range for a midpoint class.
+
+The old meaningful-margin branch threshold of 40 raw HP similarly becomes `40 / 400 = 0.10`. The corrected implementation treats ±10% as the meaningful-margin boundary: NERF uses the defensive branch at `avgHpMarginPct >= 0.10` and BUFF at `avgHpMarginPct <= -0.10`. This is identical across HP pools. At +10% margin, `marginPressure = 0.10 / 0.50 = 0.20`, so the same branch and pressure apply to Vampire, Bard, and King. `hpMax` was removed from `weightedStatAdjustment` and from its call site because it has no remaining purpose.
+
+### Fixed-pct verification for `weightedStatAdjustment`
+
+For Vampire, Bard, and King at +10% HP margin:
+
+| Class | HP | `avgHpMarginPct` | `marginPressure` | NERF branch |
+| --- | ---: | ---: | ---: | --- |
+| Vampire | 179.11 | 0.10 | 0.20 | defensive (`>= 0.10`) |
+| Bard | 407.64 | 0.10 | 0.20 | defensive (`>= 0.10`) |
+| King | 594.00 | 0.10 | 0.20 | defensive (`>= 0.10`) |
+
+The computation and CSV export of `avgHpMarginPct` remain unchanged; only its consumption changed. `patchTargets` continues to use raw `avgHpMargin` for its existing ±80 thresholds, as explicitly required.
+
+### Verification scope
+
+Items 1, 3, 4, and 5 are untouched. No `DEF` values, stall/timeout logic, damage attribution, report fields, build/dependency configuration, or `patchTargets` thresholds were changed. The only code changes are the two HP-relative weighting formulas and removal of the now-dead `hpMax` parameter.
+
+**Baseline notice:** the merged Phase 4 baseline remains invalid for HP-margin-driven patch recommendations. Capture a fresh baseline after this correction before using balance-score patch recommendations. This correction does not invalidate the other four Phase 4 fixes.
