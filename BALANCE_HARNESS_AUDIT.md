@@ -220,3 +220,23 @@ The computation and CSV export of `avgHpMarginPct` remain unchanged; only its co
 Items 1, 3, 4, and 5 are untouched. No `DEF` values, stall/timeout logic, damage attribution, report fields, build/dependency configuration, or `patchTargets` thresholds were changed. The only code changes are the two HP-relative weighting formulas and removal of the now-dead `hpMax` parameter.
 
 **Baseline notice:** the merged Phase 4 baseline remains invalid for HP-margin-driven patch recommendations. Capture a fresh baseline after this correction before using balance-score patch recommendations. This correction does not invalidate the other four Phase 4 fixes.
+
+
+## Phase 5 — Melee connect-rate investigation and verdict-text corrections (2026-10-07)
+
+### Code inspection findings
+
+- **Melee attempt instrumentation bug confirmed.** `_weaponHit` logged an attempt whenever the per-defender latch was absent, with no distance gate. Because `resolveAll()` calls `_weaponHit` for every sphere pair every frame, and the latch was immediately cleared whenever the blade was not actually touching the defender, the attempt denominator was effectively frame-based rather than swing/approach-based. The reported `avgMeleeAttemptDistance` values in the affected baseline are therefore not physically meaningful, and the corresponding hit-rate metric is inflated by false attempts.
+- **Instrumentation fix:** attempts are now recorded only inside an engagement range of `def.radius + att.radius * att.d.reach * 1.15`, latched per attacker/defender while inside that range, and cleared only after separation beyond that range. The existing contact-based `_hitDefenders` damage deduplication remains separate and unchanged.
+- **Melee reach diagnosis is not yet conclusive.** Current `Sphere.getTip()` and `getBladePoints()` use `this.radius * this.d.reach`, so absolute weapon reach is radius-scaled. PR #82 changed the constructor's `base` from `Math.min(W,H,landscapeHeightCap)` to `landscapeHeightCap`; its own verification showed larger tablet radii (for example 368→476 base in the cited numeric check), while review noted desktop arenas could also receive larger radii. This does not support the prompt's specific hypothesis that PR #81/#82 globally shrank radius. A runtime sample is still required to compare actual sphere radius, reach-scaled tip distance, and engaged center distance before changing `sphere.js`.
+- **No `DEF` stat values were changed.** No balance-value patch was made in this phase.
+
+### Verdict-text fixes
+
+- **Ability verdict:** `computeAbilityAction` now recognizes the general pattern of a used, non-utility ability whose direct ability bucket is near zero but whose DoT bucket is nonzero; it evaluates an effective ability damage share that includes the DoT contribution instead of automatically declaring the ability ineffective. The suggestion text reports this effective contribution.
+- **Projectile verdict:** `OVERHAUL` now requires both low hit rate and low damage contribution. A projectile with meaningful damage share but low hit rate is reported as a reliability issue rather than as non-contribution. Suggestions distinguish low reliability from low damage contribution.
+
+### Verification status / limitation
+
+- The GitHub connector available in this session can inspect and modify repository files but does not provide a browser/game runtime or local working tree execution environment. Therefore I could not honestly run the requested browser verification batch, `node --check`, or `git diff --stat` from this session. No before/after runtime numbers are claimed here.
+- Consequently, this branch should **not** be treated as Phase 5 verified. The required few-hundred-game verification remains an explicit follow-up step before merge, especially for the melee instrumentation and any decision about `sphere.js`.
