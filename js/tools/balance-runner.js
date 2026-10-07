@@ -266,7 +266,7 @@
   const ciWidth=wilson.high-wilson.low;
   const confidence=clamp(1-ciWidth,0,1);
   const avgHpMarginPct=row.games&&DEF[key]?.hp?avgHpMargin/DEF[key].hp:0;
-  const pressure=(wr-0.5)*120+(decisiveWr-0.5)*60+avgHpMarginPct*32+dominantMatchups*1.5-hardCounters*1.5-drawRate*20;
+  const pressure=(wr-0.5)*120+(decisiveWr-0.5)*60+avgHpMarginPct*32.61+dominantMatchups*1.5-hardCounters*1.5-drawRate*20;
   const balanceScore=+(pressure*confidence).toFixed(1);
   const action=ciWidth>0.15?'NEEDS_MORE_DATA':balanceScore>=12?'NERF':balanceScore<=-12?'BUFF':'WATCH';
   const role=typeof CLASS_ROLE!=='undefined'?(CLASS_ROLE[key]||'FIGHTER'):'FIGHTER';
