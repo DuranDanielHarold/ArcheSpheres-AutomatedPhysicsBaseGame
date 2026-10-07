@@ -153,17 +153,17 @@ function _weaponHit(att,def){
   if(d<def.radius+tipR&&d<hitDist){hit=true;hitPt=pt;hitDist=d;}
  }
  const tip=att.getTip();
- if(!att._meleeAttemptDefenders.get(def)&&window._balanceCombatTracker){
-  const centerDist=Math.hypot(def.x-att.x,def.y-att.y);
+ const centerDist=Math.hypot(def.x-att.x,def.y-att.y);
+ const engagementRange=def.radius+att.radius*att.d.reach*1.15;
+ const inEngagementRange=centerDist<=engagementRange;
+ if(inEngagementRange&&!att._meleeAttemptDefenders.get(def)){
   const distanceAtAttempt=Math.max(0,(centerDist-def.radius)/(att.radius||1));
-  window._balanceCombatTracker.onMeleeAttempt(att.key,distanceAtAttempt,att.d.reach,hit);
+  if(window._balanceCombatTracker)window._balanceCombatTracker.onMeleeAttempt(att.key,distanceAtAttempt,att.d.reach,hit);
+  if(window._liveCombatTracker)window._liveCombatTracker.onMeleeAttempt(att.key,distanceAtAttempt,att.d.reach,hit);
+  att._meleeAttemptDefenders.set(def,true);
+ } else if(!inEngagementRange){
+  att._meleeAttemptDefenders.delete(def);
  }
- if(!att._meleeAttemptDefenders.get(def)&&window._liveCombatTracker){
-  const centerDist=Math.hypot(def.x-att.x,def.y-att.y);
-  const distanceAtAttempt=Math.max(0,(centerDist-def.radius)/(att.radius||1));
-  window._liveCombatTracker.onMeleeAttempt(att.key,distanceAtAttempt,att.d.reach,hit);
- }
- if(!att._meleeAttemptDefenders.get(def))att._meleeAttemptDefenders.set(def,true);
  if(hit)_unstickTricksterFromWeapon(att,def,pts,tipR);
  if(hit&&!att._hitDefenders.get(def)){
   att._hitDefenders.set(def,true);
@@ -325,7 +325,7 @@ function _weaponHit(att,def){
    }
   }
  const bladeStillInside=pts.some(pt=>Math.hypot(pt.x-def.x,pt.y-def.y)<def.radius+tipR);
- if(!bladeStillInside){att._hitDefenders.delete(def);att._meleeAttemptDefenders.delete(def);}
+ if(!bladeStillInside)att._hitDefenders.delete(def);
 }
 function _applyLocksmithLock(att,def){
  def.locksmithLocks=Math.min(2,(def.locksmithLocks||0)+1);
