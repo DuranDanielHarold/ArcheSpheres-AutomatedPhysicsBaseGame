@@ -81,10 +81,10 @@ function concludeMatch(winner,endReason){
 function checkEliminationWin(){
  if(winDone)return;
  const alive=spheres.filter(s=>s.alive&&!s.dying);
- const factions=[...new Set(alive.map(s=>s.faction))];
+ const factions=[...new Set(alive.filter(s=>!s.isReplica).map(s=>s.faction))];
  if(factions.length<2&&spheres.length>=2){
   const winnerFaction=factions[0];
-  const winner=winnerFaction===undefined?null:(alive.find(s=>s.faction===winnerFaction&&!s.isReplica)||alive.find(s=>s.faction===winnerFaction)||null);
+  const winner=winnerFaction===undefined?null:(alive.find(s=>s.faction===winnerFaction&&!s.isReplica)||null);
   concludeMatch(winner,'elimination');
  }
 }
