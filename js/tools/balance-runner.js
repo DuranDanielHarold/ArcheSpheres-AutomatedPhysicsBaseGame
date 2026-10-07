@@ -205,17 +205,17 @@
   };
   return Object.assign({},weights[role]||weights.FIGHTER);
  }
- function weightedStatAdjustment(score,confidence,role,avgHpMarginPct,drawRate,hpMax,action){
+ function weightedStatAdjustment(score,confidence,role,avgHpMarginPct,drawRate,action){
   if(action!=='NERF'&&action!=='BUFF')return{totalAdjustmentPct:0,statAdjustments:''};
   const direction=action==='NERF'?-1:1,weights=roleStatWeights(role);
-  const rawHpMargin=avgHpMarginPct*hpMax;
-  const marginPressure=clamp(Math.abs(rawHpMargin)/200,0,.45);
+  // HP-relative margin: 200 HP / 400 HP midpoint = 0.50 full-pressure denominator.
+  const marginPressure=clamp(Math.abs(avgHpMarginPct)/0.50,0,.45);
   const drawPressure=clamp(drawRate,.0,.35);
-  if((action==='NERF'&&rawHpMargin>40)||(action==='BUFF'&&rawHpMargin<-40)){
+  if((action==='NERF'&&avgHpMarginPct>=0.10)||(action==='BUFF'&&avgHpMarginPct<=-0.10)){
    if(weights.hp)weights.hp+=marginPressure*.45;
    if(weights.arm)weights.arm+=marginPressure*.30;
    if(weights.magDef)weights.magDef+=marginPressure*.20;
-  }else if((action==='NERF'&&rawHpMargin<40)||(action==='BUFF'&&rawHpMargin>-40)){
+  }else if((action==='NERF'&&avgHpMarginPct<0.10)||(action==='BUFF'&&avgHpMarginPct>-0.10)){
    if(weights.dmg)weights.dmg+=marginPressure*.30;
    if(weights.reach)weights.reach+=marginPressure*.20;
    if(weights.spd)weights.spd+=marginPressure*.15;
@@ -266,13 +266,13 @@
   const ciWidth=wilson.high-wilson.low;
   const confidence=clamp(1-ciWidth,0,1);
   const avgHpMarginPct=row.games&&DEF[key]?.hp?avgHpMargin/DEF[key].hp:0;
-  const pressure=(wr-0.5)*120+(decisiveWr-0.5)*60+avgHpMarginPct*DEF[key].hp*0.08+dominantMatchups*1.5-hardCounters*1.5-drawRate*20;
+  const pressure=(wr-0.5)*120+(decisiveWr-0.5)*60+avgHpMarginPct*32.61+dominantMatchups*1.5-hardCounters*1.5-drawRate*20;
   const balanceScore=+(pressure*confidence).toFixed(1);
   const action=ciWidth>0.15?'NEEDS_MORE_DATA':balanceScore>=12?'NERF':balanceScore<=-12?'BUFF':'WATCH';
   const role=typeof CLASS_ROLE!=='undefined'?(CLASS_ROLE[key]||'FIGHTER'):'FIGHTER';
   const magnitude=action==='NERF'||action==='BUFF'?patchMagnitude(balanceScore):'';
   const patchTarget=patchTargets(key,action,row,drawRate,avgHpMargin);
-  const adjustment=weightedStatAdjustment(balanceScore,confidence,role,avgHpMarginPct,drawRate,DEF[key]?.hp||0,action);
+  const adjustment=weightedStatAdjustment(balanceScore,confidence,role,avgHpMarginPct,drawRate,action);
   const sums=row.summaries||[];
   const avgDmgDealt=+mean(sums.map(s=>s.dmgDealt)).toFixed(2),avgBaseDmgPct=+mean(sums.map(s=>s.baseDmgPct)).toFixed(4),avgAbilityDmgPct=+mean(sums.map(s=>s.abilityDmgPct)).toFixed(4),avgPassiveDmgPct=+mean(sums.map(s=>s.passiveDmgPct)).toFixed(4),avgDotDmgPct=+mean(sums.map(s=>s.dotDmgPct)).toFixed(4),avgProjectileDmgPct=+mean(sums.map(s=>s.projectileDmgPct)).toFixed(4);
   const avgAbilityUsesPerSec=+mean(sums.map(s=>s.abilityUsesPerSec)).toFixed(4),avgAbilityHitRate=+mean(sums.map(s=>s.abilityHitRate)).toFixed(4),avgPassiveTriggersPerSec=+mean(sums.map(s=>s.passiveTriggersPerSec)).toFixed(4);
