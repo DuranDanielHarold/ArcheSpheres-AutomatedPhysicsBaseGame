@@ -155,3 +155,27 @@ Paste the Session 5 verification block supplied for this phase into the browser 
 ```
 
 Expected direction: ability/passive damage share rises for every listed class compared with a pre-follow-up capture; knight is the control. Live checks: trigger witch Jinx burn, keep an enemy in Whelpling Firebreath for its full duration, then run one 2v2 without console errors.
+
+## Phase 4 — Statistical hygiene and export discipline
+
+- **Item 1 — Wilson confidence:** `js/tools/balance-runner.js` now defines `wilsonInterval(wins,n,z=1.96)` and derives class confidence from the 95% interval width rather than raw game count. Class rows expose `winRateCI95Low`/`winRateCI95High`; the interval uses elimination-only wins (`wins - tiebreakWins - suddenDeathWins`) over decisive games (`games - draws`). `NEEDS_MORE_DATA` now gates on Wilson interval width `> 0.15` at the class-row action site in `summarizeClassRow`, and the suggestion text reports the interval width.
+- **Item 2 — normalized HP margin:** `avgHpMarginPct` is `avgHpMargin / DEF[key].hp`, while raw `avgHpMargin` remains in the output. The pressure term uses the normalized value multiplied by the class HP and the existing `0.08` coefficient, preserving the old `avgHpMargin * 0.08` contribution exactly. `weightedStatAdjustment` accepts the normalized margin and reconstructs the equivalent raw scale only for the legacy pressure magnitude, so patch behavior is not silently shifted. `avgHpMarginPct` is exported in the class CSV.
+- **Item 3 — retention:** `DEFAULTS.maxRetainedResults` is `5000`. `buildReport` performs deterministic reservoir sampling with a dedicated `mulberry32` stream derived from `options.seed`, after full class/matchup aggregation is complete. Runs at or below the cap retain every result; larger runs retain exactly the cap. `totalMatches` records the unsampled count and `retainedResults` records the retained count. `matchCount` remains the true total for backward compatibility.
+- **Item 4 — identity/versioning:** report headers now include integer `schemaVersion: 1` and a seed-traceable `runId` built from the seed and ISO timestamp. No `tools/balance-ml/` directory exists; no separate DEF-stat CSV serialization was added.
+- **Item 5 — replica winner rule:** `js/loop/game-loop.js:checkEliminationWin()` and `js/tools/balance-runner.js:livingPrimaryFactions()/resolveWinnerFromLivingFactions()` now derive living factions from non-replica spheres and only return a non-replica winner. When a faction has only replicas alive, it no longer counts as an alive faction; if both sides have no primary survivor, the runner falls through to `double_ko`, while a surviving primary opponent yields elimination/sudden-death classification according to the existing deciding-sphere logic. This changes future Trickster/Fairy outcomes where their replica was previously eligible to carry a win; live HUD/reporting now receives `null` rather than a replica when no primary winner exists.
+
+### HP-margin coefficient check
+
+The normalization preserves the previous score influence algebraically: `avgHpMarginPct * DEF[key].hp * 0.08 == avgHpMargin * 0.08`. For a comparable +20 HP margin, Vampire (181 HP), a representative mid-HP class (400 HP), and King (609 HP) contribute `+1.60`, `+1.60`, and `+1.60` to pressure before confidence/matchup terms. The new percentage values are approximately `0.1105`, `0.0500`, and `0.0328`, respectively; this makes the exported metric comparable while keeping the existing balance-score contribution unchanged.
+
+### Aggregation and sampling verification
+
+Aggregation remains over the complete `results` array. Reservoir sampling is applied only when constructing `report.results`, so class and matchup rows cannot change merely because the retention cap changes. The reservoir stream is separate from per-match `Math.random`, preserving simulation determinism.
+
+### Trickster/Fairy end-reason trace-through
+
+With replicas excluded from `livingPrimaryFactions()`, a phase replica can no longer keep a faction alive or be returned as winner. If the opposing primary is also gone, `factions.length` becomes zero and the existing runner branch produces a draw (`double_ko` unless the surviving deciding objects are all marked by sudden death, in which case `sudden_death_double_ko`). If the opposing faction still has a primary survivor, the remaining primary faction resolves the match rather than the replica. Live `checkEliminationWin()` follows the same non-replica rule; its `concludeMatch(null, 'elimination')` path displays a draw rather than a replica winner when the condition is reached without a primary winner.
+
+### Baseline invalidation notice — final harness-repair notice
+
+Every baseline captured before this Phase 4 session used a degenerate confidence metric, an unnormalized HP-margin term in patch recommendations, and the replica-winner bug. This is the **fifth and final invalidation notice** in the harness-repair arc. Once a fresh baseline is captured after this session, the harness is trusted; future invalidation notices should be issued only for genuine new regressions, not accumulated backlog.
