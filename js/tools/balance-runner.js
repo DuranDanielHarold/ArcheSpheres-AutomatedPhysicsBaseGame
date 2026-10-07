@@ -208,13 +208,14 @@
  function weightedStatAdjustment(score,confidence,role,avgHpMarginPct,drawRate,hpMax,action){
   if(action!=='NERF'&&action!=='BUFF')return{totalAdjustmentPct:0,statAdjustments:''};
   const direction=action==='NERF'?-1:1,weights=roleStatWeights(role);
-  const marginPressure=clamp(Math.abs(avgHpMarginPct)*hpMax/200,0,.45);
+  const rawHpMargin=avgHpMarginPct*hpMax;
+  const marginPressure=clamp(Math.abs(rawHpMargin)/200,0,.45);
   const drawPressure=clamp(drawRate,.0,.35);
-  if((action==='NERF'&&avgHpMargin>40)||(action==='BUFF'&&avgHpMargin<-40)){
+  if((action==='NERF'&&rawHpMargin>40)||(action==='BUFF'&&rawHpMargin<-40)){
    if(weights.hp)weights.hp+=marginPressure*.45;
    if(weights.arm)weights.arm+=marginPressure*.30;
    if(weights.magDef)weights.magDef+=marginPressure*.20;
-  }else if((action==='NERF'&&avgHpMargin<40)||(action==='BUFF'&&avgHpMargin>-40)){
+  }else if((action==='NERF'&&rawHpMargin<40)||(action==='BUFF'&&rawHpMargin>-40)){
    if(weights.dmg)weights.dmg+=marginPressure*.30;
    if(weights.reach)weights.reach+=marginPressure*.20;
    if(weights.spd)weights.spd+=marginPressure*.15;
@@ -321,8 +322,8 @@
   a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
  }
  function toCsv(report){
-  const lines=['key,label,role,action,magnitude,balanceScore,totalAdjustmentPct,statAdjustments,patchTarget,confidence,winRateCI95Low,winRateCI95High,avgHpMarginPct,games,wins,losses,draws,winPct,decisiveWinRate,drawRate,avgDuration,avgEndHp,avgHpMargin,avgWinHp,avgLossOpponentHp,hardCounters,dominantMatchups,worstMatchup,bestMatchup,suggestions,avgDmgDealt,avgBaseDmgPct,avgAbilityDmgPct,avgPassiveDmgPct,avgDotDmgPct,avgProjectileDmgPct,avgAbilityUsesPerSec,avgAbilityHitRate,avgPassiveTriggersPerSec,avgProjectilesFiredPerMatch,avgProjectileHitRate,avgProjectileDmgPerHit,avgRotationPeak,avgRotationAvg,avgRotationFirstHitSpeed,eliminationWinRate,suddenDeathWinRate,tiebreakWinRate,avgMeleeHitRate,avgMeleeAttemptDistance,avgReachStatAtAttempt,reachUtilizationRatio,meleeHitboxAction,abilityAction,passiveAction,projectileAction'];
-  for(const r of report.classes)lines.push([r.key,r.label,r.role,r.action,r.magnitude,r.balanceScore,r.totalAdjustmentPct,`"${r.statAdjustments.replace(/"/g,'""')}"`,`"${r.patchTarget.replace(/"/g,'""')}"`,r.confidence,r.winRateCI95Low,r.winRateCI95High,r.avgHpMarginPct,r.games,r.wins,r.losses,r.draws,r.winPct,r.decisiveWinRate,r.drawRate,r.avgDuration,r.avgEndHp,r.avgHpMargin,r.avgWinHp,r.avgLossOpponentHp,r.hardCounters,r.dominantMatchups,`"${r.worstMatchup.replace(/"/g,'""')}"`,`"${r.bestMatchup.replace(/"/g,'""')}"`,`"${r.suggestions.join(' | ').replace(/"/g,'""')}"`,r.avgDmgDealt,r.avgBaseDmgPct,r.avgAbilityDmgPct,r.avgPassiveDmgPct,r.avgDotDmgPct,r.avgProjectileDmgPct,r.avgAbilityUsesPerSec,r.avgAbilityHitRate,r.avgPassiveTriggersPerSec,r.avgProjectilesFiredPerMatch,r.avgProjectileHitRate,r.avgProjectileDmgPerHit,r.avgRotationPeak,r.avgRotationAvg,r.avgRotationFirstHitSpeed,r.eliminationWinRate,r.suddenDeathWinRate,r.tiebreakWinRate,r.avgMeleeHitRate,r.avgMeleeAttemptDistance,r.avgReachStatAtAttempt,r.reachUtilizationRatio,r.meleeHitboxAction,r.abilityAction,r.passiveAction,r.projectileAction].join(','));
+  const lines=['key,label,role,action,magnitude,balanceScore,totalAdjustmentPct,statAdjustments,patchTarget,confidence,winRateCI95Low,winRateCI95High,games,wins,losses,draws,winPct,decisiveWinRate,drawRate,avgDuration,avgEndHp,avgHpMargin,avgHpMarginPct,avgWinHp,wins,losses,draws,winPct,decisiveWinRate,drawRate,avgDuration,avgEndHp,avgHpMargin,avgWinHp,avgLossOpponentHp,hardCounters,dominantMatchups,worstMatchup,bestMatchup,suggestions,avgDmgDealt,avgBaseDmgPct,avgAbilityDmgPct,avgPassiveDmgPct,avgDotDmgPct,avgProjectileDmgPct,avgAbilityUsesPerSec,avgAbilityHitRate,avgPassiveTriggersPerSec,avgProjectilesFiredPerMatch,avgProjectileHitRate,avgProjectileDmgPerHit,avgRotationPeak,avgRotationAvg,avgRotationFirstHitSpeed,eliminationWinRate,suddenDeathWinRate,tiebreakWinRate,avgMeleeHitRate,avgMeleeAttemptDistance,avgReachStatAtAttempt,reachUtilizationRatio,meleeHitboxAction,abilityAction,passiveAction,projectileAction'];
+  for(const r of report.classes)lines.push([r.key,r.label,r.role,r.action,r.magnitude,r.balanceScore,r.totalAdjustmentPct,`"${r.statAdjustments.replace(/"/g,'""')}"`,`"${r.patchTarget.replace(/"/g,'""')}"`,r.confidence,r.winRateCI95Low,r.winRateCI95High,r.games,r.wins,r.losses,r.draws,r.winPct,r.decisiveWinRate,r.drawRate,r.avgDuration,r.avgEndHp,r.avgHpMargin,r.avgHpMarginPct,r.avgWinHp,r.avgLossOpponentHp,r.hardCounters,r.dominantMatchups,`"${r.worstMatchup.replace(/"/g,'""')}"`,`"${r.bestMatchup.replace(/"/g,'""')}"`,`"${r.suggestions.join(' | ').replace(/"/g,'""')}"`,r.avgDmgDealt,r.avgBaseDmgPct,r.avgAbilityDmgPct,r.avgPassiveDmgPct,r.avgDotDmgPct,r.avgProjectileDmgPct,r.avgAbilityUsesPerSec,r.avgAbilityHitRate,r.avgPassiveTriggersPerSec,r.avgProjectilesFiredPerMatch,r.avgProjectileHitRate,r.avgProjectileDmgPerHit,r.avgRotationPeak,r.avgRotationAvg,r.avgRotationFirstHitSpeed,r.eliminationWinRate,r.suddenDeathWinRate,r.tiebreakWinRate,r.avgMeleeHitRate,r.avgMeleeAttemptDistance,r.avgReachStatAtAttempt,r.reachUtilizationRatio,r.meleeHitboxAction,r.abilityAction,r.passiveAction,r.projectileAction].join(','));
   return lines.join('\n');
  }
  function toMatchupCsv(report){
