@@ -164,12 +164,12 @@
   return spheres.find(s=>s.faction===faction&&!s.isReplica)||spheres.find(s=>s.faction===faction)||null;
  }
  function livingPrimaryFactions(){
-  const alive=spheres.filter(s=>s.alive&&!s.dying),factions=[...new Set(alive.map(s=>s.faction))];
+  const alive=spheres.filter(s=>s.alive&&!s.dying),factions=[...new Set(alive.filter(s=>!s.isReplica).map(s=>s.faction))];
   return{alive,factions};
  }
  function resolveWinnerFromLivingFactions(alive,factions){
   if(factions.length>=2||spheres.length<2)return null;
-  return alive.find(s=>s.faction===factions[0]&&!s.isReplica)||alive.find(s=>s.faction===factions[0])||null;
+  return alive.find(s=>s.faction===factions[0]&&!s.isReplica)||null;
  }
  function resolveTimeoutWinner(){const result=resolveStallTimeoutWinner(spheres);return{winner:result.winner,reason:result.endReason};
  }
