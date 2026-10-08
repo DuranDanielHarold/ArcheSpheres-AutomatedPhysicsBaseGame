@@ -180,6 +180,7 @@ function _weaponHit(att,def){
  const separationRange=strikeRange*1.25;
  const approachDt=Number(window._balanceSimulationDt)||0.05;
  let engagement=att._meleeAttemptDefenders.get(def);
+ let closeEngagement=false;
  const inStrikeRange=centerDist<=strikeRange;
  const inSeparationRange=centerDist<=separationRange;
  if(!engagement&&inStrikeRange){
@@ -187,7 +188,7 @@ function _weaponHit(att,def){
   att._meleeAttemptDefenders.set(def,engagement);
   if(window._meleeDebug){
    const bladePointDistance=Math.min(...pts.map(pt=>Math.hypot(pt.x-def.x,pt.y-def.y)));
-   const ev={event:'open',frame:window._meleeDebug.frame??null,time:window._meleeDebug.time??null,attacker:att.key,defender:def.key,centerDistance:centerDist,bladePointDistance,strikeRange,distanceAtAttempt:engagement.distanceAtAttempt,reachStatValue:att.d.reach,hit:false};
+   const ev={event:'open',frame:debugFrame,time:debugTime,attacker:att.key,defender:def.key,centerDistance:centerDist,bladePointDistance,strikeRange,distanceAtAttempt:engagement.distanceAtAttempt,reachStatValue:att.d.reach,hit:false};
    window._meleeDebug.events.push(ev);window._meleeDebug.openCount++;
    if(window._meleeDebug.events.length<=30)console.log('[melee-debug]',ev);
   }
@@ -197,18 +198,7 @@ function _weaponHit(att,def){
    engagement.outsideTime=0;
   }else{
    engagement.outsideTime+=approachDt;
-   if(engagement.outsideTime>=0.5){
-    const hitAtClose=engagement.hit===true;
-    if(window._balanceCombatTracker)window._balanceCombatTracker.onMeleeAttempt(att.key,engagement.distanceAtAttempt,engagement.reachStatValue,hitAtClose);
-    if(window._liveCombatTracker)window._liveCombatTracker.onMeleeAttempt(att.key,engagement.distanceAtAttempt,engagement.reachStatValue,hitAtClose);
-    if(window._meleeDebug){
-     const bladePointDistance=Math.min(...pts.map(pt=>Math.hypot(pt.x-def.x,pt.y-def.y)));
-     const ev={event:'close',frame:window._meleeDebug.frame??null,time:window._meleeDebug.time??null,attacker:att.key,defender:def.key,centerDistance,bladePointDistance,strikeRange,distanceAtAttempt:engagement.distanceAtAttempt,reachStatValue:engagement.reachStatValue,hit:hitAtClose,reason:'outside_0.5s'};
-     window._meleeDebug.events.push(ev);window._meleeDebug.closeCount++;if(hitAtClose)window._meleeDebug.hitAttempts++;
-     if(window._meleeDebug.events.length<=30)console.log('[melee-debug]',ev);
-    }
-    att._meleeAttemptDefenders.delete(def);
-   }
+   if(engagement.outsideTime>=0.5)closeEngagement=true;
   }
  }
  if(hit)_unstickTricksterFromWeapon(att,def,pts,tipR);
@@ -384,6 +374,21 @@ function _weaponHit(att,def){
   window._meleeDebug.uncreditedHits++;
   const ev={event:'hit',frame:window._meleeDebug.frame??null,time:window._meleeDebug.time??null,attacker:att.key,defender:def.key,centerDistance,bladePointDistance:hitDist,distanceAtAttempt:null,reachStatValue:att.d.reach,creditedOpenEngagement:false};
   window._meleeDebug.events.push(ev);if(window._meleeDebug.events.length<=30)console.log('[melee-debug]',ev);
+ }
+ if(closeEngagement){
+  const closeState=att._meleeAttemptDefenders.get(def);
+  if(closeState){
+   const hitAtClose=closeState.hit===true;
+   if(window._balanceCombatTracker)window._balanceCombatTracker.onMeleeAttempt(att.key,closeState.distanceAtAttempt,closeState.reachStatValue,hitAtClose);
+   if(window._liveCombatTracker)window._liveCombatTracker.onMeleeAttempt(att.key,closeState.distanceAtAttempt,closeState.reachStatValue,hitAtClose);
+   if(window._meleeDebug){
+    const bladePointDistance=Math.min(...pts.map(pt=>Math.hypot(pt.x-def.x,pt.y-def.y)));
+    const ev={event:'close',frame:debugFrame,time:debugTime,attacker:att.key,defender:def.key,centerDistance,bladePointDistance,strikeRange,distanceAtAttempt:closeState.distanceAtAttempt,reachStatValue:closeState.reachStatValue,hit:hitAtClose,reason:'outside_0.5s'};
+    window._meleeDebug.events.push(ev);window._meleeDebug.closeCount++;if(hitAtClose)window._meleeDebug.hitAttempts++;
+    if(window._meleeDebug.events.length<=30)console.log('[melee-debug]',ev);
+   }
+   att._meleeAttemptDefenders.delete(def);
+  }
  }
  const bladeStillInside=pts.some(pt=>Math.hypot(pt.x-def.x,pt.y-def.y)<def.radius+tipR);
  if(!bladeStillInside)att._hitDefenders.delete(def);
