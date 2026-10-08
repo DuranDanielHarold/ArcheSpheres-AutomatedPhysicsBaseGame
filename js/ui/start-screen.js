@@ -34,6 +34,7 @@ function showStartScreen(){
  document.getElementById('controls').style.display='none';
  if(typeof restoreTestingRandom==='function')restoreTestingRandom();
  const tgControls=document.getElementById('testing-controls');if(tgControls)tgControls.style.display='none';
+ if(typeof hideTestingGroundDiagnostic==='function')hideTestingGroundDiagnostic();
  const tgTelemetry=document.getElementById('testing-telemetry');if(tgTelemetry)tgTelemetry.remove();
  const card=document.getElementById('card');if(card)card.style.width='';
  let ss=document.getElementById('start-screen');

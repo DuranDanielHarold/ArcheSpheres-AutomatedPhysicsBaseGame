@@ -50,10 +50,16 @@ function launchTestingGround(){
  document.getElementById('mode-row').style.display='none';document.getElementById('sel-row').style.display='none';document.getElementById('card').style.display='flex';document.getElementById('controls').style.display='flex';
  startTestingGroundBattle();
 }
-function startTestingGroundBattle(){applyTestingArenaPreset();applyTestingRandom();try{newBattle();applyTestingGroundOverrides();if(typeof updateBattleHud==='function')updateBattleHud();}catch(e){restoreTestingRandom();throw e;}paused=false;document.getElementById('pbtn').textContent='PAUSE';ensureTestingGroundControls();ensureTestingGroundDiagnostic();renderTestingTelemetry(true);}
-function restartTestingGround(){if(_testingLastKeys){pendingSelections={};_testingLastKeys.forEach(p=>{pendingSelections[p.slot.id]=p.key;});}startTestingGroundBattle();}
-function leaveTestingGround(){restoreTestingRandom();applyTestingArenaPreset();window.randomModeActive=false;showStartScreen();}
-function testingFrameStep(){if(!isTestingGround())return;if(!paused)togglePause();stepGameFrame(1/60);renderTestingTelemetry(true);}
+function startTestingGroundBattle(){
+ if(window._testingDiagnosticRunning)return;
+ applyTestingArenaPreset();applyTestingRandom();
+ try{newBattle();applyTestingGroundOverrides();if(typeof updateBattleHud==='function')updateBattleHud();}
+ catch(e){restoreTestingRandom();throw e;}
+ paused=false;document.getElementById('pbtn').textContent='PAUSE';ensureTestingGroundControls();ensureTestingGroundDiagnostic();testingDiagnosticPrepareForLaunch();renderTestingTelemetry(true);
+}
+function restartTestingGround(){if(window._testingDiagnosticRunning)return;if(_testingLastKeys){pendingSelections={};_testingLastKeys.forEach(p=>{pendingSelections[p.slot.id]=p.key;});}startTestingGroundBattle();}
+function leaveTestingGround(){if(window._testingDiagnosticRunning)return;restoreTestingRandom();applyTestingArenaPreset();window.randomModeActive=false;hideTestingGroundDiagnostic();showStartScreen();}
+function testingFrameStep(){if(window._testingDiagnosticRunning)return;if(!isTestingGround())return;if(!paused)togglePause();stepGameFrame(1/60);renderTestingTelemetry(true);}
 function ensureTestingGroundControls(){
  let wrap=document.getElementById('testing-controls');if(!wrap){wrap=document.createElement('span');wrap.id='testing-controls';document.getElementById('controls').prepend(wrap);}wrap.style.display=isTestingGround()?'inline-flex':'none';
  wrap.innerHTML='<button class="pbtn" onclick="restartTestingGround()">RESTART</button><button class="pbtn" onclick="testingFrameStep()">STEP</button><label class="avol">SPD <select id="tg-speed"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1">1×</option><option value="2">2×</option></select></label><button class="pbtn new" onclick="leaveTestingGround()">EXIT TEST</button><button class="pbtn balance" id="tg-diagnostic-toggle" onclick="toggleTestingGroundDiagnostic()">BALANCE DIAGNOSTIC</button>';
@@ -66,7 +72,9 @@ const TESTING_DIAGNOSTIC_ARENAS={
  laptop:{label:'LAPTOP',w:1280,h:720}
 };
 let _testingDiagnosticExpanded=false;
-let _testingDiagnosticRunning=false;
+window._testingDiagnosticRunning=false;
+const _testingNativeRandom=Math.random;
+const _testingNativeSetTimeout=window.setTimeout;
 function testingDiagnosticClassDefaults(){
  const keys=(_testingLastKeys||[]).map(p=>p&&p.key).filter(Boolean);
  const unique=Object.keys(DEF).filter(k=>keys.includes(k));
@@ -78,13 +86,38 @@ function testingDiagnosticArenaSize(name){
  return p.w&&p.h?{w:p.w,h:p.h}:undefined;
 }
 function testingDiagnosticSetExpanded(expanded){
+ if(window._testingDiagnosticRunning)return;
  _testingDiagnosticExpanded=!!expanded;
  const panel=document.getElementById('testing-diagnostic');
  if(panel)panel.hidden=!_testingDiagnosticExpanded;
 }
-function toggleTestingGroundDiagnostic(){testingDiagnosticSetExpanded(!_testingDiagnosticExpanded);}
+function toggleTestingGroundDiagnostic(){if(window._testingDiagnosticRunning)return;if(!isTestingGround())return;testingDiagnosticSetExpanded(!_testingDiagnosticExpanded);}
+function setTestingDiagnosticUiLocked(locked){
+ const selectors=['#testing-controls button','#testing-controls select','#pbtn','#controls > button.pbtn.new','#balance-btn','#testing-telemetry .tg-telemetry-toggle','#testing-diagnostic button','#testing-diagnostic select','#testing-diagnostic input'];
+ document.querySelectorAll(selectors.join(',')).forEach(el=>{el.disabled=!!locked;});
+}
+function hideTestingGroundDiagnostic(){
+ _testingDiagnosticExpanded=false;
+ const panel=document.getElementById('testing-diagnostic');
+ if(panel)panel.hidden=true;
+ if(!window._testingDiagnosticRunning)setTestingDiagnosticUiLocked(false);
+}
+function testingDiagnosticPrepareForLaunch(){
+ const panel=document.getElementById('testing-diagnostic');
+ if(!panel||!isTestingGround())return;
+ panel.hidden=true;
+ _testingDiagnosticExpanded=false;
+ const a=document.getElementById('tg-diagnostic-a'),b=document.getElementById('tg-diagnostic-b');
+ const defaults=testingDiagnosticClassDefaults();
+ if(a)a.value=defaults[0]||Object.keys(DEF)[0]||'';
+ if(b)b.value=defaults[1]||Object.keys(DEF).find(k=>k!==a?.value)||'';
+ const status=document.getElementById('tg-diagnostic-status');if(status)status.textContent='ready';
+ setTestingDiagnosticUiLocked(false);
+}
 function ensureTestingGroundDiagnostic(){
- let panel=document.getElementById('testing-diagnostic');
+ const panels=document.querySelectorAll('#testing-diagnostic');
+ panels.forEach((node,index)=>{if(index>0)node.remove();});
+ let panel=panels[0]||document.getElementById('testing-diagnostic');
  if(!panel){
   panel=document.createElement('div');
   panel.id='testing-diagnostic';
@@ -123,7 +156,8 @@ function testingDiagnosticCsv(rows){
  return[headers.join(','),...rows.map(row=>headers.map(k=>testingDiagnosticCsvEscape(row[k])).join(','))].join('\n');
 }
 async function runTestingGroundDiagnostic(){
- if(_testingDiagnosticRunning)return;
+ if(window._testingDiagnosticRunning)return;
+ if(!isTestingGround())return;
  ensureTestingGroundDiagnostic();
  const status=document.getElementById('tg-diagnostic-status'),run=document.getElementById('tg-diagnostic-run');
  const a=document.getElementById('tg-diagnostic-a').value,b=document.getElementById('tg-diagnostic-b').value;
@@ -134,7 +168,8 @@ async function runTestingGroundDiagnostic(){
  const arenaSize=testingDiagnosticArenaSize(arenaPreset);
  document.getElementById('tg-diagnostic-games').value=games;
  if(!Number.isFinite(seed)){status.textContent='failed — see console';console.error(new Error('Invalid diagnostic seed'));return;}
- _testingDiagnosticRunning=true;run.disabled=true;
+ window._testingDiagnosticRunning=true;
+ setTestingDiagnosticUiLocked(true);
  if(!paused)togglePause();
  restoreTestingRandom();
  try{
@@ -154,8 +189,19 @@ async function runTestingGroundDiagnostic(){
  }catch(err){
   console.error(err);status.textContent='failed — see console';
  }finally{
-  run.disabled=false;_testingDiagnosticRunning=false;
-  try{resize();restartTestingGround();}catch(err){console.error(err);status.textContent='failed — see console';}
+  window._arenaSizeLocked=false;
+  window._testingDiagnosticRunning=false;
+  if(Math.random!==_testingNativeRandom)Math.random=_testingNativeRandom;
+  if(window.setTimeout!==_testingNativeSetTimeout)window.setTimeout=_testingNativeSetTimeout;
+  try{
+   setTestingDiagnosticUiLocked(false);
+   resize();
+   restartTestingGround();
+  }catch(err){
+   console.error(err);
+   status.textContent='failed — see console';
+   try{cancelAnimationFrame(animId);lastTime=performance.now();paused=false;animId=requestAnimationFrame(loop);}catch(fallbackErr){console.error(fallbackErr);}
+  }
  }
 }
 
@@ -163,7 +209,7 @@ function setTestingTelemetryCollapsed(collapsed){
  _testingTelemetryCollapsed=!!collapsed;
  renderTestingTelemetry(true);
 }
-function toggleTestingTelemetry(){setTestingTelemetryCollapsed(!_testingTelemetryCollapsed);}
+function toggleTestingTelemetry(){if(window._testingDiagnosticRunning)return;setTestingTelemetryCollapsed(!_testingTelemetryCollapsed);}
 function renderTestingTelemetry(force){
  if(!isTestingGround())return;
  const now=typeof performance!=='undefined'&&performance.now?performance.now():Date.now();
@@ -172,7 +218,7 @@ function renderTestingTelemetry(force){
  let panel=document.getElementById('testing-telemetry');if(!panel){panel=document.createElement('div');panel.id='testing-telemetry';document.getElementById('arena-border').appendChild(panel);}
  panel.classList.toggle('collapsed',_testingTelemetryCollapsed);
  const buttonText=_testingTelemetryCollapsed?'SHOW':'HIDE';
- const header=`<button class="tg-telemetry-toggle" onclick="toggleTestingTelemetry()">${buttonText} TELEMETRY</button>`;
+ const header='<button class="tg-telemetry-toggle"'+(window._testingDiagnosticRunning?' disabled':'')+' onclick="toggleTestingTelemetry()">'+buttonText+' TELEMETRY</button>';
  if(_testingTelemetryCollapsed){panel.innerHTML=header;return;}
  if(!window._liveCombatTracker){panel.innerHTML=header+'<div class="battle-report-section">NO TELEMETRY</div>';return;}
  window._liveCombatTracker.onMatchEnd(window.matchTime||0);

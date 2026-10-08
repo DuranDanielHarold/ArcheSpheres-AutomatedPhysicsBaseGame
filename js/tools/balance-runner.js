@@ -403,6 +403,7 @@
   const restoreBalanceTimeoutTracker=installBalanceTimeoutTracker();
   const restoreCombatTrackerHooks=installCombatTrackerHooks();
   window._balanceNoVisuals=options.noVisuals!==false;
+  if(options.arenaSize)window._arenaSizeLocked=true;
   try{
    for(const [redKey,blueKey,round] of planned){
     if(performance.now()>deadline)break;
@@ -433,7 +434,7 @@
      await new Promise(r=>setTimeout(r,0));
     }
    }
-  }finally{Math.random=originalRandom;window._liveCombatTracker=savedLiveTracker;window._liveCurrentAbilityKey=savedLiveAbilityKey;window._balanceNoVisuals=originalNoVisuals;window._balanceCombatTracker=null;window._balanceDamageSource=null;window._balanceCurrentAbilityKey=null;restoreCombatTrackerHooks();restoreBalanceTimeoutTracker();paused=false;}
+  }finally{if(options.arenaSize)window._arenaSizeLocked=false;Math.random=originalRandom;window._liveCombatTracker=savedLiveTracker;window._liveCurrentAbilityKey=savedLiveAbilityKey;window._balanceNoVisuals=originalNoVisuals;window._balanceCombatTracker=null;window._balanceDamageSource=null;window._balanceCurrentAbilityKey=null;restoreCombatTrackerHooks();restoreBalanceTimeoutTracker();paused=false;}
   const report=buildReport(results,options,performance.now()-started,count===planned.length);
   window.lastBalanceReport=report;
   console.table(report.classes.slice(0,12));
@@ -448,6 +449,7 @@
  };
 
 window.startBalanceBaselineButton=function(){
+ if(window._testingDiagnosticRunning)return;
  const btn=document.getElementById('balance-btn'),status=document.getElementById('balance-status');
  if(btn)btn.disabled=true;
  if(status)status.textContent='running...';
