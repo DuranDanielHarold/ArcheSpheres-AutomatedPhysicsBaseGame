@@ -56,8 +56,38 @@ function leaveTestingGround(){restoreTestingRandom();applyTestingArenaPreset();w
 function testingFrameStep(){if(!isTestingGround())return;if(!paused)togglePause();stepGameFrame(1/60);renderTestingTelemetry(true);}
 function ensureTestingGroundControls(){
  let wrap=document.getElementById('testing-controls');if(!wrap){wrap=document.createElement('span');wrap.id='testing-controls';document.getElementById('controls').prepend(wrap);}wrap.style.display=isTestingGround()?'inline-flex':'none';
- wrap.innerHTML='<button class="pbtn" onclick="restartTestingGround()">RESTART</button><button class="pbtn" onclick="testingFrameStep()">STEP</button><label class="avol">SPD <select id="tg-speed"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1">1×</option><option value="2">2×</option></select></label><button class="pbtn new" onclick="leaveTestingGround()">EXIT TEST</button>';
+ wrap.innerHTML='<button class="pbtn" onclick="restartTestingGround()">RESTART</button><button class="pbtn" onclick="testingFrameStep()">STEP</button><label class="avol">SPD <select id="tg-speed"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1">1×</option><option value="2">2×</option></select></label><label class="avol">GAMES <input id="tg-diagnostic-games" type="number" min="1" max="200" step="1" value="10" style="width:58px"></label><label class="avol">SEED <input id="tg-diagnostic-seed" type="number" step="1" value="${testingSeedValue()===null?1337:testingSeedValue()}" style="width:90px"></label><button class="pbtn balance" id="tg-diagnostic-run" onclick="runTestingGroundDiagnostic()">DIAGNOSTIC</button><span id="tg-diagnostic-status">ready</span><button class="pbtn new" onclick="leaveTestingGround()">EXIT TEST</button>';
  const sel=document.getElementById('tg-speed');sel.value=String(testingGroundOptions.speed);sel.onchange=e=>{testingGroundOptions.speed=Number(e.target.value)||1;};
+}
+function testingDiagnosticDownload(name,mime,text){
+ const blob=new Blob([text],{type:mime}),url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function testingDiagnosticCsv(payload){
+ const esc=v=>{const s=String(v??'');return s.includes(',')||s.includes('"')||s.includes('\n')?'"'+s.replace(/"/g,'""')+'"':s;};
+ const rows=[['game','seed','redKey','blueKey','winnerKey','winnerFaction','duration','redHp','blueHp','endReason','redMeleeHitRate','blueMeleeHitRate','redAvgMeleeAttemptDistance','blueAvgMeleeAttemptDistance','redAvgReachStatAtAttempt','blueAvgReachStatAtAttempt']];
+ for(const r of payload.results||[]){rows.push([r.index,r.seed,r.redKey,r.blueKey,r.winnerKey||'',r.winnerFaction??'',r.duration,r.redHp,r.blueHp,r.endReason,r.red?.meleeHitRate??'',r.blue?.meleeHitRate??'',r.red?.avgMeleeAttemptDistance??'',r.blue?.avgMeleeAttemptDistance??'',r.red?.avgReachStatAtAttempt??'',r.blue?.avgReachStatAtAttempt??'']);}
+ return rows.map(row=>row.map(esc).join(',')).join('\n');
+}
+async function runTestingGroundDiagnostic(){
+ const status=document.getElementById('tg-diagnostic-status'),gamesEl=document.getElementById('tg-diagnostic-games'),seedEl=document.getElementById('tg-diagnostic-seed');
+ const keys=(_testingLastKeys||[]).map(p=>p.key).filter(Boolean);
+ if(keys.length!==2||keys[0]===keys[1]){if(status)status.textContent='select two different classes';return null;}
+ const games=Math.max(1,Math.min(200,Math.floor(Number(gamesEl?.value)||10)));
+ const seedValue=Number(seedEl?.value);const seed=Number.isFinite(seedValue)?(seedValue>>>0):1337;
+ const button=document.getElementById('tg-diagnostic-run');if(button)button.disabled=true;if(status)status.textContent=\`running \${games} games...\`;
+ try{
+  const report=await window.runBalanceBaseline({keys,targetMatches:games,seed,roundsPerPair:1,minutes:30,dt:1/20,chunkSize:5,noVisuals:true,exportJson:false,exportCsv:false,maxRetainedResults:games,progress:p=>{if(status)status.textContent=\`running \${p.count}/\${p.total}...\`;}});
+  const matchup=report.matchups.find(m=>m.a===keys.slice().sort()[0]&&m.b===keys.slice().sort()[1])||report.matchups[0]||null;
+  const card=document.getElementById('card'),canvas=document.getElementById('gc'),arena=document.getElementById('arena-border');
+  const payload={schemaVersion:1,type:'test-ground-balance-diagnostic',generatedAt:new Date().toISOString(),classes:keys,games:report.matchCount,seed,viewport:{innerWidth:window.innerWidth,innerHeight:window.innerHeight,devicePixelRatio:window.devicePixelRatio||1},arena:{canvasWidth:W,canvasHeight:H,cardWidth:card?.getBoundingClientRect().width||0,arenaWidth:arena?.getBoundingClientRect().width||0,arenaHeight:arena?.getBoundingClientRect().height||0,preset:testingGroundOptions.arena},matchup,results:(report.results||[]).map((r,i)=>Object.assign({index:i+1},r))};
+  const stamp=new Date().toISOString().replace(/[:.]/g,'-');
+  testingDiagnosticDownload(\`test-ground-diagnostic-\${keys[0]}-vs-\${keys[1]}-\${stamp}.json\`,'application/json',JSON.stringify(payload,null,2));
+  testingDiagnosticDownload(\`test-ground-diagnostic-\${keys[0]}-vs-\${keys[1]}-\${stamp}.csv\`,'text/csv',testingDiagnosticCsv(payload));
+  if(status)status.textContent=\`done: \${report.matchCount} games downloaded\`;
+  return payload;
+ }catch(err){console.error('[test-ground diagnostic]',err);if(status)status.textContent='failed — see console';return null;}
+ finally{if(button)button.disabled=false;}
 }
 function setTestingTelemetryCollapsed(collapsed){
  _testingTelemetryCollapsed=!!collapsed;
@@ -79,4 +109,4 @@ function renderTestingTelemetry(force){
  const summary=window._liveCombatTracker.getSummary();
  panel.innerHTML=`${header}<div class="battle-report-section">LIVE TELEMETRY ${formatReportDuration(window.matchTime||0)}</div><div class="tg-report-grid">${renderReportSide(window._liveCombatTracker.redKey,summary.red,'r','#ff5533')}${renderReportSide(window._liveCombatTracker.blueKey,summary.blue,'b','#88aacc')}</div>`;
 }
-window.isTestingGround=isTestingGround;window.getTestingGroundSpeed=getTestingGroundSpeed;window.renderTestingGroundPickerPanel=renderTestingGroundPickerPanel;window.launchTestingGround=launchTestingGround;window.restartTestingGround=restartTestingGround;window.testingFrameStep=testingFrameStep;window.leaveTestingGround=leaveTestingGround;window.renderTestingTelemetry=renderTestingTelemetry;window.toggleTestingTelemetry=toggleTestingTelemetry;window.setTestingTelemetryCollapsed=setTestingTelemetryCollapsed;window.restoreTestingRandom=restoreTestingRandom;window.resetTestingOptions=resetTestingOptions;
+window.runTestingGroundDiagnostic=runTestingGroundDiagnostic;window.isTestingGround=isTestingGround;window.getTestingGroundSpeed=getTestingGroundSpeed;window.renderTestingGroundPickerPanel=renderTestingGroundPickerPanel;window.launchTestingGround=launchTestingGround;window.restartTestingGround=restartTestingGround;window.testingFrameStep=testingFrameStep;window.leaveTestingGround=leaveTestingGround;window.renderTestingTelemetry=renderTestingTelemetry;window.toggleTestingTelemetry=toggleTestingTelemetry;window.setTestingTelemetryCollapsed=setTestingTelemetryCollapsed;window.restoreTestingRandom=restoreTestingRandom;window.resetTestingOptions=resetTestingOptions;
