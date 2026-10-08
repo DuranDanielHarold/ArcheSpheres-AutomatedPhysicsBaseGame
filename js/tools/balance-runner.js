@@ -449,6 +449,7 @@
  };
 
 window.startBalanceBaselineButton=function(){
+ if(window._testingDiagnosticRunning)return;
  const btn=document.getElementById('balance-btn'),status=document.getElementById('balance-status');
  if(btn)btn.disabled=true;
  if(status)status.textContent='running...';
