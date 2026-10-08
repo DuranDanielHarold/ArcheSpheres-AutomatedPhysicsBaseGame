@@ -220,3 +220,86 @@ The computation and CSV export of `avgHpMarginPct` remain unchanged; only its co
 Items 1, 3, 4, and 5 are untouched. No `DEF` values, stall/timeout logic, damage attribution, report fields, build/dependency configuration, or `patchTargets` thresholds were changed. The only code changes are the two HP-relative weighting formulas and removal of the now-dead `hpMax` parameter.
 
 **Baseline notice:** the merged Phase 4 baseline remains invalid for HP-margin-driven patch recommendations. Capture a fresh baseline after this correction before using balance-score patch recommendations. This correction does not invalidate the other four Phase 4 fixes.
+
+## Phase 5 — Melee instrumentation correction (2026-10-08)
+
+- **Melee attempt definition:** `_weaponHit` now records at most one attempt per attacker/defender approach while the pair is inside `def.radius + att.radius * att.d.reach * 1.15`. The attempt latch is cleared only after the pair leaves that engagement range; the existing `_hitDefenders` contact latch remains separate for damage deduplication.
+- **Known suspect:** confirmed on the pre-Phase-5 implementation. Because `_weaponHit` runs every frame and the attempt latch was cleared whenever the blade was not touching the defender, the old code could record attempts on repeated out-of-contact frames. PR #85 fixes that accounting bug.
+- **Outcome neutrality:** the change only gates tracker calls and changes instrumentation latches. It does not modify damage, knockback, `_hitDefenders`, `weaponHitCD`, omega flips, or any RNG call/order.
+- **Other Phase-5 reporting fixes:** ability verdicts account for DoT contribution when the direct ability bucket is near zero; projectile `OVERHAUL` requires both low hit rate and low damage share, with suggestions distinguishing reliability from contribution.
+
+### Baseline invalidation
+
+Because the melee attempt denominator and attempt-distance sample definition changed, older values for **`avgMeleeHitRate`, `avgMeleeAttemptDistance`, `reachUtilizationRatio`, and `meleeHitboxAction` are not directly comparable** with Phase-5 results. Other outcome fields and non-melee metrics remain comparable where their underlying instrumentation did not change. Capture a fresh baseline before using the four melee fields for balance decisions.
+
+### Verification status
+
+The branch was rebased onto current `main` as a merge commit. Repository inspection verified the intended three-file Phase-5 scope and preserved the current Test Ground diagnostic/hardening changes. Browser/runtime execution, `node --check`, seeded baseline runs, outcome-neutrality runs, metric samples, diagnostic export/live-view checks, and 10-class `VISUAL_OUTPACING_HITBOX` counts are **not verified in this environment** and must be run before merge.
+
+### Phase 5 follow-up — engagement-state correction (2026-10-08)
+
+The first Phase-5 latch fix was still too coarse: it opened an attempt from **center distance** alone and immediately logged the attempt, even though the blade could be nowhere near the defender. That made the denominator contain non-contact frames and measured distance before the blade actually entered strike range. It also evaluated `hit` only on the opening frame, so a later hit in the same engagement could never credit that attempt.
+
+The corrected instrumentation uses an explicit per-attacker/per-defender engagement state:
+
+- **Open:** when the closest blade point enters the defender strike envelope, `def.radius + tipR + 0.08 * attacker.radius`.
+- **Distance sample:** captured once at opening as `(centerDistance - defender.radius) / attacker.radius`, so it is measured at strike-range entry rather than on an arbitrary earlier frame.
+- **Stay open:** while the blade remains inside the larger separation threshold (`engagementThreshold + 0.18 * attacker.radius`).
+- **Close:** when the actual combat-hit path succeeds, with `hit=true`; or after 3 consecutive frames outside the larger separation threshold with `hit=false`. A geometric blade overlap that was already latched by `_hitDefenders` does not count as a new hit. The existing blind-miss return also prevents the engagement from being credited as a hit.
+- **Exactly one attempt:** `onMeleeAttempt` is called only when the engagement closes; therefore a later hit credits the same attempt and no far-apart frame creates an attempt.
+
+The existing `_hitDefenders` map and its combat-hit code were not changed. No RNG calls were added, removed, or reordered.
+
+**Evidence supplied by owner before this correction:**
+
+| Class | Main hit rate | Main distance | Main ratio | #85 hit rate | #85 distance | #85 ratio |
+|---|---:|---:|---:|---:|---:|---:|
+| Knight | 0.0155 | 4.99 | 1.56 | 0.0076 | 3.50 | 1.09 |
+| Samurai | 0.0253 | 6.53 | 1.52 | 0 | 4.71 | 1.09 |
+
+These values were not plausible because #85 was still opening from center-distance geometry and logging immediately. Fresh after-patch runtime metrics must be captured by the owner; they are not claimed here.
+
+
+**Correction to the follow-up implementation:** the first engagement-state patch initially treated geometric overlap as `hit=true` before the existing `_hitDefenders` gate. That could credit repeated contacts without a new combat hit. The current patch credits `hit=true` only inside the existing successful melee-hit path, after the unchanged blind-miss gate and before the unchanged combat outcome code. The `_hitDefenders` logic itself is unchanged.
+
+
+## Phase 5 follow-up — approach-engagement correction (2026-10-08)
+
+### Step 1 diagnosis
+Owner runtime evidence showed the previous blade-entry engagement fix did not materially improve the metrics: 10-class avgMeleeHitRate remained about 0.0093–0.0312, avgMeleeAttemptDistance remained 5.2–6.8 while avgReachStatAtAttempt was 1.6–4.3, and 9/10 classes still reported VISUAL_OUTPACING_HITBOX. This rules out a simple reporting-scale issue.
+
+Static inspection of the branch identifies the accounting failure: the tracker opened/closed on instantaneous blade-point geometry. A spinning blade can leave the defender envelope between rotations while the defender is still inside practical melee range, producing multiple short misses for one physical approach. The previous tracker also deleted the engagement immediately after the first hit, rather than retaining the approach until separation.
+
+The requested debug trace is now behind window._meleeDebug and is disabled by default. It records open/close events, accepted hit events, center distance, blade-point distance, sampled attempt distance, reach, and whether a hit had an open engagement. No browser execution was available in this environment, so no trace excerpt or runtime hit counts are claimed here.
+
+### Final approach-engagement definition
+- Open: defender center enters strikeRange = attacker.radius * attacker.d.reach + defender.radius + 0.08 * attacker.radius.
+- Distance sample: once at opening, (centerDistance - defender.radius) / attacker.radius.
+- Stay open: while defender center remains within strikeRange * 1.25, independent of instantaneous blade angle/rotation.
+- Close: after the defender center has remained outside the larger range for 0.5 simulated seconds.
+- Credit: the first accepted melee hit during the approach sets hit=true; the attempt remains open until the separation close and emits exactly one onMeleeAttempt.
+- Match end: still-open engagements are flushed deterministically before CombatTracker.onMatchEnd().
+- Ranged: no change; _weaponHit exits through the existing ranged path before this tracker.
+- Combat path: the existing _hitDefenders block remains unchanged; instrumentation only observes its accepted-hit result afterward. No weaponHitCD, omega flips, damage, knockback, RNG, DEF, class data, or combat outcome logic is changed.
+
+### Before / after metrics
+Before (owner-supplied, browser):
+- 10-class avgMeleeHitRate: Paladin .011, Warlord .0125, Pirate .0115, Samurai .0218, Barbarian .0146, Rogue .0169, Knight .0126, Monk .0312, Viking .0093.
+- avgMeleeAttemptDistance: 5.2–6.8.
+- avgReachStatAtAttempt: 1.6–4.3; ratios 1.45–3.8.
+- VISUAL_OUTPACING_HITBOX: 9/10.
+- Prior Knight/Samurai evidence: main Knight .0155/4.99, Samurai .0253/6.53; current #85 Knight .0126/5.44 in the supplied run.
+
+After: not measured here. Owner browser execution is required before merge.
+
+### Required runtime verification
+1. Browser trace: seeded Knight vs Samurai, compact first ~30 events plus total hits, attempts, hit=true attempts, and uncredited hits; compare hits-landed vs hit=true attempts.
+2. Browser script syntax/load-order check for every script in index.html.
+3. No stray escaped backtick or dollar-brace sequences.
+4. Outcome hash remains -1332127312 for the specified 4-class 1-minute check.
+5. Two repeated seeded runs produce byte-identical class rows.
+6. Ten-class melee metrics show hit rates in the intended range, attempt distance at/under reach, ranged 0/N/A, and VISUAL_OUTPACING_HITBOX materially below 9/10.
+7. Tracker-hit invariant equals accepted _hitDefenders hit count over the same matches.
+8. Test Ground Knight vs Samurai, 5 games, seed 1337, PHONE, JSON/CSV populated and live view recovers.
+
+No merge is authorized by this audit entry.
