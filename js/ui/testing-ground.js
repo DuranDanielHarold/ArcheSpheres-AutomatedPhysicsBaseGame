@@ -72,7 +72,7 @@ const TESTING_DIAGNOSTIC_ARENAS={
  laptop:{label:'LAPTOP',w:1280,h:720}
 };
 let _testingDiagnosticExpanded=false;
-window.window._testingDiagnosticRunning=false;
+window._testingDiagnosticRunning=false;
 const _testingNativeRandom=Math.random;
 const _testingNativeSetTimeout=window.setTimeout;
 function testingDiagnosticClassDefaults(){
@@ -90,7 +90,7 @@ function testingDiagnosticSetExpanded(expanded){
  const panel=document.getElementById('testing-diagnostic');
  if(panel)panel.hidden=!_testingDiagnosticExpanded;
 }
-function toggleTestingGroundDiagnostic(){testingDiagnosticSetExpanded(!_testingDiagnosticExpanded);}
+function toggleTestingGroundDiagnostic(){if(window._testingDiagnosticRunning)return;if(!isTestingGround())return;testingDiagnosticSetExpanded(!_testingDiagnosticExpanded);}
 function setTestingDiagnosticUiLocked(locked){
  const selectors=['#testing-controls button','#testing-controls select','#pbtn','#controls > button.pbtn.new','#balance-btn','#testing-telemetry .tg-telemetry-toggle','#testing-diagnostic button','#testing-diagnostic select','#testing-diagnostic input'];
  document.querySelectorAll(selectors.join(',')).forEach(el=>{el.disabled=!!locked;});
@@ -114,7 +114,9 @@ function testingDiagnosticPrepareForLaunch(){
  setTestingDiagnosticUiLocked(false);
 }
 function ensureTestingGroundDiagnostic(){
- let panel=document.getElementById('testing-diagnostic');
+ const panels=document.querySelectorAll('#testing-diagnostic');
+ panels.forEach((node,index)=>{if(index>0)node.remove();});
+ let panel=panels[0]||document.getElementById('testing-diagnostic');
  if(!panel){
   panel=document.createElement('div');
   panel.id='testing-diagnostic';
@@ -165,8 +167,6 @@ async function runTestingGroundDiagnostic(){
  const arenaSize=testingDiagnosticArenaSize(arenaPreset);
  document.getElementById('tg-diagnostic-games').value=games;
  if(!Number.isFinite(seed)){status.textContent='failed — see console';console.error(new Error('Invalid diagnostic seed'));return;}
- const savedRandom=Math.random;
- const savedSetTimeout=window.setTimeout;
  window._testingDiagnosticRunning=true;
  setTestingDiagnosticUiLocked(true);
  if(!paused)togglePause();
