@@ -85,7 +85,7 @@ function newBattle(){
 }
 
 
-function togglePause(){paused=!paused;document.getElementById('pbtn').textContent=paused?'RESUME':'PAUSE';if(!paused)lastTime=performance.now();}
+function togglePause(){if(window._testingDiagnosticRunning)return;paused=!paused;document.getElementById('pbtn').textContent=paused?'RESUME':'PAUSE';if(!paused)lastTime=performance.now();}
 
 function resize(){
  if(window._arenaSizeLocked)return;
