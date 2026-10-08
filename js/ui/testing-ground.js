@@ -51,15 +51,15 @@ function launchTestingGround(){
  startTestingGroundBattle();
 }
 function startTestingGroundBattle(){
- if(_testingDiagnosticRunning)return;
+ if(window._testingDiagnosticRunning)return;
  applyTestingArenaPreset();applyTestingRandom();
  try{newBattle();applyTestingGroundOverrides();if(typeof updateBattleHud==='function')updateBattleHud();}
  catch(e){restoreTestingRandom();throw e;}
  paused=false;document.getElementById('pbtn').textContent='PAUSE';ensureTestingGroundControls();ensureTestingGroundDiagnostic();testingDiagnosticPrepareForLaunch();renderTestingTelemetry(true);
 }
-function restartTestingGround(){if(_testingDiagnosticRunning)return;if(_testingLastKeys){pendingSelections={};_testingLastKeys.forEach(p=>{pendingSelections[p.slot.id]=p.key;});}startTestingGroundBattle();}
-function leaveTestingGround(){if(_testingDiagnosticRunning)return;restoreTestingRandom();applyTestingArenaPreset();window.randomModeActive=false;hideTestingGroundDiagnostic();showStartScreen();}
-function testingFrameStep(){if(_testingDiagnosticRunning)return;if(!isTestingGround())return;if(!paused)togglePause();stepGameFrame(1/60);renderTestingTelemetry(true);}
+function restartTestingGround(){if(window._testingDiagnosticRunning)return;if(_testingLastKeys){pendingSelections={};_testingLastKeys.forEach(p=>{pendingSelections[p.slot.id]=p.key;});}startTestingGroundBattle();}
+function leaveTestingGround(){if(window._testingDiagnosticRunning)return;restoreTestingRandom();applyTestingArenaPreset();window.randomModeActive=false;hideTestingGroundDiagnostic();showStartScreen();}
+function testingFrameStep(){if(window._testingDiagnosticRunning)return;if(!isTestingGround())return;if(!paused)togglePause();stepGameFrame(1/60);renderTestingTelemetry(true);}
 function ensureTestingGroundControls(){
  let wrap=document.getElementById('testing-controls');if(!wrap){wrap=document.createElement('span');wrap.id='testing-controls';document.getElementById('controls').prepend(wrap);}wrap.style.display=isTestingGround()?'inline-flex':'none';
  wrap.innerHTML='<button class="pbtn" onclick="restartTestingGround()">RESTART</button><button class="pbtn" onclick="testingFrameStep()">STEP</button><label class="avol">SPD <select id="tg-speed"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1">1×</option><option value="2">2×</option></select></label><button class="pbtn new" onclick="leaveTestingGround()">EXIT TEST</button><button class="pbtn balance" id="tg-diagnostic-toggle" onclick="toggleTestingGroundDiagnostic()">BALANCE DIAGNOSTIC</button>';
@@ -72,7 +72,7 @@ const TESTING_DIAGNOSTIC_ARENAS={
  laptop:{label:'LAPTOP',w:1280,h:720}
 };
 let _testingDiagnosticExpanded=false;
-let _testingDiagnosticRunning=false;
+window.window._testingDiagnosticRunning=false;
 const _testingNativeRandom=Math.random;
 const _testingNativeSetTimeout=window.setTimeout;
 function testingDiagnosticClassDefaults(){
@@ -153,7 +153,7 @@ function testingDiagnosticCsv(rows){
  return[headers.join(','),...rows.map(row=>headers.map(k=>testingDiagnosticCsvEscape(row[k])).join(','))].join('\n');
 }
 async function runTestingGroundDiagnostic(){
- if(_testingDiagnosticRunning)return;
+ if(window._testingDiagnosticRunning)return;
  if(!isTestingGround())return;
  ensureTestingGroundDiagnostic();
  const status=document.getElementById('tg-diagnostic-status'),run=document.getElementById('tg-diagnostic-run');
@@ -167,7 +167,7 @@ async function runTestingGroundDiagnostic(){
  if(!Number.isFinite(seed)){status.textContent='failed — see console';console.error(new Error('Invalid diagnostic seed'));return;}
  const savedRandom=Math.random;
  const savedSetTimeout=window.setTimeout;
- _testingDiagnosticRunning=true;
+ window._testingDiagnosticRunning=true;
  setTestingDiagnosticUiLocked(true);
  if(!paused)togglePause();
  restoreTestingRandom();
@@ -189,7 +189,7 @@ async function runTestingGroundDiagnostic(){
   console.error(err);status.textContent='failed — see console';
  }finally{
   window._arenaSizeLocked=false;
-  _testingDiagnosticRunning=false;
+  window._testingDiagnosticRunning=false;
   if(Math.random!==_testingNativeRandom)Math.random=_testingNativeRandom;
   if(window.setTimeout!==_testingNativeSetTimeout)window.setTimeout=_testingNativeSetTimeout;
   try{
@@ -208,7 +208,7 @@ function setTestingTelemetryCollapsed(collapsed){
  _testingTelemetryCollapsed=!!collapsed;
  renderTestingTelemetry(true);
 }
-function toggleTestingTelemetry(){if(_testingDiagnosticRunning)return;setTestingTelemetryCollapsed(!_testingTelemetryCollapsed);}
+function toggleTestingTelemetry(){if(window._testingDiagnosticRunning)return;setTestingTelemetryCollapsed(!_testingTelemetryCollapsed);}
 function renderTestingTelemetry(force){
  if(!isTestingGround())return;
  const now=typeof performance!=='undefined'&&performance.now?performance.now():Date.now();
@@ -217,7 +217,7 @@ function renderTestingTelemetry(force){
  let panel=document.getElementById('testing-telemetry');if(!panel){panel=document.createElement('div');panel.id='testing-telemetry';document.getElementById('arena-border').appendChild(panel);}
  panel.classList.toggle('collapsed',_testingTelemetryCollapsed);
  const buttonText=_testingTelemetryCollapsed?'SHOW':'HIDE';
- const header='<button class="tg-telemetry-toggle"'+(_testingDiagnosticRunning?' disabled':'')+' onclick="toggleTestingTelemetry()">'+buttonText+' TELEMETRY</button>';
+ const header='<button class="tg-telemetry-toggle"'+(window._testingDiagnosticRunning?' disabled':'')+' onclick="toggleTestingTelemetry()">'+buttonText+' TELEMETRY</button>';
  if(_testingTelemetryCollapsed){panel.innerHTML=header;return;}
  if(!window._liveCombatTracker){panel.innerHTML=header+'<div class="battle-report-section">NO TELEMETRY</div>';return;}
  window._liveCombatTracker.onMatchEnd(window.matchTime||0);
