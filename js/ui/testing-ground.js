@@ -132,7 +132,6 @@ async function runTestingGroundDiagnostic(){
  const seed=Number(document.getElementById('tg-diagnostic-seed').value);
  const arenaPreset=document.getElementById('tg-diagnostic-arena').value;
  const arenaSize=testingDiagnosticArenaSize(arenaPreset);
- const arena=TESTING_DIAGNOSTIC_ARENAS[arenaPreset]||TESTING_DIAGNOSTIC_ARENAS.current;
  document.getElementById('tg-diagnostic-games').value=games;
  if(!Number.isFinite(seed)){status.textContent='failed — see console';console.error(new Error('Invalid diagnostic seed'));return;}
  _testingDiagnosticRunning=true;run.disabled=true;
