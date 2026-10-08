@@ -169,11 +169,7 @@ function _weaponHit(att,def){
   att._meleeAttemptDefenders.set(def,engagement);
  }
  if(engagement){
-  if(hit){
-   if(window._balanceCombatTracker)window._balanceCombatTracker.onMeleeAttempt(att.key,engagement.distanceAtAttempt,engagement.reachStatValue,true);
-   if(window._liveCombatTracker)window._liveCombatTracker.onMeleeAttempt(att.key,engagement.distanceAtAttempt,engagement.reachStatValue,true);
-   att._meleeAttemptDefenders.delete(def);
-  }else if(bladeDistance>separationThreshold){
+  if(bladeDistance>separationThreshold){
    engagement.outsideFrames++;
    if(engagement.outsideFrames>=3){
     if(window._balanceCombatTracker)window._balanceCombatTracker.onMeleeAttempt(att.key,engagement.distanceAtAttempt,engagement.reachStatValue,false);
@@ -188,6 +184,12 @@ function _weaponHit(att,def){
  if(hit&&!att._hitDefenders.get(def)){
   att._hitDefenders.set(def,true);
   if(att.blinded&&Math.random()<0.30){spawnDmgNum(att.x,att.y-att.radius*1.4,'MISS','#ffee44');return;} // blind: 30% miss
+  const meleeEngagement=att._meleeAttemptDefenders.get(def);
+  if(meleeEngagement){
+   if(window._balanceCombatTracker)window._balanceCombatTracker.onMeleeAttempt(att.key,meleeEngagement.distanceAtAttempt,meleeEngagement.reachStatValue,true);
+   if(window._liveCombatTracker)window._liveCombatTracker.onMeleeAttempt(att.key,meleeEngagement.distanceAtAttempt,meleeEngagement.reachStatValue,true);
+   att._meleeAttemptDefenders.delete(def);
+  }
   const hx=hitPt.x,hy=hitPt.y,hdist=hitDist||0.01;
   const px=(hx-def.x)/hdist,py=(hy-def.y)/hdist;
   const armX=hx-att.x,armY=hy-att.y;

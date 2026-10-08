@@ -245,7 +245,7 @@ The corrected instrumentation uses an explicit per-attacker/per-defender engagem
 - **Open:** when the closest blade point enters the defender strike envelope, `def.radius + tipR + 0.08 * attacker.radius`.
 - **Distance sample:** captured once at opening as `(centerDistance - defender.radius) / attacker.radius`, so it is measured at strike-range entry rather than on an arbitrary earlier frame.
 - **Stay open:** while the blade remains inside the larger separation threshold (`engagementThreshold + 0.18 * attacker.radius`).
-- **Close:** immediately with `hit=true` when the open engagement produces a hit, or after 3 consecutive frames outside the larger separation threshold with `hit=false`.
+- **Close:** when the actual combat-hit path succeeds, with `hit=true`; or after 3 consecutive frames outside the larger separation threshold with `hit=false`. A geometric blade overlap that is rejected by `_hitDefenders` or the existing blind miss does not count as a hit.
 - **Exactly one attempt:** `onMeleeAttempt` is called only when the engagement closes; therefore a later hit credits the same attempt and no far-apart frame creates an attempt.
 
 The existing `_hitDefenders` map and its combat-hit code were not changed. No RNG calls were added, removed, or reordered.
@@ -258,3 +258,6 @@ The existing `_hitDefenders` map and its combat-hit code were not changed. No RN
 | Samurai | 0.0253 | 6.53 | 1.52 | 0 | 4.71 | 1.09 |
 
 These values were not plausible because #85 was still opening from center-distance geometry and logging immediately. Fresh after-patch runtime metrics must be captured by the owner; they are not claimed here.
+
+
+**Correction to the follow-up implementation:** the first engagement-state patch initially treated geometric overlap as `hit=true` before the existing `_hitDefenders` gate. That could credit repeated contacts without a new combat hit. The current patch credits `hit=true` only inside the existing successful melee-hit path, after the unchanged blind-miss gate and before the unchanged combat outcome code. The `_hitDefenders` logic itself is unchanged.
