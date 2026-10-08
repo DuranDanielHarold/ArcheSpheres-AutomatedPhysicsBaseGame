@@ -245,7 +245,7 @@ The corrected instrumentation uses an explicit per-attacker/per-defender engagem
 - **Open:** when the closest blade point enters the defender strike envelope, `def.radius + tipR + 0.08 * attacker.radius`.
 - **Distance sample:** captured once at opening as `(centerDistance - defender.radius) / attacker.radius`, so it is measured at strike-range entry rather than on an arbitrary earlier frame.
 - **Stay open:** while the blade remains inside the larger separation threshold (`engagementThreshold + 0.18 * attacker.radius`).
-- **Close:** when the actual combat-hit path succeeds, with `hit=true`; or after 3 consecutive frames outside the larger separation threshold with `hit=false`. A geometric blade overlap that is rejected by `_hitDefenders` or the existing blind miss does not count as a hit.
+- **Close:** when the actual combat-hit path succeeds, with `hit=true`; or after 3 consecutive frames outside the larger separation threshold with `hit=false`. A geometric blade overlap that was already latched by `_hitDefenders` does not count as a new hit. The existing blind-miss return also prevents the engagement from being credited as a hit.
 - **Exactly one attempt:** `onMeleeAttempt` is called only when the engagement closes; therefore a later hit credits the same attempt and no far-apart frame creates an attempt.
 
 The existing `_hitDefenders` map and its combat-hit code were not changed. No RNG calls were added, removed, or reordered.

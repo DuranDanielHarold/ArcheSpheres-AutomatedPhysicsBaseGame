@@ -165,7 +165,7 @@ function _weaponHit(att,def){
  let engagement=att._meleeAttemptDefenders.get(def);
  const inStrikeEnvelope=bladeDistance<=engagementThreshold;
  if(!engagement&&inStrikeEnvelope){
-  engagement={distanceAtAttempt:Math.max(0,(centerDist-def.radius)/(att.radius||1)),reachStatValue:att.d.reach,outsideFrames:0};
+  engagement={distanceAtAttempt:Math.max(0,(centerDist-def.radius)/(att.radius||1)),reachStatValue:att.d.reach,outsideFrames:0,hitLatchAtOpen:att._hitDefenders.get(def)===true};
   att._meleeAttemptDefenders.set(def,engagement);
  }
  if(engagement){
@@ -184,12 +184,6 @@ function _weaponHit(att,def){
  if(hit&&!att._hitDefenders.get(def)){
   att._hitDefenders.set(def,true);
   if(att.blinded&&Math.random()<0.30){spawnDmgNum(att.x,att.y-att.radius*1.4,'MISS','#ffee44');return;} // blind: 30% miss
-  const meleeEngagement=att._meleeAttemptDefenders.get(def);
-  if(meleeEngagement){
-   if(window._balanceCombatTracker)window._balanceCombatTracker.onMeleeAttempt(att.key,meleeEngagement.distanceAtAttempt,meleeEngagement.reachStatValue,true);
-   if(window._liveCombatTracker)window._liveCombatTracker.onMeleeAttempt(att.key,meleeEngagement.distanceAtAttempt,meleeEngagement.reachStatValue,true);
-   att._meleeAttemptDefenders.delete(def);
-  }
   const hx=hitPt.x,hy=hitPt.y,hdist=hitDist||0.01;
   const px=(hx-def.x)/hdist,py=(hy-def.y)/hdist;
   const armX=hx-att.x,armY=hy-att.y;
@@ -346,6 +340,12 @@ function _weaponHit(att,def){
     if(att.replicaKind==='phase')att._destroyReplica('HIT');
    }
   }
+ const meleeEngagement=att._meleeAttemptDefenders.get(def);
+ if(hit&&meleeEngagement&&!meleeEngagement.hitLatchAtOpen&&att._hitDefenders.get(def)===true){
+  if(window._balanceCombatTracker)window._balanceCombatTracker.onMeleeAttempt(att.key,meleeEngagement.distanceAtAttempt,meleeEngagement.reachStatValue,true);
+  if(window._liveCombatTracker)window._liveCombatTracker.onMeleeAttempt(att.key,meleeEngagement.distanceAtAttempt,meleeEngagement.reachStatValue,true);
+  att._meleeAttemptDefenders.delete(def);
+ }
  const bladeStillInside=pts.some(pt=>Math.hypot(pt.x-def.x,pt.y-def.y)<def.radius+tipR);
  if(!bladeStillInside)att._hitDefenders.delete(def);
 }
