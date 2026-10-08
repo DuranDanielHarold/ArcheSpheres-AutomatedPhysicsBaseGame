@@ -50,15 +50,116 @@ function launchTestingGround(){
  document.getElementById('mode-row').style.display='none';document.getElementById('sel-row').style.display='none';document.getElementById('card').style.display='flex';document.getElementById('controls').style.display='flex';
  startTestingGroundBattle();
 }
-function startTestingGroundBattle(){applyTestingArenaPreset();applyTestingRandom();try{newBattle();applyTestingGroundOverrides();if(typeof updateBattleHud==='function')updateBattleHud();}catch(e){restoreTestingRandom();throw e;}paused=false;document.getElementById('pbtn').textContent='PAUSE';ensureTestingGroundControls();renderTestingTelemetry(true);}
+function startTestingGroundBattle(){applyTestingArenaPreset();applyTestingRandom();try{newBattle();applyTestingGroundOverrides();if(typeof updateBattleHud==='function')updateBattleHud();}catch(e){restoreTestingRandom();throw e;}paused=false;document.getElementById('pbtn').textContent='PAUSE';ensureTestingGroundControls();ensureTestingGroundDiagnostic();renderTestingTelemetry(true);}
 function restartTestingGround(){if(_testingLastKeys){pendingSelections={};_testingLastKeys.forEach(p=>{pendingSelections[p.slot.id]=p.key;});}startTestingGroundBattle();}
 function leaveTestingGround(){restoreTestingRandom();applyTestingArenaPreset();window.randomModeActive=false;showStartScreen();}
 function testingFrameStep(){if(!isTestingGround())return;if(!paused)togglePause();stepGameFrame(1/60);renderTestingTelemetry(true);}
 function ensureTestingGroundControls(){
  let wrap=document.getElementById('testing-controls');if(!wrap){wrap=document.createElement('span');wrap.id='testing-controls';document.getElementById('controls').prepend(wrap);}wrap.style.display=isTestingGround()?'inline-flex':'none';
- wrap.innerHTML='<button class="pbtn" onclick="restartTestingGround()">RESTART</button><button class="pbtn" onclick="testingFrameStep()">STEP</button><label class="avol">SPD <select id="tg-speed"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1">1×</option><option value="2">2×</option></select></label><button class="pbtn new" onclick="leaveTestingGround()">EXIT TEST</button>';
+ wrap.innerHTML='<button class="pbtn" onclick="restartTestingGround()">RESTART</button><button class="pbtn" onclick="testingFrameStep()">STEP</button><label class="avol">SPD <select id="tg-speed"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1">1×</option><option value="2">2×</option></select></label><button class="pbtn new" onclick="leaveTestingGround()">EXIT TEST</button><button class="pbtn balance" id="tg-diagnostic-toggle" onclick="toggleTestingGroundDiagnostic()">BALANCE DIAGNOSTIC</button>';
  const sel=document.getElementById('tg-speed');sel.value=String(testingGroundOptions.speed);sel.onchange=e=>{testingGroundOptions.speed=Number(e.target.value)||1;};
 }
+const TESTING_DIAGNOSTIC_ARENAS={
+ current:{label:'CURRENT',w:null,h:null},
+ phone:{label:'PHONE',w:400,h:700},
+ square:{label:'SQUARE',w:800,h:800},
+ laptop:{label:'LAPTOP',w:1280,h:720}
+};
+let _testingDiagnosticExpanded=false;
+let _testingDiagnosticRunning=false;
+function testingDiagnosticClassDefaults(){
+ const keys=(_testingLastKeys||[]).map(p=>p&&p.key).filter(Boolean);
+ const unique=Object.keys(DEF).filter(k=>keys.includes(k));
+ const fallback=Object.keys(DEF).filter(k=>!unique.includes(k));
+ return unique.concat(fallback).slice(0,2);
+}
+function testingDiagnosticArenaSize(name){
+ const p=TESTING_DIAGNOSTIC_ARENAS[name]||TESTING_DIAGNOSTIC_ARENAS.current;
+ return p.w&&p.h?{w:p.w,h:p.h}:undefined;
+}
+function testingDiagnosticSetExpanded(expanded){
+ _testingDiagnosticExpanded=!!expanded;
+ const panel=document.getElementById('testing-diagnostic');
+ if(panel)panel.hidden=!_testingDiagnosticExpanded;
+}
+function toggleTestingGroundDiagnostic(){testingDiagnosticSetExpanded(!_testingDiagnosticExpanded);}
+function ensureTestingGroundDiagnostic(){
+ let panel=document.getElementById('testing-diagnostic');
+ if(!panel){
+  panel=document.createElement('div');
+  panel.id='testing-diagnostic';
+  panel.hidden=true;
+  panel.innerHTML='<div class="tg-diagnostic-head"><span>BALANCE DIAGNOSTIC</span><button class="pbtn new" id="tg-diagnostic-close" type="button">CLOSE</button></div><div class="tg-diagnostic-form"><label>CLASS A <select id="tg-diagnostic-a"></select></label><label>CLASS B <select id="tg-diagnostic-b"></select></label><div class="tg-diagnostic-games"><span>GAMES</span><button type="button" data-games="5">5</button><button type="button" data-games="10">10</button><button type="button" data-games="25">25</button><input id="tg-diagnostic-games" type="number" min="1" max="200" step="1" value="10"></div><label>SEED <input id="tg-diagnostic-seed" type="number" step="1" value="1337"></label><label>ARENA <select id="tg-diagnostic-arena"></select></label><button class="pbtn balance" id="tg-diagnostic-run" type="button">RUN</button><span id="tg-diagnostic-status">ready</span></div><div class="tg-diagnostic-note">Uses base class stats. Test Ground stat overrides are not applied. Sphere radius is viewport-based and does not change with arena size.</div>';
+  document.body.appendChild(panel);
+  document.getElementById('tg-diagnostic-close').onclick=()=>testingDiagnosticSetExpanded(false);
+  const a=document.getElementById('tg-diagnostic-a'),b=document.getElementById('tg-diagnostic-b'),arena=document.getElementById('tg-diagnostic-arena');
+  Object.keys(DEF).forEach(key=>{const label=DEF[key]?.label||key;a.add(new Option(label,key));b.add(new Option(label,key));});
+  Object.entries(TESTING_DIAGNOSTIC_ARENAS).forEach(([key,p])=>arena.add(new Option(p.label,key)));
+  const defaults=testingDiagnosticClassDefaults();
+  a.value=defaults[0]||Object.keys(DEF)[0]||'';
+  b.value=defaults[1]||Object.keys(DEF).find(k=>k!==a.value)||'';
+  arena.value='current';
+  panel.querySelectorAll('[data-games]').forEach(btn=>btn.onclick=()=>{document.getElementById('tg-diagnostic-games').value=btn.dataset.games;});
+  document.getElementById('tg-diagnostic-run').onclick=runTestingGroundDiagnostic;
+ }
+}
+function testingDiagnosticCsvEscape(value){
+ const text=value===undefined||value===null?'':String(value);
+ return /[",\n\r]/.test(text)?'"'+text.replace(/"/g,'""')+'"':text;
+}
+function testingDiagnosticDownload(filename,mime,text){
+ const blob=new Blob([text],{type:mime}),url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function testingDiagnosticClassRow(row){
+ const keys=['key','winRate','decisiveWinRate','avgDuration','avgMeleeHitRate','avgMeleeAttemptDistance','avgReachStatAtAttempt','reachUtilizationRatio','avgDmgDealt','eliminationWinRate','suddenDeathWinRate','tiebreakWinRate','drawRate'];
+ return Object.fromEntries(keys.map(k=>[k,row?.[k]??null]));
+}
+function testingDiagnosticResultRow(r,arenaPreset,arenaW,arenaH,index){
+ return{game:index+1,seed:r.seed,redKey:r.redKey,blueKey:r.blueKey,winnerKey:r.winnerKey,winnerFaction:r.winnerFaction,duration:r.duration,redHp:r.redHp,blueHp:r.blueHp,endReason:r.endReason,redMeleeHitRate:r.red?.meleeHitRate??null,blueMeleeHitRate:r.blue?.meleeHitRate??null,redAvgMeleeAttemptDistance:r.red?.avgMeleeAttemptDistance??null,blueAvgMeleeAttemptDistance:r.blue?.avgMeleeAttemptDistance??null,redAvgReachStatAtAttempt:r.red?.avgReachStatAtAttempt??null,blueAvgReachStatAtAttempt:r.blue?.avgReachStatAtAttempt??null,arenaPreset,arenaW,arenaH};
+}
+function testingDiagnosticCsv(rows){
+ const headers=['game','seed','redKey','blueKey','winnerKey','winnerFaction','duration','redHp','blueHp','endReason','redMeleeHitRate','blueMeleeHitRate','redAvgMeleeAttemptDistance','blueAvgMeleeAttemptDistance','redAvgReachStatAtAttempt','blueAvgReachStatAtAttempt','arenaPreset','arenaW','arenaH'];
+ return[headers.join(','),...rows.map(row=>headers.map(k=>testingDiagnosticCsvEscape(row[k])).join(','))].join('\n');
+}
+async function runTestingGroundDiagnostic(){
+ if(_testingDiagnosticRunning)return;
+ ensureTestingGroundDiagnostic();
+ const status=document.getElementById('tg-diagnostic-status'),run=document.getElementById('tg-diagnostic-run');
+ const a=document.getElementById('tg-diagnostic-a').value,b=document.getElementById('tg-diagnostic-b').value;
+ if(a===b){status.textContent='select two different classes';return;}
+ const games=Math.max(1,Math.min(200,Math.floor(Number(document.getElementById('tg-diagnostic-games').value)||10)));
+ const seed=Number(document.getElementById('tg-diagnostic-seed').value);
+ const arenaPreset=document.getElementById('tg-diagnostic-arena').value;
+ const arenaSize=testingDiagnosticArenaSize(arenaPreset);
+ const arena=TESTING_DIAGNOSTIC_ARENAS[arenaPreset]||TESTING_DIAGNOSTIC_ARENAS.current;
+ document.getElementById('tg-diagnostic-games').value=games;
+ if(!Number.isFinite(seed)){status.textContent='failed — see console';console.error(new Error('Invalid diagnostic seed'));return;}
+ _testingDiagnosticRunning=true;run.disabled=true;
+ if(!paused)togglePause();
+ restoreTestingRandom();
+ try{
+  const report=await window.runBalanceBaseline({keys:[a,b],targetMatches:games,seed,roundsPerPair:1,minutes:30,dt:1/20,chunkSize:5,noVisuals:true,exportJson:false,exportCsv:false,maxRetainedResults:games,arenaSize,progress:p=>{status.textContent='running '+p.count+'/'+games+'...';}});
+  const results=report.results||[];
+  const matchup=report.matchups.find(m=>(m.a===a&&m.b===b)||(m.a===b&&m.b===a))||null;
+  const classRows=report.classes.filter(row=>row.key===a||row.key===b).map(testingDiagnosticClassRow);
+  const geometry={W:arenaSize?.w??W,H:arenaSize?.h??H,sphereRadius:spheres[0]?.radius??null,innerWidth:window.innerWidth,innerHeight:window.innerHeight,devicePixelRatio:window.devicePixelRatio||1,arenaPreset:arena.label};
+  if(!matchup||classRows.length!==2)throw new Error('Diagnostic report did not contain the requested matchup/class rows');
+  const generatedAt=new Date().toISOString(),stamp=generatedAt.replace(/[:.]/g,'-');
+  const payload={schemaVersion:1,type:'test-ground-balance-diagnostic',generatedAt,classes:[a,b],games,seed,arenaPreset:arena.label,geometry,matchup,classRows,results};
+  const rows=results.map((r,i)=>testingDiagnosticResultRow(r,arena.label,geometry.W,geometry.H,i));
+  const baseName='test-ground-diagnostic-'+a+'-vs-'+b+'-'+arena.label.toLowerCase()+'-seed'+seed+'-'+stamp;
+  testingDiagnosticDownload(baseName+'.json','application/json',JSON.stringify(payload,null,2));
+  testingDiagnosticDownload(baseName+'.csv','text/csv;charset=utf-8',testingDiagnosticCsv(rows));
+  status.textContent='done — '+games+' games';
+ }catch(err){
+  console.error(err);status.textContent='failed — see console';
+ }finally{
+  run.disabled=false;_testingDiagnosticRunning=false;
+  try{resize();restartTestingGround();}catch(err){console.error(err);status.textContent='failed — see console';}
+ }
+}
+
 function setTestingTelemetryCollapsed(collapsed){
  _testingTelemetryCollapsed=!!collapsed;
  renderTestingTelemetry(true);
@@ -79,4 +180,4 @@ function renderTestingTelemetry(force){
  const summary=window._liveCombatTracker.getSummary();
  panel.innerHTML=`${header}<div class="battle-report-section">LIVE TELEMETRY ${formatReportDuration(window.matchTime||0)}</div><div class="tg-report-grid">${renderReportSide(window._liveCombatTracker.redKey,summary.red,'r','#ff5533')}${renderReportSide(window._liveCombatTracker.blueKey,summary.blue,'b','#88aacc')}</div>`;
 }
-window.isTestingGround=isTestingGround;window.getTestingGroundSpeed=getTestingGroundSpeed;window.renderTestingGroundPickerPanel=renderTestingGroundPickerPanel;window.launchTestingGround=launchTestingGround;window.restartTestingGround=restartTestingGround;window.testingFrameStep=testingFrameStep;window.leaveTestingGround=leaveTestingGround;window.renderTestingTelemetry=renderTestingTelemetry;window.toggleTestingTelemetry=toggleTestingTelemetry;window.setTestingTelemetryCollapsed=setTestingTelemetryCollapsed;window.restoreTestingRandom=restoreTestingRandom;window.resetTestingOptions=resetTestingOptions;
+window.isTestingGround=isTestingGround;window.getTestingGroundSpeed=getTestingGroundSpeed;window.renderTestingGroundPickerPanel=renderTestingGroundPickerPanel;window.launchTestingGround=launchTestingGround;window.restartTestingGround=restartTestingGround;window.testingFrameStep=testingFrameStep;window.leaveTestingGround=leaveTestingGround;window.renderTestingTelemetry=renderTestingTelemetry;window.toggleTestingTelemetry=toggleTestingTelemetry;window.setTestingTelemetryCollapsed=setTestingTelemetryCollapsed;window.restoreTestingRandom=restoreTestingRandom;window.resetTestingOptions=resetTestingOptions;window.runTestingGroundDiagnostic=runTestingGroundDiagnostic;window.toggleTestingGroundDiagnostic=toggleTestingGroundDiagnostic;
