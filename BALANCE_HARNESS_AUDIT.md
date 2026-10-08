@@ -261,3 +261,45 @@ These values were not plausible because #85 was still opening from center-distan
 
 
 **Correction to the follow-up implementation:** the first engagement-state patch initially treated geometric overlap as `hit=true` before the existing `_hitDefenders` gate. That could credit repeated contacts without a new combat hit. The current patch credits `hit=true` only inside the existing successful melee-hit path, after the unchanged blind-miss gate and before the unchanged combat outcome code. The `_hitDefenders` logic itself is unchanged.
+
+
+## Phase 5 follow-up — approach-engagement correction (2026-10-08)
+
+### Step 1 diagnosis
+Owner runtime evidence showed the previous blade-entry engagement fix did not materially improve the metrics: 10-class avgMeleeHitRate remained about 0.0093–0.0312, avgMeleeAttemptDistance remained 5.2–6.8 while avgReachStatAtAttempt was 1.6–4.3, and 9/10 classes still reported VISUAL_OUTPACING_HITBOX. This rules out a simple reporting-scale issue.
+
+Static inspection of the branch identifies the accounting failure: the tracker opened/closed on instantaneous blade-point geometry. A spinning blade can leave the defender envelope between rotations while the defender is still inside practical melee range, producing multiple short misses for one physical approach. The previous tracker also deleted the engagement immediately after the first hit, rather than retaining the approach until separation.
+
+The requested debug trace is now behind window._meleeDebug and is disabled by default. It records open/close events, accepted hit events, center distance, blade-point distance, sampled attempt distance, reach, and whether a hit had an open engagement. No browser execution was available in this environment, so no trace excerpt or runtime hit counts are claimed here.
+
+### Final approach-engagement definition
+- Open: defender center enters strikeRange = attacker.radius * attacker.d.reach + defender.radius + 0.08 * attacker.radius.
+- Distance sample: once at opening, (centerDistance - defender.radius) / attacker.radius.
+- Stay open: while defender center remains within strikeRange * 1.25, independent of instantaneous blade angle/rotation.
+- Close: after the defender center has remained outside the larger range for 0.5 simulated seconds.
+- Credit: the first accepted melee hit during the approach sets hit=true; the attempt remains open until the separation close and emits exactly one onMeleeAttempt.
+- Match end: still-open engagements are flushed deterministically before CombatTracker.onMatchEnd().
+- Ranged: no change; _weaponHit exits through the existing ranged path before this tracker.
+- Combat path: the existing _hitDefenders block remains unchanged; instrumentation only observes its accepted-hit result afterward. No weaponHitCD, omega flips, damage, knockback, RNG, DEF, class data, or combat outcome logic is changed.
+
+### Before / after metrics
+Before (owner-supplied, browser):
+- 10-class avgMeleeHitRate: Paladin .011, Warlord .0125, Pirate .0115, Samurai .0218, Barbarian .0146, Rogue .0169, Knight .0126, Monk .0312, Viking .0093.
+- avgMeleeAttemptDistance: 5.2–6.8.
+- avgReachStatAtAttempt: 1.6–4.3; ratios 1.45–3.8.
+- VISUAL_OUTPACING_HITBOX: 9/10.
+- Prior Knight/Samurai evidence: main Knight .0155/4.99, Samurai .0253/6.53; current #85 Knight .0126/5.44 in the supplied run.
+
+After: not measured here. Owner browser execution is required before merge.
+
+### Required runtime verification
+1. Browser trace: seeded Knight vs Samurai, compact first ~30 events plus total hits, attempts, hit=true attempts, and uncredited hits; compare hits-landed vs hit=true attempts.
+2. Browser script syntax/load-order check for every script in index.html.
+3. No stray escaped backtick or dollar-brace sequences.
+4. Outcome hash remains -1332127312 for the specified 4-class 1-minute check.
+5. Two repeated seeded runs produce byte-identical class rows.
+6. Ten-class melee metrics show hit rates in the intended range, attempt distance at/under reach, ranged 0/N/A, and VISUAL_OUTPACING_HITBOX materially below 9/10.
+7. Tracker-hit invariant equals accepted _hitDefenders hit count over the same matches.
+8. Test Ground Knight vs Samurai, 5 games, seed 1337, PHONE, JSON/CSV populated and live view recovers.
+
+No merge is authorized by this audit entry.

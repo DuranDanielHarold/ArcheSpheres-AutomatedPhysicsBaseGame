@@ -397,8 +397,9 @@
   if(options.targetGamesPerClass>0&&!userOptions.targetMatches)options.targetMatches=Math.ceil(keys.length*options.targetGamesPerClass/2);
   const planned=buildPlannedMatches(keys,options);
   const deadline=performance.now()+options.minutes*60*1000,results=[],started=performance.now();let count=0;
-  const originalRandom=Math.random,originalNoVisuals=window._balanceNoVisuals;
+  const originalRandom=Math.random,originalNoVisuals=window._balanceNoVisuals,originalSimulationDt=window._balanceSimulationDt;
   const savedLiveTracker=window._liveCombatTracker,savedLiveAbilityKey=window._liveCurrentAbilityKey;
+  window._balanceSimulationDt=options.dt;
   window._liveCombatTracker=null;window._liveCurrentAbilityKey=null;
   const restoreBalanceTimeoutTracker=installBalanceTimeoutTracker();
   const restoreCombatTrackerHooks=installCombatTrackerHooks();
@@ -422,6 +423,7 @@
      winner=timeoutResult.winner;endReason=timeoutResult.reason;
     }
     const red=primaryForFaction(0),blue=primaryForFaction(1);
+    if(typeof window._flushMeleeApproachEngagements==='function')window._flushMeleeApproachEngagements();
     if(tracker)tracker.onMatchEnd(+t.toFixed(2));
     const combatSummary=tracker?tracker.getSummary():{red:null,blue:null};
     results.push({redKey,blueKey,winnerKey:winner?winner.key:null,winnerFaction:winner?winner.faction:null,duration:+t.toFixed(2),seed,redHp:red?+Math.max(0,red.hp).toFixed(2):0,blueHp:blue?+Math.max(0,blue.hp).toFixed(2):0,endReason,timeoutWinner:endReason&&endReason.startsWith('timeout_')?(winner?winner.key:null):null,draw:!winner,red:combatSummary.red,blue:combatSummary.blue});
@@ -434,7 +436,7 @@
      await new Promise(r=>setTimeout(r,0));
     }
    }
-  }finally{if(options.arenaSize)window._arenaSizeLocked=false;Math.random=originalRandom;window._liveCombatTracker=savedLiveTracker;window._liveCurrentAbilityKey=savedLiveAbilityKey;window._balanceNoVisuals=originalNoVisuals;window._balanceCombatTracker=null;window._balanceDamageSource=null;window._balanceCurrentAbilityKey=null;restoreCombatTrackerHooks();restoreBalanceTimeoutTracker();paused=false;}
+  }finally{if(options.arenaSize)window._arenaSizeLocked=false;Math.random=originalRandom;window._balanceSimulationDt=originalSimulationDt;window._liveCombatTracker=savedLiveTracker;window._liveCurrentAbilityKey=savedLiveAbilityKey;window._balanceNoVisuals=originalNoVisuals;window._balanceCombatTracker=null;window._balanceDamageSource=null;window._balanceCurrentAbilityKey=null;restoreCombatTrackerHooks();restoreBalanceTimeoutTracker();paused=false;}
   const report=buildReport(results,options,performance.now()-started,count===planned.length);
   window.lastBalanceReport=report;
   console.table(report.classes.slice(0,12));
