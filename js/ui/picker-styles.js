@@ -28,8 +28,9 @@ function injectPickerStyles(){
  .pslot-label{font-size:clamp(4px,0.9vw,5px);display:block;margin-bottom:1px;}
  .pslot-name{font-size:clamp(4px,1vw,6px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
  .pslot.filled .pslot-name{color:#88cc44;}
- #picker-body{flex:1;display:flex;overflow:hidden;min-height:0;}
- #picker-grid{flex:1;overflow-y:auto;padding:8px;display:grid;
+ #picker-body{flex:1;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto minmax(0,1fr);overflow:hidden;min-height:0;}
+ #testing-ground-picker{grid-column:1/-1;grid-row:1;min-width:0;max-height:min(38vh,260px);overflow:auto;}
+ #picker-grid{grid-column:1;grid-row:2;min-width:0;min-height:0;overflow-y:auto;padding:8px;display:grid;
   grid-template-columns:repeat(auto-fill,minmax(clamp(96px,22vw,130px),1fr));gap:8px;align-content:start;}
  .pcard{background:#111a2e;border:2px solid #1e2e45;cursor:pointer;padding:10px 7px;
   display:flex;flex-direction:column;align-items:center;gap:3px;position:relative;min-height:118px;touch-action:manipulation;}
