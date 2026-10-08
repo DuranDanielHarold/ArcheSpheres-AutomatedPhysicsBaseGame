@@ -220,3 +220,18 @@ The computation and CSV export of `avgHpMarginPct` remain unchanged; only its co
 Items 1, 3, 4, and 5 are untouched. No `DEF` values, stall/timeout logic, damage attribution, report fields, build/dependency configuration, or `patchTargets` thresholds were changed. The only code changes are the two HP-relative weighting formulas and removal of the now-dead `hpMax` parameter.
 
 **Baseline notice:** the merged Phase 4 baseline remains invalid for HP-margin-driven patch recommendations. Capture a fresh baseline after this correction before using balance-score patch recommendations. This correction does not invalidate the other four Phase 4 fixes.
+
+## Phase 5 — Melee instrumentation correction (2026-10-08)
+
+- **Melee attempt definition:** `_weaponHit` now records at most one attempt per attacker/defender approach while the pair is inside `def.radius + att.radius * att.d.reach * 1.15`. The attempt latch is cleared only after the pair leaves that engagement range; the existing `_hitDefenders` contact latch remains separate for damage deduplication.
+- **Known suspect:** confirmed on the pre-Phase-5 implementation. Because `_weaponHit` runs every frame and the attempt latch was cleared whenever the blade was not touching the defender, the old code could record attempts on repeated out-of-contact frames. PR #85 fixes that accounting bug.
+- **Outcome neutrality:** the change only gates tracker calls and changes instrumentation latches. It does not modify damage, knockback, `_hitDefenders`, `weaponHitCD`, omega flips, or any RNG call/order.
+- **Other Phase-5 reporting fixes:** ability verdicts account for DoT contribution when the direct ability bucket is near zero; projectile `OVERHAUL` requires both low hit rate and low damage share, with suggestions distinguishing reliability from contribution.
+
+### Baseline invalidation
+
+Because the melee attempt denominator and attempt-distance sample definition changed, older values for **`avgMeleeHitRate`, `avgMeleeAttemptDistance`, `reachUtilizationRatio`, and `meleeHitboxAction` are not directly comparable** with Phase-5 results. Other outcome fields and non-melee metrics remain comparable where their underlying instrumentation did not change. Capture a fresh baseline before using the four melee fields for balance decisions.
+
+### Verification status
+
+The branch was rebased onto current `main` as a merge commit. Repository inspection verified the intended three-file Phase-5 scope and preserved the current Test Ground diagnostic/hardening changes. Browser/runtime execution, `node --check`, seeded baseline runs, outcome-neutrality runs, metric samples, diagnostic export/live-view checks, and 10-class `VISUAL_OUTPACING_HITBOX` counts are **not verified in this environment** and must be run before merge.
