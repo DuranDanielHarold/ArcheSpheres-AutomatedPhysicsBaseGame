@@ -88,6 +88,7 @@ function newBattle(){
 function togglePause(){paused=!paused;document.getElementById('pbtn').textContent=paused?'RESUME':'PAUSE';if(!paused)lastTime=performance.now();}
 
 function resize(){
+ if(window._arenaSizeLocked)return;
  const rect=canvas.getBoundingClientRect();
  W=canvas.width=Math.max(1,Math.floor(rect.width));
  H=canvas.height=Math.max(1,Math.floor(rect.height));
