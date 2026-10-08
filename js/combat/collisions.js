@@ -154,15 +154,35 @@ function _weaponHit(att,def){
  }
  const tip=att.getTip();
  const centerDist=Math.hypot(def.x-att.x,def.y-att.y);
- const engagementRange=def.radius+att.radius*att.d.reach*1.15;
- const inEngagementRange=centerDist<=engagementRange;
- if(inEngagementRange&&!att._meleeAttemptDefenders.get(def)){
-  const distanceAtAttempt=Math.max(0,(centerDist-def.radius)/(att.radius||1));
-  if(window._balanceCombatTracker)window._balanceCombatTracker.onMeleeAttempt(att.key,distanceAtAttempt,att.d.reach,hit);
-  if(window._liveCombatTracker)window._liveCombatTracker.onMeleeAttempt(att.key,distanceAtAttempt,att.d.reach,hit);
-  att._meleeAttemptDefenders.set(def,true);
- } else if(!inEngagementRange){
-  att._meleeAttemptDefenders.delete(def);
+ const strikeMargin=att.radius*0.08;
+ const engagementThreshold=def.radius+tipR+strikeMargin;
+ const separationThreshold=engagementThreshold+att.radius*0.18;
+ let bladeDistance=Infinity;
+ for(const pt of pts){
+  const d=Math.hypot(pt.x-def.x,pt.y-def.y);
+  if(d<bladeDistance)bladeDistance=d;
+ }
+ let engagement=att._meleeAttemptDefenders.get(def);
+ const inStrikeEnvelope=bladeDistance<=engagementThreshold;
+ if(!engagement&&inStrikeEnvelope){
+  engagement={distanceAtAttempt:Math.max(0,(centerDist-def.radius)/(att.radius||1)),reachStatValue:att.d.reach,outsideFrames:0};
+  att._meleeAttemptDefenders.set(def,engagement);
+ }
+ if(engagement){
+  if(hit){
+   if(window._balanceCombatTracker)window._balanceCombatTracker.onMeleeAttempt(att.key,engagement.distanceAtAttempt,engagement.reachStatValue,true);
+   if(window._liveCombatTracker)window._liveCombatTracker.onMeleeAttempt(att.key,engagement.distanceAtAttempt,engagement.reachStatValue,true);
+   att._meleeAttemptDefenders.delete(def);
+  }else if(bladeDistance>separationThreshold){
+   engagement.outsideFrames++;
+   if(engagement.outsideFrames>=3){
+    if(window._balanceCombatTracker)window._balanceCombatTracker.onMeleeAttempt(att.key,engagement.distanceAtAttempt,engagement.reachStatValue,false);
+    if(window._liveCombatTracker)window._liveCombatTracker.onMeleeAttempt(att.key,engagement.distanceAtAttempt,engagement.reachStatValue,false);
+    att._meleeAttemptDefenders.delete(def);
+   }
+  }else{
+   engagement.outsideFrames=0;
+  }
  }
  if(hit)_unstickTricksterFromWeapon(att,def,pts,tipR);
  if(hit&&!att._hitDefenders.get(def)){

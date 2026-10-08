@@ -235,3 +235,26 @@ Because the melee attempt denominator and attempt-distance sample definition cha
 ### Verification status
 
 The branch was rebased onto current `main` as a merge commit. Repository inspection verified the intended three-file Phase-5 scope and preserved the current Test Ground diagnostic/hardening changes. Browser/runtime execution, `node --check`, seeded baseline runs, outcome-neutrality runs, metric samples, diagnostic export/live-view checks, and 10-class `VISUAL_OUTPACING_HITBOX` counts are **not verified in this environment** and must be run before merge.
+
+### Phase 5 follow-up — engagement-state correction (2026-10-08)
+
+The first Phase-5 latch fix was still too coarse: it opened an attempt from **center distance** alone and immediately logged the attempt, even though the blade could be nowhere near the defender. That made the denominator contain non-contact frames and measured distance before the blade actually entered strike range. It also evaluated `hit` only on the opening frame, so a later hit in the same engagement could never credit that attempt.
+
+The corrected instrumentation uses an explicit per-attacker/per-defender engagement state:
+
+- **Open:** when the closest blade point enters the defender strike envelope, `def.radius + tipR + 0.08 * attacker.radius`.
+- **Distance sample:** captured once at opening as `(centerDistance - defender.radius) / attacker.radius`, so it is measured at strike-range entry rather than on an arbitrary earlier frame.
+- **Stay open:** while the blade remains inside the larger separation threshold (`engagementThreshold + 0.18 * attacker.radius`).
+- **Close:** immediately with `hit=true` when the open engagement produces a hit, or after 3 consecutive frames outside the larger separation threshold with `hit=false`.
+- **Exactly one attempt:** `onMeleeAttempt` is called only when the engagement closes; therefore a later hit credits the same attempt and no far-apart frame creates an attempt.
+
+The existing `_hitDefenders` map and its combat-hit code were not changed. No RNG calls were added, removed, or reordered.
+
+**Evidence supplied by owner before this correction:**
+
+| Class | Main hit rate | Main distance | Main ratio | #85 hit rate | #85 distance | #85 ratio |
+|---|---:|---:|---:|---:|---:|---:|
+| Knight | 0.0155 | 4.99 | 1.56 | 0.0076 | 3.50 | 1.09 |
+| Samurai | 0.0253 | 6.53 | 1.52 | 0 | 4.71 | 1.09 |
+
+These values were not plausible because #85 was still opening from center-distance geometry and logging immediately. Fresh after-patch runtime metrics must be captured by the owner; they are not claimed here.
