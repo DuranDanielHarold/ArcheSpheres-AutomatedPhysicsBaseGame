@@ -22,6 +22,7 @@
   stallRampSecondsToKill:typeof STALL_CONFIG!=='undefined'?STALL_CONFIG.rampDurationSeconds:10,
   debugStall:false,
   maxRetainedResults:5000,
+  arenaSize:undefined,
  };
 
  function mean(vals){const filtered=vals.filter(v=>v!==undefined&&v!==null&&!isNaN(v));return filtered.length?filtered.reduce((a,b)=>a+b,0)/filtered.length:0;}
@@ -102,7 +103,7 @@
   }
   return (baseSeed^hash^Math.imul((round+1)>>>0,1000003))>>>0;
  }
- function resetArenaForBalance(redKey,blueKey,rng){
+ function resetArenaForBalance(redKey,blueKey,rng,arenaSize){
   cancelAnimationFrame(animId);
   clearPendingBalanceTimeouts();
   winDone=false;paused=true;
@@ -116,6 +117,7 @@
   spheres=[];particles=[];projectiles=[];afterimages=[];noiseTraps=[];slowZones=[];thornPatches=[];skeletons=[];dmgNums=[];bloodSplats=[];miasmaClouds=[];
   if(typeof _burialMoundSeq!=='undefined')_burialMoundSeq=0;
   resize();
+  if(arenaSize&&Number.isFinite(Number(arenaSize.w))&&Number.isFinite(Number(arenaSize.h))&&Number(arenaSize.w)>0&&Number(arenaSize.h)>0){W=Number(arenaSize.w);H=Number(arenaSize.h);canvas.width=W;canvas.height=H;}
   if(W<10||H<10){W=720;H=420;canvas.width=W;canvas.height=H;}
   function dvdVel(key){
    let a=rng()*Math.PI*2;
@@ -405,7 +407,7 @@
    for(const [redKey,blueKey,round] of planned){
     if(performance.now()>deadline)break;
     const seed=matchupSeed(options.seed,redKey,blueKey,round),rng=mulberry32(seed);Math.random=rng;
-    resetArenaForBalance(redKey,blueKey,rng);options._matchStallDps=null;
+    resetArenaForBalance(redKey,blueKey,rng,options.arenaSize);options._matchStallDps=null;
     const tracker=window.CombatTracker?new window.CombatTracker(redKey,blueKey):null;
     window._balanceCombatTracker=tracker;
     let t=0,winner=null,endReason='elimination';
