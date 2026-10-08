@@ -104,7 +104,7 @@ function injectTestingGroundStyles(){
  #testing-ground-picker .tg-side{border-left:2px solid #2a3a50;padding-left:6px;display:grid;grid-template-columns:repeat(4,auto);gap:4px 6px;align-items:center;}
  #testing-ground-picker .tg-side-title{grid-column:1/-1;font-family:'Press Start 2P',monospace;font-size:6px;}
  @media(max-width:650px){#testing-ground-picker .tg-side{grid-template-columns:repeat(2,auto);}}
- #testing-diagnostic{width:min(460px,calc(100vw - 8px));background:#080e18;color:#ccddf0;border:2px solid #2a3a50;padding:7px;box-sizing:border-box;font-family:'VT323',monospace;}
+ #testing-diagnostic{position:fixed;top:8px;right:8px;z-index:80;width:min(460px,calc(100vw - 8px));max-height:calc(100vh - 16px);overflow:auto;background:#080e18;color:#ccddf0;border:2px solid #2a3a50;padding:7px;box-sizing:border-box;font-family:'VT323',monospace;}
  #testing-diagnostic[hidden]{display:none;}
  #testing-diagnostic .tg-diagnostic-head{display:flex;align-items:center;justify-content:space-between;gap:8px;font-family:'Press Start 2P',monospace;font-size:7px;color:#e8b430;margin-bottom:6px;}
  #testing-diagnostic .tg-diagnostic-form{display:flex;gap:7px;align-items:center;justify-content:center;flex-wrap:wrap;}
