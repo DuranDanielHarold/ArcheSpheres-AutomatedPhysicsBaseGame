@@ -86,6 +86,7 @@ function testingDiagnosticArenaSize(name){
  return p.w&&p.h?{w:p.w,h:p.h}:undefined;
 }
 function testingDiagnosticSetExpanded(expanded){
+ if(window._testingDiagnosticRunning)return;
  _testingDiagnosticExpanded=!!expanded;
  const panel=document.getElementById('testing-diagnostic');
  if(panel)panel.hidden=!_testingDiagnosticExpanded;
@@ -99,7 +100,7 @@ function hideTestingGroundDiagnostic(){
  _testingDiagnosticExpanded=false;
  const panel=document.getElementById('testing-diagnostic');
  if(panel)panel.hidden=true;
- setTestingDiagnosticUiLocked(false);
+ if(!window._testingDiagnosticRunning)setTestingDiagnosticUiLocked(false);
 }
 function testingDiagnosticPrepareForLaunch(){
  const panel=document.getElementById('testing-diagnostic');
