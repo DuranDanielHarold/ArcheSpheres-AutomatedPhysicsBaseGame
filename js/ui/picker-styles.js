@@ -104,6 +104,17 @@ function injectTestingGroundStyles(){
  #testing-ground-picker .tg-side{border-left:2px solid #2a3a50;padding-left:6px;display:grid;grid-template-columns:repeat(4,auto);gap:4px 6px;align-items:center;}
  #testing-ground-picker .tg-side-title{grid-column:1/-1;font-family:'Press Start 2P',monospace;font-size:6px;}
  @media(max-width:650px){#testing-ground-picker .tg-side{grid-template-columns:repeat(2,auto);}}
+ #testing-diagnostic{width:min(460px,calc(100vw - 8px));background:#080e18;color:#ccddf0;border:2px solid #2a3a50;padding:7px;box-sizing:border-box;font-family:'VT323',monospace;}
+ #testing-diagnostic[hidden]{display:none;}
+ #testing-diagnostic .tg-diagnostic-head{display:flex;align-items:center;justify-content:space-between;gap:8px;font-family:'Press Start 2P',monospace;font-size:7px;color:#e8b430;margin-bottom:6px;}
+ #testing-diagnostic .tg-diagnostic-form{display:flex;gap:7px;align-items:center;justify-content:center;flex-wrap:wrap;}
+ #testing-diagnostic label,#testing-diagnostic .tg-diagnostic-games{display:flex;gap:4px;align-items:center;font-size:13px;}
+ #testing-diagnostic input,#testing-diagnostic select{background:#0d1520;color:#ccddf0;border:1px solid #2a3a50;font-family:'VT323',monospace;font-size:13px;max-width:120px;}
+ #testing-diagnostic button{font-family:'VT323',monospace;font-size:13px;cursor:pointer;}
+ #testing-diagnostic .tg-diagnostic-note{margin-top:6px;font-size:11px;line-height:1.2;color:#9fb3c8;}
+ #tg-diagnostic-status{font-size:12px;color:#fff8c8;min-width:115px;}
+ @media (orientation:landscape) and (hover:none) and (pointer:coarse) and (max-height:500px){#testing-diagnostic{max-height:calc(100vh - 8px);overflow:auto;}#testing-diagnostic .tg-diagnostic-form{justify-content:flex-start;gap:5px;}#testing-diagnostic .tg-diagnostic-note{font-size:10px;}}
+
  @media (orientation:landscape) and (hover:none) and (pointer:coarse) and (max-height:500px){#testing-ground-picker{flex-wrap:nowrap;overflow-x:auto;padding:4px;gap:6px;}#testing-ground-picker .tg-section,#testing-ground-picker .tg-overrides{flex-wrap:nowrap;}#testing-ground-picker .tg-side{grid-template-columns:repeat(4,auto);min-width:max-content;}#testing-ground-picker label{font-size:12px;}#testing-ground-picker input,#testing-ground-picker select{font-size:12px;max-width:62px;}}
  @media (orientation:landscape) and (hover:none) and (pointer:coarse) and (min-height:501px) and (max-height:900px){#testing-ground-picker{flex-wrap:nowrap;overflow-x:auto;}#testing-ground-picker .tg-overrides{flex-wrap:nowrap;}#testing-ground-picker .tg-side{min-width:max-content;}}
  `;
