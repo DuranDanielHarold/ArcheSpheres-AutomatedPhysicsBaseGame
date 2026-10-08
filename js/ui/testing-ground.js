@@ -146,7 +146,7 @@ async function runTestingGroundDiagnostic(){
   const geometry={W:arenaSize?.w??W,H:arenaSize?.h??H,sphereRadius:spheres.find(s=>!s.isReplica)?.radius??spheres[0]?.radius??null,innerWidth:window.innerWidth,innerHeight:window.innerHeight,devicePixelRatio:window.devicePixelRatio||1,arenaPreset};
   if(!matchup||classRows.length!==2)throw new Error('Diagnostic report did not contain the requested matchup/class rows');
   const generatedAt=new Date().toISOString(),stamp=generatedAt.replace(/[:.]/g,'-');
-  const payload={schemaVersion:1,type:'test-ground-balance-diagnostic',generatedAt,classes:[a,b],games,seed,arenaPreset:arena.label,geometry,matchup,classRows,results};
+  const payload={schemaVersion:1,type:'test-ground-balance-diagnostic',generatedAt,classes:[a,b],games,seed,arenaPreset,geometry,matchup,classRows,results};
   const rows=results.map((r,i)=>testingDiagnosticResultRow(r,arenaPreset,geometry.W,geometry.H,i));
   const baseName='test-ground-diagnostic-'+a+'-vs-'+b+'-'+arenaPreset+'-seed'+seed+'-'+stamp;
   testingDiagnosticDownload(baseName+'.json','application/json',JSON.stringify(payload,null,2));
