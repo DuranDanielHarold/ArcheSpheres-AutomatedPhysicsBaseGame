@@ -96,7 +96,7 @@ function injectTestingGroundStyles(){
  if(document.getElementById('testing-ground-styles'))return;
  const st=document.createElement('style');st.id='testing-ground-styles';
  st.textContent=`
- #testing-ground-picker{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap;width:100%;order:6;background:#080e18;border:2px solid #2a3a50;padding:6px;}
+ #testing-ground-picker{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap;width:100%;flex:0 0 auto;order:0;background:#080e18;border:2px solid #2a3a50;padding:6px;box-sizing:border-box;}
  #testing-ground-picker label{font-family:'VT323',monospace;font-size:13px;color:#ccddf0;display:flex;gap:4px;align-items:center;}
  #testing-ground-picker input,#testing-ground-picker select{background:#0d1520;color:#ccddf0;border:1px solid #2a3a50;font-family:'VT323',monospace;font-size:13px;max-width:76px;}
  #testing-ground-picker .tg-section{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
