@@ -390,8 +390,49 @@ function _weaponHit(att,def){
    att._meleeAttemptDefenders.delete(def);
   }
  }
+ // Off-hand contacts share the per-defender latch; weapon clashes remain primary-only.
+ const secondary=typeof att.getSecondaryHitboxes==='function'?att.getSecondaryHitboxes():[];
+ let secondaryInside=false;
+ if(secondary.length&&att.alive&&!att.isReplica&&att.replicaKind!=='phase'){
+  for(const hb of secondary){
+   let hitSecondary=false;
+   if(hb.shape==='circle')hitSecondary=Math.hypot(hb.x-def.x,hb.y-def.y)<def.radius+(hb.radius||0);
+   else{
+    const dx=def.x-hb.x,dy=def.y-hb.y,ca=Math.cos(att.angle),sa=Math.sin(att.angle);
+    const lx=dx*ca+dy*sa,ly=-dx*sa+dy*ca;
+    hitSecondary=Math.abs(lx)<(hb.halfWidth||0)+def.radius&&Math.abs(ly)<(hb.halfHeight||0)+def.radius;
+   }
+   if(!hitSecondary)continue;
+   secondaryInside=true;
+   if(hit||hitWasLatched)break;
+   const hx=hb.x,hy=hb.y,armX=hx-att.x,armY=hy-att.y;
+   att._hitDefenders.set(def,true);
+   const tvx=att.vx+att.impactVx+(-att.omegaCur*armY),tvy=att.vy+att.impactVy+(att.omegaCur*armX);
+   const tipSpd=Math.hypot(tvx,tvy),weaponWeight=att.mass*.35;
+   let dmg=(tipSpd*att.d.dmg*.010+weaponWeight*.12)*att.dmgMult/(def.d.arm*.004+1);
+   const spinRatio=Math.abs(att.omegaCur)/(att.d.om||1);
+   dmg*=Math.max(.8,Math.min(1.1,spinRatio));
+   if(att.dmgHalvedT>0)dmg*=.5;
+   if(att.key==='gladiator'&&att.crowdDouble){dmg*=2;att.crowdDouble=false;att.favor=0;}
+   if(att.key==='prince'){const wb=Math.min(5,att.wallBounceBonus||0);dmg*=1+wb*.08;if(Math.hypot(att.vx,att.vy)>att.baseSpd*.8)dmg*=1.18;}
+   if(att.key==='queen'&&def.courtlyT>0)dmg*=.92;
+   if(def.key==='spartan'&&def.ironStacks>0)dmg*=Math.max(.8,1-def.ironStacks*.04);
+   if(traits&&att.key==='guardian')dmg*=1.22;
+   dmg*=hb.damageMult||1;
+   if(isFinite(dmg)&&dmg>.2){
+    window._balanceDamageSource={key:att.key,type:'base'};
+    def.receiveDamage(dmg);
+    window._balanceDamageSource=null;
+    if(att.key==='spartan'&&traits)att.ironStacks=Math.min(5,(att.ironStacks||0)+1);
+    if(typeof hb.onHit==='function')hb.onHit(def);
+    spawnSpark(hx,hy,att.d.rim,5);
+    spawnImpactBurst(hx,hy,att.d.rim,def.d.color);
+   }
+   break;
+  }
+ }
  const bladeStillInside=pts.some(pt=>Math.hypot(pt.x-def.x,pt.y-def.y)<def.radius+tipR);
- if(!bladeStillInside)att._hitDefenders.delete(def);
+ if(!bladeStillInside&&!secondaryInside)att._hitDefenders.delete(def);
 }
 function _applyLocksmithLock(att,def){
  def.locksmithLocks=Math.min(2,(def.locksmithLocks||0)+1);
