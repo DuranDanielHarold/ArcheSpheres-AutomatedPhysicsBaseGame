@@ -2287,6 +2287,13 @@ class Sphere{
   if(this.pulseWave){ctx.save();ctx.globalAlpha=baseAlpha*this.pulseWave.life*.45;ctx.beginPath();ctx.arc(this.x,this.y,this.pulseWave.r,0,Math.PI*2);ctx.strokeStyle=this.d.rim;ctx.lineWidth=5;ctx.stroke();ctx.restore();}
   ctx.save();ctx.translate(this.x,this.y);ctx.rotate(this.angle);
   if(WEAPONS[this.d.wt])WEAPONS[this.d.wt](ctx,this.radius,this.d,this);
+  if(window._debugSecondaryHitboxes&&!window._balanceNoVisuals&&!this.dying&&this.getSecondaryHitboxes().length){
+   const r=this.radius;ctx.save();ctx.strokeStyle='#ff5ce1';ctx.lineWidth=2;ctx.setLineDash([4,3]);
+   if(this.key==='crusader')ctx.strokeRect(-r*1.45-r*.49,-r*.715,r*.98,r*1.43);
+   else if(this.key==='spartan'){ctx.beginPath();ctx.arc(-r*1.18,0,r*.68,0,Math.PI*2);ctx.stroke();}
+   else if(this.key==='gladiator'){ctx.beginPath();ctx.arc(-r*1.85,0,r*.5,0,Math.PI*2);ctx.stroke();}
+   ctx.setLineDash([]);ctx.restore();
+  }
   ctx.restore();
   this._drawBody();
   this._drawPowerOverlay();
