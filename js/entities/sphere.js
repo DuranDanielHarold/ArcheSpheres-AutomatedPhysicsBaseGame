@@ -79,6 +79,7 @@ class Sphere{
   this.burning=false;this.burnSourceKey=null;this.burnT=0;this.burnTickT=0;this.burnTickInterval=DEFAULT_BURN_TICK_INTERVAL; // fire: 3 true dmg ticks over 3s
   this.blinded=false;this.blindT=0;                 // green vial: 30% miss chance on attacks
   this.waterSlow=0;this.waterSlowT=0;          // water: slow stacking up to 2 in 2s
+  this.netSlowT=0;this.netSlowMult=1; // Gladiator off-hand net contact slow
   this.stunned=false;this.stunnedT=0;          // earth: 0.3s freeze
   this.shotCD=0.2+Math.random()*0.3;
   this.drawCharge=0;
@@ -1215,6 +1216,7 @@ class Sphere{
    this.waterSlowT-=dt;
    if(this.waterSlowT<=0){this.waterSlow=0;}
   }
+  if(this.netSlowT>0){this.netSlowT=Math.max(0,this.netSlowT-dt);if(this.netSlowT===0)this.netSlowMult=1;}
   if(this.electrifiedT>0)this.electrifiedT-=dt;
   // ── Bard: Crescendo flash decay + dissonant spin suppression
   if(this.key==='bard'&&this.crescendoT>0){this.crescendoT-=dt;if(this.crescendoT<=0)this.crescendoActive=false;}
@@ -1312,7 +1314,8 @@ class Sphere{
   }
   const waterSlowMult=this.waterSlow>0?(1-Math.min(0.7,this.waterSlow*0.35)):1;
   const spd=Math.hypot(this.vx,this.vy);
-  const tgt=this.targetSpd*waterSlowMult;
+  const netSlowMult=this.netSlowT>0?Math.min(1,Math.max(.01,this.netSlowMult||1)):1;
+  const tgt=this.targetSpd*waterSlowMult*netSlowMult;
   if(spd>tgt*3.5&&!this.ramActive&&!this.spiralActive&&!this.orbitActive){const f=tgt*3.5/spd;this.vx*=f;this.vy*=f;}
   else if(spd<tgt*0.65&&spd>0.1&&!this.spiralActive&&!this.orbitActive){const f=tgt*0.65/spd;this.vx*=f;this.vy*=f;}
   if(spd>tgt&&!this.ramActive&&!this.spiralActive&&!this.orbitActive){
@@ -2076,6 +2079,13 @@ class Sphere{
    }
   }
   return pts;
+ }
+ getSecondaryHitboxes(){
+  const r=this.radius,back=this.angle+Math.PI;
+  if(this.key==='crusader')return [{type:'shield',shape:'rect',x:this.x+Math.cos(back)*r*1.45,y:this.y+Math.sin(back)*r*1.45,halfWidth:r*.49,halfHeight:r*.715,damageMult:.8}];
+  if(this.key==='spartan')return [{type:'aspis',shape:'circle',x:this.x+Math.cos(back)*r*1.18,y:this.y+Math.sin(back)*r*1.18,radius:r*.68,damageMult:.8}];
+  if(this.key==='gladiator')return [{type:'net',shape:'circle',x:this.x+Math.cos(back)*r*1.85,y:this.y+Math.sin(back)*r*1.85,radius:r*.5,damageMult:.4,onHit:(target)=>{target.netSlowT=1.5;target.netSlowMult=.65;}}];
+  return [];
  }
  receiveHeal(amount){
   if(amount<=0)return 0;
@@ -2899,6 +2909,7 @@ class Sphere{
   const add=(label,color)=>badges.push({label,color});
   if(this.stunned)add('STUN','#ffee55');
   if((this.netRootT||0)>0)add('NET','#f0c08a');
+  if((this.netSlowT||0)>0)add('NETSLOW','#f0c08a');
   if((this.bolaRootT||0)>0)add('ROOT','#ffaa44');
   if((this.locksmithJamT||0)>0)add('JAM','#d0b45a');
   if(this.blinded)add('BLIND','#ffee22');
