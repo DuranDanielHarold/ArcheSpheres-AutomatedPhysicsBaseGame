@@ -5,7 +5,7 @@ DEF.gladiator = {"label":"Gladiator","weapon":"Gladius+Net","ab":"Arena's Verdic
 CLASS_ROLE.gladiator = "FIGHTER";
 CLASS_DESC.gladiator = {
   "ability": "Arena's Verdict (3 stacks) — Throws the net to root the enemy and heavily weaken armor; gladius attacks during the window deal 1.8× damage with extra reach.",
-  "passive": "Crowd Favor — Gladius hits build Favor more slowly for speed/spin. Taking damage removes Favor; at 10 Favor the next hit deals double damage."
+  "passive": "Crowd Favor — Gladius hits build Favor more slowly for speed/spin. Taking damage removes Favor; at 10 Favor the next hit deals double damage. The off-hand net deals 40% of same-contact Gladius damage and slows targets by 35% for 1.5 seconds."
 };
 STACK_THRESHOLD.gladiator = 3;
 STACK_DISPLAY_THRESHOLD.gladiator = 3;
