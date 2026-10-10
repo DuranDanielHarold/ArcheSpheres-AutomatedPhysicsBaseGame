@@ -30,8 +30,8 @@ function _hudCardHtml(s,side,slot){
   <div class="hud-rows">
    <div class="sr">HP&nbsp;&nbsp; <span style="color:${colors.hp}">${Math.ceil(s.hp)}/${s.maxHp}</span></div>
    <div class="sr">DMG&nbsp; <span style="color:${colors.dmg}">${d.dmg.toFixed(1)}</span></div>
-   <div class="sr">ARM&nbsp; <span style="color:${colors.arm}">${d.arm}</span></div>
-   <div class="sr">MDEF <span style="color:${colors.mdef}">${d.magDef}</span></div>
+   <div class="sr">ARM&nbsp; <span style="color:${colors.arm}">${Math.floor(d.arm)}</span></div>
+   <div class="sr">MDEF <span style="color:${colors.mdef}">${Math.floor(d.magDef)}</span></div>
    <div class="sr">&omega;&nbsp;&nbsp;&nbsp;&nbsp; <span style="color:${colors.om}">${Math.abs(s.omegaCur).toFixed(1)}</span></div>
    <div class="sr">STKS <span style="color:${stackColor}">${stackShown}/${ability.thresh}</span></div>
   </div>

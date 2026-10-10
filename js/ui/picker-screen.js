@@ -83,7 +83,8 @@ function updatePickerConfirm(){
 }
 function statBar(label,val,max,col){
  const pct=Math.min(100,Math.round((val/max)*100));
- const disp=(typeof val==='number'&&val%1!==0)?val.toFixed(1):val;
+ const defenseStat=['ARM','ARMOR','MDEF','MAGIC DEF'].includes(String(label).toUpperCase());
+ const disp=defenseStat?Math.floor(val):(typeof val==='number'&&!Number.isInteger(val)?val.toFixed(1):val);
  return `<div class="dbar-wrap"><div class="dbar-labels"><span class="dbar-label">${label}</span><span class="dbar-val">${disp}</span></div><div class="dbar"><div class="dbar-fill" style="width:${pct}%;background:${col}"></div></div></div>`;
 }
 function renderPickerGrid(){
@@ -186,6 +187,6 @@ function renderDetailPanel(key){
    ${statBar('SPIN ω',d.om,13,'#aa44aa')}
    ${statBar('REACH',d.reach,5,'#22aaaa')}
    ${statBar('MASS',d.mass,22,'#666688')}
-   <div class="dstat-row"><span class="dbar-label">RESTITUTION</span><span class="dbar-val">${d.rest.toFixed(2)}</span></div>
+   <div class="dstat-row"><span class="dbar-label">RESTITUTION</span><span class="dbar-val">${Number.isInteger(d.rest)?d.rest:d.rest.toFixed(1)}</span></div>
   </div>`;
 }
