@@ -2084,7 +2084,7 @@ class Sphere{
   const r=this.radius,back=this.angle+Math.PI;
   if(this.key==='crusader')return [{type:'shield',shape:'rect',x:this.x+Math.cos(back)*r*1.45,y:this.y+Math.sin(back)*r*1.45,halfWidth:r*.49,halfHeight:r*.715,damageMult:.8}];
   if(this.key==='spartan')return [{type:'aspis',shape:'circle',x:this.x+Math.cos(back)*r*1.18,y:this.y+Math.sin(back)*r*1.18,radius:r*.68,damageMult:.8}];
-  if(this.key==='gladiator')return [{type:'net',shape:'circle',x:this.x+Math.cos(back)*r*1.85,y:this.y+Math.sin(back)*r*1.85,radius:r*.5,damageMult:.4,onHit:(target)=>{target.netSlowT=1.5;target.netSlowMult=.65;}}];
+  if(this.key==='gladiator')return [{type:'net',shape:'circle',x:this.x+Math.cos(back)*r*1.71,y:this.y+Math.sin(back)*r*1.71,radius:r*.5,damageMult:.4,onHit:(target)=>{target.netSlowT=1.5;target.netSlowMult=.65;}}];
   return [];
  }
  receiveHeal(amount){
@@ -2291,7 +2291,7 @@ class Sphere{
    const r=this.radius;ctx.save();ctx.strokeStyle='#ff5ce1';ctx.lineWidth=2;ctx.setLineDash([4,3]);
    if(this.key==='crusader')ctx.strokeRect(-r*1.45-r*.49,-r*.715,r*.98,r*1.43);
    else if(this.key==='spartan'){ctx.beginPath();ctx.arc(-r*1.18,0,r*.68,0,Math.PI*2);ctx.stroke();}
-   else if(this.key==='gladiator'){ctx.beginPath();ctx.arc(-r*1.85,0,r*.5,0,Math.PI*2);ctx.stroke();}
+   else if(this.key==='gladiator'){ctx.beginPath();ctx.arc(-r*1.71,0,r*.5,0,Math.PI*2);ctx.stroke();}
    ctx.setLineDash([]);ctx.restore();
   }
   ctx.restore();
