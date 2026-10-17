@@ -23,12 +23,12 @@ function resetTestingOptions(){testingGroundOptions={seed:'',speed:1,arena:'defa
 function applyTestingArenaPreset(){const card=document.getElementById('card');if(!card)return;if(isTestingGround()){const preset=TESTING_GROUND_ARENAS[testingGroundOptions.arena]||TESTING_GROUND_ARENAS.default;card.style.width=preset.width||'';}else card.style.width='';resize();}
 function readTestingOverrides(slotId,key){const side=testingGroundOptions.overrides[slotId]||(testingGroundOptions.overrides[slotId]={});TESTING_GROUND_STATS.forEach(st=>{const el=document.getElementById(`tg-${slotId}-${st.key}`);if(!el)return;const v=Number(el.value);if(Number.isFinite(v)&&el.value!=='')side[st.key]=v;else delete side[st.key];});if(key&&DEF[key])TESTING_GROUND_STATS.forEach(st=>{if(side[st.key]===DEF[key][st.key])delete side[st.key];});}
 function renderTestingGroundPickerPanel(){
- const hdr=document.getElementById('picker-header');if(!hdr)return;
+ const pickerBody=document.getElementById('picker-body');if(!pickerBody||!pickerBody.parentElement)return;
  let panel=document.getElementById('testing-ground-picker');if(panel)panel.remove();
  panel=document.createElement('div');panel.id='testing-ground-picker';
  const slots=pickerSlots||[];
  panel.innerHTML=`<div class="tg-section"><label>SEED <input id="tg-seed" type="number" step="1" value="${testingGroundOptions.seed}"></label><label>ARENA <select id="tg-arena">${Object.entries(TESTING_GROUND_ARENAS).map(([k,v])=>`<option value="${k}" ${testingGroundOptions.arena===k?'selected':''}>${v.label}</option>`).join('')}</select></label></div><div class="tg-overrides"></div>`;
- hdr.appendChild(panel);
+ pickerBody.parentElement.insertBefore(panel,pickerBody);
  document.getElementById('tg-seed').oninput=e=>{testingGroundOptions.seed=e.target.value;};
  document.getElementById('tg-arena').onchange=e=>{testingGroundOptions.arena=e.target.value;};
  const overrides=panel.querySelector('.tg-overrides');
