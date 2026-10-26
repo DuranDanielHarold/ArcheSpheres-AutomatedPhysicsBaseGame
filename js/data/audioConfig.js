@@ -21,8 +21,20 @@ const AUDIO_VOLUMES = {
     projectileThrow: 0.32,
     projectileHit: 0.68,
   },
+  ranger: {
+    projectileThrow: 0.18,
+  },
+  prince: {
+    projectileThrow: 0.2,
+  },
   arena: {
     bgm: 0.45,
   },
+};
+
+const AUDIO_THROW_MIN_INTERVAL = {
+  default: 0.14,
+  ranger: 0.28,
+  prince: 0.28,
 };
 
