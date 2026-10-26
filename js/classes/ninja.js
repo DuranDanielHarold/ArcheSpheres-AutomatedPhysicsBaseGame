@@ -9,7 +9,7 @@ CLASS_DESC.ninja = {
 };
 SPHERE_AUDIO.ninja = {
   "weaponCollision": "audio/ninja/weaponCollision.wav",
-  "damage": "",
-  "ability": ""
+  "damage": "audio/ninja/damage.wav",
+  "ability": "audio/ninja/ability.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

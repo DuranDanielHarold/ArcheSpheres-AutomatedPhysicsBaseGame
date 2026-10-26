@@ -11,7 +11,7 @@ STACK_THRESHOLD.mimic = 3;
 STACK_DISPLAY_THRESHOLD.mimic = 3;
 SPHERE_AUDIO.mimic = {
   "weaponCollision": "audio/mimic/weaponCollision.wav",
-  "damage": "",
-  "ability": ""
+  "damage": "audio/mimic/damage.wav",
+  "ability": "audio/mimic/ability.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.
