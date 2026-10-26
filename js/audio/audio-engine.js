@@ -330,6 +330,12 @@ function _playAudioPath(path, volume=0.65, key='', slot='damage'){
    _audioStatsDrop('notLoaded');
    return;
   }
+  var fallbackClip=pool.find(a=>a.paused||a.ended);
+  if(!fallbackClip&&pool.length<4){
+   fallbackClip=new Audio(path);fallbackClip.preload='auto';fallbackClip.load();pool.push(fallbackClip);
+  }
+  if(!fallbackClip){_audioStatsDrop('cap');return;}
+  if(fallbackClip.readyState<2){_audioStatsDrop('notLoaded');return;}
  }
  if(_audioWebBackend&&_audioContext&&_audioContext.state!=='running'){
   _audioStatsDrop('contextSuspended');
@@ -362,15 +368,7 @@ function _playAudioPath(path, volume=0.65, key='', slot='damage'){
   }
   return;
  }
- let pool=_audioPoolCache.get(path);
- let clip=pool.find(a=>a.paused||a.ended);
- if(!clip&&pool.length<4){
-  clip=new Audio(path);clip.preload='auto';clip.load();pool.push(clip);
- }
- if(!clip){
-  _audioStatsDrop('cap');
-  return;
- }
+ const clip=fallbackClip;
  voice.element=clip;
  _activeAudioVoices.add(voice);
  const ended=()=>_removeVoice(voice);
