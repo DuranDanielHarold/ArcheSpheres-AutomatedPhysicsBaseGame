@@ -6,7 +6,7 @@ const _audioStorageKey = 'archeSpheresAudioState';
 const _audioBuffers = new Map(); // path -> Promise<AudioBuffer> while loading, then AudioBuffer
 const _audioFailedPaths = new Set();
 const _activeAudioVoices = new Set();
-const _audioWebBackend = typeof window !== 'undefined'
+let _audioWebBackend = typeof window !== 'undefined'
   && !!(window.AudioContext || window.webkitAudioContext)
   && typeof location !== 'undefined'
   && location.protocol !== 'file:';
@@ -116,6 +116,7 @@ function _ensureAudioGraph(){
   console.warn('[Audio] Web Audio initialization failed; using HTMLAudio fallback.',error);
   _audioContext=null;
   _audioGraph=null;
+  _audioWebBackend=false;
   return null;
  }
 }
