@@ -63,7 +63,7 @@ CLASSES = {
  'pirate':      (('steel', 800, 1), ('flesh', 160), (R.t_hook, dict(f=300)), None),
  'plague':      (('dagger', 2000, 1), ('flesh', 230), (R.t_infect, dict(f=300)), None),
  'priest':      (('crystal', 700, 1), ('light', 450), (R.t_holy, dict(f=440)), ('chime', 'holy')),
- 'prince':      (('regal', 1600, 1), ('light', 600), (R.t_royal, dict(f=330, wave='square')), None),
+ 'prince':      (('regal', 1600, 1), ('light', 600), (R.t_royal, dict(f=330, wave='square')), ('arrow', 'arrow')),
  'queen':       (('regal', 2000, 1), ('light', 900), (R.t_royal, dict(f=440, queen=True)), None),
  'ranger':      (('wood', 300, 1), ('light', 500), (R.t_volley, dict(f=400)), ('arrow', 'arrow')),
  'ratcatcher':  (('wood', 600, 1), ('light', 700), (R.t_squeaks, dict(f=3000)), None),
