@@ -1,7 +1,7 @@
 {
  "format": "PCM 16-bit mono 44100 Hz",
  "generator": "tools/audio/generate_audio.py",
- "peakCeilingDbfs": -1.0,
+ "peakCeilingDbfs": -1,
  "loudnessTargetsDbfs": {
   "weaponCollision": -15,
   "damage": -17,
@@ -176,7 +176,9 @@
   "prince": {
    "weaponCollision": "audio/prince/weaponCollision.wav",
    "damage": "audio/prince/damage.wav",
-   "ability": "audio/prince/ability.wav"
+   "ability": "audio/prince/ability.wav",
+   "projectileThrow": "audio/prince/projectileThrow.wav",
+   "projectileHit": "audio/prince/projectileHit.wav"
   },
   "queen": {
    "weaponCollision": "audio/queen/weaponCollision.wav",
@@ -296,7 +298,7 @@
    "path": "audio/alchemist/weaponCollision.wav",
    "ms": 600,
    "peakDbfs": -3.73,
-   "loudDbfs": -15.0,
+   "loudDbfs": -15,
    "bytes": 52964
   },
   {
@@ -305,7 +307,7 @@
    "path": "audio/alchemist/damage.wav",
    "ms": 130,
    "peakDbfs": -3.41,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 11496
   },
   {
@@ -314,7 +316,7 @@
    "path": "audio/alchemist/ability.wav",
    "ms": 953,
    "peakDbfs": -3.34,
-   "loudDbfs": -14.0,
+   "loudDbfs": -14,
    "bytes": 84104
   },
   {
@@ -323,7 +325,7 @@
    "path": "audio/alchemist/projectileThrow.wav",
    "ms": 226,
    "peakDbfs": -6.36,
-   "loudDbfs": -21.0,
+   "loudDbfs": -21,
    "bytes": 19980
   },
   {
@@ -332,7 +334,7 @@
    "path": "audio/alchemist/projectileHit.wav",
    "ms": 317,
    "peakDbfs": -3.52,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 28028
   },
   {
@@ -341,7 +343,7 @@
    "path": "audio/arcanist/weaponCollision.wav",
    "ms": 800,
    "peakDbfs": -2.81,
-   "loudDbfs": -15.0,
+   "loudDbfs": -15,
    "bytes": 70604
   },
   {
@@ -350,7 +352,7 @@
    "path": "audio/arcanist/damage.wav",
    "ms": 211,
    "peakDbfs": -7.18,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 18630
   },
   {
@@ -359,7 +361,7 @@
    "path": "audio/arcanist/ability.wav",
    "ms": 1479,
    "peakDbfs": -3.75,
-   "loudDbfs": -14.0,
+   "loudDbfs": -14,
    "bytes": 130464
   },
   {
@@ -368,7 +370,7 @@
    "path": "audio/arcanist/projectileThrow.wav",
    "ms": 323,
    "peakDbfs": -10.52,
-   "loudDbfs": -21.0,
+   "loudDbfs": -21,
    "bytes": 28566
   },
   {
@@ -377,7 +379,7 @@
    "path": "audio/arcanist/projectileHit.wav",
    "ms": 520,
    "peakDbfs": -4.84,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 45898
   },
   {
@@ -403,8 +405,8 @@
    "slot": "ability",
    "path": "audio/barbarian/ability.wav",
    "ms": 635,
-   "peakDbfs": -4.0,
-   "loudDbfs": -14.0,
+   "peakDbfs": -4,
+   "loudDbfs": -14,
    "bytes": 56072
   },
   {
@@ -422,7 +424,7 @@
    "path": "audio/bard/damage.wav",
    "ms": 130,
    "peakDbfs": -3.61,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 11494
   },
   {
@@ -440,7 +442,7 @@
    "path": "audio/bard/projectileThrow.wav",
    "ms": 300,
    "peakDbfs": -5.22,
-   "loudDbfs": -21.0,
+   "loudDbfs": -21,
    "bytes": 26504
   },
   {
@@ -449,7 +451,7 @@
    "path": "audio/bard/projectileHit.wav",
    "ms": 310,
    "peakDbfs": -4.14,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 27430
   },
   {
@@ -476,7 +478,7 @@
    "path": "audio/beastmaster/ability.wav",
    "ms": 1599,
    "peakDbfs": -6.03,
-   "loudDbfs": -14.0,
+   "loudDbfs": -14,
    "bytes": 141082
   },
   {
@@ -503,7 +505,7 @@
    "path": "audio/berserker/ability.wav",
    "ms": 949,
    "peakDbfs": -5.69,
-   "loudDbfs": -14.0,
+   "loudDbfs": -14,
    "bytes": 83766
   },
   {
@@ -512,7 +514,7 @@
    "path": "audio/crusader/weaponCollision.wav",
    "ms": 560,
    "peakDbfs": -3.22,
-   "loudDbfs": -15.0,
+   "loudDbfs": -15,
    "bytes": 49394
   },
   {
@@ -521,7 +523,7 @@
    "path": "audio/crusader/damage.wav",
    "ms": 210,
    "peakDbfs": -4.29,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 18532
   },
   {
@@ -530,7 +532,7 @@
    "path": "audio/crusader/ability.wav",
    "ms": 660,
    "peakDbfs": -4.82,
-   "loudDbfs": -14.0,
+   "loudDbfs": -14,
    "bytes": 58300
   },
   {
@@ -539,7 +541,7 @@
    "path": "audio/dragoon/weaponCollision.wav",
    "ms": 960,
    "peakDbfs": -3.63,
-   "loudDbfs": -15.0,
+   "loudDbfs": -15,
    "bytes": 84716
   },
   {
@@ -548,7 +550,7 @@
    "path": "audio/dragoon/damage.wav",
    "ms": 210,
    "peakDbfs": -3.29,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 18548
   },
   {
@@ -593,7 +595,7 @@
    "path": "audio/fairy/weaponCollision.wav",
    "ms": 560,
    "peakDbfs": -5.05,
-   "loudDbfs": -15.0,
+   "loudDbfs": -15,
    "bytes": 49436
   },
   {
@@ -602,7 +604,7 @@
    "path": "audio/fairy/damage.wav",
    "ms": 130,
    "peakDbfs": -3.25,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 11498
   },
   {
@@ -611,7 +613,7 @@
    "path": "audio/fairy/ability.wav",
    "ms": 1350,
    "peakDbfs": -3.84,
-   "loudDbfs": -14.0,
+   "loudDbfs": -14,
    "bytes": 119114
   },
   {
@@ -620,7 +622,7 @@
    "path": "audio/fairy/projectileThrow.wav",
    "ms": 140,
    "peakDbfs": -9.16,
-   "loudDbfs": -21.0,
+   "loudDbfs": -21,
    "bytes": 12392
   },
   {
@@ -647,7 +649,7 @@
    "path": "audio/flagellant/damage.wav",
    "ms": 231,
    "peakDbfs": -3.23,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 20392
   },
   {
@@ -656,7 +658,7 @@
    "path": "audio/flagellant/ability.wav",
    "ms": 1750,
    "peakDbfs": -3.67,
-   "loudDbfs": -14.0,
+   "loudDbfs": -14,
    "bytes": 154394
   },
   {
@@ -674,7 +676,7 @@
    "path": "audio/gladiator/damage.wav",
    "ms": 231,
    "peakDbfs": -3.15,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 20416
   },
   {
@@ -692,7 +694,7 @@
    "path": "audio/glassblower/weaponCollision.wav",
    "ms": 600,
    "peakDbfs": -2.29,
-   "loudDbfs": -15.0,
+   "loudDbfs": -15,
    "bytes": 52964
   },
   {
@@ -701,7 +703,7 @@
    "path": "audio/glassblower/damage.wav",
    "ms": 229,
    "peakDbfs": -4.52,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 20198
   },
   {
@@ -728,7 +730,7 @@
    "path": "audio/golem/damage.wav",
    "ms": 220,
    "peakDbfs": -2.09,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 19424
   },
   {
@@ -737,7 +739,7 @@
    "path": "audio/golem/ability.wav",
    "ms": 1195,
    "peakDbfs": -4.92,
-   "loudDbfs": -14.0,
+   "loudDbfs": -14,
    "bytes": 105456
   },
   {
@@ -764,7 +766,7 @@
    "path": "audio/gravedigger/ability.wav",
    "ms": 1485,
    "peakDbfs": -3.82,
-   "loudDbfs": -14.0,
+   "loudDbfs": -14,
    "bytes": 131008
   },
   {
@@ -782,7 +784,7 @@
    "path": "audio/guardian/damage.wav",
    "ms": 218,
    "peakDbfs": -3.66,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 19262
   },
   {
@@ -791,7 +793,7 @@
    "path": "audio/guardian/ability.wav",
    "ms": 1199,
    "peakDbfs": -4.34,
-   "loudDbfs": -14.0,
+   "loudDbfs": -14,
    "bytes": 105788
   },
   {
@@ -809,7 +811,7 @@
    "path": "audio/inquisitor/damage.wav",
    "ms": 234,
    "peakDbfs": -3.39,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 20652
   },
   {
@@ -818,7 +820,7 @@
    "path": "audio/inquisitor/ability.wav",
    "ms": 1500,
    "peakDbfs": -2.07,
-   "loudDbfs": -14.0,
+   "loudDbfs": -14,
    "bytes": 132344
   },
   {
@@ -836,7 +838,7 @@
    "path": "audio/jester/damage.wav",
    "ms": 130,
    "peakDbfs": -2.85,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 11488
   },
   {
@@ -845,7 +847,7 @@
    "path": "audio/jester/ability.wav",
    "ms": 1200,
    "peakDbfs": -5.48,
-   "loudDbfs": -14.0,
+   "loudDbfs": -14,
    "bytes": 105884
   },
   {
@@ -863,7 +865,7 @@
    "path": "audio/king/damage.wav",
    "ms": 217,
    "peakDbfs": -4.03,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 19174
   },
   {
@@ -872,7 +874,7 @@
    "path": "audio/king/ability.wav",
    "ms": 1587,
    "peakDbfs": -5.42,
-   "loudDbfs": -14.0,
+   "loudDbfs": -14,
    "bytes": 139974
   },
   {
@@ -890,7 +892,7 @@
    "path": "audio/knight/damage.wav",
    "ms": 214,
    "peakDbfs": -3.83,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 18920
   },
   {
@@ -899,7 +901,7 @@
    "path": "audio/knight/ability.wav",
    "ms": 1199,
    "peakDbfs": -4.93,
-   "loudDbfs": -14.0,
+   "loudDbfs": -14,
    "bytes": 105828
   },
   {
@@ -917,7 +919,7 @@
    "path": "audio/locksmith/damage.wav",
    "ms": 130,
    "peakDbfs": -3.07,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 11490
   },
   {
@@ -934,8 +936,8 @@
    "slot": "weaponCollision",
    "path": "audio/mimic/weaponCollision.wav",
    "ms": 800,
-   "peakDbfs": -4.0,
-   "loudDbfs": -15.0,
+   "peakDbfs": -4,
+   "loudDbfs": -15,
    "bytes": 70604
   },
   {
@@ -944,7 +946,7 @@
    "path": "audio/mimic/damage.wav",
    "ms": 210,
    "peakDbfs": -8.06,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 18554
   },
   {
@@ -953,7 +955,7 @@
    "path": "audio/mimic/ability.wav",
    "ms": 1199,
    "peakDbfs": -1.8,
-   "loudDbfs": -14.0,
+   "loudDbfs": -14,
    "bytes": 105776
   },
   {
@@ -971,7 +973,7 @@
    "path": "audio/monk/damage.wav",
    "ms": 130,
    "peakDbfs": -3.9,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 11502
   },
   {
@@ -980,7 +982,7 @@
    "path": "audio/monk/ability.wav",
    "ms": 2000,
    "peakDbfs": -5.85,
-   "loudDbfs": -14.0,
+   "loudDbfs": -14,
    "bytes": 176444
   },
   {
@@ -989,7 +991,7 @@
    "path": "audio/necromancer/weaponCollision.wav",
    "ms": 800,
    "peakDbfs": -3.47,
-   "loudDbfs": -15.0,
+   "loudDbfs": -15,
    "bytes": 70604
   },
   {
@@ -998,7 +1000,7 @@
    "path": "audio/necromancer/damage.wav",
    "ms": 470,
    "peakDbfs": -6.7,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 41498
   },
   {
@@ -1007,7 +1009,7 @@
    "path": "audio/necromancer/ability.wav",
    "ms": 1696,
    "peakDbfs": -5.59,
-   "loudDbfs": -14.0,
+   "loudDbfs": -14,
    "bytes": 149632
   },
   {
@@ -1016,7 +1018,7 @@
    "path": "audio/necromancer/projectileThrow.wav",
    "ms": 228,
    "peakDbfs": -9.61,
-   "loudDbfs": -21.0,
+   "loudDbfs": -21,
    "bytes": 20110
   },
   {
@@ -1025,7 +1027,7 @@
    "path": "audio/necromancer/projectileHit.wav",
    "ms": 276,
    "peakDbfs": -3.44,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 24422
   },
   {
@@ -1043,7 +1045,7 @@
    "path": "audio/ninja/damage.wav",
    "ms": 130,
    "peakDbfs": -3.15,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 11492
   },
   {
@@ -1070,7 +1072,7 @@
    "path": "audio/paladin/damage.wav",
    "ms": 217,
    "peakDbfs": -3.11,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 19204
   },
   {
@@ -1079,7 +1081,7 @@
    "path": "audio/paladin/ability.wav",
    "ms": 1564,
    "peakDbfs": -2.75,
-   "loudDbfs": -14.0,
+   "loudDbfs": -14,
    "bytes": 138024
   },
   {
@@ -1106,7 +1108,7 @@
    "path": "audio/phoenix/ability.wav",
    "ms": 1337,
    "peakDbfs": -3.51,
-   "loudDbfs": -14.0,
+   "loudDbfs": -14,
    "bytes": 117982
   },
   {
@@ -1124,7 +1126,7 @@
    "path": "audio/pirate/damage.wav",
    "ms": 230,
    "peakDbfs": -3.15,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 20374
   },
   {
@@ -1142,7 +1144,7 @@
    "path": "audio/plague/weaponCollision.wav",
    "ms": 400,
    "peakDbfs": -2.62,
-   "loudDbfs": -15.0,
+   "loudDbfs": -15,
    "bytes": 35324
   },
   {
@@ -1160,7 +1162,7 @@
    "path": "audio/plague/ability.wav",
    "ms": 1007,
    "peakDbfs": -2.02,
-   "loudDbfs": -14.0,
+   "loudDbfs": -14,
    "bytes": 88852
   },
   {
@@ -1169,7 +1171,7 @@
    "path": "audio/priest/weaponCollision.wav",
    "ms": 800,
    "peakDbfs": -2.74,
-   "loudDbfs": -15.0,
+   "loudDbfs": -15,
    "bytes": 70604
   },
   {
@@ -1178,7 +1180,7 @@
    "path": "audio/priest/damage.wav",
    "ms": 130,
    "peakDbfs": -4.06,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 11504
   },
   {
@@ -1187,7 +1189,7 @@
    "path": "audio/priest/ability.wav",
    "ms": 1453,
    "peakDbfs": -3.1,
-   "loudDbfs": -14.0,
+   "loudDbfs": -14,
    "bytes": 128212
   },
   {
@@ -1196,7 +1198,7 @@
    "path": "audio/priest/projectileThrow.wav",
    "ms": 350,
    "peakDbfs": -10.49,
-   "loudDbfs": -21.0,
+   "loudDbfs": -21,
    "bytes": 30914
   },
   {
@@ -1205,7 +1207,7 @@
    "path": "audio/priest/projectileHit.wav",
    "ms": 400,
    "peakDbfs": -6.64,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 35324
   },
   {
@@ -1214,7 +1216,7 @@
    "path": "audio/prince/weaponCollision.wav",
    "ms": 600,
    "peakDbfs": -4.35,
-   "loudDbfs": -15.0,
+   "loudDbfs": -15,
    "bytes": 52964
   },
   {
@@ -1223,7 +1225,7 @@
    "path": "audio/prince/damage.wav",
    "ms": 130,
    "peakDbfs": -3.76,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 11504
   },
   {
@@ -1232,8 +1234,26 @@
    "path": "audio/prince/ability.wav",
    "ms": 1479,
    "peakDbfs": -5.57,
-   "loudDbfs": -14.0,
+   "loudDbfs": -14,
    "bytes": 130530
+  },
+  {
+   "key": "prince",
+   "slot": "projectileThrow",
+   "path": "audio/prince/projectileThrow.wav",
+   "ms": 200,
+   "peakDbfs": -7.71,
+   "loudDbfs": -21,
+   "bytes": 17684
+  },
+  {
+   "key": "prince",
+   "slot": "projectileHit",
+   "path": "audio/prince/projectileHit.wav",
+   "ms": 130,
+   "peakDbfs": -4.73,
+   "loudDbfs": -17,
+   "bytes": 11526
   },
   {
    "key": "queen",
@@ -1241,7 +1261,7 @@
    "path": "audio/queen/weaponCollision.wav",
    "ms": 600,
    "peakDbfs": -4.75,
-   "loudDbfs": -15.0,
+   "loudDbfs": -15,
    "bytes": 52964
   },
   {
@@ -1250,7 +1270,7 @@
    "path": "audio/queen/damage.wav",
    "ms": 130,
    "peakDbfs": -3.09,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 11500
   },
   {
@@ -1277,7 +1297,7 @@
    "path": "audio/ranger/damage.wav",
    "ms": 130,
    "peakDbfs": -4.07,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 11504
   },
   {
@@ -1294,8 +1314,8 @@
    "slot": "projectileThrow",
    "path": "audio/ranger/projectileThrow.wav",
    "ms": 200,
-   "peakDbfs": -5.71,
-   "loudDbfs": -21.0,
+   "peakDbfs": -7.42,
+   "loudDbfs": -21,
    "bytes": 17684
   },
   {
@@ -1304,7 +1324,7 @@
    "path": "audio/ranger/projectileHit.wav",
    "ms": 130,
    "peakDbfs": -5.04,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 11528
   },
   {
@@ -1322,7 +1342,7 @@
    "path": "audio/ratcatcher/damage.wav",
    "ms": 130,
    "peakDbfs": -3.67,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 11500
   },
   {
@@ -1340,7 +1360,7 @@
    "path": "audio/rogue/weaponCollision.wav",
    "ms": 400,
    "peakDbfs": -2.63,
-   "loudDbfs": -15.0,
+   "loudDbfs": -15,
    "bytes": 35324
   },
   {
@@ -1349,7 +1369,7 @@
    "path": "audio/rogue/damage.wav",
    "ms": 130,
    "peakDbfs": -2.92,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 11486
   },
   {
@@ -1376,7 +1396,7 @@
    "path": "audio/sage/damage.wav",
    "ms": 130,
    "peakDbfs": -2.94,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 11486
   },
   {
@@ -1385,7 +1405,7 @@
    "path": "audio/sage/ability.wav",
    "ms": 1644,
    "peakDbfs": -4.51,
-   "loudDbfs": -14.0,
+   "loudDbfs": -14,
    "bytes": 145078
   },
   {
@@ -1394,7 +1414,7 @@
    "path": "audio/sage/projectileThrow.wav",
    "ms": 158,
    "peakDbfs": -7.94,
-   "loudDbfs": -21.0,
+   "loudDbfs": -21,
    "bytes": 13976
   },
   {
@@ -1403,7 +1423,7 @@
    "path": "audio/sage/projectileHit.wav",
    "ms": 300,
    "peakDbfs": -6.37,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 26504
   },
   {
@@ -1412,7 +1432,7 @@
    "path": "audio/samurai/weaponCollision.wav",
    "ms": 960,
    "peakDbfs": -3.12,
-   "loudDbfs": -15.0,
+   "loudDbfs": -15,
    "bytes": 84716
   },
   {
@@ -1430,7 +1450,7 @@
    "path": "audio/samurai/ability.wav",
    "ms": 560,
    "peakDbfs": -3.12,
-   "loudDbfs": -14.0,
+   "loudDbfs": -14,
    "bytes": 49456
   },
   {
@@ -1448,7 +1468,7 @@
    "path": "audio/sheriff/damage.wav",
    "ms": 231,
    "peakDbfs": -3.33,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 20380
   },
   {
@@ -1466,7 +1486,7 @@
    "path": "audio/sheriff/projectileThrow.wav",
    "ms": 163,
    "peakDbfs": -5.72,
-   "loudDbfs": -21.0,
+   "loudDbfs": -21,
    "bytes": 14380
   },
   {
@@ -1484,7 +1504,7 @@
    "path": "audio/spartan/weaponCollision.wav",
    "ms": 550,
    "peakDbfs": -3.57,
-   "loudDbfs": -15.0,
+   "loudDbfs": -15,
    "bytes": 48554
   },
   {
@@ -1493,7 +1513,7 @@
    "path": "audio/spartan/damage.wav",
    "ms": 211,
    "peakDbfs": -3.35,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 18682
   },
   {
@@ -1520,7 +1540,7 @@
    "path": "audio/stormbringer/damage.wav",
    "ms": 211,
    "peakDbfs": -6.55,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 18618
   },
   {
@@ -1529,7 +1549,7 @@
    "path": "audio/stormbringer/ability.wav",
    "ms": 1309,
    "peakDbfs": -3.07,
-   "loudDbfs": -14.0,
+   "loudDbfs": -14,
    "bytes": 115490
   },
   {
@@ -1547,7 +1567,7 @@
    "path": "audio/templar/damage.wav",
    "ms": 210,
    "peakDbfs": -3.4,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 18526
   },
   {
@@ -1556,7 +1576,7 @@
    "path": "audio/templar/ability.wav",
    "ms": 1550,
    "peakDbfs": -5.84,
-   "loudDbfs": -14.0,
+   "loudDbfs": -14,
    "bytes": 136754
   },
   {
@@ -1574,7 +1594,7 @@
    "path": "audio/tidecaller/damage.wav",
    "ms": 130,
    "peakDbfs": -3.44,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 11492
   },
   {
@@ -1592,7 +1612,7 @@
    "path": "audio/tidecaller/projectileThrow.wav",
    "ms": 159,
    "peakDbfs": -8.16,
-   "loudDbfs": -21.0,
+   "loudDbfs": -21,
    "bytes": 14094
   },
   {
@@ -1601,7 +1621,7 @@
    "path": "audio/tidecaller/projectileHit.wav",
    "ms": 309,
    "peakDbfs": -2.93,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 27332
   },
   {
@@ -1610,7 +1630,7 @@
    "path": "audio/trickster/weaponCollision.wav",
    "ms": 800,
    "peakDbfs": -2.82,
-   "loudDbfs": -15.0,
+   "loudDbfs": -15,
    "bytes": 70604
   },
   {
@@ -1619,7 +1639,7 @@
    "path": "audio/trickster/damage.wav",
    "ms": 470,
    "peakDbfs": -5.63,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 41498
   },
   {
@@ -1628,7 +1648,7 @@
    "path": "audio/trickster/ability.wav",
    "ms": 1100,
    "peakDbfs": -3.57,
-   "loudDbfs": -14.0,
+   "loudDbfs": -14,
    "bytes": 97064
   },
   {
@@ -1646,7 +1666,7 @@
    "path": "audio/vampire/damage.wav",
    "ms": 470,
    "peakDbfs": -5.9,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 41498
   },
   {
@@ -1655,7 +1675,7 @@
    "path": "audio/vampire/ability.wav",
    "ms": 1118,
    "peakDbfs": -4.04,
-   "loudDbfs": -14.0,
+   "loudDbfs": -14,
    "bytes": 98662
   },
   {
@@ -1682,7 +1702,7 @@
    "path": "audio/viking/ability.wav",
    "ms": 950,
    "peakDbfs": -4.89,
-   "loudDbfs": -14.0,
+   "loudDbfs": -14,
    "bytes": 83826
   },
   {
@@ -1700,7 +1720,7 @@
    "path": "audio/voidwalker/damage.wav",
    "ms": 470,
    "peakDbfs": -5.85,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 41498
   },
   {
@@ -1709,7 +1729,7 @@
    "path": "audio/voidwalker/ability.wav",
    "ms": 1913,
    "peakDbfs": -4.23,
-   "loudDbfs": -14.0,
+   "loudDbfs": -14,
    "bytes": 168766
   },
   {
@@ -1727,7 +1747,7 @@
    "path": "audio/warlord/damage.wav",
    "ms": 217,
    "peakDbfs": -3.82,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 19158
   },
   {
@@ -1736,7 +1756,7 @@
    "path": "audio/warlord/ability.wav",
    "ms": 1199,
    "peakDbfs": -5.03,
-   "loudDbfs": -14.0,
+   "loudDbfs": -14,
    "bytes": 105804
   },
   {
@@ -1745,7 +1765,7 @@
    "path": "audio/whelpling/weaponCollision.wav",
    "ms": 110,
    "peakDbfs": -2.53,
-   "loudDbfs": -15.0,
+   "loudDbfs": -15,
    "bytes": 9722
   },
   {
@@ -1763,7 +1783,7 @@
    "path": "audio/whelpling/ability.wav",
    "ms": 1011,
    "peakDbfs": -3.1,
-   "loudDbfs": -14.0,
+   "loudDbfs": -14,
    "bytes": 89200
   },
   {
@@ -1781,7 +1801,7 @@
    "path": "audio/witch/damage.wav",
    "ms": 470,
    "peakDbfs": -5.65,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 41498
   },
   {
@@ -1790,7 +1810,7 @@
    "path": "audio/witch/ability.wav",
    "ms": 1297,
    "peakDbfs": -3.9,
-   "loudDbfs": -14.0,
+   "loudDbfs": -14,
    "bytes": 114412
   },
   {
@@ -1799,7 +1819,7 @@
    "path": "audio/witch/projectileThrow.wav",
    "ms": 228,
    "peakDbfs": -9.56,
-   "loudDbfs": -21.0,
+   "loudDbfs": -21,
    "bytes": 20120
   },
   {
@@ -1817,7 +1837,7 @@
    "path": "audio/wizard/weaponCollision.wav",
    "ms": 800,
    "peakDbfs": -4.09,
-   "loudDbfs": -15.0,
+   "loudDbfs": -15,
    "bytes": 70604
   },
   {
@@ -1826,7 +1846,7 @@
    "path": "audio/wizard/damage.wav",
    "ms": 211,
    "peakDbfs": -6.55,
-   "loudDbfs": -17.0,
+   "loudDbfs": -17,
    "bytes": 18640
   },
   {
@@ -1835,7 +1855,7 @@
    "path": "audio/wizard/ability.wav",
    "ms": 1450,
    "peakDbfs": -3.32,
-   "loudDbfs": -14.0,
+   "loudDbfs": -14,
    "bytes": 127934
   },
   {
@@ -1844,7 +1864,7 @@
    "path": "audio/wizard/projectileThrow.wav",
    "ms": 129,
    "peakDbfs": -12.41,
-   "loudDbfs": -21.0,
+   "loudDbfs": -21,
    "bytes": 11424
   },
   {
