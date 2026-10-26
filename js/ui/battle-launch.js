@@ -18,7 +18,7 @@ function launchBattle(){
  document.getElementById('controls').style.display='flex';
  newBattle();
  paused=true;
- showCountdown(3,()=>{paused=false;lastTime=performance.now();});
+ showCountdown(3,()=>{paused=false;lastTime=performance.now();if(typeof _syncArenaBgm==='function')_syncArenaBgm();});
 }
 function showCountdown(n,onDone){
  let ov=document.getElementById('countdown-overlay');
