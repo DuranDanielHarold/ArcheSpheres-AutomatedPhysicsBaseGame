@@ -10,7 +10,7 @@ CLASS_DESC.golem = {
 STACK_DISPLAY_THRESHOLD.golem = 3;
 SPHERE_AUDIO.golem = {
   "weaponCollision": "audio/golem/weaponCollision.wav",
-  "damage": "",
-  "ability": ""
+  "damage": "audio/golem/damage.wav",
+  "ability": "audio/golem/ability.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

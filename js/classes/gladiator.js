@@ -10,8 +10,8 @@ CLASS_DESC.gladiator = {
 STACK_THRESHOLD.gladiator = 3;
 STACK_DISPLAY_THRESHOLD.gladiator = 3;
 SPHERE_AUDIO.gladiator = {
-  "weaponCollision": "",
-  "damage": "",
-  "ability": ""
+  "weaponCollision": "audio/gladiator/weaponCollision.wav",
+  "damage": "audio/gladiator/damage.wav",
+  "ability": "audio/gladiator/ability.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.
