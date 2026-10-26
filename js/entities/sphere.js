@@ -31,6 +31,7 @@ class Sphere{
   this.canTriggerTraits=opts.canTriggerTraits===false?false:!this.isReplica;
   this.impactVx=0;this.impactVy=0;this.impactDecay=0;
   this._hitDefenders=new Map();this._meleeAttemptDefenders=new Map();
+  this._audioHurtCooldown=0;this._audioProjectileThrowCooldown=0;this._audioProjectileHitCooldown=0;this._audioAbilityCooldown=0;
   this.stacks=0;this.dmgMult=1;
   this.invincible=false;this.invincibleT=0;
   this.phaseInvincible=false;
@@ -850,6 +851,9 @@ class Sphere{
   }
   }finally{if(liveTracking)window._liveCurrentAbilityKey=prior;}
   if(liveTracking&&before>=threshold&&this.stacks===0)window._liveCombatTracker.onAbilityUse(this.key,true);
+  if(!window._balanceNoVisuals&&before>=threshold&&this.stacks===0&&this._audioAbilityCooldown<=0&&!['viking','sheriff','dragoon'].includes(this.key)){
+   _playSphereAudio(this.key,'ability');this._audioAbilityCooldown=0.25;
+  }
  }
  update(dt){
   if(this.dying){this.dyingT+=dt;return;}
@@ -860,6 +864,7 @@ class Sphere{
   if(this.dmgHalvedT>0)this.dmgHalvedT-=dt;
   if(this.courtlyT>0)this.courtlyT-=dt;
   this.abTimer+=dt;
+  if(!window._balanceNoVisuals){this._audioHurtCooldown=Math.max(0,this._audioHurtCooldown-dt);this._audioProjectileThrowCooldown=Math.max(0,this._audioProjectileThrowCooldown-dt);this._audioProjectileHitCooldown=Math.max(0,this._audioProjectileHitCooldown-dt);this._audioAbilityCooldown=Math.max(0,this._audioAbilityCooldown-dt);}
   if(this.virulenceWallHitCD>0)this.virulenceWallHitCD=Math.max(0,this.virulenceWallHitCD-dt);
   if(this.virulenceStacks>0)this.virulenceStacks=Math.max(0,this.virulenceStacks-dt*0.15);
   if(this.discordFireRateT>0){this.discordFireRateT-=dt;this.shotCD=Math.max(0,this.shotCD-dt*0.35);}else{this.shotCD=Math.max(0,this.shotCD-dt);}
@@ -2159,6 +2164,11 @@ class Sphere{
   // Crusader — Retribution counter charges on taking damage
   if(this.key==='crusader'&&fd>0.5){this.retributionCounter=Math.min(60,(this.retributionCounter||0)+fd);}
   this.hp=Math.max(0,this.hp-fd);this.hitFlash=1;
+  if(!window._balanceNoVisuals&&fd>=2.5&&this._audioHurtCooldown<=0){_playSphereAudio(this.key,'damage');this._audioHurtCooldown=0.18;}
+  const audioProjectileSource=window._balanceDamageSource;
+  if(!window._balanceNoVisuals&&audioProjectileSource&&audioProjectileSource.type==='projectile'&&audioProjectileSource.owner&&audioProjectileSource.owner._audioProjectileHitCooldown<=0){
+   _playSphereAudio(audioProjectileSource.key,'projectileHit');audioProjectileSource.owner._audioProjectileHitCooldown=0.12;
+  }
   if(window._liveCombatTracker&&fd>0)this._recordLiveCombatDamage(fd);
   if(this.key==='flagellant')this._flagellantApplyWounds();
   if(this.key==='sage'&&fd>0){const gain=Math.floor(fd/10);if(gain>0){this.knowledge=(this.knowledge||0)+gain;this.d=Object.assign({},this.d);this.d.dmg+=gain*.25;this.d.magDef+=gain*2;}}
@@ -2218,6 +2228,11 @@ class Sphere{
   }
   if(fd<=0)return;
   this.hp=Math.max(0,this.hp-fd);this.hitFlash=1;
+  if(!window._balanceNoVisuals&&fd>=2.5&&this._audioHurtCooldown<=0){_playSphereAudio(this.key,'damage');this._audioHurtCooldown=0.18;}
+  const audioProjectileSource=window._balanceDamageSource;
+  if(!window._balanceNoVisuals&&audioProjectileSource&&audioProjectileSource.type==='projectile'&&audioProjectileSource.owner&&audioProjectileSource.owner._audioProjectileHitCooldown<=0){
+   _playSphereAudio(audioProjectileSource.key,'projectileHit');audioProjectileSource.owner._audioProjectileHitCooldown=0.12;
+  }
   if(window._liveCombatTracker&&fd>0)this._recordLiveCombatDamage(fd);
   if(this.key==='flagellant')this._flagellantApplyWounds();
   if(fd>0.5)spawnBloodSplat(this.x,this.y,this.d.color,fd);

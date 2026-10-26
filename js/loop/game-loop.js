@@ -3,13 +3,19 @@
 // Main animation loop and winner/rematch overlay flow.
 
 function gameStep(dt){
- for(const s of spheres)s.update(dt);
+ for(const s of spheres){
+  const projectileCount=projectiles.length;
+  s.update(dt);
+  if(!window._balanceNoVisuals&&projectiles.length>projectileCount&&s._audioProjectileThrowCooldown<=0){
+   _playSphereAudio(s.key,'projectileThrow');s._audioProjectileThrowCooldown=0.14;
+  }
+ }
  for(const p of projectiles){
   if(window._liveCombatTracker&&p.owner&&!p._liveProjectileTracked){
    window._liveCombatTracker.onProjectileFire(p.owner.key);
    p._liveProjectileTracked=true;
   }
-  window._balanceDamageSource=p.owner?{key:p.owner.key,type:'projectile'}:null;
+  window._balanceDamageSource=p.owner?{key:p.owner.key,type:'projectile',owner:p.owner}:null;
   p.update(dt);
   window._balanceDamageSource=null;
  }
