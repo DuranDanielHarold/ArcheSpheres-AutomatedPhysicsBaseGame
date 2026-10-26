@@ -10,7 +10,7 @@ CLASS_DESC.jester = {
 STACK_DISPLAY_THRESHOLD.jester = 3;
 SPHERE_AUDIO.jester = {
   "weaponCollision": "audio/jester/weaponCollision.wav",
-  "damage": "",
-  "ability": ""
+  "damage": "audio/jester/damage.wav",
+  "ability": "audio/jester/ability.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.
