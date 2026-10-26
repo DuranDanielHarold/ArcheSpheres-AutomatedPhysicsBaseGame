@@ -284,17 +284,14 @@ function _admitVoice(slot, priority){
  const slotLimit=(limits.perSlot&&limits.perSlot[slot])||limits.total;
  if(counts.total<limits.total&&counts.slotCount<slotLimit)return true;
  let candidates=[..._activeAudioVoices].filter(v=>v.priority<priority);
- if(counts.total>=limits.total){
-  candidates.sort((a,b)=>a.priority-b.priority||a.serial-b.serial);
- }else{
+ if(counts.slotCount>=slotLimit){
   candidates=candidates.filter(v=>v.slot===slot).sort((a,b)=>a.priority-b.priority||a.serial-b.serial);
+  if(!candidates.length){_audioStatsDrop('cap');return false;}
+ }else if(counts.total>=limits.total){
+  candidates.sort((a,b)=>a.priority-b.priority||a.serial-b.serial);
+  if(!candidates.length){_audioStatsDrop('priority');return false;}
  }
- const victim=candidates[0];
- if(!victim){
-  _audioStatsDrop(counts.total>=limits.total?'priority':'cap');
-  return false;
- }
- _stealVoice(victim);
+ _stealVoice(candidates[0]);
  return true;
 }
 function _playAudioPath(path, volume=0.65, key='', slot='damage'){
