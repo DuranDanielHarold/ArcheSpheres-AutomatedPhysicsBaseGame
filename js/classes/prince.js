@@ -13,6 +13,8 @@ STACK_DISPLAY_THRESHOLD.prince = 4;
 SPHERE_AUDIO.prince = {
   "weaponCollision": "audio/prince/weaponCollision.wav",
   "damage": "audio/prince/damage.wav",
-  "ability": "audio/prince/ability.wav"
+  "ability": "audio/prince/ability.wav",
+  "projectileThrow": "audio/prince/projectileThrow.wav",
+  "projectileHit": "audio/prince/projectileHit.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.
