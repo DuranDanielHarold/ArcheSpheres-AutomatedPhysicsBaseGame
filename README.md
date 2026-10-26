@@ -113,7 +113,7 @@ Handles collision resolution, faction helpers, weapon hits/clashes, locksmith lo
 Handles particle/effect spawning, damage and heal numbers, blood splats, and background drawing.
 
 `js/audio/audio-engine.js`
-Handles audio state, preloading, playback helpers, mute/volume controls, and arena BGM lifecycle.
+Owns the lazy Web Audio graph (with an HTMLAudio fallback for `file://`), decoded-buffer preload, priority/cooldown voice admission, audio UI gains, BGM pause/resume offsets, and `window.audioStats()` diagnostics.
 
 `js/hud/hud.js`
 Updates the ability bar and stat panel.
