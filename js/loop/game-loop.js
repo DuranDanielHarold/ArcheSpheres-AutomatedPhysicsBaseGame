@@ -11,6 +11,12 @@ function gameStep(dt){
   }
  }
  for(const p of projectiles){
+  if(!window._balanceNoVisuals&&!p._sfxSeen){
+   p._sfxSeen=true;
+   if(p.owner instanceof Sphere&&typeof p.owner._throwSfxCD==='number'&&p.owner._throwSfxCD<=0&&SPHERE_AUDIO[p.owner.key]?.projectileThrow){
+    _playSphereAudio(p.owner.key,'projectileThrow');p.owner._throwSfxCD=0.14;
+   }
+  }
   if(window._liveCombatTracker&&p.owner&&!p._liveProjectileTracked){
    window._liveCombatTracker.onProjectileFire(p.owner.key);
    p._liveProjectileTracked=true;
