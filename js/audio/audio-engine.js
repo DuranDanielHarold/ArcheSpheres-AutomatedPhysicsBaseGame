@@ -5,6 +5,7 @@
 const _audioPoolCache = new Map();
 const _audioStorageKey = 'archeSpheresAudioState';
 let _bgmAudio = null;
+let _bgmRetryArmed = false;
 let _audioState = {
  masterVolume: AUDIO_SETTINGS_DEFAULTS.masterVolume,
  sfxVolume: AUDIO_SETTINGS_DEFAULTS.sfxVolume,
@@ -45,6 +46,31 @@ function _updateAudioUi(){
  if(bgmSlider)bgmSlider.value=Math.round(_audioState.bgmVolume*100);
 }
 
+function _audioDebugBgmEvent(eventName){
+ if(window._audioDebug!==true||!_bgmAudio)return;
+ console.debug('[Audio BGM]',eventName,{
+  paused:paused,
+  gameMode:gameMode,
+  'document.hidden':document.hidden,
+  muted:_audioState.muted,
+  volume:_bgmAudio.volume,
+  matchTime:window.matchTime,
+  readyState:_bgmAudio.readyState
+ });
+}
+function _armBgmGestureRetry(){
+ if(_bgmRetryArmed)return;
+ _bgmRetryArmed=true;
+ const retry=()=>{
+  document.removeEventListener('pointerdown',retry);
+  document.removeEventListener('touchend',retry);
+  _bgmRetryArmed=false;
+  _syncArenaBgm();
+ };
+ document.addEventListener('pointerdown',retry,{once:true});
+ document.addEventListener('touchend',retry,{once:true});
+}
+
 function _syncArenaBgm(forceRestart=false){
  if(window._balanceNoVisuals)return;
  const path=ARENA_AUDIO?.bgm;
@@ -59,6 +85,9 @@ function _syncArenaBgm(forceRestart=false){
   _bgmAudio=new Audio(path);
   _bgmAudio.preload='auto';
   _bgmAudio.loop=true;
+  for(const eventName of ['pause','play','ended','stalled','waiting']){
+   _bgmAudio.addEventListener(eventName,()=>_audioDebugBgmEvent(eventName));
+  }
   _bgmAudio.load();
  }
  _bgmAudio.volume=_resolveAudioVolume('arena','bgm','bgm');
@@ -70,8 +99,16 @@ function _syncArenaBgm(forceRestart=false){
   try{_bgmAudio.currentTime=0;}catch(_err){}
  }
  if(_bgmAudio.paused){
-  const playAttempt=_bgmAudio.play();
-  if(playAttempt&&typeof playAttempt.catch==='function')playAttempt.catch(()=>{});
+  try{
+   const playAttempt=_bgmAudio.play();
+   if(playAttempt&&typeof playAttempt.catch==='function')playAttempt.catch(error=>{
+    _audioDebugBgmEvent('play-rejected');
+    _armBgmGestureRetry();
+   });
+  }catch(error){
+   _audioDebugBgmEvent('play-rejected');
+   _armBgmGestureRetry();
+  }
  }
 }
 
@@ -174,6 +211,5 @@ window.setAudioVolume=function(channel, value){
 window.initAudioUi=function(){
  _loadAudioState();
  _updateAudioUi();
- _syncArenaBgm();
 };
 
