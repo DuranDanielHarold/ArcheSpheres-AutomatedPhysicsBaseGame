@@ -709,8 +709,8 @@ def t_rods(f=440, dur=1.2):
 def proj_throw(kind, f=1.0):
     if kind == 'arrow':
         b = Buf(.2)
-        b.add(pluck(300, .2, .985, .9), 0, .7)
-        b.add(filt_sweep(noise(.14), 2000, 6000, 'high') * ex(.14, .06), .01, .4)
+        b.add(pluck(210, .2, .985, .55), 0, .7)
+        b.add(filt_sweep(noise(.14), 3500, 900, 'low') * ex(.14, .06), .01, .2)
     elif kind == 'zip':
         b = Buf(.18)
         b.add(osc('sine', fq(600, 1900, .12), .12) * env_ar(.12, .5, 1.3), 0, .5)
