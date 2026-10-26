@@ -10,11 +10,11 @@ per-file metadata. No third-party samples are used.
 audio/
   manifest.json
   arena/bgm.wav
-  <class-key>/weaponCollision.wav
-  <class-key>/damage.wav
-  <class-key>/ability.wav
-  <ranged-key>/projectileThrow.wav
-  <ranged-key>/projectileHit.wav
+  <class-key>/weaponCollision.wav   weapon-versus-weapon clash
+  <class-key>/damage.wav            sphere taking damage
+  <class-key>/ability.wav           class ability activation
+  <ranged-key>/projectileThrow.wav  ranged projectile launch
+  <ranged-key>/projectileHit.wav    projectile damage hit
 ```
 
 The class keys and available slots are defined by `audio/manifest.json`. The
@@ -23,12 +23,14 @@ The class keys and available slots are defined by `audio/manifest.json`. The
 
 ## Add or replace audio
 
-- To replace a sound, overwrite the corresponding WAV while keeping its manifest path.
+- To replace a sound, overwrite the corresponding WAV while keeping its manifest path; no code change is needed if the path stays the same.
+- You may use your own recording in place of a generated sound, provided you have permission to use, modify, and distribute it and retain the supported WAV format.
 - To add or remove a class slot, update the manifest and regenerate the affected assets.
 - Run `python tools/audio/apply_sphere_audio.py` to synchronize class/config path blocks.
 - Run `python tools/audio/check_paths.py` to verify every manifest path exists and the
   class/config registrations match.
 - Keep files as mono 16-bit PCM WAV at 44.1 kHz.
+- The audio assets are covered by the repository's MIT license.
 
 ## Regeneration and verification
 
