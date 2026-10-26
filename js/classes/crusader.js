@@ -12,7 +12,7 @@ STACK_THRESHOLD.crusader = 3;
 STACK_DISPLAY_THRESHOLD.crusader = 3;
 SPHERE_AUDIO.crusader = {
   "weaponCollision": "audio/crusader/weaponCollision.wav",
-  "damage": "",
-  "ability": ""
+  "damage": "audio/crusader/damage.wav",
+  "ability": "audio/crusader/ability.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

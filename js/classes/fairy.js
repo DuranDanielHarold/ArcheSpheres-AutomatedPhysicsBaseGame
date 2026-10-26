@@ -11,8 +11,10 @@ CLASS_DESC.fairy = {
 STACK_THRESHOLD.fairy = 4;
 STACK_DISPLAY_THRESHOLD.fairy = 4;
 SPHERE_AUDIO.fairy = {
-  "weaponCollision": "",
-  "damage": "",
-  "ability": ""
+  "weaponCollision": "audio/fairy/weaponCollision.wav",
+  "damage": "audio/fairy/damage.wav",
+  "ability": "audio/fairy/ability.wav",
+  "projectileThrow": "audio/fairy/projectileThrow.wav",
+  "projectileHit": "audio/fairy/projectileHit.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

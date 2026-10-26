@@ -10,7 +10,7 @@ CLASS_DESC.berserker = {
 };
 SPHERE_AUDIO.berserker = {
   "weaponCollision": "audio/berserker/weaponCollision.wav",
-  "damage": "",
-  "ability": ""
+  "damage": "audio/berserker/damage.wav",
+  "ability": "audio/berserker/ability.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

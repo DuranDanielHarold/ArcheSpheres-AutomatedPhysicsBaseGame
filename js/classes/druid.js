@@ -11,7 +11,7 @@ STACK_THRESHOLD.druid = 3;
 STACK_DISPLAY_THRESHOLD.druid = 3;
 SPHERE_AUDIO.druid = {
   "weaponCollision": "audio/druid/weaponCollision.wav",
-  "damage": "",
-  "ability": ""
+  "damage": "audio/druid/damage.wav",
+  "ability": "audio/druid/ability.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.
