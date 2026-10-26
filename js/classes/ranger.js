@@ -11,7 +11,9 @@ STACK_THRESHOLD.ranger = 4;
 STACK_DISPLAY_THRESHOLD.ranger = 4;
 SPHERE_AUDIO.ranger = {
   "weaponCollision": "audio/ranger/weaponCollision.wav",
-  "damage": "",
-  "ability": ""
+  "damage": "audio/ranger/damage.wav",
+  "ability": "audio/ranger/ability.wav",
+  "projectileThrow": "audio/ranger/projectileThrow.wav",
+  "projectileHit": "audio/ranger/projectileHit.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

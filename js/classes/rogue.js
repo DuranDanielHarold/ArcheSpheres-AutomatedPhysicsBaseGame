@@ -11,7 +11,7 @@ STACK_THRESHOLD.rogue = 3;
 STACK_DISPLAY_THRESHOLD.rogue = 3;
 SPHERE_AUDIO.rogue = {
   "weaponCollision": "audio/rogue/weaponCollision.wav",
-  "damage": "",
-  "ability": ""
+  "damage": "audio/rogue/damage.wav",
+  "ability": "audio/rogue/ability.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

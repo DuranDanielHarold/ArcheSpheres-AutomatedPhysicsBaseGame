@@ -10,8 +10,10 @@ CLASS_DESC.witch = {
 STACK_THRESHOLD.witch = 3;
 STACK_DISPLAY_THRESHOLD.witch = 3;
 SPHERE_AUDIO.witch = {
-  "weaponCollision": "",
-  "damage": "",
-  "ability": ""
+  "weaponCollision": "audio/witch/weaponCollision.wav",
+  "damage": "audio/witch/damage.wav",
+  "ability": "audio/witch/ability.wav",
+  "projectileThrow": "audio/witch/projectileThrow.wav",
+  "projectileHit": "audio/witch/projectileHit.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

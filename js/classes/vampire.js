@@ -11,7 +11,7 @@ STACK_THRESHOLD.vampire = 6;
 STACK_DISPLAY_THRESHOLD.vampire = 6;
 SPHERE_AUDIO.vampire = {
   "weaponCollision": "audio/vampire/weaponCollision.wav",
-  "damage": "",
-  "ability": ""
+  "damage": "audio/vampire/damage.wav",
+  "ability": "audio/vampire/ability.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

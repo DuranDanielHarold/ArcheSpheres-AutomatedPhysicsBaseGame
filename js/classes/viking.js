@@ -11,7 +11,7 @@ STACK_THRESHOLD.viking = 4;
 STACK_DISPLAY_THRESHOLD.viking = 4;
 SPHERE_AUDIO.viking = {
   "weaponCollision": "audio/viking/weaponCollision.wav",
-  "damage": "",
-  "ability": ""
+  "damage": "audio/viking/damage.wav",
+  "ability": "audio/viking/ability.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

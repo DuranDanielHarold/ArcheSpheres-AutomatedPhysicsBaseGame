@@ -11,7 +11,7 @@ STACK_THRESHOLD.stormbringer = 3;
 STACK_DISPLAY_THRESHOLD.stormbringer = 3;
 SPHERE_AUDIO.stormbringer = {
   "weaponCollision": "audio/stormbringer/weaponCollision.wav",
-  "damage": "",
-  "ability": ""
+  "damage": "audio/stormbringer/damage.wav",
+  "ability": "audio/stormbringer/ability.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

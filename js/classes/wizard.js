@@ -11,8 +11,8 @@ STACK_THRESHOLD.wizard = 4;
 STACK_DISPLAY_THRESHOLD.wizard = 4;
 SPHERE_AUDIO.wizard = {
   "weaponCollision": "audio/wizard/weaponCollision.wav",
-  "damage": "",
-  "ability": "",
+  "damage": "audio/wizard/damage.wav",
+  "ability": "audio/wizard/ability.wav",
   "projectileThrow": "audio/wizard/projectileThrow.wav",
   "projectileHit": "audio/wizard/projectileHit.wav"
 };

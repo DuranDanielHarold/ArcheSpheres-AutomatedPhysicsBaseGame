@@ -10,7 +10,7 @@ CLASS_DESC.pirate = {
 STACK_DISPLAY_THRESHOLD.pirate = 3;
 SPHERE_AUDIO.pirate = {
   "weaponCollision": "audio/pirate/weaponCollision.wav",
-  "damage": "",
-  "ability": ""
+  "damage": "audio/pirate/damage.wav",
+  "ability": "audio/pirate/ability.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

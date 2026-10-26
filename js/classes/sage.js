@@ -10,8 +10,10 @@ CLASS_DESC.sage = {
 STACK_THRESHOLD.sage = 3;
 STACK_DISPLAY_THRESHOLD.sage = 3;
 SPHERE_AUDIO.sage = {
-  "weaponCollision": "",
-  "damage": "",
-  "ability": ""
+  "weaponCollision": "audio/sage/weaponCollision.wav",
+  "damage": "audio/sage/damage.wav",
+  "ability": "audio/sage/ability.wav",
+  "projectileThrow": "audio/sage/projectileThrow.wav",
+  "projectileHit": "audio/sage/projectileHit.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

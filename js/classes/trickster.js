@@ -11,7 +11,7 @@ STACK_THRESHOLD.trickster = 2;
 STACK_DISPLAY_THRESHOLD.trickster = 2;
 SPHERE_AUDIO.trickster = {
   "weaponCollision": "audio/trickster/weaponCollision.wav",
-  "damage": "",
-  "ability": ""
+  "damage": "audio/trickster/damage.wav",
+  "ability": "audio/trickster/ability.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

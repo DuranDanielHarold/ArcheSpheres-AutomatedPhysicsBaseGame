@@ -11,7 +11,9 @@ STACK_THRESHOLD.sheriff = 2;
 STACK_DISPLAY_THRESHOLD.sheriff = 2;
 SPHERE_AUDIO.sheriff = {
   "weaponCollision": "audio/sheriff/weaponCollision.wav",
-  "damage": "",
-  "ability": ""
+  "damage": "audio/sheriff/damage.wav",
+  "ability": "audio/sheriff/ability.wav",
+  "projectileThrow": "audio/sheriff/projectileThrow.wav",
+  "projectileHit": "audio/sheriff/projectileHit.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

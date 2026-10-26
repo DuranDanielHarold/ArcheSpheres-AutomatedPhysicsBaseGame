@@ -11,7 +11,7 @@ STACK_THRESHOLD.plague = 3;
 STACK_DISPLAY_THRESHOLD.plague = 3;
 SPHERE_AUDIO.plague = {
   "weaponCollision": "audio/plague/weaponCollision.wav",
-  "damage": "",
-  "ability": ""
+  "damage": "audio/plague/damage.wav",
+  "ability": "audio/plague/ability.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

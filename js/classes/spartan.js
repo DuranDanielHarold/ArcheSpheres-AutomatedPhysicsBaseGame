@@ -10,8 +10,8 @@ CLASS_DESC.spartan = {
 STACK_THRESHOLD.spartan = 3;
 STACK_DISPLAY_THRESHOLD.spartan = 3;
 SPHERE_AUDIO.spartan = {
-  "weaponCollision": "",
-  "damage": "",
-  "ability": ""
+  "weaponCollision": "audio/spartan/weaponCollision.wav",
+  "damage": "audio/spartan/damage.wav",
+  "ability": "audio/spartan/ability.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.
