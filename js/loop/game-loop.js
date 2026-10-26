@@ -3,18 +3,12 @@
 // Main animation loop and winner/rematch overlay flow.
 
 function gameStep(dt){
- for(const s of spheres){
-  const projectileCount=projectiles.length;
-  s.update(dt);
-  if(!window._balanceNoVisuals&&projectiles.length>projectileCount&&s._audioProjectileThrowCooldown<=0){
-   _playSphereAudio(s.key,'projectileThrow');s._audioProjectileThrowCooldown=0.14;
-  }
- }
+ for(const s of spheres)s.update(dt);
  for(const p of projectiles){
   if(!window._balanceNoVisuals&&!p._sfxSeen){
    p._sfxSeen=true;
    if(p.owner instanceof Sphere&&typeof p.owner._throwSfxCD==='number'&&p.owner._throwSfxCD<=0&&SPHERE_AUDIO[p.owner.key]?.projectileThrow){
-    _playSphereAudio(p.owner.key,'projectileThrow');p.owner._throwSfxCD=0.14;
+    _playSphereAudio(p.owner.key,'projectileThrow');p.owner._throwSfxCD=(AUDIO_THROW_MIN_INTERVAL[p.owner.key]??AUDIO_THROW_MIN_INTERVAL.default);
    }
   }
   if(window._liveCombatTracker&&p.owner&&!p._liveProjectileTracked){
