@@ -144,7 +144,12 @@ function _resumeAudioContext(){
  if(_audioContext.state==='suspended'||_audioContext.state==='interrupted'){
   try{
    const attempt=_audioContext.resume();
-   if(attempt&&typeof attempt.catch==='function')attempt.catch(error=>{
+   if(attempt&&typeof attempt.then==='function')attempt.then(()=>{
+    if(!window._balanceNoVisuals&&_audioContext&&_audioContext.state==='running'){
+     _applyAudioGains();
+     if(typeof _syncArenaBgm==='function')_syncArenaBgm();
+    }
+   }).catch(error=>{
     if(window._audioDebug===true)console.warn('[Audio] AudioContext resume rejected.',error);
    });
   }catch(error){if(window._audioDebug===true)console.warn('[Audio] AudioContext resume failed.',error);}
@@ -448,7 +453,7 @@ function _syncArenaBgm(forceRestart=false){
  if(_audioWebBackend){
   _ensureAudioGraph();
   _applyAudioGains();
-  if(forceRestart)_webBgmOffset=0;
+  if(forceRestart){_pauseWebBgm(true);_webBgmOffset=0;}
   if(shouldPause){_pauseWebBgm(false);return;}
   const existing=_audioBuffers.get(path);
   if(existing instanceof AudioBuffer){
