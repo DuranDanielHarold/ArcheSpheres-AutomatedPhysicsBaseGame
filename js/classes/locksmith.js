@@ -11,8 +11,8 @@ CLASS_DESC.locksmith = {
 STACK_THRESHOLD.locksmith = 3;
 STACK_DISPLAY_THRESHOLD.locksmith = 3;
 SPHERE_AUDIO.locksmith = {
-  "weaponCollision": "",
-  "damage": "",
-  "ability": ""
+  "weaponCollision": "audio/locksmith/weaponCollision.wav",
+  "damage": "audio/locksmith/damage.wav",
+  "ability": "audio/locksmith/ability.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

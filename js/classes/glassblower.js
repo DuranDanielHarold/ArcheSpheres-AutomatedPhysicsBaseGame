@@ -10,8 +10,8 @@ CLASS_DESC.glassblower = {
 STACK_THRESHOLD.glassblower = 4;
 STACK_DISPLAY_THRESHOLD.glassblower = 4;
 SPHERE_AUDIO.glassblower = {
-  "weaponCollision": "",
-  "damage": "",
-  "ability": ""
+  "weaponCollision": "audio/glassblower/weaponCollision.wav",
+  "damage": "audio/glassblower/damage.wav",
+  "ability": "audio/glassblower/ability.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

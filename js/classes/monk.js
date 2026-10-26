@@ -10,7 +10,7 @@ CLASS_DESC.monk = {
 STACK_DISPLAY_THRESHOLD.monk = 3;
 SPHERE_AUDIO.monk = {
   "weaponCollision": "audio/monk/weaponCollision.wav",
-  "damage": "",
-  "ability": ""
+  "damage": "audio/monk/damage.wav",
+  "ability": "audio/monk/ability.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

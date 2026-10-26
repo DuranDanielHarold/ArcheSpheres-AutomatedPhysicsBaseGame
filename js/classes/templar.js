@@ -11,7 +11,7 @@ STACK_THRESHOLD.templar = 3;
 STACK_DISPLAY_THRESHOLD.templar = 3;
 SPHERE_AUDIO.templar = {
   "weaponCollision": "audio/templar/weaponCollision.wav",
-  "damage": "",
-  "ability": ""
+  "damage": "audio/templar/damage.wav",
+  "ability": "audio/templar/ability.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

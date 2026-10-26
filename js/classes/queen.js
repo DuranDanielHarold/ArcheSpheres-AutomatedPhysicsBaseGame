@@ -10,8 +10,8 @@ CLASS_DESC.queen = {
 STACK_THRESHOLD.queen = 4;
 STACK_DISPLAY_THRESHOLD.queen = 4;
 SPHERE_AUDIO.queen = {
-  "weaponCollision": "",
-  "damage": "",
-  "ability": ""
+  "weaponCollision": "audio/queen/weaponCollision.wav",
+  "damage": "audio/queen/damage.wav",
+  "ability": "audio/queen/ability.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

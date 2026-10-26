@@ -10,7 +10,7 @@ CLASS_DESC.inquisitor = {
 STACK_DISPLAY_THRESHOLD.inquisitor = 4;
 SPHERE_AUDIO.inquisitor = {
   "weaponCollision": "audio/inquisitor/weaponCollision.wav",
-  "damage": "",
-  "ability": ""
+  "damage": "audio/inquisitor/damage.wav",
+  "ability": "audio/inquisitor/ability.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

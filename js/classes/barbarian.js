@@ -11,7 +11,7 @@ STACK_THRESHOLD.barbarian = 3;
 STACK_DISPLAY_THRESHOLD.barbarian = 3;
 SPHERE_AUDIO.barbarian = {
   "weaponCollision": "audio/barbarian/weaponCollision.wav",
-  "damage": "",
-  "ability": ""
+  "damage": "audio/barbarian/damage.wav",
+  "ability": "audio/barbarian/ability.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

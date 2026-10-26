@@ -11,8 +11,8 @@ CLASS_DESC.flagellant = {
 STACK_THRESHOLD.flagellant = 3;
 STACK_DISPLAY_THRESHOLD.flagellant = 3;
 SPHERE_AUDIO.flagellant = {
-  "weaponCollision": "",
-  "damage": "",
-  "ability": ""
+  "weaponCollision": "audio/flagellant/weaponCollision.wav",
+  "damage": "audio/flagellant/damage.wav",
+  "ability": "audio/flagellant/ability.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

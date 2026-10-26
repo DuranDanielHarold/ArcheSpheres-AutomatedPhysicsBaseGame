@@ -10,8 +10,8 @@ CLASS_DESC.gravedigger = {
 STACK_THRESHOLD.gravedigger = 4;
 STACK_DISPLAY_THRESHOLD.gravedigger = 4;
 SPHERE_AUDIO.gravedigger = {
-  "weaponCollision": "",
-  "damage": "",
-  "ability": ""
+  "weaponCollision": "audio/gravedigger/weaponCollision.wav",
+  "damage": "audio/gravedigger/damage.wav",
+  "ability": "audio/gravedigger/ability.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

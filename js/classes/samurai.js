@@ -11,7 +11,7 @@ STACK_THRESHOLD.samurai = 3;
 STACK_DISPLAY_THRESHOLD.samurai = 3;
 SPHERE_AUDIO.samurai = {
   "weaponCollision": "audio/samurai/weaponCollision.wav",
-  "damage": "",
-  "ability": ""
+  "damage": "audio/samurai/damage.wav",
+  "ability": "audio/samurai/ability.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

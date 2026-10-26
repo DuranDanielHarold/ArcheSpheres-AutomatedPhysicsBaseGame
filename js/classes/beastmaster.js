@@ -11,8 +11,8 @@ CLASS_DESC.beastmaster = {
 STACK_THRESHOLD.beastmaster = 4;
 STACK_DISPLAY_THRESHOLD.beastmaster = 4;
 SPHERE_AUDIO.beastmaster = {
-  "weaponCollision": "",
-  "damage": "",
-  "ability": ""
+  "weaponCollision": "audio/beastmaster/weaponCollision.wav",
+  "damage": "audio/beastmaster/damage.wav",
+  "ability": "audio/beastmaster/ability.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

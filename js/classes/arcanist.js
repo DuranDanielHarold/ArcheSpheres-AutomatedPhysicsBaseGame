@@ -10,8 +10,10 @@ CLASS_DESC.arcanist = {
 STACK_THRESHOLD.arcanist = 3;
 STACK_DISPLAY_THRESHOLD.arcanist = 3;
 SPHERE_AUDIO.arcanist = {
-  "weaponCollision": "",
-  "damage": "",
-  "ability": ""
+  "weaponCollision": "audio/arcanist/weaponCollision.wav",
+  "damage": "audio/arcanist/damage.wav",
+  "ability": "audio/arcanist/ability.wav",
+  "projectileThrow": "audio/arcanist/projectileThrow.wav",
+  "projectileHit": "audio/arcanist/projectileHit.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

@@ -3,7 +3,7 @@
 // Sphere and arena audio path and volume configuration.
 
 const ARENA_AUDIO = {
-  bgm: '', // add audio file path here, example: 'audio/arena/bgm.wav'
+  bgm: 'audio/arena/bgm.wav', // add audio file path here, example: 'audio/arena/bgm.wav'
 };
 
 const AUDIO_SETTINGS_DEFAULTS = {

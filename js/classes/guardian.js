@@ -10,7 +10,7 @@ CLASS_DESC.guardian = {
 STACK_DISPLAY_THRESHOLD.guardian = 2;
 SPHERE_AUDIO.guardian = {
   "weaponCollision": "audio/guardian/weaponCollision.wav",
-  "damage": "",
-  "ability": ""
+  "damage": "audio/guardian/damage.wav",
+  "ability": "audio/guardian/ability.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

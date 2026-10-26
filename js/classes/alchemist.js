@@ -11,7 +11,9 @@ STACK_THRESHOLD.alchemist = 3;
 STACK_DISPLAY_THRESHOLD.alchemist = 3;
 SPHERE_AUDIO.alchemist = {
   "weaponCollision": "audio/alchemist/weaponCollision.wav",
-  "damage": "",
-  "ability": ""
+  "damage": "audio/alchemist/damage.wav",
+  "ability": "audio/alchemist/ability.wav",
+  "projectileThrow": "audio/alchemist/projectileThrow.wav",
+  "projectileHit": "audio/alchemist/projectileHit.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

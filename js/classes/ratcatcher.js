@@ -10,8 +10,8 @@ CLASS_DESC.ratcatcher = {
 STACK_THRESHOLD.ratcatcher = 3;
 STACK_DISPLAY_THRESHOLD.ratcatcher = 3;
 SPHERE_AUDIO.ratcatcher = {
-  "weaponCollision": "",
-  "damage": "",
-  "ability": ""
+  "weaponCollision": "audio/ratcatcher/weaponCollision.wav",
+  "damage": "audio/ratcatcher/damage.wav",
+  "ability": "audio/ratcatcher/ability.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

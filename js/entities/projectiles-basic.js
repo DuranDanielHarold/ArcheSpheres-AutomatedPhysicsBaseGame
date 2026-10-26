@@ -538,7 +538,7 @@ class FlameBolt{
    let finalDmg=this.dmg;
    if(s.electrifiedT>0)finalDmg=Math.max(0,finalDmg-1);
    s.receiveMagicDamage(finalDmg); // magic damage — uses magDef not arm
-   if(this.owner&&this.owner.key==='wizard')_playSphereAudio(this.owner.key,'projectileHit');
+
    this.owner.gainStack();
    this.owner._applyHitBuff();
    if(this.rodType===null||this.rodType===undefined)spawnFlameExplosion(this.x,this.y);
@@ -554,7 +554,7 @@ class FlameBolt{
    const nx=(sk.x-this.x)/Math.hypot(sk.x-this.x,sk.y-this.y)||1;
    const ny=(sk.y-this.y)/Math.hypot(sk.x-this.x,sk.y-this.y)||0;
    sk.applyImpact(nx*100,ny*100);
-   if(this.owner&&this.owner.key==='wizard')_playSphereAudio(this.owner.key,'projectileHit');
+
    spawnDmgNum(sk.x,sk.y-sk.radius*0.5,dmg,dmg>=8?'#ff4444':'#ffffff');
    spawnFlameExplosion(this.x,this.y);
    if(sk.hp<=0){sk.alive=false;spawnToxicCloud(sk.x,sk.y);spawnBurst(sk.x,sk.y,'#7c4dff','#c8c0a0',14);}

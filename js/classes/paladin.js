@@ -10,7 +10,7 @@ CLASS_DESC.paladin = {
 };
 SPHERE_AUDIO.paladin = {
   "weaponCollision": "audio/paladin/weaponCollision.wav",
-  "damage": "",
-  "ability": ""
+  "damage": "audio/paladin/damage.wav",
+  "ability": "audio/paladin/ability.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

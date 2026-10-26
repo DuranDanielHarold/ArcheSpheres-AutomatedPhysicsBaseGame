@@ -56,8 +56,6 @@ function newBattle(){
  document.getElementById('pbtn').textContent='PAUSE';
  spheres=[];particles=[];projectiles=[];afterimages=[];noiseTraps=[];slowZones=[];thornPatches=[];skeletons=[];dmgNums=[];bloodSplats=[];miasmaClouds=[];
  if(typeof _burialMoundSeq!=='undefined')_burialMoundSeq=0;
- if(typeof _preloadConfiguredAudio==='function')_preloadConfiguredAudio();
- if(typeof _syncArenaBgm==='function')_syncArenaBgm();
  resize();
  function dvdVel(key){
   let a=Math.random()*Math.PI*2;
@@ -67,6 +65,8 @@ function newBattle(){
  }
  document.getElementById('stats').style.display='grid';
  const slots=getBattleSlots(gameMode),picked=slots.map(slot=>({slot,key:(document.getElementById(`sel-${slot.id}`)||{}).value||Object.keys(DEF)[slot.id%Object.keys(DEF).length]}));
+ if(typeof _preloadConfiguredAudio==='function')_preloadConfiguredAudio(picked.map(p=>p.key));
+ if(typeof _syncArenaBgm==='function')_syncArenaBgm();
  const red=picked.filter(p=>p.slot.faction===0),blue=picked.filter(p=>p.slot.faction===1);
  if(gameMode==='1v1'||gameMode==='testing')window._liveCombatTracker=window.CombatTracker?new window.CombatTracker(red[0].key,blue[0].key):null;
  else window._liveCombatTracker=null; // TODO: 2v2 needs per-sphere or per-faction tracking; CombatTracker currently keys by exact class.
@@ -85,7 +85,7 @@ function newBattle(){
 }
 
 
-function togglePause(){if(window._testingDiagnosticRunning)return;paused=!paused;document.getElementById('pbtn').textContent=paused?'RESUME':'PAUSE';if(!paused)lastTime=performance.now();}
+function togglePause(){if(window._testingDiagnosticRunning)return;paused=!paused;document.getElementById('pbtn').textContent=paused?'RESUME':'PAUSE';if(!paused)lastTime=performance.now();if(typeof _syncArenaBgm==='function')_syncArenaBgm();}
 
 function resize(){
  if(window._arenaSizeLocked)return;

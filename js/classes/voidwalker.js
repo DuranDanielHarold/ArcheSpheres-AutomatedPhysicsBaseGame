@@ -11,7 +11,7 @@ STACK_THRESHOLD.voidwalker = 3;
 STACK_DISPLAY_THRESHOLD.voidwalker = 3;
 SPHERE_AUDIO.voidwalker = {
   "weaponCollision": "audio/voidwalker/weaponCollision.wav",
-  "damage": "",
-  "ability": ""
+  "damage": "audio/voidwalker/damage.wav",
+  "ability": "audio/voidwalker/ability.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

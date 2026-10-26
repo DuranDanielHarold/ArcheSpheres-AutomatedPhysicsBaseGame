@@ -10,7 +10,7 @@ CLASS_DESC.phoenix = {
 STACK_DISPLAY_THRESHOLD.phoenix = 3;
 SPHERE_AUDIO.phoenix = {
   "weaponCollision": "audio/phoenix/weaponCollision.wav",
-  "damage": "",
-  "ability": ""
+  "damage": "audio/phoenix/damage.wav",
+  "ability": "audio/phoenix/ability.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

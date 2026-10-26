@@ -11,7 +11,7 @@ STACK_THRESHOLD.whelpling = 3;
 STACK_DISPLAY_THRESHOLD.whelpling = 3;
 SPHERE_AUDIO.whelpling = {
   "weaponCollision": "audio/whelpling/weaponCollision.wav",
-  "damage": "",
-  "ability": ""
+  "damage": "audio/whelpling/damage.wav",
+  "ability": "audio/whelpling/ability.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

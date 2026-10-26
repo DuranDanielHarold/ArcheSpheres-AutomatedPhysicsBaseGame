@@ -12,7 +12,7 @@ STACK_THRESHOLD.dragoon = 3;
 STACK_DISPLAY_THRESHOLD.dragoon = 3;
 SPHERE_AUDIO.dragoon = {
   "weaponCollision": "audio/dragoon/weaponCollision.wav",
-  "damage": "",
-  "ability": ""
+  "damage": "audio/dragoon/damage.wav",
+  "ability": "audio/dragoon/ability.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

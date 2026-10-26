@@ -11,7 +11,9 @@ STACK_THRESHOLD.tidecaller = 3;
 STACK_DISPLAY_THRESHOLD.tidecaller = 3;
 SPHERE_AUDIO.tidecaller = {
   "weaponCollision": "audio/tidecaller/weaponCollision.wav",
-  "damage": "",
-  "ability": ""
+  "damage": "audio/tidecaller/damage.wav",
+  "ability": "audio/tidecaller/ability.wav",
+  "projectileThrow": "audio/tidecaller/projectileThrow.wav",
+  "projectileHit": "audio/tidecaller/projectileHit.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.

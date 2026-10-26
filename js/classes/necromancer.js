@@ -12,7 +12,9 @@ STACK_THRESHOLD.necromancer = 3;
 STACK_DISPLAY_THRESHOLD.necromancer = 3;
 SPHERE_AUDIO.necromancer = {
   "weaponCollision": "audio/necromancer/weaponCollision.wav",
-  "damage": "",
-  "ability": ""
+  "damage": "audio/necromancer/damage.wav",
+  "ability": "audio/necromancer/ability.wav",
+  "projectileThrow": "audio/necromancer/projectileThrow.wav",
+  "projectileHit": "audio/necromancer/projectileHit.wav"
 };
 // Class-specific constructor, ability, passive, hit, damage, and overlay handlers live in this registry file when extracted from core Sphere/combat machinery.
