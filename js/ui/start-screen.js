@@ -27,6 +27,7 @@ function getSphereIcon(key,size=44){
  return _sphereIconCache[k];
 }
 function showStartScreen(){
+ if(typeof window.stopArenaBgm==='function')window.stopArenaBgm();
  injectPickerStyles();
  document.getElementById('mode-row').style.display='none';
  document.getElementById('sel-row').style.display='none';

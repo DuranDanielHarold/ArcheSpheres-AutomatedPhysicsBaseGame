@@ -46,6 +46,7 @@ function _updateAudioUi(){
 }
 
 function _syncArenaBgm(forceRestart=false){
+ if(window._balanceNoVisuals)return;
  const path=ARENA_AUDIO?.bgm;
  if(!path){
   if(_bgmAudio){_bgmAudio.pause();_bgmAudio=null;}
@@ -59,7 +60,7 @@ function _syncArenaBgm(forceRestart=false){
   _bgmAudio.load();
  }
  _bgmAudio.volume=_resolveAudioVolume('arena','bgm','bgm');
- if(_audioState.muted||_bgmAudio.volume<=0){
+ if(paused||document.hidden||_audioState.muted||_bgmAudio.volume<=0){
   _bgmAudio.pause();
   return;
  }
@@ -73,7 +74,9 @@ function _syncArenaBgm(forceRestart=false){
 }
 
 function _primeAudioPath(path, poolSize=1){
+ if(window._balanceNoVisuals)return;
  if(!path)return;
+ poolSize=Math.min(4,Math.max(0,poolSize));
  let pool=_audioPoolCache.get(path);
  if(!pool){
   pool=[];
@@ -87,31 +90,38 @@ function _primeAudioPath(path, poolSize=1){
  }
 }
 
-function _preloadConfiguredAudio(){
+function _preloadConfiguredAudio(keys=[]){
+ if(window._balanceNoVisuals)return;
  if(typeof SPHERE_AUDIO==='undefined'||typeof ARENA_AUDIO==='undefined')return;
- for(const slots of Object.values(SPHERE_AUDIO)){
+ const selected=Array.isArray(keys)?keys:[];
+ for(const key of selected){
+  const slots=SPHERE_AUDIO[key];
   if(!slots)continue;
   for(const path of Object.values(slots))_primeAudioPath(path,2);
  }
- for(const path of Object.values(ARENA_AUDIO))_primeAudioPath(path,1);
+ if(ARENA_AUDIO.bgm)_primeAudioPath(ARENA_AUDIO.bgm,1);
 }
 
 function _playAudioPath(path, volume=0.65){
  if(window._balanceNoVisuals)return;
- if(!path)return;
- if(volume<=0)return;
+ if(!path||volume<=0)return;
+ let activeVoices=0;
+ for(const voices of _audioPoolCache.values())for(const voice of voices)if(!voice.paused&&!voice.ended)activeVoices++;
+ if(activeVoices>=16)return;
  let pool=_audioPoolCache.get(path);
  if(!pool){
   _primeAudioPath(path,2);
   pool=_audioPoolCache.get(path);
  }
+ if(!pool)return;
  let clip=pool.find(a=>a.paused||a.ended);
- if(!clip){
+ if(!clip&&pool.length<4){
   clip=new Audio(path);
   clip.preload='auto';
   clip.load();
   pool.push(clip);
  }
+ if(!clip)return;
  try{clip.currentTime=0;}catch(_err){}
  clip.volume=volume;
  const playAttempt=clip.play();
@@ -119,11 +129,28 @@ function _playAudioPath(path, volume=0.65){
 }
 
 function _playSphereAudio(key, slot, volume){
+ if(window._balanceNoVisuals)return;
  if(!SPHERE_AUDIO||!SPHERE_AUDIO[key])return;
  const path=SPHERE_AUDIO[key][slot];
  const finalVolume=typeof volume==='number'?volume:_resolveAudioVolume(key,slot,'sfx');
  _playAudioPath(path,finalVolume);
 }
+function _playSphereAudioScaled(key,slot,scale=1){
+ if(window._balanceNoVisuals)return;
+ if(!SPHERE_AUDIO||!SPHERE_AUDIO[key])return;
+ const path=SPHERE_AUDIO[key][slot];
+ const base=_resolveAudioVolume(key,slot,'sfx');
+ const finalVolume=Math.max(0,Math.min(1,base*(Number.isFinite(scale)?scale:0)));
+ _playAudioPath(path,finalVolume);
+}
+window.stopArenaBgm=function(){
+ if(_bgmAudio){_bgmAudio.pause();try{_bgmAudio.currentTime=0;}catch(_err){}}
+};
+document.addEventListener('visibilitychange',()=>{
+ if(window._balanceNoVisuals)return;
+ if(document.hidden){if(_bgmAudio)_bgmAudio.pause();}
+ else if(typeof _syncArenaBgm==='function')_syncArenaBgm();
+});
 
 window.toggleAudioMute=function(){
  _audioState.muted=!_audioState.muted;
