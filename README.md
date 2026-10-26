@@ -10,7 +10,7 @@ The project started as a single-file prototype and was later separated into modu
 - Large playable class roster with unique weapons, passives, and active abilities
 - HTML5 canvas rendering with custom sprite-like weapon drawing
 - Split-file architecture for data, entities, rendering, UI, and engine behavior
-- Per-sphere audio placeholders with live support for weapon clash and Wizard projectile audio
+- Per-class sound effects, projectile audio, and arena background music
 - No backend, no database, no account system, no analytics dependency
 
 ## Play Locally
@@ -138,24 +138,22 @@ Bootstraps canvas state, mutable game arrays, battle creation, mode controls, an
 
 ## Audio System
 
-Audio paths are configured in `js/data/audioConfig.js` under:
+Each class's `SPHERE_AUDIO` paths live in `js/classes/<key>.js`; arena music
+is configured as `ARENA_AUDIO.bgm` in `js/data/audioConfig.js`. Audio paths
+are relative to the repository root and are listed in `audio/manifest.json`.
 
-- `SPHERE_AUDIO`
-- `ARENA_AUDIO`
+Live audio slots:
 
-Current supported live hooks include:
+- `weaponCollision` — weapon clashes
+- `damage` — a sphere taking damage
+- `ability` — class ability activation
+- `projectileThrow` — ranged projectile launches
+- `projectileHit` — projectile damage hits
+- `ARENA_AUDIO.bgm` — arena background music
 
-- weapon clash audio
-- Wizard projectile throw audio
-- Wizard projectile hit audio
-
-Future audio categories already scaffolded in the data map include:
-
-- sphere damage audio
-- sphere ability audio
-- arena background music
-
-See [audio/README.md](audio/README.md) for folder guidance.
+See [audio/README.md](audio/README.md) for asset layout, format, regeneration,
+and verification instructions, and [tools/audio/](tools/audio/) for the
+generator and path-synchronization/checking scripts.
 
 ## Customization Workflow
 
