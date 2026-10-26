@@ -48,6 +48,8 @@ function _updateAudioUi(){
 function _syncArenaBgm(forceRestart=false){
  if(window._balanceNoVisuals)return;
  const path=ARENA_AUDIO?.bgm;
+ const startScreen=document.getElementById('start-screen');
+ if((startScreen&&startScreen.style.display!=='none')||gameMode==='testing'||window._testingDiagnosticRunning){if(_bgmAudio)_bgmAudio.pause();return;}
  if(!path){
   if(_bgmAudio){_bgmAudio.pause();_bgmAudio=null;}
   return;
@@ -60,7 +62,7 @@ function _syncArenaBgm(forceRestart=false){
   _bgmAudio.load();
  }
  _bgmAudio.volume=_resolveAudioVolume('arena','bgm','bgm');
- if(paused||document.hidden||_audioState.muted||_bgmAudio.volume<=0){
+ if(paused||document.hidden||gameMode==='testing'||window._testingDiagnosticRunning||_audioState.muted||_bgmAudio.volume<=0){
   _bgmAudio.pause();
   return;
  }
@@ -144,6 +146,7 @@ function _playSphereAudioScaled(key,slot,scale=1){
  _playAudioPath(path,finalVolume);
 }
 window.stopArenaBgm=function(){
+ if(window._balanceNoVisuals)return;
  if(_bgmAudio){_bgmAudio.pause();try{_bgmAudio.currentTime=0;}catch(_err){}}
 };
 document.addEventListener('visibilitychange',()=>{

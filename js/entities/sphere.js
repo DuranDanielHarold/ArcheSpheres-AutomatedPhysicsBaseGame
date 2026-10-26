@@ -827,6 +827,7 @@ class Sphere{
      const enD=(this._nearestEnemy()||{}).enemy;
      if(!enD){window._balanceCombatTracker?.onAbilityBlocked(this.key);window._liveCombatTracker?.onAbilityBlocked(this.key);break;}
      this.leapTargetX=enD.x;this.leapTargetY=enD.y;
+     if(!window._balanceNoVisuals)_playSphereAudio(this.key,'ability');
      this.isLeaping=true;this.untargetable=true;
      this.leapT=1.2;
      this.vx=0;this.vy=0;this.impactVx=0;this.impactVy=0;
@@ -1942,6 +1943,7 @@ class Sphere{
   projectiles.push(new SheriffBullet(tip.x,tip.y,wx*580,wy*580,(this.d.dmg+2)*this.dmgMult,this));
  }
  _firePiercingShot(target){
+  if(target&&!window._balanceNoVisuals)_playSphereAudio(this.key,'ability');
   if(target){
    const dx=target.x-this.x,dy=target.y-this.y;
    this.angle=Math.atan2(dy,dx);
@@ -2017,6 +2019,7 @@ class Sphere{
    return true;
   }
   _startVikingRageSpin(){
+   if(!window._balanceNoVisuals)_playSphereAudio(this.key,'ability');
    this.vikingRageSpinActive=true;this.vikingRageSpinT=6.0;
    this.dmgMult=1.6;
    this.omegaCur=(this.d.om+4.0)*Math.sign(this.omegaCur||1);
