@@ -236,4 +236,5 @@ function drawBg(){
  for(let y=0;y<H;y+=tile){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
  ctx.setLineDash([5,7]);ctx.strokeStyle='rgba(55,120,145,.28)';ctx.lineWidth=1.5;
  ctx.beginPath();ctx.moveTo(W/2,0);ctx.lineTo(W/2,H);ctx.stroke();ctx.setLineDash([]);
+ if(window.PixelArt&&PixelArt.enabled())PixelArt.drawGrid(ctx,W,H);
 }
