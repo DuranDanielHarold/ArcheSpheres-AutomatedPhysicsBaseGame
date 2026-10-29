@@ -32,6 +32,7 @@
   const p=px(),n=Math.ceil(r);for(let y=-n;y<=n;y++)for(let x=-n;x<=n;x++)if(x*x+y*y<=n*n&&((x+y)&1)===0&&(((x-y)%Math.max(2,Math.round(1/coverage)))===0))fillPx(ctx,cx+x*p,cy+y*p,color);
  }
  function makeSprite(rows,paletteMap){
+  if(!enabled())return null;
   const sig=JSON.stringify(paletteMap),key=rows.join('\n')+'|'+sig+'|'+px();if(spriteCache.has(key))return spriteCache.get(key);
   const p=px(),w=Math.max(...rows.map(r=>r.length)),canvas=document.createElement('canvas');canvas.width=w;canvas.height=rows.length;
   const c=canvas.getContext('2d');c.imageSmoothingEnabled=false;
@@ -39,6 +40,7 @@
   const sprite={canvas,scale:p,width:w,height:rows.length};spriteCache.set(key,sprite);return sprite;
  }
  function bakeRotations(sprite,steps=48,pivot){
+  if(!enabled()||!sprite)return [];
   const key=[sprite.canvas.width,sprite.canvas.height,sprite.scale,steps,pivot&&pivot.x,pivot&&pivot.y].join(':');if(rotationCache.has(key))return rotationCache.get(key);
   const frames=[],w=sprite.canvas.width,h=sprite.canvas.height,cx=pivot?pivot.x:w/2,cy=pivot?pivot.y:h/2,diag=Math.ceil(Math.hypot(w,h))+2;
   const source=document.createElement('canvas');source.width=w*4;source.height=h*4;const sc=source.getContext('2d');sc.imageSmoothingEnabled=false;sc.drawImage(sprite.canvas,0,0,w*4,h*4);
@@ -51,10 +53,11 @@
   rotationCache.set(key,frames);return frames;
  }
  function blit(ctx,frame,cx,cy){
-  if(!frame)return;const p=px(),w=frame.width*p,h=frame.height*p;ctx.save();ctx.imageSmoothingEnabled=false;
+  if(!enabled()||!frame)return;const p=px(),w=frame.width*p,h=frame.height*p;ctx.save();ctx.imageSmoothingEnabled=false;
   ctx.drawImage(frame.canvas,Math.round((cx-w/2)/p)*p,Math.round((cy-h/2)/p)*p,w,h);ctx.restore();
  }
  function drawBody(ctx,s){
+  if(!enabled())return;
   const p=px(),ar=artRadius(s),d=s.d,key=s.key+':'+ar+':'+[d.out,d.color,d.dark,d.rim].join(':');let sprite=bodyCache.get(key);
   if(!sprite){const n=ar*2+1,can=document.createElement('canvas');can.width=n;can.height=n;const c=can.getContext('2d');c.imageSmoothingEnabled=false;
    for(let y=-ar;y<=ar;y++)for(let x=-ar;x<=ar;x++){const dist=x*x+y*y;if(dist>ar*ar)continue;let col=d.color;if(dist>=(ar-1)*(ar-1))col=d.out;else if(y>0&&dist>=(ar*.57)*(ar*.57))col=d.dark;else if(x+y< -ar*.7)col=d.rim;if(x*x+y*y<=2)col='#ffffff';c.fillStyle=col;c.fillRect(x+ar,y+ar,1,1);}
