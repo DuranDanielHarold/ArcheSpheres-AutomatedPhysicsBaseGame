@@ -2318,7 +2318,8 @@ class Sphere{
   ctx.save();ctx.globalAlpha=baseAlpha;
   if(this.pulseWave){ctx.save();ctx.globalAlpha=baseAlpha*this.pulseWave.life*.45;ctx.beginPath();ctx.arc(this.x,this.y,this.pulseWave.r,0,Math.PI*2);ctx.strokeStyle=this.d.rim;ctx.lineWidth=5;ctx.stroke();ctx.restore();}
   ctx.save();ctx.translate(this.x,this.y);ctx.rotate(this.angle);
-  if(WEAPONS[this.d.wt])WEAPONS[this.d.wt](ctx,this.radius,this.d,this);
+  const pixelPilot=window.PixelArt&&PixelArt.enabled()&&PixelArt.isPilot(this.key);
+  if(!pixelPilot&&WEAPONS[this.d.wt])WEAPONS[this.d.wt](ctx,this.radius,this.d,this);
   if(window._debugSecondaryHitboxes&&!window._balanceNoVisuals&&!this.dying&&this.getSecondaryHitboxes().length){
    const r=this.radius;ctx.save();ctx.strokeStyle='#ff5ce1';ctx.lineWidth=2;ctx.setLineDash([4,3]);
    if(this.key==='crusader')ctx.strokeRect(-r*1.45-r*.49,-r*.715,r*.98,r*1.43);
@@ -2327,9 +2328,9 @@ class Sphere{
    ctx.setLineDash([]);ctx.restore();
   }
   ctx.restore();
-  this._drawBody();
+  if(pixelPilot){PixelArt.drawWeapon(ctx,this);PixelArt.drawBody(ctx,this);}else{this._drawBody();}
   this._drawPowerOverlay();
-  if(this.stacks>0&&!this.dying&&this.key!=='sheriff'){
+  if(this.stacks>0&&!this.dying&&this.key!=='sheriff'&&!pixelPilot){
    const total=getStackDisplayThreshold(this.key);
    const pip=4,gap=6;
    const startX=this.x-((total-1)*gap)/2;
@@ -2348,6 +2349,7 @@ class Sphere{
   if(!this.dying){this._drawHpBar();this._drawStatusEffectBadges();}
  }
  _drawPowerOverlay(){
+  if(window.PixelArt&&PixelArt.enabled()&&this.key==='knight'){PixelArt.drawPilotOverlay(ctx,this);return;}
   const r=this.radius,p=0.5+0.5*Math.sin(Date.now()*.016); // visual-only: safe under fast-forward
   if(this.invincible){
    ctx.shadowColor='#fff';ctx.shadowBlur=20;
@@ -2892,6 +2894,7 @@ class Sphere{
   }
  } // end _drawPowerOverlay
  _drawBody(){
+  if(window.PixelArt&&PixelArt.enabled()&&PixelArt.isPilot(this.key)){PixelArt.drawBody(ctx,this);return;}
   const d=this.d,r=this.radius,px=this.x,py=this.y;
   ctx.save();
   if(d.bodyAlpha!==undefined)ctx.globalAlpha=d.bodyAlpha;
