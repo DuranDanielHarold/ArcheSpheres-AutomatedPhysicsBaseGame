@@ -142,6 +142,22 @@ function updateParticles(dt){
  particles=particles.filter(p=>p.life>0);
 }
 function drawParticles(){
+ if(window.PixelArt&&PixelArt.enabled()){
+  const grid=PixelArt.px();
+  for(const p of particles){
+   ctx.save();
+   ctx.globalAlpha=Math.max(0,Math.min(1,Math.round(Math.max(0,p.life)*4)/4));
+   ctx.fillStyle=p.col;
+   const size=Math.max(1,Math.round(p.sz*p.life/grid));
+   const x=Math.round(p.x/grid)*grid,y=Math.round(p.y/grid)*grid;
+   if(p.bubble){
+    ctx.fillRect(x-grid,y-grid,grid,grid);ctx.fillRect(x+grid,y-grid,grid,grid);
+    ctx.fillRect(x-grid,y+grid,grid,grid);ctx.fillRect(x+grid,y+grid,grid,grid);
+   }else ctx.fillRect(x-Math.floor(size/2)*grid,y-Math.floor(size/2)*grid,size*grid,size*grid);
+   ctx.restore();
+  }
+  return;
+ }
  for(const p of particles){ctx.save();ctx.globalAlpha=Math.max(0,p.life*p.life);ctx.fillStyle=p.col;
   const sz=p.sz*p.life;
   if(p.sq){ctx.fillRect(p.x-sz/2,p.y-sz/2,sz,sz);
