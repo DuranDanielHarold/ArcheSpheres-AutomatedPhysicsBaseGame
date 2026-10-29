@@ -2318,7 +2318,7 @@ class Sphere{
   ctx.save();ctx.globalAlpha=baseAlpha;
   if(this.pulseWave){ctx.save();ctx.globalAlpha=baseAlpha*this.pulseWave.life*.45;ctx.beginPath();ctx.arc(this.x,this.y,this.pulseWave.r,0,Math.PI*2);ctx.strokeStyle=this.d.rim;ctx.lineWidth=5;ctx.stroke();ctx.restore();}
   ctx.save();ctx.translate(this.x,this.y);ctx.rotate(this.angle);
-  const pixelPilot=window.PixelArt&&PixelArt.enabled()&&PixelArt.isPilot(this.key);
+  const pixelPilot=window.PixelArt&&PixelArt.enabled()&&this.key==='knight';
   if(!pixelPilot&&WEAPONS[this.d.wt])WEAPONS[this.d.wt](ctx,this.radius,this.d,this);
   if(window._debugSecondaryHitboxes&&!window._balanceNoVisuals&&!this.dying&&this.getSecondaryHitboxes().length){
    const r=this.radius;ctx.save();ctx.strokeStyle='#ff5ce1';ctx.lineWidth=2;ctx.setLineDash([4,3]);
