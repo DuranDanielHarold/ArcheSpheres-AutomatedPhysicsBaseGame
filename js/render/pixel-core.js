@@ -29,7 +29,7 @@
   let i=0;for(const q of pts){if(!dash||Math.floor(i/Math.max(1,dash[0]))%Math.max(2,dash[0]+dash[1])<dash[0])fillPx(ctx,cx+q[0]*px(),cy+q[1]*px(),color);i++;}
  }
  function ditherDisc(ctx,cx,cy,r,color,coverage=.25){
-  const p=px(),n=Math.ceil(r);for(let y=-n;y<=n;y++)for(let x=-n;x<=n;x++)if(x*x+y*y<=n*n&&((x+y)&1)===0&&rand()<coverage)fillPx(ctx,cx+x*p,cy+y*p,color);
+  const p=px(),n=Math.ceil(r);for(let y=-n;y<=n;y++)for(let x=-n;x<=n;x++)if(x*x+y*y<=n*n&&((x+y)&1)===0&&(((x-y)%Math.max(2,Math.round(1/coverage)))===0))fillPx(ctx,cx+x*p,cy+y*p,color);
  }
  function makeSprite(rows,paletteMap){
   const sig=JSON.stringify(paletteMap),key=rows.join('\n')+'|'+sig+'|'+px();if(spriteCache.has(key))return spriteCache.get(key);
