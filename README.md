@@ -67,6 +67,12 @@ Defines shared physics constants, burn tick intervals, and `RANGED_KEYS`.
 `js/core/rrect.js`
 Defines the shared rounded-rectangle canvas helper used by weapons and entities.
 
+`js/render/pixel-core.js`
+Provides opt-in pixel-grid primitives, sprite and rotation caches, pixel body rendering, and the `?pixel=0` legacy opt-out. Pixel rendering is disabled during balance runs.
+
+`js/render/pixel-knight.js`
+Registers the Knight pilot broadsword pixel renderer with snapped rotation frames and cosmetic glints.
+
 `js/core/class-registry.js`
 Declares the classic-script class registries (`DEF`, `CLASS_ROLE`, `CLASS_DESC`, stack thresholds, sphere audio, and behavior hook maps) populated by `js/classes/<key>.js`.
 
