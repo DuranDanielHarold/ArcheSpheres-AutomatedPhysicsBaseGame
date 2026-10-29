@@ -15,7 +15,7 @@
   return value;
  }
  function rand(){seed^=seed<<13;seed^=seed>>>17;seed^=seed<<5;return (seed>>>0)/4294967296;}
- function enabled(){return window._pixelArt!==false&&!window._balanceNoVisuals;}
+ function enabled(){return window._pixelArt!==false&&!(window.location&&/[?&]pixel=0(?:&|$)/.test(window.location.search))&&!window._balanceNoVisuals;}
  function isPilot(key){return PIXEL_KEYS.has(key);}
  function artRadius(s){return Math.max(1,Math.round(s.radius/px()));}
  function fillPx(ctx,x,y,color){const p=px();ctx.fillStyle=color;ctx.fillRect(Math.round(x/p)*p,Math.round(y/p)*p,p,p);}
