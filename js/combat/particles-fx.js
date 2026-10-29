@@ -151,8 +151,9 @@ function drawParticles(){
    const size=Math.max(1,Math.round(p.sz*p.life/grid));
    const x=Math.round(p.x/grid)*grid,y=Math.round(p.y/grid)*grid;
    if(p.bubble){
-    ctx.fillRect(x-grid,y-grid,grid,grid);ctx.fillRect(x+grid,y-grid,grid,grid);
-    ctx.fillRect(x-grid,y+grid,grid,grid);ctx.fillRect(x+grid,y+grid,grid,grid);
+    ctx.fillRect(x-grid,y-grid,grid,grid);ctx.fillRect(x,y-grid,grid,grid);ctx.fillRect(x+grid,y-grid,grid,grid);
+    ctx.fillRect(x-grid,y,grid,grid);ctx.fillRect(x+grid,y,grid,grid);
+    ctx.fillRect(x-grid,y+grid,grid,grid);ctx.fillRect(x,y+grid,grid,grid);ctx.fillRect(x+grid,y+grid,grid,grid);
    }else ctx.fillRect(x-Math.floor(size/2)*grid,y-Math.floor(size/2)*grid,size*grid,size*grid);
    ctx.restore();
   }
