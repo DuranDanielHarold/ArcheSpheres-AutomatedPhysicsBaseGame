@@ -26,6 +26,9 @@
   // Optional per-run stacking overrides for controlled balance A/B tests.
   // false disables a cap; omitted values use the live game defaults (10 hit buffs / 3 Flagellant wound tiers).
   stackingCaps:null,
+  // Optional per-run overrides for isolating class-stat and class-mechanic hypotheses.
+  classStatOverrides:null,
+  classOverrides:null,
  };
 
  function mean(vals){const filtered=vals.filter(v=>v!==undefined&&v!==null&&!isNaN(v));return filtered.length?filtered.reduce((a,b)=>a+b,0)/filtered.length:0;}
@@ -402,8 +405,23 @@
   const deadline=performance.now()+options.minutes*60*1000,results=[],started=performance.now();let count=0;
   const originalRandom=Math.random,originalNoVisuals=window._balanceNoVisuals,originalSimulationDt=window._balanceSimulationDt;
   const originalStackingCaps=window._balanceStackingCaps;
+  const originalClassOverrides=window._balanceClassOverrides;
+  const originalClassStats={};
   const savedLiveTracker=window._liveCombatTracker,savedLiveAbilityKey=window._liveCurrentAbilityKey;
   window._balanceStackingCaps=options.stackingCaps&&typeof options.stackingCaps==='object'?Object.assign({},options.stackingCaps):null;
+  if(options.classStatOverrides&&typeof options.classStatOverrides==='object'){
+   const allowedStats=new Set(['hp','arm','magDef','dmg','om','spd','rest','reach','mass']);
+   for(const [key,stats] of Object.entries(options.classStatOverrides)){
+    if(!DEF[key]||!stats||typeof stats!=='object')continue;
+    for(const [field,value] of Object.entries(stats)){
+     if(!allowedStats.has(field)||typeof value!=='number'||!Number.isFinite(value))continue;
+     if(!originalClassStats[key])originalClassStats[key]={};
+     originalClassStats[key][field]=DEF[key][field];
+     DEF[key][field]=value;
+    }
+   }
+  }
+  window._balanceClassOverrides=options.classOverrides&&typeof options.classOverrides==='object'?Object.assign({},options.classOverrides):null;
   window._balanceSimulationDt=options.dt;
   window._liveCombatTracker=null;window._liveCurrentAbilityKey=null;
   const restoreBalanceTimeoutTracker=installBalanceTimeoutTracker();
@@ -441,7 +459,7 @@
      await new Promise(r=>setTimeout(r,0));
     }
    }
-  }finally{if(options.arenaSize)window._arenaSizeLocked=false;Math.random=originalRandom;window._balanceSimulationDt=originalSimulationDt;window._balanceStackingCaps=originalStackingCaps;window._liveCombatTracker=savedLiveTracker;window._liveCurrentAbilityKey=savedLiveAbilityKey;window._balanceNoVisuals=originalNoVisuals;window._balanceCombatTracker=null;window._balanceDamageSource=null;window._balanceCurrentAbilityKey=null;restoreCombatTrackerHooks();restoreBalanceTimeoutTracker();paused=false;}
+  }finally{if(options.arenaSize)window._arenaSizeLocked=false;for(const [key,stats] of Object.entries(originalClassStats))for(const [field,value] of Object.entries(stats))DEF[key][field]=value;Math.random=originalRandom;window._balanceSimulationDt=originalSimulationDt;window._balanceStackingCaps=originalStackingCaps;window._balanceClassOverrides=originalClassOverrides;window._liveCombatTracker=savedLiveTracker;window._liveCurrentAbilityKey=savedLiveAbilityKey;window._balanceNoVisuals=originalNoVisuals;window._balanceCombatTracker=null;window._balanceDamageSource=null;window._balanceCurrentAbilityKey=null;restoreCombatTrackerHooks();restoreBalanceTimeoutTracker();paused=false;}
   const report=buildReport(results,options,performance.now()-started,count===planned.length);
   window.lastBalanceReport=report;
   console.table(report.classes.slice(0,12));
