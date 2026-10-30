@@ -333,7 +333,9 @@ class Sphere{
  _flagellantApplyWounds(){
   if(this.key!=='flagellant')return;
   const lost=Math.max(0,this.maxHp-this.hp);
-  const tier=Math.floor(lost/15);
+  const configuredCap=window._balanceStackingCaps?.flagellantWoundTierCap;
+  const woundCap=configuredCap===false?Infinity:(Number.isFinite(configuredCap)?Math.max(0,Math.floor(configuredCap)):3);
+  const tier=Math.min(woundCap,Math.floor(lost/15));
   if(tier<=this.flagellantWoundTier)return;
   const diff=tier-this.flagellantWoundTier;
   this.flagellantWoundTier=tier;
@@ -2278,12 +2280,18 @@ class Sphere{
  _applyHitBuff(){
   if(this.canTriggerTraits===false)return;
   this.hitBuffStacks++;
-  this.d=Object.assign({},this.d);
-  this.d.dmg*=1.004;
-  this.d.arm=Math.round(this.d.arm*1.004);
-  this.d.om*=1.004;
-  const sign=Math.sign(this.omegaCur)||1;
-  this.omegaCur=Math.abs(this.omegaCur)*1.004*sign;
+  const configuredCap=window._balanceStackingCaps?.hitBuffStackCap;
+  const hitBuffCap=configuredCap===false?Infinity:(Number.isFinite(configuredCap)?Math.max(0,Math.floor(configuredCap)):10);
+  // Cap only the shared permanent stat growth. Class-specific on-hit effects below
+  // (e.g. Gladiator Favor and Beastmaster companion spawning) still run on every hit.
+  if(this.hitBuffStacks<=hitBuffCap){
+   this.d=Object.assign({},this.d);
+   this.d.dmg*=1.004;
+   this.d.arm=Math.round(this.d.arm*1.004);
+   this.d.om*=1.004;
+   const sign=Math.sign(this.omegaCur)||1;
+   this.omegaCur=Math.abs(this.omegaCur)*1.004*sign;
+  }
   if(this.key==='gladiator'){
    this.favor=Math.min(10,(this.favor||0)+0.5);
    this.targetSpd=this.baseSpd+this.favor*2;
