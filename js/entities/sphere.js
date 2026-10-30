@@ -957,7 +957,7 @@ class Sphere{
   }
   if(this.jesterLurchT>0){
    this.jesterLurchT-=dt;
-   if(this.jesterLurchT<=0){this.jesterLurchT=0;if(this.dmgMult===2.0)this.dmgMult=1;}
+   if(this.jesterLurchT<=0){this.jesterLurchT=0;if(this.dmgMult===1.7)this.dmgMult=1;}
   }
   if(this.backstabCharged){
    this.backstabT-=dt;
