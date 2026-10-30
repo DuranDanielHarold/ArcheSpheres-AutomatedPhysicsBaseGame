@@ -6,7 +6,7 @@ DEF.paladin = {"label":"Paladin","weapon":"Holy Morningstar","ab":"Sacred Wrath"
 CLASS_ROLE.paladin = "TANK";
 CLASS_DESC.paladin = {
   "ability": "Sacred Wrath (5 stacks) — 5s aura dealing 5 dmg/sec to nearby enemies with 1.4× weapon damage. After expiry, briefly slowed to 75% speed for 0.5s.",
-  "passive": "550 HP. Holy pulse every 3s: heals 8 HP, fires a 12-damage radial blast, and builds a stack toward Sacred Wrath."
+  "passive": "550 HP. Holy pulse every 3s: heals 8 HP, fires a 9-damage radial blast, and builds a stack toward Sacred Wrath."
 };
 SPHERE_AUDIO.paladin = {
   "weaponCollision": "audio/paladin/weaponCollision.wav",
