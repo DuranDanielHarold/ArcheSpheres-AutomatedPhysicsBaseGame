@@ -114,3 +114,29 @@ This is an initial test value, not a claim that Sage is balanced. No browser sim
 The original investigation covered all 50 classes and 1,225 matchup pairings, but this report only reproduces the exact class-level figures retained in the investigation summary. It intentionally does not invent the remaining class rows or individual matchup percentages. The complete raw class-summary and matchup CSVs are required to regenerate an exhaustive 50-row table and validate every matchup-level claim.
 
 **Recommendation:** use this report to prioritize the next controlled balance investigations, not as a patch list. Make one class-specific change at a time, rerun the same seeded baseline, and retain changes only when the measured outcome improves without damaging class identity or creating new matchup outliers.
+
+
+## First-pass strongest-outlier tuning added to PR #100
+
+The four highest retained win-rate outliers now have conservative, class-specific reductions in the same branch as the Sage buff. These values are an initial experiment, not final balance targets.
+
+| Class | Mechanic | Before | PR #100 first pass | Intended effect |
+|---|---|---:|---:|---|
+| Phoenix | Rebirth health restore | 35% max HP | 30% max HP | Reduce the effective extra-life recovery without removing Rebirth |
+| Phoenix | Rebirth invulnerability | 1.2s | 1.0s | Shorten the protected recovery window |
+| Viking | Last Stand duration | 6.0s | 4.5s | Reduce the once-per-match invulnerability window; its automatic Rage Spin is cut short when Last Stand ends |
+| Jester | Chaos Lurch damage multiplier | 2.0× | 1.7× | Reduce burst damage while preserving the 1.5s window, random launch, and spin reversal |
+| Knight | Shield Bubble invulnerability | 3.6s | 3.0s | Reduce repeated full-invulnerability uptime |
+| Knight | Shield Bubble damage multiplier | 1.5× | 1.4× | Slightly reduce the offensive payoff during the defensive window |
+
+### What remains unchanged
+
+- Phoenix keeps full Ember on Rebirth, the 1.4s Ashwing recovery effect, the knockback flare, and its normal Cinder Wing ability.
+- Viking keeps the normal six-second Rage Spin and 1.6× damage multiplier; only the Last Stand window is shortened. When the Last Stand timer ends, its current update path also ends the linked Rage Spin.
+- Jester keeps its three-stack trigger, 2.2× launch speed, random direction, spin reversal, and 1.5s duration.
+- Knight keeps the five-stack trigger, doubled spin during Shield Bubble, and the existing Stalwart passive (+0.6% per successful hit, capped at 30 stacks). Stalwart is deliberately unchanged in this first pass so its contribution can be isolated from the Shield Bubble adjustment.
+- No base class stats, weapon reach, targeting, projectile behavior, cooldowns, or unrelated class mechanics were changed.
+
+### Validation status
+
+These edits were made from the retained October 30 results and direct source inspection. They have **not** yet been validated by a browser run or a seeded 50-class simulation. The next comparison should use the same seed, 2,000 matches per class, and the same settings as the October 30 baseline (stat modifiers and arena modifiers OFF). Review both overall win rates and matchup-level changes; do not merge the tuning as final until that comparison is complete.
