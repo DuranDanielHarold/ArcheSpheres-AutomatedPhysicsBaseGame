@@ -7,6 +7,7 @@ CLASS_DESC.jester = {
   "ability": "Chaos Lurch (3 stacks) — Fires in a completely random direction at 2.2× speed, reverses spin, and gains 2× damage for 1.5s.",
   "passive": "Spin accelerates with stacks (up to 2.5× base spin). Higher speed = wider bell swing = more chaotic hit angles."
 };
+STACK_THRESHOLD.jester = 3;
 STACK_DISPLAY_THRESHOLD.jester = 3;
 SPHERE_AUDIO.jester = {
   "weaponCollision": "audio/jester/weaponCollision.wav",

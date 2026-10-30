@@ -7,6 +7,7 @@ CLASS_DESC.phoenix = {
   "ability": "Cinder Wing (3 stacks) — Ignites the Ashwing Talons for 2.2s, granting +18% speed, +35% spin, and a burst of Ember charge.",
   "passive": "Kindling Flight — Speed and wall bounces build Ember. At full Ember, the next weapon hit releases a compact flame burst for bonus damage. Once per match, lethal damage triggers Rebirth: 35% HP, 1.2s invincibility, full Ember, and a short knockback flare."
 };
+STACK_THRESHOLD.phoenix = 3;
 STACK_DISPLAY_THRESHOLD.phoenix = 3;
 SPHERE_AUDIO.phoenix = {
   "weaponCollision": "audio/phoenix/weaponCollision.wav",
