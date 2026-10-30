@@ -284,7 +284,7 @@ class Sphere{
   // Sage words fire straight from the tome tip instead of snapping aim to a target.
   const tip=this.getTip(),spd=330;
   const wx=Math.cos(this.angle),wy=Math.sin(this.angle);
-  projectiles.push(new RosterBolt(tip.x,tip.y,wx*spd,wy*spd,(this.d.dmg+8)*this.dmgMult,this,'word'));
+  projectiles.push(new RosterBolt(tip.x,tip.y,wx*spd,wy*spd,(this.d.dmg+12)*this.dmgMult,this,'word'));
   spawnSpark(tip.x,tip.y,'#d6f0b2',4);
  }
  _onWallBounce(){
@@ -380,8 +380,8 @@ class Sphere{
     case 'knight':
     if(this.stacks>=5){
      this.stacks=0;
-     this.invincible=true;this.invincibleT=3.6;
-     this.dmgMult=1.5; // offensive surge during the bubble
+     this.invincible=true;this.invincibleT=3.0;
+     this.dmgMult=1.4; // offensive surge during the bubble
      spawnBurst(this.x,this.y,'#ffffff',this.d.rim,16);
     } break;
    case 'paladin':
@@ -545,7 +545,7 @@ class Sphere{
      this.vx=Math.cos(chaosA)*this.targetSpd*2.2;
      this.vy=Math.sin(chaosA)*this.targetSpd*2.2;
      this.omegaCur*=-1;
-     this.dmgMult=2.0;
+     this.dmgMult=1.7;
      this.jesterLurchT=1.5;
     } break;
    case 'golem':
@@ -957,7 +957,7 @@ class Sphere{
   }
   if(this.jesterLurchT>0){
    this.jesterLurchT-=dt;
-   if(this.jesterLurchT<=0){this.jesterLurchT=0;if(this.dmgMult===2.0)this.dmgMult=1;}
+   if(this.jesterLurchT<=0){this.jesterLurchT=0;if(this.dmgMult===1.7)this.dmgMult=1;}
   }
   if(this.backstabCharged){
    this.backstabT-=dt;
@@ -1721,7 +1721,7 @@ class Sphere{
    case 'prince': this._updatePrinceWeaponMaster(dt);break;
    case 'king': if(this.decreeT>0){this.decreeT-=dt;if(this.decreeT<=0){this.dmgMult=1;this.omegaCur=this.d.om*Math.sign(this.omegaCur||1);}}break;
    case 'gladiator': if(this.netLockoutT>0){this.netLockoutT-=dt;if(this.netLockoutT<=0)this.dmgMult=1;}break;
-   case 'sage': if(this.shotCD<=0){this.shotCD=.32;this._fireSageWord();}this._applyKite(dt);if(this.foresightT>0){this.foresightT-=dt;const en=(this._nearestEnemy()||{}).enemy;if(en){this.vx=-(en.vx+en.impactVx);this.vy=-(en.vy+en.impactVy);}if(this.foresightT<=0){this.untargetable=false;for(const q of spheres){if(!sameFaction(this,q)&&q.alive&&!q.dying&&Math.hypot(q.x-this.x,q.y-this.y)<this.radius*4)q.receiveMagicDamage(this.d.dmg*2);}spawnDmgNum(this.x,this.y-this.radius*1.8,'2× WISDOM','#d6f0b2');spawnPulse(this.x,this.y,'#d6f0b2');}}break;
+   case 'sage': if(this.shotCD<=0){this.shotCD=.32;this._fireSageWord();}this._applyKite(dt);if(this.foresightT>0){this.foresightT-=dt;const en=(this._nearestEnemy()||{}).enemy;if(en){this.vx=-(en.vx+en.impactVx);this.vy=-(en.vy+en.impactVy);}if(this.foresightT<=0){this.untargetable=false;for(const q of spheres){if(!sameFaction(this,q)&&q.alive&&!q.dying&&Math.hypot(q.x-this.x,q.y-this.y)<this.radius*4){const previousDamageSource=window._balanceDamageSource;const hpBefore=q.hp;window._balanceDamageSource={key:this.key,type:'ability'};try{q.receiveMagicDamage(this.d.dmg*6);}finally{window._balanceDamageSource=previousDamageSource;}recordDamageEvent(this.key,'ability',Math.max(0,hpBefore-q.hp));}}spawnDmgNum(this.x,this.y-this.radius*1.8,'6× WISDOM','#d6f0b2');spawnPulse(this.x,this.y,'#d6f0b2');}}break;
    case 'whelpling':
     // Mouth open timer countdown
     if(this.mouthOpenTimer>0)this.mouthOpenTimer=Math.max(0,this.mouthOpenTimer-dt);
@@ -2034,7 +2034,7 @@ class Sphere{
   }
   _triggerVikingLastStand(){
    if(this.key!=='viking'||this.vikingLastStandUsed)return false;
-   this.vikingLastStandUsed=true;this.vikingLastStandActive=true;this.vikingLastStandT=6.0;
+   this.vikingLastStandUsed=true;this.vikingLastStandActive=true;this.vikingLastStandT=4.5;
    this.hp=1;this.stacks=Math.max(this.stacks,4);
    this._startVikingRageSpin();
    spawnBurst(this.x,this.y,'#c8a030',this.d.rim,26);
@@ -2054,8 +2054,8 @@ class Sphere{
   _triggerPhoenixRebirth(){
    if(this.key!=='phoenix'||this.rebirthDone)return false;
    this.rebirthDone=true;
-   this.hp=this.maxHp*0.35;
-   this.invincible=true;this.invincibleT=1.2;
+   this.hp=this.maxHp*0.30;
+   this.invincible=true;this.invincibleT=1.0;
    this.ashwingActive=true;this.ashwingT=1.4;
    this.phoenixEmber=100;this.phoenixEmberFlash=0.75;
    this.targetSpd=this.baseSpd*1.18;
