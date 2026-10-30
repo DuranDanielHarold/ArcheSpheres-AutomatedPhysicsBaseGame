@@ -301,7 +301,8 @@ A lower win rate alone is not sufficient. Keep an edit only if the targeted clas
 ## Verification status after the expanded edits
 
 - GitHub source edits applied to the PR #101 branch.
-- Static review of the changed source and runner override paths is still required.
+- Changed source patches reviewed; JavaScript syntax parsing passed for all six modified source files.
+- Runner control-run metadata now reports the effective class stats used during that scenario.
 - Runtime/browser verification: not yet performed.
 - Seeded A/B simulations: not yet performed.
 - Full 50-class rerun: not yet performed.
