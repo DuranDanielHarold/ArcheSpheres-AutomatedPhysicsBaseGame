@@ -460,7 +460,20 @@
     }
    }
   }finally{if(options.arenaSize)window._arenaSizeLocked=false;for(const [key,stats] of Object.entries(originalClassStats))for(const [field,value] of Object.entries(stats))DEF[key][field]=value;Math.random=originalRandom;window._balanceSimulationDt=originalSimulationDt;window._balanceStackingCaps=originalStackingCaps;window._balanceClassOverrides=originalClassOverrides;window._liveCombatTracker=savedLiveTracker;window._liveCurrentAbilityKey=savedLiveAbilityKey;window._balanceNoVisuals=originalNoVisuals;window._balanceCombatTracker=null;window._balanceDamageSource=null;window._balanceCurrentAbilityKey=null;restoreCombatTrackerHooks();restoreBalanceTimeoutTracker();paused=false;}
+  const reportClassStats={};
+  if(options.classStatOverrides&&typeof options.classStatOverrides==='object'){
+   for(const [key,stats] of Object.entries(options.classStatOverrides)){
+    if(!DEF[key]||!stats||typeof stats!=='object')continue;
+    for(const [field,value] of Object.entries(stats)){
+     if(!['hp','arm','magDef','dmg','om','spd','rest','reach','mass'].includes(field)||typeof value!=='number'||!Number.isFinite(value))continue;
+     if(!reportClassStats[key])reportClassStats[key]={};
+     reportClassStats[key][field]=DEF[key][field];
+     DEF[key][field]=value;
+    }
+   }
+  }
   const report=buildReport(results,options,performance.now()-started,count===planned.length);
+  for(const [key,stats] of Object.entries(reportClassStats))for(const [field,value] of Object.entries(stats))DEF[key][field]=value;
   window.lastBalanceReport=report;
   console.table(report.classes.slice(0,12));
   if(report.hardMatchups.length)console.table(report.hardMatchups.slice(0,20));
