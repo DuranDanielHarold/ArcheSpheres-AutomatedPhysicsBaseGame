@@ -23,6 +23,9 @@
   debugStall:false,
   maxRetainedResults:5000,
   arenaSize:undefined,
+  // Optional per-run stacking overrides for controlled balance A/B tests.
+  // false disables a cap; omitted values use the live game defaults (10 hit buffs / 3 Flagellant wound tiers).
+  stackingCaps:null,
  };
 
  function mean(vals){const filtered=vals.filter(v=>v!==undefined&&v!==null&&!isNaN(v));return filtered.length?filtered.reduce((a,b)=>a+b,0)/filtered.length:0;}
@@ -398,7 +401,9 @@
   const planned=buildPlannedMatches(keys,options);
   const deadline=performance.now()+options.minutes*60*1000,results=[],started=performance.now();let count=0;
   const originalRandom=Math.random,originalNoVisuals=window._balanceNoVisuals,originalSimulationDt=window._balanceSimulationDt;
+  const originalStackingCaps=window._balanceStackingCaps;
   const savedLiveTracker=window._liveCombatTracker,savedLiveAbilityKey=window._liveCurrentAbilityKey;
+  window._balanceStackingCaps=options.stackingCaps&&typeof options.stackingCaps==='object'?Object.assign({},options.stackingCaps):null;
   window._balanceSimulationDt=options.dt;
   window._liveCombatTracker=null;window._liveCurrentAbilityKey=null;
   const restoreBalanceTimeoutTracker=installBalanceTimeoutTracker();
@@ -436,7 +441,7 @@
      await new Promise(r=>setTimeout(r,0));
     }
    }
-  }finally{if(options.arenaSize)window._arenaSizeLocked=false;Math.random=originalRandom;window._balanceSimulationDt=originalSimulationDt;window._liveCombatTracker=savedLiveTracker;window._liveCurrentAbilityKey=savedLiveAbilityKey;window._balanceNoVisuals=originalNoVisuals;window._balanceCombatTracker=null;window._balanceDamageSource=null;window._balanceCurrentAbilityKey=null;restoreCombatTrackerHooks();restoreBalanceTimeoutTracker();paused=false;}
+  }finally{if(options.arenaSize)window._arenaSizeLocked=false;Math.random=originalRandom;window._balanceSimulationDt=originalSimulationDt;window._balanceStackingCaps=originalStackingCaps;window._liveCombatTracker=savedLiveTracker;window._liveCurrentAbilityKey=savedLiveAbilityKey;window._balanceNoVisuals=originalNoVisuals;window._balanceCombatTracker=null;window._balanceDamageSource=null;window._balanceCurrentAbilityKey=null;restoreCombatTrackerHooks();restoreBalanceTimeoutTracker();paused=false;}
   const report=buildReport(results,options,performance.now()-started,count===planned.length);
   window.lastBalanceReport=report;
   console.table(report.classes.slice(0,12));
