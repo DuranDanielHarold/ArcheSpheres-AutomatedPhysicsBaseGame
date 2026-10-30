@@ -1412,7 +1412,7 @@ class Sphere{
      const en=(this._nearestEnemy()||{}).enemy;
      if(en){const dx=en.x-this.x,dy=en.y-this.y,dist=Math.hypot(dx,dy)||1;
       en.applyImpact((dx/dist)*280,(dy/dist)*280);
-      const pulseDmg=12/(en.d.arm*0.004+1);
+      const pulseBase=Number.isFinite(window._balanceClassOverrides?.paladinPulseDamage)?window._balanceClassOverrides.paladinPulseDamage:9;const pulseDmg=pulseBase/(en.d.arm*0.004+1);
       const _pulseBefore=en.hp;en.receiveDamage(pulseDmg);recordDamageEvent(this.key,'passive',_pulseBefore-en.hp);
       spawnPulse(this.x,this.y,this.d.rim);
      }
