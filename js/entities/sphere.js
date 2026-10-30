@@ -1721,7 +1721,7 @@ class Sphere{
    case 'prince': this._updatePrinceWeaponMaster(dt);break;
    case 'king': if(this.decreeT>0){this.decreeT-=dt;if(this.decreeT<=0){this.dmgMult=1;this.omegaCur=this.d.om*Math.sign(this.omegaCur||1);}}break;
    case 'gladiator': if(this.netLockoutT>0){this.netLockoutT-=dt;if(this.netLockoutT<=0)this.dmgMult=1;}break;
-   case 'sage': if(this.shotCD<=0){this.shotCD=.32;this._fireSageWord();}this._applyKite(dt);if(this.foresightT>0){this.foresightT-=dt;const en=(this._nearestEnemy()||{}).enemy;if(en){this.vx=-(en.vx+en.impactVx);this.vy=-(en.vy+en.impactVy);}if(this.foresightT<=0){this.untargetable=false;for(const q of spheres){if(!sameFaction(this,q)&&q.alive&&!q.dying&&Math.hypot(q.x-this.x,q.y-this.y)<this.radius*4)q.receiveMagicDamage(this.d.dmg*2);}spawnDmgNum(this.x,this.y-this.radius*1.8,'2× WISDOM','#d6f0b2');spawnPulse(this.x,this.y,'#d6f0b2');}}break;
+   case 'sage': if(this.shotCD<=0){this.shotCD=.32;this._fireSageWord();}this._applyKite(dt);if(this.foresightT>0){this.foresightT-=dt;const en=(this._nearestEnemy()||{}).enemy;if(en){this.vx=-(en.vx+en.impactVx);this.vy=-(en.vy+en.impactVy);}if(this.foresightT<=0){this.untargetable=false;for(const q of spheres){if(!sameFaction(this,q)&&q.alive&&!q.dying&&Math.hypot(q.x-this.x,q.y-this.y)<this.radius*4){const previousDamageSource=window._balanceDamageSource;window._balanceDamageSource={key:this.key,type:'ability'};try{q.receiveMagicDamage(this.d.dmg*2);}finally{window._balanceDamageSource=previousDamageSource;}}}spawnDmgNum(this.x,this.y-this.radius*1.8,'2× WISDOM','#d6f0b2');spawnPulse(this.x,this.y,'#d6f0b2');}}break;
    case 'whelpling':
     // Mouth open timer countdown
     if(this.mouthOpenTimer>0)this.mouthOpenTimer=Math.max(0,this.mouthOpenTimer-dt);
@@ -2188,7 +2188,7 @@ class Sphere{
   }
   if(window._liveCombatTracker&&fd>0)this._recordLiveCombatDamage(fd);
   if(this.key==='flagellant')this._flagellantApplyWounds();
-  if(this.key==='sage'&&fd>0){const gain=Math.floor(fd/10);if(gain>0){this.knowledge=(this.knowledge||0)+gain;this.d=Object.assign({},this.d);this.d.dmg+=gain*.25;this.d.magDef+=gain*2;}}
+  if(this.key==='sage'&&fd>0){const gain=Math.floor(fd/10);if(gain>0){window._balanceCombatTracker?.onPassiveTrigger(this.key);window._liveCombatTracker?.onPassiveTrigger(this.key);this.knowledge=(this.knowledge||0)+gain;this.d=Object.assign({},this.d);this.d.dmg+=gain*.25;this.d.magDef+=gain*2;}}
   if(this.key==='arcanist'&&fd>0){this.arcaneCharge=0;this.applyImpact((Math.random()-.5)*160,(Math.random()-.5)*160);}
   if(this.key==='gladiator'&&fd>0)this.favor=Math.max(0,(this.favor||0)-3);
   if(fd>0.5)spawnBloodSplat(this.x,this.y,this.d.color,fd);
