@@ -472,8 +472,9 @@
     }
    }
   }
-  const report=buildReport(results,options,performance.now()-started,count===planned.length);
-  for(const [key,stats] of Object.entries(reportClassStats))for(const [field,value] of Object.entries(stats))DEF[key][field]=value;
+  let report;
+  try{report=buildReport(results,options,performance.now()-started,count===planned.length);}
+  finally{for(const [key,stats] of Object.entries(reportClassStats))for(const [field,value] of Object.entries(stats))DEF[key][field]=value;}
   window.lastBalanceReport=report;
   console.table(report.classes.slice(0,12));
   if(report.hardMatchups.length)console.table(report.hardMatchups.slice(0,20));
