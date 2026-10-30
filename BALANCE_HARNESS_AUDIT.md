@@ -303,3 +303,12 @@ After: not measured here. Owner browser execution is required before merge.
 8. Test Ground Knight vs Samurai, 5 games, seed 1337, PHONE, JSON/CSV populated and live view recovers.
 
 No merge is authorized by this audit entry.
+
+## Phase 5 — Ability and passive telemetry attribution
+
+- **Phoenix and Jester stack thresholds:** both classes trigger their abilities at three stacks and already declare a three-stack display threshold, but neither declared the gameplay `STACK_THRESHOLD`. The balance runner reads `getStackThreshold()` when deciding whether a stack reset represents an ability use; the registry fallback of five therefore missed these activations. Added explicit three-stack thresholds to both class registry files. This does not change their trigger conditions or gameplay.
+- **Sage Ancient Patience:** when a physical damage event grants at least one Knowledge, the balance and live combat trackers now record a zero-damage passive trigger. This makes the stat-conversion passive visible in trigger counts without reclassifying the incoming damage as damage dealt by Sage or changing Knowledge gain.
+- **Sage Foresight / Wisdom Wave:** the delayed area hit occurs after the stack-trigger wrapper has restored its temporary ability context. Each Wisdom Wave target hit now receives an explicit, temporary `{ key: 'sage', type: 'ability' }` damage source, restored in a `finally` block. Balance and live trackers can therefore classify the delayed damage as ability damage, including when a target's damage handler exits early.
+- **Scope:** instrumentation and registry metadata only. No combat coefficients, timing, targeting, damage, defense, movement, stack trigger conditions, projectile behavior, or class descriptions were changed.
+- **Known gameplay behavior left unchanged:** Ancient Patience currently gains Knowledge from `receiveDamage()`; the separate `receiveMagicDamage()` path does not grant Knowledge. This PR does not alter that mechanic.
+- **Verification:** inspect the exported balance rows after a controlled Phoenix and Jester activation: `abilityUses` should increment on the third stack. For Sage, a physical damage event large enough to grant Knowledge should increment `passiveTriggers`; after Foresight expires and Wisdom Wave hits an enemy, its damage should be included in `abilityDmgPct` rather than `baseDmgPct`. Repeat the same seeded run to check deterministic output. Full browser simulation remains an owner-side verification step.
