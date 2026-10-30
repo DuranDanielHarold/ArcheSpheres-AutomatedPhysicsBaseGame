@@ -380,8 +380,8 @@ class Sphere{
     case 'knight':
     if(this.stacks>=5){
      this.stacks=0;
-     this.invincible=true;this.invincibleT=3.6;
-     this.dmgMult=1.5; // offensive surge during the bubble
+     this.invincible=true;this.invincibleT=3.0;
+     this.dmgMult=1.4; // offensive surge during the bubble
      spawnBurst(this.x,this.y,'#ffffff',this.d.rim,16);
     } break;
    case 'paladin':
@@ -545,7 +545,7 @@ class Sphere{
      this.vx=Math.cos(chaosA)*this.targetSpd*2.2;
      this.vy=Math.sin(chaosA)*this.targetSpd*2.2;
      this.omegaCur*=-1;
-     this.dmgMult=2.0;
+     this.dmgMult=1.7;
      this.jesterLurchT=1.5;
     } break;
    case 'golem':
@@ -2034,7 +2034,7 @@ class Sphere{
   }
   _triggerVikingLastStand(){
    if(this.key!=='viking'||this.vikingLastStandUsed)return false;
-   this.vikingLastStandUsed=true;this.vikingLastStandActive=true;this.vikingLastStandT=6.0;
+   this.vikingLastStandUsed=true;this.vikingLastStandActive=true;this.vikingLastStandT=4.5;
    this.hp=1;this.stacks=Math.max(this.stacks,4);
    this._startVikingRageSpin();
    spawnBurst(this.x,this.y,'#c8a030',this.d.rim,26);
@@ -2054,8 +2054,8 @@ class Sphere{
   _triggerPhoenixRebirth(){
    if(this.key!=='phoenix'||this.rebirthDone)return false;
    this.rebirthDone=true;
-   this.hp=this.maxHp*0.35;
-   this.invincible=true;this.invincibleT=1.2;
+   this.hp=this.maxHp*0.30;
+   this.invincible=true;this.invincibleT=1.0;
    this.ashwingActive=true;this.ashwingT=1.4;
    this.phoenixEmber=100;this.phoenixEmberFlash=0.75;
    this.targetSpd=this.baseSpd*1.18;
