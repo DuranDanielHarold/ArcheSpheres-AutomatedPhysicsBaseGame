@@ -1176,7 +1176,7 @@ class Sphere{
       const batDmg=this.d.dmg*0.55*this.dmgMult/(s.d.arm*0.004+1);
       if(batDmg>0.1){
        const _batBefore=s.hp;s.receiveDamage(batDmg);recordDamageEvent(this.key,'passive',_batBefore-s.hp);
-       this.receiveHeal(batDmg*0.4);
+       this.receiveHeal(batDmg*0.25);
        spawnSpark(s.x,s.y,'#cc0044',4);
       }
      }
