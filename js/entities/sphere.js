@@ -302,12 +302,27 @@ class Sphere{
   noiseTraps.push(new BurialMound(this.x,this.y,this));
   spawnSpark(this.x,this.y,'#a7834b',3);
  }
- _oldestBurialMound(){
-  let found=null;
-  for(const n of noiseTraps){
-   if(n instanceof BurialMound&&n.owner===this&&n.alive&&(!found||n.seq<found.seq))found=n;
+ _bestExhumeBurialMound(){
+  const mounds=noiseTraps.filter(n=>n instanceof BurialMound&&n.owner===this&&n.alive);
+  if(!mounds.length)return null;
+  const enemies=spheres.filter(s=>s!==this&&s.alive&&!s.dying&&!sameFaction(this,s));
+  if(!enemies.length)return null;
+  // Avoid immediately reusing the last destination when another mound is available.
+  const lastSeq=this.gravediggerLastExhumeMoundSeq;
+  const candidates=mounds.length>1?mounds.filter(n=>n.seq!==lastSeq):mounds;
+  let best=null,bestDist=Infinity;
+  for(const mound of candidates){
+   // Pick the mound closest to the nearest enemy, favoring a useful gap-close destination.
+   let enemyDist=Infinity;
+   for(const enemy of enemies){
+    const d=Math.hypot(enemy.x-mound.x,enemy.y-mound.y);
+    if(d<enemyDist)enemyDist=d;
+   }
+   if(enemyDist<bestDist||(enemyDist===bestDist&&(!best||mound.seq<best.seq))){
+    best=mound;bestDist=enemyDist;
+   }
   }
-  return found;
+  return best;
  }
  _dropGlassShard(x=this.x,y=this.y){
   if(noiseTraps.filter(n=>n instanceof GlassShard&&n.owner===this&&n.alive).length>=18)return;
@@ -728,9 +743,10 @@ class Sphere{
     } else if(this.stacks>=3&&this.whelplingFireCooldown>0){window._balanceCombatTracker?.onAbilityBlocked(this.key);window._liveCombatTracker?.onAbilityBlocked(this.key);} break;
    case 'gravedigger':
     if(this.stacks>=4){
-     const mound=this._oldestBurialMound();
+     const mound=this._bestExhumeBurialMound();
      if(mound){
       this.stacks=0;
+      this.gravediggerLastExhumeMoundSeq=mound.seq;
       this.x=Math.max(this.radius+6,Math.min(W-this.radius-6,mound.x));
       this.y=Math.max(this.radius+6,Math.min(H-this.radius-6,mound.y));
       this.invincible=true;this.invincibleT=0.6;
