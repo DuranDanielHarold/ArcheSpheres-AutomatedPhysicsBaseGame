@@ -5,7 +5,7 @@ DEF.viking = {"label":"Viking","weapon":"Battle Axe","ab":"Rage Spin","color":"#
 CLASS_ROLE.viking = "FIGHTER";
 CLASS_DESC.viking = {
   "ability": "Rage Spin (5 stacks) — Enters Berserker mode for 4s: spin locks at max rage, damage becomes 1.3×, and collision knockback dealt is doubled.",
-  "passive": "Last Stand — When Viking would die, he instead becomes invulnerable for 3.0s. During Last Stand, full rage automatically triggers Rage Spin without spending stacks. After the 6s stand, he falls."
+  "passive": "Last Stand — When Viking would die, he instead becomes invulnerable for 3.0s. During Last Stand, full rage automatically triggers Rage Spin without spending stacks. After the 4.5s stand, he falls."
 };
 STACK_THRESHOLD.viking = 5;
 STACK_DISPLAY_THRESHOLD.viking = 5;
