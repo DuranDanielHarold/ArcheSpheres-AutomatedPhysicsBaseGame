@@ -203,7 +203,7 @@ class Bola{
    if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+12){
    
     s.vx=0;s.vy=0;s.impactVx=0;s.impactVy=0;
-    s.bolaRootT=1.0;
+    s.bolaRootT=1.4;
     s.bolaFloating=true; // suppress gravity while rooted
    
     spawnBurst(this.x,this.y,'#d4a83a','#8a6010',12);
@@ -255,7 +255,7 @@ class PiercingBullet{
   if(this.x<0||this.x>W||this.y<0||this.y>H||this.life<=0){this.alive=false;return;}
    if(this.target&&this.target.alive&&!this.target.dying){
    if(Math.hypot(this.target.x-this.x,this.target.y-this.y)<this.target.radius+8){
-       let finalDmg=this.damage+(this.target.maxHp*0.05);
+       let finalDmg=this.damage+(this.target.maxHp*0.07);
 if(this.target._sheriffArmPen){const penBonus=this.target.d.arm*0.40*0.004;finalDmg+=penBonus;this.target._sheriffArmPen=false;}
     const _pierceBefore=this.target.hp;this.target.hp=Math.max(0,this.target.hp-finalDmg);recordDamageEvent(this.owner.key,'ability',_pierceBefore-this.target.hp);
     this.target.hitFlash=1;
@@ -316,7 +316,7 @@ class SheriffBullet{
    if(!isEnemy||!s.alive||s.dying)continue;
    if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+5){
        const penArm=s.d.arm*0.8;
-    const fd=this.dmg/(penArm*0.004+1)+(s.maxHp*0.05);
+    const fd=this.dmg/(penArm*0.004+1)+(s.maxHp*0.07);
     s.receiveDamage(fd);
     const nx=(s.x-this.x)/Math.hypot(s.x-this.x,s.y-this.y)||1;
     const ny=(s.y-this.y)/Math.hypot(s.x-this.x,s.y-this.y)||0;
@@ -614,13 +614,16 @@ class SkullOrb{
      s.deathMarkTicks=7;
      s.deathMarkTimer=0.18;
      s.deathMarkSourceKey=this.owner.key;
-     s.deathMarkDmg=this.dmg*0.70+1;
+     s.deathMarkSource=this.owner;
+     s.deathMarkDmg=this.dmg*0.90+1.5;
     } else {
+     s.deathMarkTicks=Math.min(14,s.deathMarkTicks+7);
      s.deathMarkSourceKey=this.owner.key;
-     s.deathMarkDmg=this.dmg*0.70+1;
+     s.deathMarkSource=this.owner;
+     s.deathMarkDmg=this.dmg*0.90+1.5;
      s.deathMarkDoTHits=(s.deathMarkDoTHits||0)+7; // credit a full sequence
     }
-    s.woundT=Math.max(s.woundT, 7*0.3+2.0);
+    s.woundT=Math.max(s.woundT, s.deathMarkTicks*0.3+2.0);
     s.applyImpact((s.x-this.x)*0.20,(s.y-this.y)*0.20);
     s.vx*=0.92;s.vy*=0.92;
     spawnToxicCloud(this.x,this.y);

@@ -31,9 +31,9 @@ class RosterBolt{
   this.alive=false;spawnBurst(this.x,this.y,'#d77bff','#5b1f86',8);
  }
  _explode(target){
-  const rad=this.owner.radius*(this.owner.overloadActive?2.7:1.7);
+  const rad=this.owner.radius*(this.owner.overloadActive?2.7:2.1);
   for(const q of spheres){if(q===this.owner||sameFaction(this.owner,q)||!q.alive||q.dying)continue;if(Math.hypot(q.x-this.x,q.y-this.y)<rad+q.radius){q.receiveMagicDamage(this.dmg);if(this.owner&&this.owner.canTriggerTraits!==false&&this.owner.gainStack){this.owner.gainStack();this.owner._applyHitBuff();}}}
-  slowZones.push(new ArcaneBurnZone(this.x,this.y,rad,this.owner.overloadActive?6:2,this.owner));
+  slowZones.push(new ArcaneBurnZone(this.x,this.y,rad,this.owner.overloadActive?6:3,this.owner));
   if(this.owner.overloadActive){const selfHarm=2;this.owner.hp=Math.max(1,this.owner.hp-selfHarm);spawnDmgNum(this.owner.x,this.owner.y-this.owner.radius*1.2,selfHarm,'#78d8ff');}
   spawnBurst(this.x,this.y,'#78d8ff','#e8fbff',18);spawnPulse(this.x,this.y,'#78d8ff');this.alive=false;
  }
