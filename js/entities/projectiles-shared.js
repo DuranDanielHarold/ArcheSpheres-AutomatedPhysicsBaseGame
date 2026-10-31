@@ -100,7 +100,7 @@ class SonicProjectile{
    if(sameFaction(this.owner,s)||!s.alive||s.dying)continue;
    if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+this.r){
     // Minimal HP damage via magic, massive knockback
-    const magDmg=this.dmg/(s.d.magDef*0.01+1);
+    const magDmg=(this.dmg*(1+0.15*this.bounces))/(s.d.magDef*0.004+1);
     s.receiveMagicDamage(magDmg);
     const spd2=Math.hypot(this.vx,this.vy)||500;
     const nx=(s.x-this.x)/Math.hypot(s.x-this.x,s.y-this.y)||1;
