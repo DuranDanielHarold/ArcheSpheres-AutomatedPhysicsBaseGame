@@ -4,8 +4,8 @@
 DEF.queen = {"label":"Queen","weapon":"Regal Rapier","ab":"Queen's Gambit","color":"#b01872","dark":"#5b0838","rim":"#ff8bd1","out":"#220016","wcol":"#ffb8e6","wdrk":"#a02a70","mass":5,"spd":313,"hp":330,"om":7,"dmg":4.6,"arm":44,"magDef":34,"rest":0.8,"reach":3.8,"tipR":0.1,"abilityType":"hybrid","passiveType":"hybrid","wt":"regalrapier"};
 CLASS_ROLE.queen = "ASSASSIN";
 CLASS_DESC.queen = {
-  "ability": "Queen's Gambit (3 stacks) — Rapier glows with royal color for 3s, converting Queen's weapon hits to true damage while reducing both defenses by one-third.",
-  "passive": "Courtly Menace — Nearby enemies lose damage and speed. Back hits permanently raise the Queen's damage."
+  "ability": "Queen's Gambit (3 stacks) — Rapier glows with royal color for 4s, converting Queen's weapon hits to true damage while reducing both defenses by one-third.",
+  "passive": "Courtly Menace — Nearby enemies deal 15% less damage. Each successful back hit permanently raises Queen's damage by 1% of base DMG."
 };
 STACK_THRESHOLD.queen = 3;
 STACK_DISPLAY_THRESHOLD.queen = 3;
