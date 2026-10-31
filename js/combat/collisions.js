@@ -258,6 +258,8 @@ function _weaponHit(att,def){
    }
    else if(att.key==='alchemist'){window._balanceDamageSource={key:att.key,type:'base'};def.receiveMagicDamage(dmg);window._balanceDamageSource=null;}
    else{window._balanceDamageSource={key:att.key,type:'base'};def.receiveDamage(dmg);window._balanceDamageSource=null;}
+    if(traits&&att.key==='locksmith')_applyLocksmithLock(att,def);
+    if(traits&&att.key==='glassblower')att._dropGlassShard(hx,hy);
     if(traits){att.gainStack();att._applyHitBuff();}
     // Whelpling: open the upper jaw, lunge forward, then clamp shut.
     if(att.key==='whelpling'&&att.mouthOpenMode!==2){att.mouthOpenTimer=0.42;att.mouthOpenMode=1;}
@@ -311,7 +313,7 @@ function _weaponHit(att,def){
     if(traits&&att.key==='ratcatcher')att._spawnRatBurst(1,false);
     if(traits&&att.key==='beastmaster'){noiseTraps.push(new RatMinion(att.x,att.y,(Math.random()-.5)*180,(Math.random()-.5)*180,att,false));def.markedBy=att;}
 
-    if(traits&&att.key==='queen'){att.queenDmgBonus=(att.queenDmgBonus||0)+0.005;att.d=Object.assign({},att.d);att.d.dmg+=DEF[att.key].dmg*.005;}
+    if(traits&&att.key==='queen'){att.queenDmgBonus=(att.queenDmgBonus||0)+0.01;att.d=Object.assign({},att.d);att.d.dmg+=DEF[att.key].dmg*.01;}
     if(traits&&att.key==='prince'&&att.rushT>0){att.rushT=Math.min(2.5-(att.rushElapsed||0),att.rushT+.25);}
     spawnSpark(hx,hy,att.d.rim,7);
     spawnImpactBurst(hx,hy,att.d.rim,def.d.color);
@@ -438,7 +440,7 @@ function _applyLocksmithLock(att,def){
  def.locksmithLocks=Math.min(2,(def.locksmithLocks||0)+1);
  spawnDmgNum(def.x,def.y-def.radius*1.7,`LOCK ${def.locksmithLocks}/2`,'#d0b45a');
  if(def.locksmithLocks>=2){
-  def.locksmithJamT=Math.max(def.locksmithJamT||0,1.0);
+  def.locksmithJamT=Math.max(def.locksmithJamT||0,1.6);
   def.locksmithLocks=0;
   spawnBurst(def.x,def.y,'#d0b45a','#24313a',12);
   spawnDmgNum(def.x,def.y-def.radius*2.0,'JAMMED','#d0b45a');
