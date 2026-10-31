@@ -627,6 +627,7 @@ class Sphere{
      this.stacks=0;
      const enPlg=(this._nearestEnemy()||{}).enemy;
      if(enPlg){
+      enPlg.virulenceSource=this;
       enPlg.virulenceStacks=Math.min(5,(enPlg.virulenceStacks||0)+2);
       enPlg.virulenceWallHitCD=0;
       spawnBurst(enPlg.x,enPlg.y,'#aadd44','#2a3a1a',14);
@@ -853,7 +854,7 @@ class Sphere{
     } break;
   }
   }finally{if(liveTracking)window._liveCurrentAbilityKey=prior;}
-  if(liveTracking&&before>=threshold&&this.stacks===0)window._liveCombatTracker.onAbilityUse(this.key,true);
+  if(liveTracking&&before>0&&this.stacks===0)window._liveCombatTracker.onAbilityUse(this.key,true);
   if(!window._balanceNoVisuals&&stacksAtEntry>0&&this.stacks===0&&this.canTriggerTraits!==false){
    if(this.key==='dragoon'){
     if(this.isLeaping)_playSphereAudio(this.key,'ability');
@@ -1348,7 +1349,7 @@ class Sphere{
    if(this.key==='monk'){this.vx*=1.1;this.vy*=1.1;spawnSpark(this.x,this.y,'#ffe0a0',4);}
    if(this.key==='phoenix'){this._phoenixAddEmber(16);spawnSpark(this.x,this.y,'#ffcc02',4);}
    if(this.key==='ninja')this._shadowStepBounce();
-   if(this.virulenceStacks>0&&this.virulenceWallHitCD<=0){this.virulenceWallHitCD=1.0;thornPatches.push(new ToxicSmear(this.x,this.y,R*1.5,this));spawnDmgNum(this.x,this.y-R-10,'SMEAR!','#aadd44');}
+   if(this.virulenceStacks>0&&this.virulenceWallHitCD<=0){this.virulenceWallHitCD=1.0;thornPatches.push(new ToxicSmear(this.x,this.y,R*1.5,this.virulenceSource||this));spawnDmgNum(this.x,this.y-R-10,'SMEAR!','#aadd44');}
    if(this.key==='voidwalker'){noiseTraps.push(new VoidTear(this.x,this.y,this));this.voidTearCount=(this.voidTearCount||0)+1;}
    this._onWallBounce();
   }
@@ -1357,7 +1358,7 @@ class Sphere{
    if(this.key==='monk'){this.vx*=1.1;this.vy*=1.1;spawnSpark(this.x,this.y,'#ffe0a0',4);}
    if(this.key==='phoenix'){this._phoenixAddEmber(16);spawnSpark(this.x,this.y,'#ffcc02',4);}
    if(this.key==='ninja')this._shadowStepBounce();
-   if(this.virulenceStacks>0&&this.virulenceWallHitCD<=0){this.virulenceWallHitCD=1.0;thornPatches.push(new ToxicSmear(this.x,this.y,R*1.5,this));spawnDmgNum(this.x,this.y-R-10,'SMEAR!','#aadd44');}
+   if(this.virulenceStacks>0&&this.virulenceWallHitCD<=0){this.virulenceWallHitCD=1.0;thornPatches.push(new ToxicSmear(this.x,this.y,R*1.5,this.virulenceSource||this));spawnDmgNum(this.x,this.y-R-10,'SMEAR!','#aadd44');}
    if(this.key==='voidwalker'){noiseTraps.push(new VoidTear(this.x,this.y,this));this.voidTearCount=(this.voidTearCount||0)+1;}
    this._onWallBounce();
   }
@@ -1366,7 +1367,7 @@ class Sphere{
    if(this.key==='monk'){this.vx*=1.1;this.vy*=1.1;spawnSpark(this.x,this.y,'#ffe0a0',4);}
    if(this.key==='phoenix'){this._phoenixAddEmber(16);spawnSpark(this.x,this.y,'#ffcc02',4);}
    if(this.key==='ninja')this._shadowStepBounce();
-   if(this.virulenceStacks>0&&this.virulenceWallHitCD<=0){this.virulenceWallHitCD=1.0;thornPatches.push(new ToxicSmear(this.x,this.y,R*1.5,this));spawnDmgNum(this.x,this.y+R+10,'SMEAR!','#aadd44');}
+   if(this.virulenceStacks>0&&this.virulenceWallHitCD<=0){this.virulenceWallHitCD=1.0;thornPatches.push(new ToxicSmear(this.x,this.y,R*1.5,this.virulenceSource||this));spawnDmgNum(this.x,this.y+R+10,'SMEAR!','#aadd44');}
    if(this.key==='voidwalker'){noiseTraps.push(new VoidTear(this.x,this.y,this));this.voidTearCount=(this.voidTearCount||0)+1;}
    this._onWallBounce();
   }
@@ -1375,7 +1376,7 @@ class Sphere{
    if(this.key==='monk'){this.vx*=1.1;this.vy*=1.1;spawnSpark(this.x,this.y,'#ffe0a0',4);}
    if(this.key==='phoenix'){this._phoenixAddEmber(16);spawnSpark(this.x,this.y,'#ffcc02',4);}
    if(this.key==='ninja')this._shadowStepBounce();
-   if(this.virulenceStacks>0&&this.virulenceWallHitCD<=0){this.virulenceWallHitCD=1.0;thornPatches.push(new ToxicSmear(this.x,this.y,R*1.5,this));spawnDmgNum(this.x,this.y-R-10,'SMEAR!','#aadd44');}
+   if(this.virulenceStacks>0&&this.virulenceWallHitCD<=0){this.virulenceWallHitCD=1.0;thornPatches.push(new ToxicSmear(this.x,this.y,R*1.5,this.virulenceSource||this));spawnDmgNum(this.x,this.y-R-10,'SMEAR!','#aadd44');}
    if(this.key==='voidwalker'){noiseTraps.push(new VoidTear(this.x,this.y,this));this.voidTearCount=(this.voidTearCount||0)+1;}
    this._onWallBounce();
   }
@@ -1387,7 +1388,7 @@ class Sphere{
    if(this.bolaFloating){this.vy=0;}
    if(this.bolaRootT<=0){this.bolaFloating=false;}
   }
-  for(const sz of slowZones)sz.apply(this);
+  for(const sz of slowZones)sz.apply(this,dt);
   if(this.bolaSlowT>0&&this.bolaRootT<=0){
    this.bolaSlowT-=dt;
    this.targetSpd=this.baseSpd*0.20;
@@ -1941,6 +1942,7 @@ class Sphere{
   if(!nearest)return;
   const dx=nearest.x-this.x,dy=nearest.y-this.y,dist=nearDist||1;
   const spd=620;
+  window._balanceCombatTracker?.onAbilityUse(this.key,true);window._liveCombatTracker?.onAbilityUse(this.key,true);
   projectiles.push(new Bola(this.x,this.y,(dx/dist)*spd,(dy/dist)*spd,this));
   spawnSpark(this.x,this.y,'#d4a83a',6);
   spawnBurst(this.x,this.y,'#d4a83a',this.d.color,8);
@@ -2190,7 +2192,7 @@ class Sphere{
   }
   if(window._liveCombatTracker&&fd>0)this._recordLiveCombatDamage(fd);
   if(this.key==='flagellant')this._flagellantApplyWounds();
-  if(this.key==='sage'&&fd>0){const gain=Math.floor(fd/10);if(gain>0){this.knowledge=(this.knowledge||0)+gain;this.d=Object.assign({},this.d);this.d.dmg+=gain*.25;this.d.magDef+=gain*2;}}
+  if(this.key==='sage'&&fd>0){this.knowledgeAccum=(this.knowledgeAccum||0)+fd;while(this.knowledgeAccum>=8){this.knowledge=(this.knowledge||0)+1;this.d=Object.assign({},this.d);this.d.dmg+=.5;this.d.magDef+=2;this.knowledgeAccum-=8;}}
   if(this.key==='arcanist'&&fd>0){this.arcaneCharge=0;this.applyImpact((Math.random()-.5)*160,(Math.random()-.5)*160);}
   if(this.key==='gladiator'&&fd>0)this.favor=Math.max(0,(this.favor||0)-3);
   if(fd>0.5)spawnBloodSplat(this.x,this.y,this.d.color,fd);
