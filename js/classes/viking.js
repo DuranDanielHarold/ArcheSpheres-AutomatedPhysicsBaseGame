@@ -1,7 +1,7 @@
 'use strict';
 // ▓▓▓ MODULE: classes/viking.js — Viking sphere kit registry ▓▓▓
 
-DEF.viking = {"label":"Viking","weapon":"Battle Axe","ab":"Rage Spin","color":"#3a5070","dark":"#1a2a40","rim":"#6080a8","out":"#102030","wcol":"#c8a030","wdrk":"#886010","mass":8.5,"spd":219.45,"hp":470,"om":4.8,"dmg":4.5,"arm":112,"magDef":35,"rest":0.66,"reach":2.57,"tipR":0.45,"abilityType":"hybrid","passiveType":"hybrid","wt":"battleaxe"};
+DEF.viking = {"label":"Viking","weapon":"Battle Axe","ab":"Rage Spin","color":"#3a5070","dark":"#1a2a40","rim":"#6080a8","out":"#102030","wcol":"#c8a030","wdrk":"#886010","mass":8.5,"spd":219.5,"hp":470,"om":4.8,"dmg":4.5,"arm":112,"magDef":35,"rest":0.7,"reach":2.6,"tipR":0.5,"abilityType":"hybrid","passiveType":"hybrid","wt":"battleaxe"};
 CLASS_ROLE.viking = "FIGHTER";
 CLASS_DESC.viking = {
   "ability": "Rage Spin (5 stacks) — Enters Berserker mode for 4s: spin locks at max rage, damage becomes 1.3×, and collision knockback dealt is doubled.",
