@@ -52,7 +52,7 @@ class Sphere{
   this.golemFortifyActive=false;
   this.rebirthDone=false;
   this.phoenixEmber=0;this.phoenixEmberFlash=0;this.ashwingActive=false;this.ashwingT=0;
-  this.deathMarkTicks=0;this.deathMarkTimer=0;this.deathMarkDmg=0;this.deathMarkDoTHits=0;this.deathMarkSourceKey=null;
+  this.deathMarkTicks=0;this.deathMarkTimer=0;this.deathMarkDmg=0;this.deathMarkDoTHits=0;this.deathMarkSourceKey=null;this.deathMarkSource=null;
   this.woundT=0;
   this.pulseTimer=0;this.pulseWave=null;
   this.warlordSpinT=0; // spin window after earthquake
@@ -501,7 +501,7 @@ class Sphere{
     if(this.stacks>=3){
      this.stacks=0;
      const enNec=(this._nearestEnemy()||{}).enemy;
-     if(enNec&&enNec.deathMarkTicks===0){enNec.deathMarkTicks=7;enNec.deathMarkTimer=0.18;enNec.deathMarkSourceKey=this.key;enNec.deathMarkDmg=this.d.dmg*0.90+1.5;}
+     if(enNec&&enNec.deathMarkTicks===0){enNec.deathMarkTicks=7;enNec.deathMarkTimer=0.18;enNec.deathMarkSourceKey=this.key;enNec.deathMarkSource=this;enNec.deathMarkDmg=(this.d.dmg+5)*this.dmgMult*0.90+1.5;}
     } break;
     case 'trickster':
     if(this.stacks>=3){
@@ -971,7 +971,7 @@ class Sphere{
   if(this.deathMarkTicks>0){
    this.deathMarkTimer-=dt;
    if(this.deathMarkTimer<=0){
-    const _markBefore=this.hp;this.receiveDamage(this.deathMarkDmg);recordDamageEvent(this.deathMarkSourceKey,'dot',_markBefore-this.hp);
+    const _markBefore=this.hp;this.receiveMagicDamage(this.deathMarkDmg);recordDamageEvent(this.deathMarkSourceKey,'dot',_markBefore-this.hp);
     spawnToxicCloud(this.x,this.y);
     this.deathMarkDoTHits=(this.deathMarkDoTHits||0)+1;
     this.deathMarkTicks--;
@@ -979,10 +979,10 @@ class Sphere{
     if(this.deathMarkTicks<=0){
      if(this.deathMarkDoTHits>=7){
       this.deathMarkDoTHits=0; // reset for next skeleton
-      const necro=spheres.find(s=>s.key==='necromancer'&&s.alive&&!s.dying&&
-       (!sameFaction(this,s)));
-      if(necro){
-       skeletons.push(new Skeleton(this.x,this.y,necro.faction));
+      const necro=this.deathMarkSource;
+      if(necro&&necro.key==='necromancer'&&necro.alive&&!necro.dying&&
+       skeletons.filter(sk=>sk.alive&&sk.owner===necro).length<3){
+       skeletons.push(new Skeleton(this.x,this.y,necro.faction,necro));
        spawnBurst(this.x,this.y,'#7c4dff','#1a0a2e',16);
       }
      }
