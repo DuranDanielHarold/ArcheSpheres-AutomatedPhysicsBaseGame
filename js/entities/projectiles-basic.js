@@ -614,10 +614,12 @@ class SkullOrb{
      s.deathMarkTicks=7;
      s.deathMarkTimer=0.18;
      s.deathMarkSourceKey=this.owner.key;
+     s.deathMarkSource=this.owner;
      s.deathMarkDmg=this.dmg*0.90+1.5;
     } else {
      s.deathMarkTicks=Math.min(14,s.deathMarkTicks+7);
      s.deathMarkSourceKey=this.owner.key;
+     s.deathMarkSource=this.owner;
      s.deathMarkDmg=this.dmg*0.90+1.5;
      s.deathMarkDoTHits=(s.deathMarkDoTHits||0)+7; // credit a full sequence
     }
