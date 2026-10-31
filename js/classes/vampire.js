@@ -4,7 +4,7 @@
 DEF.vampire = {"label":"Vampire","weapon":"Crimson Claws","ab":"Swarm of the Night","color":"#1a0020","dark":"#0d000f","rim":"#cc0044","out":"#080008","wcol":"#cc0044","wdrk":"#880022","mass":5.5,"spd":269.96,"hp":179.11,"om":9,"dmg":3.75,"arm":0,"magDef":0,"rest":0.78,"reach":1.99,"tipR":0.42,"abilityType":"damage","passiveType":"hybrid","wt":"crimsonclaws"};
 CLASS_ROLE.vampire = "ASSASSIN";
 CLASS_DESC.vampire = {
-  "ability": "Swarm of the Night (3 stacks) — Enters a spectral ghost state for 1.8s. Becomes fully untargetable: all weapon hits and body collisions pass through. Spawns a thick bat cloud — enemies overlapping take 0.45× DMG ticks every 0.28s, and each tick heals the Vampire for 15% of damage dealt.",
+  "ability": "Swarm of the Night (6 stacks) — Enters a spectral ghost state for 1.8s. Becomes fully untargetable: all weapon hits and body collisions pass through. Spawns a thick bat cloud — enemies overlapping take 0.45× DMG ticks every 0.28s, and each tick heals the Vampire for 15% of damage dealt.",
   "passive": "Sanguine Thirst — Every melee strike from the Crimson Claws heals the Vampire for 25% of damage dealt while in physical (non-ghost) form. Twin rotating sickles hit from both angles."
 };
 STACK_THRESHOLD.vampire = 6;
