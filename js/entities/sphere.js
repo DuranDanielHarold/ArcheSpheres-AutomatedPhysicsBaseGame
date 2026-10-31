@@ -354,6 +354,7 @@ class Sphere{
   if(this.key==='berserker'&&this.ironWillActive)return; // Iron Will: ignore knockback
   if(this.key==='templar'){ivx*=0.5;ivy*=0.5;} // Immovable: halved collision KB
   if(this.key==='crusader'&&this.holyChargeActive)return; // Holy Charge: knockback immune
+  if(this.key==='guardian'&&this.phalanxActive){ivx*=0.7;ivy*=0.7;} // Phalanx: 30% knockback reduction
   this.impactVx+=ivx;this.impactVy+=ivy;this.impactDecay=2.2;
  }
  gainStack(){
@@ -947,7 +948,7 @@ class Sphere{
   if(this.fortified){
    this.golemFortifyT-=dt;
    if(this.golemFortifyT<=0){this.fortified=false;this.golemFortifyActive=false;this.golemFortifyT=0;this.dmgMult=1;}
-   else this.omegaCur=this.d.om*2*Math.sign(this.omegaCur||1);
+   else this.omegaCur=this.d.om*1.6*Math.sign(this.omegaCur||1);
   }
   if(this.snareActive){this.snareT+=dt;if(this.snareT>0.5)this.snareActive=false;}
   if(this.phaseOut){
@@ -2151,7 +2152,7 @@ class Sphere{
    const anchor=Math.max(0,Math.min(1,this.templarAnchor||0));
    fd*=0.85-(0.30*anchor);
   }
-  if(this.key==='golem')fd*=0.65;
+  if(this.key==='golem')fd*=0.78;
   if(this.key==='guardian'&&this.phalanxActive)fd*=0.45;
   if(this.sepsisWeakenedT>0)fd*=1.15;
   if(this.key==='crusader'&&this.crusaderRetributionShield>0&&this.crusaderRetributionShieldT>0&&fd>0){
