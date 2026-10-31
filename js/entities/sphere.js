@@ -207,7 +207,7 @@ class Sphere{
  _applyPrinceModeBonuses(){
   if(this.key!=='prince'||this.princeRoyalShield<=0||this.princeRoyalShieldT<=0)return;
   if(this.princeWeaponMode==='saber'){
-   this.d=Object.assign({},this.d);this.d.dmg+=2;this.princeModeDmgBonus=2;
+   this.d=Object.assign({},this.d);this.d.dmg+=1;this.princeModeDmgBonus=1;
    const bonus=Math.max(0.6,DEF.prince.om*0.18);const sign=Math.sign(this.omegaCur)||1;
    this.omegaCur=(Math.abs(this.omegaCur)+bonus)*sign;this.princeModeOmegaBonus=bonus;
   }
@@ -257,7 +257,7 @@ class Sphere{
  }
  _startPrinceRoyalBlood(){
   this.stacks=0;
-  this.princeRoyalShield=10;this.princeRoyalShieldT=6;
+  this.princeRoyalShield=8;this.princeRoyalShieldT=5;
   this._removePrinceModeBonuses();this._applyPrinceModeBonuses();
   spawnBurst(this.x,this.y,'#e6f0ff','#1747b8',22);
   spawnPulse(this.x,this.y,'#8bb7ff');
@@ -266,7 +266,7 @@ class Sphere{
  _breakPrinceRoyalShield(){
   if(this.key!=='prince'||this.princeRoyalShieldT<=0)return;
   this.princeRoyalShield=0;this.princeRoyalShieldT=0;this._removePrinceModeBonuses();
-  if(this.princeRoyalBulwarkBonus<=0){this.d=Object.assign({},this.d);this.d.arm+=30;this.d.magDef+=30;this.princeRoyalBulwarkBonus=30;}
+  if(this.princeRoyalBulwarkBonus<=0){this.d=Object.assign({},this.d);this.d.arm+=20;this.d.magDef+=20;this.princeRoyalBulwarkBonus=20;}
   this.princeRoyalBulwarkT=3;
   spawnBurst(this.x,this.y,'#ffd35a','#1747b8',18);
   spawnDmgNum(this.x,this.y-this.radius*1.9,'BULWARK +30','#ffd35a');
@@ -380,10 +380,10 @@ class Sphere{
   try{
   switch(this.key){
     case 'knight':
-    if(this.stacks>=5){
+    if(this.stacks>=6){
      this.stacks=0;
-     this.invincible=true;this.invincibleT=3.0;
-     this.dmgMult=1.4; // offensive surge during the bubble
+     this.invincible=true;this.invincibleT=2.0;
+     this.dmgMult=1.25; // offensive surge during the bubble
      spawnBurst(this.x,this.y,'#ffffff',this.d.rim,16);
     } break;
    case 'paladin':
@@ -423,11 +423,11 @@ class Sphere{
      if(enW){
       const dx=enW.x-this.x,dy=enW.y-this.y,dist=Math.hypot(dx,dy)||1;
       enW.applyImpact((dx/dist)*320,(dy/dist)*320);
-      enW.receiveDamage(18);
+      enW.receiveDamage(14);
      }
      spawnBurst(this.x,this.y,this.d.rim,this.d.color,28);
      for(let i=0;i<24;i++){const a=(i/24)*Math.PI*2;particles.push({x:this.x,y:this.y,vx:Math.cos(a)*220,vy:Math.sin(a)*220,life:1,maxL:.35,sz:5,col:this.d.rim,sq:false});}
-     this.warlordSpinT=3.0; // spin window after earthquake
+     this.warlordSpinT=2.0; // spin window after earthquake
     } break;
    case 'wizard':
     if(this.stacks>=4){
@@ -447,7 +447,7 @@ class Sphere{
      spawnBurst(this.x,this.y,ROD_COLORS[this.rodType],'#fff',14);
     } break;
    case 'viking':
-    if(this.stacks>=4&&!this.vikingRageSpinActive){
+    if(this.stacks>=5&&!this.vikingRageSpinActive){
      if(!this.vikingLastStandActive)this.stacks=0;
      this._startVikingRageSpin();
     }
@@ -486,8 +486,8 @@ class Sphere{
     } break;
    case 'templar':
     if(this.stacks>=3){
-     this.stacks=0;this.slowFieldActive=true;this.slowFieldT=3.0;
-     slowZones.push(new SlowZone(this.x,this.y,this.radius*2.5,3.0,this));
+     this.stacks=0;this.slowFieldActive=true;this.slowFieldT=4.5;
+     slowZones.push(new SlowZone(this.x,this.y,this.radius*3.2,4.5,this));
     } break;
    case 'druid':
     if(this.stacks>=3){
@@ -502,19 +502,19 @@ class Sphere{
      if(enNec&&enNec.deathMarkTicks===0){enNec.deathMarkTicks=7;enNec.deathMarkTimer=0.18;enNec.deathMarkSourceKey=this.key;enNec.deathMarkDmg=this.d.dmg*0.70+1;}
     } break;
     case 'trickster':
-    if(this.stacks>=2){
+    if(this.stacks>=3){
      this.stacks=0;this.phaseOut=true;this.phaseOutT=0.9;
      this.preinvincibleDmgMult=this.dmgMult;
-     this.invincible=true;this.invincibleT=0.5;this.phaseInvincible=true;
+     this.invincible=true;this.invincibleT=0.35;this.phaseInvincible=true;
      const randAngle=(Math.random()-0.5)*Math.PI*0.8;
      const spd=Math.hypot(this.vx,this.vy)||this.targetSpd;
      const curA=Math.atan2(this.vy,this.vx)+Math.PI+randAngle;
-     this.vx=Math.cos(curA)*spd*1.4;
-     this.vy=Math.sin(curA)*spd*1.4;
+     this.vx=Math.cos(curA)*spd*1.25;
+     this.vy=Math.sin(curA)*spd*1.25;
     } break;
    case 'guardian':
-    if(this.stacks>=2){
-     this.stacks=0;this.phalanxActive=true;this.phalanxT=3.5;
+    if(this.stacks>=3){
+     this.stacks=0;this.phalanxActive=true;this.phalanxT=2.5;
      spawnBurst(this.x,this.y,'#80cbc4','#e0f7fa',14);
     }
     break;
@@ -541,19 +541,19 @@ class Sphere{
     }
     this.draining=this.stacks>=1; break;
    case 'jester':
-    this.omegaCur=this.d.om*(1+1.5*(this.stacks/5))*Math.sign(this.omegaCur||1);
+    this.omegaCur=this.d.om*(1+0.9*(this.stacks/5))*Math.sign(this.omegaCur||1);
     if(this.stacks>=3){this.stacks=0;
      const chaosA=Math.random()*Math.PI*2;
-     this.vx=Math.cos(chaosA)*this.targetSpd*2.2;
-     this.vy=Math.sin(chaosA)*this.targetSpd*2.2;
+     this.vx=Math.cos(chaosA)*this.targetSpd*2.0;
+     this.vy=Math.sin(chaosA)*this.targetSpd*2.0;
      this.omegaCur*=-1;
-     this.dmgMult=1.7;
-     this.jesterLurchT=1.5;
+     this.dmgMult=1.35;
+     this.jesterLurchT=1.2;
     } break;
    case 'golem':
     if(this.stacks>=3){
-     this.stacks=0;this.fortified=true;this.golemFortifyActive=true;this.golemFortifyT=4.0;
-     this.dmgMult=1.4;
+     this.stacks=0;this.fortified=true;this.golemFortifyActive=true;this.golemFortifyT=3.0;
+     this.dmgMult=1.25;
      spawnBurst(this.x,this.y,'#b0bec5','#607d8b',16);
     }
     break;
@@ -580,7 +580,7 @@ class Sphere{
      this.stacks=0;
      this.ghostMode=true;
      this.untargetable=true;
-     this.swarmT=2.5;
+     this.swarmT=1.8;
      this.batTickT=0.25;
      spawnBurst(this.x,this.y,'#cc0044','#1a0020',24);
      spawnPulse(this.x,this.y,'#880022');
@@ -808,7 +808,7 @@ class Sphere{
    case 'king':
     if(this.stacks>=4){this.stacks=0;this.decreeT=6;this.dmgMult=1.6;this.omegaCur=(this.d.om*1.5)*Math.sign(this.omegaCur||1);for(let i=0;i<3;i++){const a=i*Math.PI*2/3+Math.random()*.4;skeletons.push(new BarbAlly(this.x+Math.cos(a)*this.radius*1.4,this.y+Math.sin(a)*this.radius*1.4,this));}spawnBurst(this.x,this.y,'#ffd35a','#d00020',30);spawnPulse(this.x,this.y,'#ffd35a');} break;
    case 'queen':
-    if(this.stacks>=4){
+    if(this.stacks>=3){
      this.stacks=0;this.queenGambitT=3;
      if(!this.queenGambitSavedDef){this.queenGambitSavedDef={arm:this.d.arm,magDef:this.d.magDef};this.d=Object.assign({},this.d);this.d.arm*=2/3;this.d.magDef*=2/3;}
      spawnDmgNum(this.x,this.y-this.radius*1.5,'GAMBIT','#ff8bd1');
@@ -2030,9 +2030,9 @@ class Sphere{
   }
   _startVikingRageSpin(){
    if(!window._balanceNoVisuals)_playSphereAudio(this.key,'ability');
-   this.vikingRageSpinActive=true;this.vikingRageSpinT=6.0;
-   this.dmgMult=1.6;
-   this.omegaCur=(this.d.om+4.0)*Math.sign(this.omegaCur||1);
+   this.vikingRageSpinActive=true;this.vikingRageSpinT=4.0;
+   this.dmgMult=1.3;
+   this.omegaCur=(this.d.om+2.0)*Math.sign(this.omegaCur||1);
    spawnBurst(this.x,this.y,this.d.rim,'#c8a030',18);
    spawnDmgNum(this.x,this.y-this.radius*1.6,'RAGE SPIN','#c8a030');
   }
