@@ -5,7 +5,7 @@ DEF.golem = {"label":"Golem","weapon":"Stone Slab","ab":"Fortify","color":"#607d
 CLASS_ROLE.golem = "TANK";
 CLASS_DESC.golem = {
   "ability": "Fortify (3 stacks) — Consumes stacks to fortify for 3s, gaining 1.6× spin and 1.25× damage before the stone surge decays.",
-  "passive": "Receives 78% physical damage. Heavier mass, 530 HP, 7.5 DMG, and 140 ARM make it nearly immovable from collision."
+  "passive": "Receives 78% physical damage. Heavier mass, 530 HP, 6.6 DMG, and 140 ARM make it nearly immovable from collision."
 };
 STACK_DISPLAY_THRESHOLD.golem = 3;
 SPHERE_AUDIO.golem = {
