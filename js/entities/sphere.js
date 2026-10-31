@@ -175,6 +175,7 @@ class Sphere{
   this.princeRoyalBulwarkT=0;this.princeRoyalBulwarkBonus=0;
   this.princeBowDraw=0;
   this.gravediggerWallContacts=0;
+  this.gravediggerLastExhumeMoundSeq=null;
   this.exhumeSpinT=0;
   this.locksmithLocks=0;this.locksmithJamT=0;
   this.gnawedStacks=0;this.gnawedT=0;this.gnawedSpeedMult=1;
