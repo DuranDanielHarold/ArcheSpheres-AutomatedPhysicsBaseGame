@@ -51,7 +51,7 @@ This is a progress record, not a claim that all gameplay changes have passed sim
 | Fairy | Wand damage +14; cooldown 0.14s normally / 0.08s during Wish; Wish clone scale remains 0.8 while the generic mirror default is 0.6. |
 | Witch | Hex Bolt cooldown 0.19s and +15 DMG; convergence bolts receive +9 DMG. |
 | Sheriff | Standard bullet +5 DMG; reload 0.60s with 0.30s floor; Bola root 1.4s; piercing shot 46 plus 7% target max HP. |
-| Necromancer | Skull Orb cooldown 0.20s and +5 DMG; Death Mark uses 0.90× projectile DMG + 1.5 per tick and can extend to 14 ticks. |
+| Necromancer | Skull Orb cooldown 0.20s and +5 DMG; Death Mark uses 0.90× projectile DMG + 1.5 raw damage per tick, with each tick mitigated by target MDEF, and can extend to 14 ticks. Completed mark sequences summon Skeletons, capped at 3 living Skeletons per Necromancer; death or lifespan expiry frees a slot. Wound halves healing received. |
 | Arcanist | Charge builds at 1.5× rate and loses 50% on damage; Shell +12 DMG, 2.1× radius, 3s burn zone (6s Overloaded), 4 magic damage per tick. |
 | Bard | Note cooldown 0.45s and +4 DMG; Crescendo uses +4 DMG at 2.6× multiplier; Sonic damage scales by 1 + 0.15 per bounce. |
 
