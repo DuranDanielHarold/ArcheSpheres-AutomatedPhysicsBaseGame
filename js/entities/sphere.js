@@ -1984,7 +1984,7 @@ class Sphere{
   const tip=this.getTip();
   const wx=Math.cos(this.angle),wy=Math.sin(this.angle);
   const spd=340;
-  const note=new SonicProjectile(tip.x,tip.y,wx*spd,wy*spd,(this.d.dmg+2)*this.dmgMult,this);
+  const note=new SonicProjectile(tip.x,tip.y,wx*spd,wy*spd,(this.d.dmg+4)*this.dmgMult,this);
   projectiles.push(note);
  }
   _shadowStepBounce(){
