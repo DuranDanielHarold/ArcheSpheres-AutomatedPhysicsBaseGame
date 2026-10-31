@@ -137,13 +137,13 @@ class GlassShard{
 class SlowZone{
  constructor(x,y,r,dur,owner){this.x=x;this.y=y;this.r=r;this.life=dur;this.maxLife=dur;this.owner=owner;}
  update(dt){this.life-=dt;}
- apply(s){
+ apply(s,dt){
   const isEnemy=!sameFaction(this.owner,s);
   if(!isEnemy) return;
   const d=Math.hypot(s.x-this.x,s.y-this.y);
   if(d<this.r+s.radius){
-   s.vx*=0.88;s.vy*=0.88;
-   s.impactVx*=0.88;s.impactVy*=0.88;
+   const decay=Math.pow(0.077,dt);s.vx*=decay;s.vy*=decay;
+   s.impactVx*=decay;s.impactVy*=decay;
   }
  }
  draw(){
