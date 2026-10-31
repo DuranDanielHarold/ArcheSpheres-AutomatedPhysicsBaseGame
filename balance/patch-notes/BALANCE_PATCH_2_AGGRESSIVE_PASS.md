@@ -1,92 +1,87 @@
 # Balance Patch 2 — Aggressive Initial Pass
 
-**Status: INCOMPLETE — draft implementation branch only. Do not merge or use for balance evaluation.**
+**Status: IMPLEMENTATION IN PROGRESS — keep PR #102 in draft; do not merge or use as a new balance baseline yet.**
 
 - Requested baseline: `balance-baseline-2026-10-31T05-48-32-534Z`
-- Baseline configuration: 50,000 matches, seed 1337, dt 0.05, no overrides; PR #100/#101 live values; hit-buff cap 10; Flagellant wound cap 3.
+- Baseline configuration: 50,000 matches, seed 1337, dt 0.05, no overrides; includes PR #100/#101 live values; hit-buff cap 10; original Flagellant wound cap 3.
 - Branch: `balance/patch-2-aggressive`
 - Target: `main`
 
-This document records what has actually been committed to the branch so far. It is not a declaration that the full specification has been implemented.
+This is a progress record, not a claim that all gameplay changes have passed simulation review. The implementation is deliberately unmerged.
 
-## Applied changes
-
-### Telemetry and bug-fix pass
+## Applied telemetry and bug-fix pass
 
 | ID | File | Applied change |
 |---|---|---|
-| T1 | `js/entities/sphere.js` | Live ability tracker records a stack-consuming activation when entry stacks are greater than zero, rather than requiring entry stacks to meet the default threshold. |
-| T1 | `js/tools/balance-runner.js` | Balance-runner wrapper uses the same `before > 0` activation condition. |
+| T1 | `js/entities/sphere.js`, `js/tools/balance-runner.js` | Stack-consuming activations are counted when entry stacks are greater than zero, including non-default stack thresholds. |
 | T2 | `js/entities/sphere.js` | Sheriff Bola firing reports an ability use to both balance and live combat trackers. |
-| B1 | `js/entities/sphere.js` | Plague Doctor is saved as `virulenceSource` when applying Virulence; wall-bounce ToxicSmear instances use that source as owner. All four matching wall-smear construction sites were updated. |
-| B2 | `js/combat/collisions.js` | Courtly Menace damage reduction now checks the attacking sphere's `courtlyT` and applies a 15% reduction. Primary and secondary weapon-hit paths were changed. |
-| B3 | `js/entities/zones-and-traps.js`, `js/entities/sphere.js` | SlowZone accepts dt and applies `Math.pow(0.077, dt)` to velocity and impact velocity; Sphere passes dt to the zone. |
-| B4 | `js/entities/sphere.js` | Sage Knowledge accumulates damage and grants one Knowledge per 8 accumulated damage, adding +0.5 DMG and +2 MDEF per Knowledge. |
-| B5 | `js/combat/collisions.js` | Removed the duplicate Gladiator Favor gain and omega nudge from the weapon-hit path; the gain in `_applyHitBuff` remains. |
+| B1 | `js/entities/sphere.js` | Plague Doctor is retained as the source of wall-bounce ToxicSmear zones. |
+| B2 | `js/combat/collisions.js` | Courtly Menace applies 15% less outgoing damage to attackers affected by the Queen's aura in primary and secondary weapon-hit paths. |
+| B3 | `js/entities/zones-and-traps.js`, `js/entities/sphere.js` | SlowZone velocity decay is dt-based (`Math.pow(0.077, dt)`); Sphere passes dt into the zone. |
+| B4 | `js/entities/sphere.js` | Sage Knowledge accumulates damage; each 8 accumulated damage grants +0.5 DMG and +2 MDEF. |
+| B5 | `js/combat/collisions.js` | Removed duplicate Gladiator Favor gain/omega nudge from the weapon-hit path; the gain in `_applyHitBuff` remains. |
 
-### Class registry edits committed
+## Applied class and combat changes
 
-The following base-definition/registry changes have been committed. These are not yet a complete implementation of their associated mechanics.
+### Core melee, passive, and zone mechanics
 
-| Class | Before → after |
+| Class/system | Applied values or behavior |
 |---|---|
-| Phoenix | HP 371.72 → 350; DMG 4.13 → 3.9; OM 7.5 → 7.0; stack display threshold 3 → 5 |
-| Jester | OM 13 → 11; DMG 3.24 → 3.0 |
-| Viking | HP 496.5 → 470; DMG 4.8 → 4.5; ARM 120 → 112; stack threshold/display 4 → 5 |
-| Warlord | HP 461 → 440; DMG 6.1 → 5.5; reach 3.4 → 3.1; mass 16 → 14 |
-| Knight | HP 445.37 → 430; ARM 128 → 118; stack display threshold 5 → 6 |
-| Trickster | SPD 269.89 → 255; HP 377.34 → 365; stack threshold/display 2 → 3 |
-| Golem | DMG 7.52 → 6.6 |
-| Prince | OM 8.5 → 7.8; stack threshold/display 4 → 5 |
-| Gladiator | DMG 4.97 → 4.5; SPD 259 → 245; stack threshold/display 3 → 4 |
-| Paladin | ARM 164.5 → 152 |
-| Alchemist | stack threshold/display 3 → 4 |
-| Pirate | HP 498.92 → 470; OM 8 → 7.4; stack threshold/display 3 → 3 |
-| Berserker | DMG 4.38 → 4.1 |
-| Stormbringer | DMG 4.07 → 3.8 |
-| Crusader | ARM 170.52 → 156 |
-| Guardian | stack display threshold 2 → 3 |
-| Barbarian | DMG 5.4 → 5.1 |
-| Templar | DMG 3.26 → 4.3; OM 4.1 → 4.8 |
-| Whelpling | DMG 5.35 → 6.0; OM 5 → 6.0 |
-| Locksmith | DMG 3.67 → 4.2 |
-| Glassblower | DMG 3.05 → 3.5 |
-| Queen | HP 281.89 → 330; stack threshold/display 4 → 3 |
-| Ratcatcher | DMG 2.92 → 3.4 |
+| Phoenix | Rebirth heal 30%, invulnerability 1.0s; Phoenix registry values adjusted in the class file. |
+| Jester | Chaos Lurch damage multiplier reduced to 1.35; 1.0s dizzy recovery at 45% spin; stack threshold/display adjusted. |
+| Viking | Last Stand duration 4.5s; registry and threshold changes committed. |
+| Templar | Anchor threshold uses 0.65× base speed; anchor gains 0.9/s normally or 1.5/s during Slow Field, decays 0.4/s; physical mitigation is `0.85 - 0.40 × anchor`; Slow Field lasts 4.5s, has 3.2× radius, and uses 1.3 damage multiplier. |
+| Whelpling | Growth every 3s; each growth adds +1 mass, +2 radius, +15 max HP, +8 current HP, +0.25 DMG, and +0.12 OM; BreathFlame uses 1.0× DMG. |
+| Queen | 3-stack Gambit lasts 4s; successful back hits add 1% base DMG; Courtly Menace reduces affected attackers' outgoing damage by 15%; HP registry value set to 330. |
+| Locksmith | Two clash Locks cause a 1.6s jam; Master Key extends a two-Lock jam to 1.8s. |
+| Glassblower | Shards deal 12 true damage on contact and 9 on detonation; shatter speed threshold 130; Bleeding Glass deals 2.5 damage per tick for up to 4s; shard cap remains 18; shards drop on wall bounces and weapon hits. |
+| Druid | Thorn Patch uses 2.8× radius, 8s duration, and 1.1× DMG ticks every 2.5s; passive whip sweep is every 2.5s at 0.8× DMG. |
+| Gravedigger | Burial Mound every fourth wall contact; mound trigger damage is `max(1, targetHP × 0.045)`. |
+| Ratcatcher | Gnaw bite deals 3; normal rat tick deals 1.5; rat lifetime 6s; Gnawed speed multiplier is `max(0.6, 1 - stacks × 0.08)`, capped at 5 stacks. |
+| Voidwalker | Singularity damage is 0.45× DMG on its 0.35s tick; Void Tear damage is 0.55× DMG every 0.45s. |
+| Flagellant | Sacred Wounds cap is 5 tiers; each 15 HP lost adds +0.8 DMG and +0.4 OM/spin. |
 
-**Important:** The table above reports committed class-registry values only. It does not imply that the corresponding combat mechanics, class descriptions, or all stack-threshold runtime behavior have been updated.
+### Ranged class mechanics
 
-## Not yet implemented
+| Class | Applied values or behavior |
+|---|---|
+| Sage | Wisdom Word cooldown 0.26s and +26 DMG; Foresight Wisdom Wave uses 12× DMG and 5.5× sphere-radius range. |
+| Wizard | Flame Bolt cooldown 0.17s; standard and Rod bolts receive +11 DMG. |
+| Ranger | Volley uses 4 bursts and +4 volley damage; critical chance scales at 1.2× lost-HP fraction (60% cap); arrow bonus +7. |
+| Fairy | Wand damage +14; cooldown 0.14s normally / 0.08s during Wish; Wish clone scale remains 0.8 while the generic mirror default is 0.6. |
+| Witch | Hex Bolt cooldown 0.19s and +15 DMG; convergence bolts receive +9 DMG. |
+| Sheriff | Standard bullet +5 DMG; reload 0.60s with 0.30s floor; Bola root 1.4s; piercing shot 46 plus 7% target max HP. |
+| Necromancer | Skull Orb cooldown 0.20s and +5 DMG; Death Mark uses 0.90× projectile DMG + 1.5 per tick and can extend to 14 ticks. |
+| Arcanist | Charge builds at 1.5× rate and loses 50% on damage; Shell +12 DMG, 2.1× radius, 3s burn zone (6s Overloaded), 4 magic damage per tick. |
+| Bard | Note cooldown 0.45s and +4 DMG; Crescendo uses +4 DMG at 2.6× multiplier; Sonic damage scales by 1 + 0.15 per bounce. |
 
-The following requested work remains incomplete and must be finished before this branch is mergeable:
+### Class registry and description work
 
-- Remaining core ability changes for Phoenix, Jester, Viking, Warlord, Knight, Trickster, Golem, Prince, Vampire, Gladiator, Paladin, Alchemist, Pirate, Berserker, Stormbringer, Crusader, Guardian, Barbarian, Templar, Whelpling, Locksmith, Glassblower, Queen, Flagellant, Druid, Gravedigger, Ratcatcher, and Voidwalker.
-- Remaining ranged changes for Sage, Wizard, Ranger, Fairy, Witch, Sheriff, Necromancer, Arcanist, and Bard.
-- Projectile/zone changes in the projectile roster, including Alchemist miasma and all listed projectile damage/cadence adjustments.
-- The full set of class-description corrections and threshold/runtime consistency checks.
-- Correct default Flagellant wound cap of 5.
-- The Jester dizzy drawback and Fairy clone-scale isolation.
-- The requested full before/after table for every specified mechanic.
-- README monitoring note is present, but the final monitoring guidance still needs review.
+Registry edits and one-decimal/integer defense normalization have been applied to the 37 class files changed in this PR. Touched class descriptions have been revised for the updated abilities and passives, including the Jester dizzy drawback and Fairy clone-scale distinction. The class files remain subject to gameplay and description review against the original request.
 
-## Baseline invalidation notice
+## Verification completed
 
-Once the full patch is implemented, all earlier baselines must be considered invalid for abilityUsesPerSec/abilityAction, Plague smear attribution, Queen, Sage, Templar, Gladiator Favor, and every changed class. Until the remaining changes are implemented, this branch must not be treated as the completed Patch 2 baseline.
+- All 37 changed class JavaScript files passed syntax parsing via the JavaScript function parser.
+- All 37 changed class registries passed the single-`DEF` assignment and numeric precision audit after correcting Flagellant and Void Walker values: ARM/MDEF are integers; other numeric stats have at most one decimal.
+- The seven shared runtime files (`sphere.js`, `collisions.js`, `zones-and-traps.js`, the three projectile files, and `balance-runner.js`) passed syntax parsing.
+- Escaped-backtick / escaped-`${}` scan across those seven shared runtime files found no artifacts.
 
-## Verification status
+These checks are not a substitute for running `node --check` in the project environment or exercising the game in a browser.
 
-- GitHub branch creation: completed.
-- JavaScript syntax checks: **not run**. The GitHub connector used for these edits does not provide a local Node.js execution environment.
-- Escaped-backtick / ${} artifact scan: **not run**.
-- DEF single-assignment audit: **not run**.
-- Integer ARM/MDEF audit: **not run**.
-- Static out-of-scope class-change audit: **not run**.
-- Browser tests: **not run**.
-- 50,000-match seeded baseline: **owner-executed; not run here**.
-- Determinism check: **owner-executed; not run here**.
-- Merge: **not authorized**.
+## Still required before review
 
-The requested owner-executed commands remain:
+- Reconcile every remaining class-specific before/after value and behavior against the complete original Balance Patch 2 request; this document is not yet a full exhaustive change ledger.
+- Run a complete static out-of-scope diff audit and review every changed class description/threshold against runtime behavior.
+- Run `node --check` (or the project's actual syntax/test scripts) in a local/CI Node environment.
+- Run browser smoke tests for melee, ranged projectiles, status effects, and zones.
+- Run the requested 50,000-match seeded baseline and determinism comparison; no balance conclusion can be made from code edits alone.
+- Keep PR #102 as draft and do not merge until those checks and the simulation comparison are complete.
+
+## Baseline invalidation
+
+The requested baseline is no longer comparable once the complete patch is applied. Re-run the same 50,000-match configuration (seed 1337, dt 0.05, no overrides) after all code changes are complete. Until then, do not treat this branch as the completed Patch 2 baseline.
+
+## Owner-executed simulation commands
 
 ```js
 await runBalanceBaseline({minutes:240,roundsPerPair:1,dt:1/20,targetMatches:50000,chunkSize:100,noVisuals:true,seed:1337});
