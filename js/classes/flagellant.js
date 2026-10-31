@@ -6,7 +6,7 @@ DEF.flagellant = {"label":"Flagellant","sphereMelee":true,"weapon":"Knotted Scou
 CLASS_ROLE.flagellant = "FIGHTER";
 CLASS_DESC.flagellant = {
   "ability": "Penitence (3 stacks) — Deals 10 true self-damage, grants 1.5s invincibility during the ritual, and releases a contact-range shockwave that deals the same 10 damage to enemies.",
-  "passive": "Sacred Wounds — Every 15 HP lost permanently increases damage output by +0.8 and spin by +0.4. Losing health turns the Flagellant into a mounting offensive threat."
+  "passive": "Sacred Wounds — Every 15 HP lost permanently increases damage output by +0.8 and spin by +0.4, up to 5 wound tiers. Losing health turns the Flagellant into a mounting offensive threat."
 };
 STACK_THRESHOLD.flagellant = 3;
 STACK_DISPLAY_THRESHOLD.flagellant = 3;
