@@ -269,7 +269,7 @@ class Sphere{
   if(this.princeRoyalBulwarkBonus<=0){this.d=Object.assign({},this.d);this.d.arm+=20;this.d.magDef+=20;this.princeRoyalBulwarkBonus=20;}
   this.princeRoyalBulwarkT=3;
   spawnBurst(this.x,this.y,'#ffd35a','#1747b8',18);
-  spawnDmgNum(this.x,this.y-this.radius*1.9,'BULWARK +30','#ffd35a');
+  spawnDmgNum(this.x,this.y-this.radius*1.9,'BULWARK +20','#ffd35a');
  }
  _firePrinceArrow(){
   // Projectiles must honor the weapon's current facing. Do not auto-aim at enemies.
@@ -429,6 +429,7 @@ class Sphere{
      spawnBurst(this.x,this.y,this.d.rim,this.d.color,28);
      for(let i=0;i<24;i++){const a=(i/24)*Math.PI*2;particles.push({x:this.x,y:this.y,vx:Math.cos(a)*220,vy:Math.sin(a)*220,life:1,maxL:.35,sz:5,col:this.d.rim,sq:false});}
      this.warlordSpinT=2.0; // spin window after earthquake
+      this.omegaCur=this.d.om*1.5*Math.sign(this.omegaCur||1);
     } break;
    case 'wizard':
     if(this.stacks>=4){
