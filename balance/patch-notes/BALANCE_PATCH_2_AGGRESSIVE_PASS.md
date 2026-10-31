@@ -27,7 +27,7 @@ This is a progress record, not a claim that all gameplay changes have passed sim
 
 | Class/system | Applied values or behavior |
 |---|---|
-| Phoenix | Rebirth heal 30%, invulnerability 1.0s; Phoenix registry values adjusted in the class file. |
+| Phoenix | Rebirth heal 18%, invulnerability 0.6s; Ashwing lasts 1.4s. |
 | Jester | Chaos Lurch damage multiplier reduced to 1.35; 1.0s dizzy recovery at 45% spin; stack threshold/display adjusted. |
 | Viking | Last Stand duration 4.5s; registry and threshold changes committed. |
 | Templar | Anchor threshold uses 0.65× base speed; anchor gains 0.9/s normally or 1.5/s during Slow Field, decays 0.4/s; physical mitigation is `0.85 - 0.40 × anchor`; Slow Field lasts 4.5s, has 3.2× radius, and uses 1.3 damage multiplier. |
@@ -90,3 +90,15 @@ await runBalanceBaseline({minutes:240,roundsPerPair:1,dt:1/20,targetMatches:5000
 ```js
 (async()=>{const o={minutes:1,roundsPerPair:1,keys:['phoenix','jester','sage','templar','plague','queen'],exportJson:false,exportCsv:false};const a=await runBalanceBaseline(o),b=await runBalanceBaseline(o);console.assert(JSON.stringify(a.classes)===JSON.stringify(b.classes),'class rows must be identical');console.table(a.classes.map(r=>({key:r.key,winPct:r.winPct,abilityUsesPerSec:r.avgAbilityUsesPerSec})));})();
 ```
+
+
+## Additional regression audit fixes
+
+| Area | Finding | Correction |
+|---|---|---|
+| Knight | Ability condition was raised to 6 stacks, but its registry inherited the default stack cap of 5, making activation unreachable. | Set both `STACK_THRESHOLD.knight` and `STACK_DISPLAY_THRESHOLD.knight` to 6. |
+| Plague Doctor | ToxicSmear used `sameFaction` as the enemy test, so it selected allies and damaged its own source team. | Reverse the faction predicate; smears now slow/damage opposing spheres only. |
+| Warlord | The 2s Earthquake spin window did not actually set the promised 1.5× spin rate. | Set `omegaCur` to 1.5× base spin when Earthquake activates. |
+| Prince | Royal Bulwark applied +20 ARM/MDEF but displayed `BULWARK +30`. | Correct the floating combat label to +20. |
+
+These are code-review corrections, not evidence of a completed balance simulation. ToxicSmear's faction predicate was also wrong on `main`; this draft now carries the correction.
