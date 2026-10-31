@@ -262,7 +262,7 @@ function _weaponHit(att,def){
     // Whelpling: open the upper jaw, lunge forward, then clamp shut.
     if(att.key==='whelpling'&&att.mouthOpenMode!==2){att.mouthOpenTimer=0.42;att.mouthOpenMode=1;}
     if(traits&&att.key==='vampire'&&!att.ghostMode){
-    att.receiveHeal(dmg*0.25);
+    att.receiveHeal(dmg*0.15);
     spawnSpark(att.x,att.y,'#cc0044',3);
    }
     if(traits&&att.key==='monk'&&att.nirvanaActive){
