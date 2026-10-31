@@ -93,7 +93,7 @@ class Sphere{
   this.hitBuffStacks=0;      // increments on each successful hit
   this.lowHpBuffApplied=false;
   this.sheriffHitCount=0;
-  this.sheriffReloading=false;this.sheriffReloadT=0;this.sheriffReloadDuration=0.75;
+  this.sheriffReloading=false;this.sheriffReloadT=0;this.sheriffReloadDuration=0.60;
   this.sheriffCylinder=6;    // shots remaining in cylinder
   this.cylinderRot=0;        // visual cylinder rotation
   this.bolaRootT=0;
@@ -284,7 +284,7 @@ class Sphere{
   // Sage words fire straight from the tome tip instead of snapping aim to a target.
   const tip=this.getTip(),spd=330;
   const wx=Math.cos(this.angle),wy=Math.sin(this.angle);
-  projectiles.push(new RosterBolt(tip.x,tip.y,wx*spd,wy*spd,(this.d.dmg+12)*this.dmgMult,this,'word'));
+  projectiles.push(new RosterBolt(tip.x,tip.y,wx*spd,wy*spd,(this.d.dmg+26)*this.dmgMult,this,'word'));
   spawnSpark(tip.x,tip.y,'#d6f0b2',4);
  }
  _onWallBounce(){
@@ -441,7 +441,7 @@ class Sphere{
      const ROD_COLORS=['#ffee00','#ff4400','#44aaff','#ffffff','#886633'];
      for(let i=0;i<3;i++){
       const a=(i/3)*Math.PI*2+this.angle;
-      const bolt=new FlameBolt(tip5.x,tip5.y,Math.cos(a)*420,Math.sin(a)*420,(this.d.dmg+5+staffPower)*this.dmgMult,this);
+      const bolt=new FlameBolt(tip5.x,tip5.y,Math.cos(a)*420,Math.sin(a)*420,(this.d.dmg+11+staffPower)*this.dmgMult,this);
       bolt.rodType=this.rodType;bolt.rodCol=ROD_COLORS[this.rodType];bolt.effectPower=staffPower;
       projectiles.push(bolt);
      }
@@ -528,10 +528,10 @@ class Sphere{
    case 'ranger':
     if(this.stacks>=4){
      this.stacks=0;
-     this.volleyActive=true;this.volleyBurstsLeft=3;
+     this.volleyActive=true;this.volleyBurstsLeft=4;
      this.volleyBurstTimer=0;
      this.volleyWindowT=10.0;
-     this.volleyDmgBonus=2;
+     this.volleyDmgBonus=4;
     }
     this.spreadActive=this.stacks>=4; break;
    case 'pirate':
@@ -619,7 +619,7 @@ class Sphere{
      // Fire SonicProjectile along weapon tip angle — player aims by spinning
      const bTip=this.getTip();
      const bwx=Math.cos(this.angle),bwy=Math.sin(this.angle);
-     projectiles.push(new SonicProjectile(bTip.x,bTip.y,bwx*480,bwy*480,(this.d.dmg+2)*2.2*this.dmgMult,this));
+     projectiles.push(new SonicProjectile(bTip.x,bTip.y,bwx*480,bwy*480,(this.d.dmg+4)*2.6*this.dmgMult,this));
      spawnBurst(this.x,this.y,this.d.rim,'#e040fb',16);
      spawnPulse(this.x,this.y,'#e040fb');
     } break;
@@ -801,7 +801,7 @@ class Sphere{
      spawnPulse(this.x,this.y,'#82f4ff');
     } break;
    case 'witch':
-    if(this.stacks>=3){this.stacks=0;this._aimAbilityAtNearestEnemy(.38);this.hexBurstFired=true;this.hexBurstFiredT=.5;const tip=this.getTip();for(const off of[-.16,0,.16]){const a=this.angle+off;projectiles.push(new RosterBolt(tip.x,tip.y,Math.cos(a)*240,Math.sin(a)*240,(this.d.dmg+4)*this.dmgMult,this,'hex'));}spawnBurst(this.x,this.y,'#d77bff','#5b1f86',16);} break;
+    if(this.stacks>=3){this.stacks=0;this._aimAbilityAtNearestEnemy(.38);this.hexBurstFired=true;this.hexBurstFiredT=.5;const tip=this.getTip();for(const off of[-.16,0,.16]){const a=this.angle+off;projectiles.push(new RosterBolt(tip.x,tip.y,Math.cos(a)*240,Math.sin(a)*240,(this.d.dmg+9)*this.dmgMult,this,'hex'));}spawnBurst(this.x,this.y,'#d77bff','#5b1f86',16);} break;
    case 'spartan':
     if(this.stacks>=3||this.ironStacks>=5){this.stacks=0;this.ironStacks=0;this._aimAbilityAtNearestEnemy(.32);this.ramActive=true;this.ramDisplace=true;this.ramT=0.55;this.dmgMult=1;this.vx=Math.cos(this.angle)*this.baseSpd*2.6;this.vy=Math.sin(this.angle)*this.baseSpd*2.6;this.targetSpd=this.baseSpd*2.6;spawnBurst(this.x,this.y,'#d24634','#d8b060',18);} break;
    case 'gladiator':
@@ -1438,7 +1438,7 @@ class Sphere{
     break;
    case 'ranger':
     const rangerHpLost=this.maxHp>0?Math.max(0,1-(this.hp/this.maxHp)):0;
-    this.critChance=Math.min(0.60,rangerHpLost);
+    this.critChance=Math.min(0.60,rangerHpLost*1.2);
     this.critDamageBonus=Math.min(0.30,rangerHpLost);
     this.drawCharge=Math.min(1,this.drawCharge+(dt/0.13));
     if(!this.volleyActive&&this.drawCharge>=1&&this.shotCD<=0){
@@ -1480,10 +1480,10 @@ class Sphere{
     } else if(this.targetSpd>this.baseSpd*1.05&&!this.ramActive&&!this.spiralActive){
      this.targetSpd=this.baseSpd;
     }
-    if(this.shotCD<=0){this.shotCD=0.22;this._fireFlameBolt();}
+    if(this.shotCD<=0){this.shotCD=0.17;this._fireFlameBolt();}
     this._applyKite(dt); break;
    case 'necromancer':
-    if(this.shotCD<=0){this.shotCD=0.23;this._fireSkullOrb();}
+    if(this.shotCD<=0){this.shotCD=0.20;this._fireSkullOrb();}
     this._applyKite(dt); break;
    case 'sheriff':
     this.cylinderRot=(this.cylinderRot||0)+dt*2;
@@ -1497,7 +1497,7 @@ class Sphere{
     }
     if(this.sheriffReloading){
      const hpLossPct=this.maxHp>0?Math.max(0,(1-this.hp/this.maxHp)*100):0;
-     this.sheriffReloadDuration=Math.max(0.35,0.75-Math.min(0.4,hpLossPct*0.05));
+     this.sheriffReloadDuration=Math.max(0.30,0.60-Math.min(0.4,hpLossPct*0.05));
      this.sheriffReloadT-=dt;
      if(this.sheriffReloadT<=0){
       this.sheriffReloading=false;this.sheriffCylinder=6;
@@ -1510,7 +1510,7 @@ class Sphere{
      this.cylinderRot+=(Math.PI*2/6);
      if(this.sheriffCylinder<=0){
       const hpLossPct=this.maxHp>0?Math.max(0,(1-this.hp/this.maxHp)*100):0;
-      this.sheriffReloadDuration=Math.max(0.35,0.75-Math.min(0.4,hpLossPct*0.05));
+      this.sheriffReloadDuration=Math.max(0.30,0.60-Math.min(0.4,hpLossPct*0.05));
       this.sheriffReloading=true;this.sheriffReloadT=this.sheriffReloadDuration;
       spawnPulse(this.x,this.y,'#d4a83a');
      }
@@ -1620,7 +1620,7 @@ class Sphere{
    case 'bard':
     this.noiseTrapCD=Math.max(0,this.noiseTrapCD-dt);
     if(this.shotCD<=0){
-     this.shotCD=0.55;
+     this.shotCD=0.45;
      this._fireMusicNote();
      // Discordant Echo — spawn NoiseTrap at current position (with CD)
      if(this.noiseTrapCD<=0){
@@ -1718,14 +1718,14 @@ class Sphere{
      }
     }
     break;
-   case 'witch': if(this.hexBurstFiredT>0){this.hexBurstFiredT-=dt;if(this.hexBurstFiredT<=0)this.hexBurstFired=false;}if(this.shotCD<=0){this.shotCD=.22;const tip=this.getTip();projectiles.push(new RosterBolt(tip.x,tip.y,Math.cos(this.angle)*250,Math.sin(this.angle)*250,(this.d.dmg+9)*this.dmgMult,this,'hex'));}this._applyKite(dt);break;
-   case 'fairy': this.dustDropT-=dt;if(this.dustDropT<=0){this.dustDropT=.22;noiseTraps.push(new PixieDustPatch(this.x,this.y,this));}if(this.wishFireRateT>0)this.wishFireRateT=Math.max(0,this.wishFireRateT-dt);if(this.shotCD<=0){this.shotCD=this.wishFireRateT>0?.10:.17;const tip=this.getTip();projectiles.push(new RosterBolt(tip.x,tip.y,Math.cos(this.angle)*360,Math.sin(this.angle)*360,(this.d.dmg+9)*.85,this,'dust'));}if(this.wishDashT>0){this.wishDashT-=dt;if(this.wishDashT<=0)this.targetSpd=this.baseSpd;}this._applyKite(dt);break;
-   case 'arcanist': this.arcaneCharge=Math.min(5,(this.arcaneCharge||0)+dt);if(this.overloadActive){this.overloadT-=dt;if(this.overloadT<=0)this.overloadActive=false;}if(this.shotCD<=0){this.shotCD=this.overloadActive?.20:.38;const tip=this.getTip(),spd=this.overloadActive?660:220;const b=new RosterBolt(tip.x,tip.y,Math.cos(this.angle)*spd,Math.sin(this.angle)*spd,(this.d.dmg+8)*this.dmgMult,this,'arcane');if(this.arcaneCharge>=5){const en=(this._nearestEnemy()||{}).enemy;if(en){b.x=en.x;b.y=en.y;b._explode(en);}this.arcaneCharge=0;}else projectiles.push(b);}this._applyKite(dt);break;
+   case 'witch': if(this.hexBurstFiredT>0){this.hexBurstFiredT-=dt;if(this.hexBurstFiredT<=0)this.hexBurstFired=false;}if(this.shotCD<=0){this.shotCD=.19;const tip=this.getTip();projectiles.push(new RosterBolt(tip.x,tip.y,Math.cos(this.angle)*250,Math.sin(this.angle)*250,(this.d.dmg+15)*this.dmgMult,this,'hex'));}this._applyKite(dt);break;
+   case 'fairy': this.dustDropT-=dt;if(this.dustDropT<=0){this.dustDropT=.22;noiseTraps.push(new PixieDustPatch(this.x,this.y,this));}if(this.wishFireRateT>0)this.wishFireRateT=Math.max(0,this.wishFireRateT-dt);if(this.shotCD<=0){this.shotCD=this.wishFireRateT>0?.08:.14;const tip=this.getTip();projectiles.push(new RosterBolt(tip.x,tip.y,Math.cos(this.angle)*360,Math.sin(this.angle)*360,(this.d.dmg+14)*1.0,this,'dust'));}if(this.wishDashT>0){this.wishDashT-=dt;if(this.wishDashT<=0)this.targetSpd=this.baseSpd;}this._applyKite(dt);break;
+   case 'arcanist': this.arcaneCharge=Math.min(5,(this.arcaneCharge||0)+dt*1.5);if(this.overloadActive){this.overloadT-=dt;if(this.overloadT<=0)this.overloadActive=false;}if(this.shotCD<=0){this.shotCD=this.overloadActive?.20:.38;const tip=this.getTip(),spd=this.overloadActive?660:220;const b=new RosterBolt(tip.x,tip.y,Math.cos(this.angle)*spd,Math.sin(this.angle)*spd,(this.d.dmg+12)*this.dmgMult,this,'arcane');if(this.arcaneCharge>=5){const en=(this._nearestEnemy()||{}).enemy;if(en){b.x=en.x;b.y=en.y;b._explode(en);}this.arcaneCharge=0;}else projectiles.push(b);}this._applyKite(dt);break;
    case 'queen': if(this.queenGambitT>0){this.queenGambitT-=dt;if(this.queenGambitT<=0&&this.queenGambitSavedDef){this.d=Object.assign({},this.d);this.d.arm=this.queenGambitSavedDef.arm;this.d.magDef=this.queenGambitSavedDef.magDef;this.queenGambitSavedDef=null;spawnDmgNum(this.x,this.y-this.radius*1.5,'NORMAL','#ffb8e6');}}if(this.queenInvisibleT>0){this.queenInvisibleT-=dt;if(this.queenInvisibleT<=0){this.queenInvisible=false;this.untargetable=false;for(let i=0;i<3;i++){const a=i*Math.PI*2/3+Math.random()*.4;skeletons.push(new ArcherAlly(this.x+Math.cos(a)*this.radius*1.3,this.y+Math.sin(a)*this.radius*1.3,this));}spawnBurst(this.x,this.y,'#ff69b4','#ffb8e6',18);}}for(const en of spheres){if(!sameFaction(this,en)&&en.alive&&!en.dying&&Math.hypot(en.x-this.x,en.y-this.y)<this.radius*2.9+en.radius){en.courtlyT=1.5;en.vx*=.90;en.vy*=.90;}}break;
    case 'prince': this._updatePrinceWeaponMaster(dt);break;
    case 'king': if(this.decreeT>0){this.decreeT-=dt;if(this.decreeT<=0){this.dmgMult=1;this.omegaCur=this.d.om*Math.sign(this.omegaCur||1);}}break;
    case 'gladiator': if(this.netLockoutT>0){this.netLockoutT-=dt;if(this.netLockoutT<=0)this.dmgMult=1;}break;
-   case 'sage': if(this.shotCD<=0){this.shotCD=.32;this._fireSageWord();}this._applyKite(dt);if(this.foresightT>0){this.foresightT-=dt;const en=(this._nearestEnemy()||{}).enemy;if(en){this.vx=-(en.vx+en.impactVx);this.vy=-(en.vy+en.impactVy);}if(this.foresightT<=0){this.untargetable=false;for(const q of spheres){if(!sameFaction(this,q)&&q.alive&&!q.dying&&Math.hypot(q.x-this.x,q.y-this.y)<this.radius*4){const previousDamageSource=window._balanceDamageSource;const hpBefore=q.hp;window._balanceDamageSource={key:this.key,type:'ability'};try{q.receiveMagicDamage(this.d.dmg*6);}finally{window._balanceDamageSource=previousDamageSource;}recordDamageEvent(this.key,'ability',Math.max(0,hpBefore-q.hp));}}spawnDmgNum(this.x,this.y-this.radius*1.8,'6× WISDOM','#d6f0b2');spawnPulse(this.x,this.y,'#d6f0b2');}}break;
+   case 'sage': if(this.shotCD<=0){this.shotCD=.26;this._fireSageWord();}this._applyKite(dt);if(this.foresightT>0){this.foresightT-=dt;const en=(this._nearestEnemy()||{}).enemy;if(en){this.vx=-(en.vx+en.impactVx);this.vy=-(en.vy+en.impactVy);}if(this.foresightT<=0){this.untargetable=false;for(const q of spheres){if(!sameFaction(this,q)&&q.alive&&!q.dying&&Math.hypot(q.x-this.x,q.y-this.y)<this.radius*5.5){const previousDamageSource=window._balanceDamageSource;const hpBefore=q.hp;window._balanceDamageSource={key:this.key,type:'ability'};try{q.receiveMagicDamage(this.d.dmg*12);}finally{window._balanceDamageSource=previousDamageSource;}recordDamageEvent(this.key,'ability',Math.max(0,hpBefore-q.hp));}}spawnDmgNum(this.x,this.y-this.radius*1.8,'6× WISDOM','#d6f0b2');spawnPulse(this.x,this.y,'#d6f0b2');}}break;
    case 'whelpling':
     // Mouth open timer countdown
     if(this.mouthOpenTimer>0)this.mouthOpenTimer=Math.max(0,this.mouthOpenTimer-dt);
@@ -1885,7 +1885,7 @@ class Sphere{
   const isCrit=Math.random()<(this.critChance||0);
   const bonus=this.volleyDmgBonus||0;
   const critMult=isCrit?2+(this.critDamageBonus||0):1;
-  const spd=470,dmg=(this.d.dmg+3+bonus)*this.dmgMult*critMult;
+  const spd=470,dmg=(this.d.dmg+7+bonus)*this.dmgMult*critMult;
   if(!isFinite(dmg)||dmg<=0)return; // NaN/Infinity guard
   const arr=new Arrow(tip.x,tip.y,wx*spd,wy*spd,dmg,this);
   arr.isCrit=isCrit;
@@ -1898,7 +1898,7 @@ class Sphere{
   const isCrit=Math.random()<(this.critChance||0);
   const bonus=this.volleyDmgBonus||0;
   const critMult=isCrit?2+(this.critDamageBonus||0):1;
-  const spd=470,dmg=(this.d.dmg+3+bonus)*this.dmgMult*critMult;
+  const spd=470,dmg=(this.d.dmg+7+bonus)*this.dmgMult*critMult;
   if(!isFinite(dmg)||dmg<=0)return; // NaN/Infinity guard
   const angles=[0,-0.22,0.22,-0.44,0.44];
   for(const a of angles){
@@ -1915,7 +1915,7 @@ class Sphere{
   const tip=this.getTip();
   const wx=Math.cos(this.angle),wy=Math.sin(this.angle);
   const ROD_COLORS=['#ffee00','#ff4400','#44aaff','#ffffff','#886633'];
-  const bolt=new FlameBolt(tip.x,tip.y,wx*420,wy*420,(this.d.dmg+5)*this.dmgMult,this);
+  const bolt=new FlameBolt(tip.x,tip.y,wx*420,wy*420,(this.d.dmg+11)*this.dmgMult,this);
   if(this.rodActive){bolt.rodType=this.rodType;bolt.rodCol=ROD_COLORS[this.rodType];bolt.effectPower=this.wizardStaffPower||0;}
   projectiles.push(bolt);
  }
@@ -1923,7 +1923,7 @@ class Sphere{
   const en=(this._nearestEnemy()||{}).enemy;if(!en)return;
   const tip=this.getTip();
   const wx=Math.cos(this.angle),wy=Math.sin(this.angle);
-  projectiles.push(new SkullOrb(tip.x,tip.y,wx*450,wy*450,(this.d.dmg+2)*this.dmgMult,this));
+  projectiles.push(new SkullOrb(tip.x,tip.y,wx*450,wy*450,(this.d.dmg+5)*this.dmgMult,this));
  }
  _fireGrapplingHook(){
   const tip=this.getTip();
@@ -1971,7 +1971,7 @@ class Sphere{
   this.angle=Math.atan2(dy,dx);
   const tip=this.getTip();
   const dist=Math.hypot(dx,dy)||1;
-  projectiles.push(new PiercingBullet(tip.x,tip.y,(dx/dist)*700,(dy/dist)*700,this,target,32));
+  projectiles.push(new PiercingBullet(tip.x,tip.y,(dx/dist)*700,(dy/dist)*700,this,target,46));
   spawnSpark(tip.x,tip.y,'#c8b840',8);
  }
  _fireHolyOrb(){
@@ -2194,7 +2194,7 @@ class Sphere{
   if(window._liveCombatTracker&&fd>0)this._recordLiveCombatDamage(fd);
   if(this.key==='flagellant')this._flagellantApplyWounds();
   if(this.key==='sage'&&fd>0){this.knowledgeAccum=(this.knowledgeAccum||0)+fd;while(this.knowledgeAccum>=8){this.knowledge=(this.knowledge||0)+1;this.d=Object.assign({},this.d);this.d.dmg+=.5;this.d.magDef+=2;this.knowledgeAccum-=8;}}
-  if(this.key==='arcanist'&&fd>0){this.arcaneCharge=0;this.applyImpact((Math.random()-.5)*160,(Math.random()-.5)*160);}
+  if(this.key==='arcanist'&&fd>0){this.arcaneCharge*=0.5;this.applyImpact((Math.random()-.5)*160,(Math.random()-.5)*160);}
   if(this.key==='gladiator'&&fd>0)this.favor=Math.max(0,(this.favor||0)-3);
   if(fd>0.5)spawnBloodSplat(this.x,this.y,this.d.color,fd);
   if(fd>0.2){
