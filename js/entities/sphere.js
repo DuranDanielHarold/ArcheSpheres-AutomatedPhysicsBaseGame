@@ -769,7 +769,7 @@ class Sphere{
      if(enLock){
       const locks=enLock.locksmithLocks||0;
       enLock.stacks=Math.max(0,enLock.stacks-locks*0.25);
-      if(locks>=2)enLock.locksmithJamT=Math.max(enLock.locksmithJamT||0,1.6);
+      if(locks>=2)enLock.locksmithJamT=Math.max(enLock.locksmithJamT||0,1.8);
       this.targetSpd=this.baseSpd*(1+locks*0.08);
       this.locksmithHasteT=0.35*locks;
       enLock.locksmithLocks=0;
