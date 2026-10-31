@@ -296,7 +296,7 @@ function _weaponHit(att,def){
    }
    // Barbarian — Bloodlust: +6 speed per hit, max +60, decays slowly
     if(traits&&att.key==='barbarian'){
-    att.bloodlustBonus=Math.min(60,att.bloodlustBonus+6);
+    att.bloodlustBonus=Math.min(40,att.bloodlustBonus+4);
     att.targetSpd=att.baseSpd+att.bloodlustBonus;
     spawnSpark(att.x,att.y,'#b04010',3);
    }
