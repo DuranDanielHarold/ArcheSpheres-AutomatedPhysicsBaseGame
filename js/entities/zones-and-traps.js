@@ -28,7 +28,7 @@ class BurialMound{
    if(Math.hypot(s.x-this.x,s.y-this.y)<this.r+s.radius*0.55){
     this.triggerCD=0.75;
     s.vx*=0.72;s.vy*=0.72;s.impactVx*=0.72;s.impactVy*=0.72;
-    const tdmg=Math.max(1,s.hp*0.03);
+    const tdmg=Math.max(1,s.hp*0.045);
     const _moundBefore=s.hp;s.hp=Math.max(0,s.hp-tdmg);s.hitFlash=1;recordDamageEvent(this.owner.key,'passive',_moundBefore-s.hp);
     spawnDmgNum(s.x,s.y-s.radius*1.4,tdmg,'#a7834b');
     spawnSpark(s.x,s.y,'#8a6a40',4);
@@ -219,13 +219,13 @@ class ThornPatch{
    if(d<this.r+s.radius){
     s.vx*=Math.pow(0.02,dt);s.vy*=Math.pow(0.02,dt);
     s.impactVx*=Math.pow(0.02,dt);s.impactVy*=Math.pow(0.02,dt);
-    if(this.dotTimer>=0.8&&this.owner&&this.owner.d){
-     const _thornPatchBefore=s.hp;s.receiveDamage(this.owner.d.dmg*0.7);recordDamageEvent(this.owner.key,'ability',_thornPatchBefore-s.hp);
+    if(this.dotTimer>=2.5&&this.owner&&this.owner.d){
+     const _thornPatchBefore=s.hp;s.receiveDamage(this.owner.d.dmg*0.8);recordDamageEvent(this.owner.key,'ability',_thornPatchBefore-s.hp);
      spawnSpark(s.x,s.y,this.owner.d.rim,3);
     }
    }
   }
-  if(this.dotTimer>=0.8)this.dotTimer=0;
+  if(this.dotTimer>=2.5)this.dotTimer=0;
  }
  draw(){
   const pct=this.life/this.maxLife;
