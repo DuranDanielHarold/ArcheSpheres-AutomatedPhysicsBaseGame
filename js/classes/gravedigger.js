@@ -5,7 +5,7 @@ DEF.gravedigger = {"label":"Gravedigger","weapon":"Rusty Shovel","ab":"Exhume","
 CLASS_ROLE.gravedigger = "FIGHTER";
 CLASS_DESC.gravedigger = {
   "ability": "Exhume (4 stacks) — Teleports to the oldest surviving Burial Mound, gains 1.8× spin and 0.6s invincibility on arrival. Burial Mounds persist only for the current battle and reset on each new battle.",
-  "passive": "Burial Mounds — Every 6th wall contact buries a mound at the current position if it would not overlap an existing mound. Enemies crossing a mound are briefly slowed and lose 3% current HP."
+  "passive": "Burial Mounds — Every 4th wall contact buries a mound at the current position if it would not overlap an existing mound. Enemies crossing a mound are briefly slowed and lose 4.5% current HP."
 };
 STACK_THRESHOLD.gravedigger = 4;
 STACK_DISPLAY_THRESHOLD.gravedigger = 4;
