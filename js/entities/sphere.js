@@ -59,7 +59,7 @@ class Sphere{
   this.rageDecayT=0;
   this.vikingRageSpinActive=false;this.vikingRageSpinT=0;
   this.vikingLastStandActive=false;this.vikingLastStandT=0;this.vikingLastStandUsed=false;
-  this.jesterLurchT=0;
+  this.jesterLurchT=0;this.jesterDizzyT=0;
   this.thornAoeTimer=0; // passive whip AoE sweep cooldown
   this.draining=false;
   this.pirateRegenTimer=0; // vampiric aura passive regen tick
@@ -819,7 +819,7 @@ class Sphere{
    case 'prince':
     if(this.stacks>=5)this._startPrinceRoyalBlood(); break;
    case 'fairy':
-    if(this.stacks>=4){this.stacks=0;this.wishFireRateT=2.6;const roll=Math.floor(Math.random()*4);if(roll===0){this.invincible=true;this.invincibleT=2.6;spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:SAFE','#fff0ff');}else if(roll===1){this.receiveHeal(this.maxHp*.45);spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:HEAL','#fff0ff');}else if(roll===2){this.targetSpd=this.baseSpd*3.35;this.wishDashT=2.0;spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:DASH','#fff0ff');}else{this._spawnTricksterMirrorReplica();spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:CLONE','#fff0ff');}} break;
+    if(this.stacks>=4){this.stacks=0;this.wishFireRateT=2.6;const roll=Math.floor(Math.random()*4);if(roll===0){this.invincible=true;this.invincibleT=2.6;spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:SAFE','#fff0ff');}else if(roll===1){this.receiveHeal(this.maxHp*.45);spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:HEAL','#fff0ff');}else if(roll===2){this.targetSpd=this.baseSpd*3.35;this.wishDashT=2.0;spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:DASH','#fff0ff');}else{this._spawnTricksterMirrorReplica(0.8);spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:CLONE','#fff0ff');}} break;
    case 'beastmaster':
     if(this.stacks>=4){this.stacks=0;this.packHuntT=10;for(const k of['wolf','boar','hawk'])noiseTraps.push(new BeastCompanion(this.x,this.y,this,k));spawnBurst(this.x,this.y,'#ffb060','#b85a13',20);} break;
    case 'sage':
@@ -961,7 +961,7 @@ class Sphere{
   }
   if(this.jesterLurchT>0){
    this.jesterLurchT-=dt;
-   if(this.jesterLurchT<=0){this.jesterLurchT=0;if(this.dmgMult===1.7)this.dmgMult=1;}
+   if(this.jesterLurchT<=0){this.jesterLurchT=0;if(this.dmgMult===1.35)this.dmgMult=1;this.jesterDizzyT=1.0;}
   }
   if(this.backstabCharged){
    this.backstabT-=dt;
@@ -1326,7 +1326,8 @@ class Sphere{
   this._passiveAbility(dt);
   if(this.key==='dragoon'&&this.isLeaping)return; // suspended during leap — no gravity/walls/movement
   if(!this.bolaFloating)this.vy+=GRAVITY*dt;
-  const baseOm=this.d.om*Math.sign(this.omegaCur||1);
+  if(this.jesterDizzyT>0)this.jesterDizzyT=Math.max(0,this.jesterDizzyT-dt);
+  const baseOm=this.d.om*Math.sign(this.omegaCur||1)*(this.jesterDizzyT>0?0.45:1);
   if(!this.invincible&&!this.orbitActive&&!this.warlordSpinT&&!this.slowFieldActive&&!this.phalanxActive&&!this.fortified&&!this.ashwingActive){
    this.omegaCur+=(baseOm-this.omegaCur)*Math.min(1,dt*2.5);
   }
@@ -1755,8 +1756,7 @@ class Sphere{
    this.tricksterMirrorSpawned=true;
    this._spawnTricksterMirrorReplica();
   }
-  _spawnTricksterMirrorReplica(){
-   const scale=0.8;
+  _spawnTricksterMirrorReplica(scale=0.6){
    const side=Math.random()<0.5?-1:1;
    const a=this.angle+side*Math.PI/2;
    const gap=this.radius*0.85;
