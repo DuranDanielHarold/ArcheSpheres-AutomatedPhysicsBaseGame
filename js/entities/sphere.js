@@ -500,7 +500,7 @@ class Sphere{
     if(this.stacks>=3){
      this.stacks=0;
      const enNec=(this._nearestEnemy()||{}).enemy;
-     if(enNec&&enNec.deathMarkTicks===0){enNec.deathMarkTicks=7;enNec.deathMarkTimer=0.18;enNec.deathMarkSourceKey=this.key;enNec.deathMarkDmg=this.d.dmg*0.70+1;}
+     if(enNec&&enNec.deathMarkTicks===0){enNec.deathMarkTicks=7;enNec.deathMarkTimer=0.18;enNec.deathMarkSourceKey=this.key;enNec.deathMarkDmg=this.d.dmg*0.90+1.5;}
     } break;
     case 'trickster':
     if(this.stacks>=3){
@@ -1951,7 +1951,7 @@ class Sphere{
  _fireSheriffBullet(){
   const tip=this.getTip();
   const wx=Math.cos(this.angle),wy=Math.sin(this.angle);
-  projectiles.push(new SheriffBullet(tip.x,tip.y,wx*580,wy*580,(this.d.dmg+2)*this.dmgMult,this));
+  projectiles.push(new SheriffBullet(tip.x,tip.y,wx*580,wy*580,(this.d.dmg+5)*this.dmgMult,this));
  }
  _firePiercingShot(target){
   if(target&&!window._balanceNoVisuals)_playSphereAudio(this.key,'ability');
