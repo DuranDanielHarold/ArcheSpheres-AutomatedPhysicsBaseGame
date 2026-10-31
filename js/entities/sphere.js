@@ -334,7 +334,7 @@ class Sphere{
   if(this.key!=='flagellant')return;
   const lost=Math.max(0,this.maxHp-this.hp);
   const configuredCap=window._balanceStackingCaps?.flagellantWoundTierCap;
-  const woundCap=configuredCap===false?Infinity:(Number.isFinite(configuredCap)?Math.max(0,Math.floor(configuredCap)):3);
+  const woundCap=configuredCap===false?Infinity:(Number.isFinite(configuredCap)?Math.max(0,Math.floor(configuredCap)):5);
   const tier=Math.min(woundCap,Math.floor(lost/15));
   if(tier<=this.flagellantWoundTier)return;
   const diff=tier-this.flagellantWoundTier;
@@ -558,12 +558,12 @@ class Sphere{
     }
     break;
    case 'phoenix':
-    if(this.stacks>=3){
+    if(this.stacks>=5){
      this.stacks=0;
-     this.ashwingActive=true;this.ashwingT=2.2;
-     this._phoenixAddEmber(40);
-     this.targetSpd=this.baseSpd*1.18;
-     this.omegaCur=this.d.om*1.35*Math.sign(this.omegaCur||1);
+     this.ashwingActive=true;this.ashwingT=1.6;
+     this._phoenixAddEmber(25);
+     this.targetSpd=this.baseSpd*1.10;
+     this.omegaCur=this.d.om*1.20*Math.sign(this.omegaCur||1);
      spawnBurst(this.x,this.y,'#ffcc02','#ff4400',18);
      spawnPulse(this.x,this.y,'#ffcc02');
     } break;
@@ -594,7 +594,7 @@ class Sphere{
      spawnNirvanaActivate(this.x,this.y);
     } break;
    case 'alchemist':
-    if(this.stacks>=3){
+    if(this.stacks>=4){
      this.stacks=0;
      const enAlch=(this._nearestEnemy()||{}).enemy;
      const atx=enAlch?enAlch.x:this.x+(this.faction===0?120:-120);
@@ -804,7 +804,7 @@ class Sphere{
    case 'spartan':
     if(this.stacks>=3||this.ironStacks>=5){this.stacks=0;this.ironStacks=0;this._aimAbilityAtNearestEnemy(.32);this.ramActive=true;this.ramDisplace=true;this.ramT=0.55;this.dmgMult=1;this.vx=Math.cos(this.angle)*this.baseSpd*2.6;this.vy=Math.sin(this.angle)*this.baseSpd*2.6;this.targetSpd=this.baseSpd*2.6;spawnBurst(this.x,this.y,'#d24634','#d8b060',18);} break;
    case 'gladiator':
-    if(this.stacks>=3&&this.netLockoutT<=0){this.stacks=0;const en=(this._nearestEnemy()||{}).enemy;if(en){en.netRootT=0.8;en.savedArm=en.d.arm;en.d=Object.assign({},en.d);en.d.arm=en.savedArm*.3;this.dmgMult=1.8;this.netLockoutT=2.0;spawnDmgNum(en.x,en.y-en.radius*1.8,'NET','#f0c08a');}}else if(this.stacks>=3&&this.netLockoutT>0){window._balanceCombatTracker?.onAbilityBlocked(this.key);window._liveCombatTracker?.onAbilityBlocked(this.key);} break;
+    if(this.stacks>=4&&this.netLockoutT<=0){this.stacks=0;const en=(this._nearestEnemy()||{}).enemy;if(en){en.netRootT=0.5;en.savedArm=en.d.arm;en.d=Object.assign({},en.d);en.d.arm=en.savedArm*.5;this.dmgMult=1.5;this.netLockoutT=2.0;spawnDmgNum(en.x,en.y-en.radius*1.8,'NET','#f0c08a');}}else if(this.stacks>=4&&this.netLockoutT>0){window._balanceCombatTracker?.onAbilityBlocked(this.key);window._liveCombatTracker?.onAbilityBlocked(this.key);} break;
    case 'king':
     if(this.stacks>=4){this.stacks=0;this.decreeT=6;this.dmgMult=1.6;this.omegaCur=(this.d.om*1.5)*Math.sign(this.omegaCur||1);for(let i=0;i<3;i++){const a=i*Math.PI*2/3+Math.random()*.4;skeletons.push(new BarbAlly(this.x+Math.cos(a)*this.radius*1.4,this.y+Math.sin(a)*this.radius*1.4,this));}spawnBurst(this.x,this.y,'#ffd35a','#d00020',30);spawnPulse(this.x,this.y,'#ffd35a');} break;
    case 'queen':
@@ -816,7 +816,7 @@ class Sphere{
      spawnPulse(this.x,this.y,'#ff8bd1');
     } break;
    case 'prince':
-    if(this.stacks>=4)this._startPrinceRoyalBlood(); break;
+    if(this.stacks>=5)this._startPrinceRoyalBlood(); break;
    case 'fairy':
     if(this.stacks>=4){this.stacks=0;this.wishFireRateT=2.6;const roll=Math.floor(Math.random()*4);if(roll===0){this.invincible=true;this.invincibleT=2.6;spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:SAFE','#fff0ff');}else if(roll===1){this.receiveHeal(this.maxHp*.45);spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:HEAL','#fff0ff');}else if(roll===2){this.targetSpd=this.baseSpd*3.35;this.wishDashT=2.0;spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:DASH','#fff0ff');}else{this._spawnTricksterMirrorReplica();spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:CLONE','#fff0ff');}} break;
    case 'beastmaster':
@@ -2058,8 +2058,8 @@ class Sphere{
   _triggerPhoenixRebirth(){
    if(this.key!=='phoenix'||this.rebirthDone)return false;
    this.rebirthDone=true;
-   this.hp=this.maxHp*0.30;
-   this.invincible=true;this.invincibleT=1.0;
+   this.hp=this.maxHp*0.18;
+   this.invincible=true;this.invincibleT=0.6;
    this.ashwingActive=true;this.ashwingT=1.4;
    this.phoenixEmber=100;this.phoenixEmberFlash=0.75;
    this.targetSpd=this.baseSpd*1.18;
