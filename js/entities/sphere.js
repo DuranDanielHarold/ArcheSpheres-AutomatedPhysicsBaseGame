@@ -291,7 +291,7 @@ class Sphere{
   if(this.canTriggerTraits===false)return;
   if(this.key==='gravedigger'){
    this.gravediggerWallContacts=(this.gravediggerWallContacts||0)+1;
-   if(this.gravediggerWallContacts%6===0)this._buryMound();
+   if(this.gravediggerWallContacts%4===0)this._buryMound();
   }
   if(this.key==='glassblower')this._dropGlassShard();
  }
@@ -390,7 +390,7 @@ class Sphere{
     if(this.stacks>=5){
      this.stacks=0;
      this.wrathActive=true;this.wrathT=5.0;this.wrathAuraTimer=0;
-     this.dmgMult=1.4;
+     this.dmgMult=1.25;
      spawnBurst(this.x,this.y,'#f0c040','#fff',20);
      spawnPulse(this.x,this.y,'#f0c040');
     } break;
@@ -652,7 +652,7 @@ class Sphere{
      this.stacks=0;
      this.holyChargeActive=true;this.holyChargeT=2.2;this.holyChargeElapsed=0;this.holyChargeCollisionCD=0;
      this.holyChargeCD=8.0;
-     this.dmgMult=2.0;
+     this.dmgMult=1.6;
      spawnBurst(this.x,this.y,'#fffacc','#c8b870',20);
      spawnPulse(this.x,this.y,'#fffacc');
     } else if(this.stacks>=3&&this.holyChargeCD>0){window._balanceCombatTracker?.onAbilityBlocked(this.key);window._liveCombatTracker?.onAbilityBlocked(this.key);} break;
@@ -675,9 +675,9 @@ class Sphere{
    case 'stormbringer':
     if(this.stacks>=3&&this.thunderclapCD<=0){
      this.stacks=0;
-     this.thunderclapActive=true;this.thunderclapT=0.8;
+     this.thunderclapActive=true;this.thunderclapT=0.5;
      this.thunderclapCD=6.0;
-     this.invincible=true;this.invincibleT=0.8;
+     this.invincible=true;this.invincibleT=0.5;
      // Shockwave all enemies
      for(const s of spheres){
       if(sameFaction(this,s)||!s.alive||s.dying)continue;
@@ -711,7 +711,7 @@ class Sphere{
    case 'whelpling':
     if(this.stacks>=3&&!(this.whelplingFireCooldown>0)){
      this.stacks=0;
-     this.whelplingFireCooldown=2.5; // block re-trigger for 2.5s
+     this.whelplingFireCooldown=3.0; // block re-trigger for 3s
      // Open mouth wide for firebreath animation
      this.mouthOpenTimer=1.2;this.mouthOpenMode=2;
      // Firebreath zone ahead
@@ -768,7 +768,7 @@ class Sphere{
      if(enLock){
       const locks=enLock.locksmithLocks||0;
       enLock.stacks=Math.max(0,enLock.stacks-locks*0.25);
-      if(locks>=2)enLock.locksmithJamT=Math.max(enLock.locksmithJamT||0,1.1);
+      if(locks>=2)enLock.locksmithJamT=Math.max(enLock.locksmithJamT||0,1.6);
       this.targetSpd=this.baseSpd*(1+locks*0.08);
       this.locksmithHasteT=0.35*locks;
       enLock.locksmithLocks=0;
@@ -1274,7 +1274,7 @@ class Sphere{
    }
    // trigger when below 40% HP and cd expired
    if(!this.ironWillActive&&this.ironWillCD<=0&&this.hp<this.maxHp*0.4){
-    this.ironWillActive=true;this.ironWillT=0.8;this.ironWillCD=6.0;
+    this.ironWillActive=true;this.ironWillT=0.5;this.ironWillCD=8.0;
     spawnSpark(this.x,this.y,'#ff4444',6);
     spawnDmgNum(this.x,this.y-this.radius*1.5,'IRON WILL','#ff4444');
    }
