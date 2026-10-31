@@ -1091,7 +1091,7 @@ class Sphere{
   }
   if(this.key==='druid'){
    this.thornAoeTimer+=dt;
-   if(this.thornAoeTimer>=4.0){
+   if(this.thornAoeTimer>=2.5){
     this.thornAoeTimer=0;
     for(const s of spheres){
      const isEnemy=!sameFaction(this,s);
@@ -1406,14 +1406,14 @@ class Sphere{
     this.pulseTimer+=dt;
     if(this.pulseTimer>=3.0){
      this.pulseTimer=0;this.pulseWave={r:this.radius*1.1,life:1};
-     const healAmt=8;
+     const healAmt=5;
      const prevHpPal=this.hp;
      this.receiveHeal(healAmt);
      spawnSpark(this.x,this.y,'#f0c040',4);
      const en=(this._nearestEnemy()||{}).enemy;
      if(en){const dx=en.x-this.x,dy=en.y-this.y,dist=Math.hypot(dx,dy)||1;
       en.applyImpact((dx/dist)*280,(dy/dist)*280);
-      const pulseBase=Number.isFinite(window._balanceClassOverrides?.paladinPulseDamage)?window._balanceClassOverrides.paladinPulseDamage:9;const pulseDmg=pulseBase/(en.d.arm*0.004+1);
+      const pulseBase=Number.isFinite(window._balanceClassOverrides?.paladinPulseDamage)?window._balanceClassOverrides.paladinPulseDamage:8;const pulseDmg=pulseBase/(en.d.arm*0.004+1);
       const _pulseBefore=en.hp;en.receiveDamage(pulseDmg);recordDamageEvent(this.key,'passive',_pulseBefore-en.hp);
       spawnPulse(this.x,this.y,this.d.rim);
      }
@@ -2405,7 +2405,7 @@ class Sphere{
   // Ninja — Shadow Step active: purple ghost ring
   if(this.shadowStepActive){ctx.shadowColor='#9b59b6';ctx.shadowBlur=12;ctx.beginPath();ctx.arc(this.x,this.y,r+7,0,Math.PI*2);ctx.strokeStyle=`rgba(155,89,182,${0.6+p*0.35})`;ctx.lineWidth=3;ctx.setLineDash([4,3]);ctx.stroke();ctx.setLineDash([]);ctx.shadowBlur=0;}
   // Barbarian — Bloodlust stacks: speed glow
-  if(this.bloodlustBonus>0){const bl=this.bloodlustBonus/60;ctx.beginPath();ctx.arc(this.x,this.y,r+4,0,Math.PI*2);ctx.strokeStyle=`rgba(255,${Math.round(80+bl*80)},0,${0.35+bl*0.45})`;ctx.lineWidth=2+bl*2;ctx.stroke();}
+  if(this.bloodlustBonus>0){const bl=this.bloodlustBonus/40;ctx.beginPath();ctx.arc(this.x,this.y,r+4,0,Math.PI*2);ctx.strokeStyle=`rgba(255,${Math.round(80+bl*80)},0,${0.35+bl*0.45})`;ctx.lineWidth=2+bl*2;ctx.stroke();}
   // Rogue — bleed indicator on bleeding target
   if(this.bleedStacks>0){ctx.font=`bold ${Math.max(4,r*.18)}px 'Press Start 2P',monospace`;ctx.textAlign='center';ctx.textBaseline='bottom';
    const bleedY=this.corrosionStacks>0&&this.blinded?(this.y-r-58):this.corrosionStacks>0||this.blinded?(this.y-r-44):(this.y-r-30);
