@@ -1098,7 +1098,7 @@ class Sphere{
      if(!isEnemy||!s.alive||s.dying)continue;
      const dist=Math.hypot(s.x-this.x,s.y-this.y);
      if(dist<this.radius*this.d.reach+s.radius){
-      const _thornBefore=s.hp;s.receiveDamage(this.d.dmg*0.4);recordDamageEvent(this.key,'passive',_thornBefore-s.hp);
+      const _thornBefore=s.hp;s.receiveDamage(this.d.dmg*0.8);recordDamageEvent(this.key,'passive',_thornBefore-s.hp);
       const nx=(s.x-this.x)/dist||1,ny=(s.y-this.y)/dist||0;
       s.applyImpact(nx*80,ny*80);
       spawnSpark(s.x,s.y,this.d.rim,5);
