@@ -2153,7 +2153,7 @@ class Sphere{
    fd*=0.85-(0.30*anchor);
   }
   if(this.key==='golem')fd*=0.78;
-  if(this.key==='guardian'&&this.phalanxActive)fd*=0.45;
+  if(this.key==='guardian'&&this.phalanxActive)fd*=0.60;
   if(this.sepsisWeakenedT>0)fd*=1.15;
   if(this.key==='crusader'&&this.crusaderRetributionShield>0&&this.crusaderRetributionShieldT>0&&fd>0){
    const absorbed=Math.min(fd,this.crusaderRetributionShield);
