@@ -255,7 +255,7 @@ class PiercingBullet{
   if(this.x<0||this.x>W||this.y<0||this.y>H||this.life<=0){this.alive=false;return;}
    if(this.target&&this.target.alive&&!this.target.dying){
    if(Math.hypot(this.target.x-this.x,this.target.y-this.y)<this.target.radius+8){
-       let finalDmg=this.damage+(this.target.maxHp*0.05);
+       let finalDmg=this.damage+(this.target.maxHp*0.07);
 if(this.target._sheriffArmPen){const penBonus=this.target.d.arm*0.40*0.004;finalDmg+=penBonus;this.target._sheriffArmPen=false;}
     const _pierceBefore=this.target.hp;this.target.hp=Math.max(0,this.target.hp-finalDmg);recordDamageEvent(this.owner.key,'ability',_pierceBefore-this.target.hp);
     this.target.hitFlash=1;
