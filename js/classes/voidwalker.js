@@ -1,7 +1,7 @@
 'use strict';
 // ▓▓▓ MODULE: classes/voidwalker.js — Void Walker sphere kit registry ▓▓▓
 
-DEF.voidwalker = {"label":"Void Walker","weapon":"Gravity Spike","ab":"Singularity","color":"#080808","dark":"#000000","rim":"#aa44ff","out":"#000000","wcol":"#aa44ff","wdrk":"#550088","mass":6,"spd":229.82,"hp":474,"om":6,"dmg":4.89,"arm":85,"magDef":53.37,"rest":0.7,"reach":3.21,"tipR":0.2,"abilityType":"damage","passiveType":"hybrid","wt":"gravityspike"};
+DEF.voidwalker = {"label":"Void Walker","weapon":"Gravity Spike","ab":"Singularity","color":"#080808","dark":"#000000","rim":"#aa44ff","out":"#000000","wcol":"#aa44ff","wdrk":"#550088","mass":6,"spd":229.8,"hp":474,"om":6,"dmg":4.9,"arm":85,"magDef":53,"rest":0.7,"reach":3.2,"tipR":0.2,"abilityType":"damage","passiveType":"hybrid","wt":"gravityspike"};
 CLASS_ROLE.voidwalker = "MAGE";
 CLASS_DESC.voidwalker = {
   "ability": "Singularity (3 stacks) — Places a black hole at current position for 2.5s, continuously pulling enemies inward and dealing 0.45× DMG magic ticks every 0.35s.",
