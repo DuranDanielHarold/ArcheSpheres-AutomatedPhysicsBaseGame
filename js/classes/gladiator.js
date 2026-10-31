@@ -1,7 +1,7 @@
 'use strict';
 // ▓▓▓ MODULE: classes/gladiator.js — Gladiator sphere kit registry ▓▓▓
 
-DEF.gladiator = {"label":"Gladiator","weapon":"Gladius+Net","ab":"Arena's Verdict","color":"#b98152","dark":"#6b3f24","rim":"#f0c08a","out":"#2a1408","wcol":"#d8d0c0","wdrk":"#7a6048","mass":6,"spd":245,"hp":247,"om":6.5,"dmg":4.5,"arm":76,"magDef":28,"rest":0.78,"reach":2.2,"tipR":0.26,"abilityType":"hybrid","passiveType":"hybrid","wt":"gladiusnet"};
+DEF.gladiator = {"label":"Gladiator","weapon":"Gladius+Net","ab":"Arena's Verdict","color":"#b98152","dark":"#6b3f24","rim":"#f0c08a","out":"#2a1408","wcol":"#d8d0c0","wdrk":"#7a6048","mass":6,"spd":245,"hp":247,"om":6.5,"dmg":4.5,"arm":76,"magDef":28,"rest":0.8,"reach":2.2,"tipR":0.3,"abilityType":"hybrid","passiveType":"hybrid","wt":"gladiusnet"};
 CLASS_ROLE.gladiator = "FIGHTER";
 CLASS_DESC.gladiator = {
   "ability": "Arena's Verdict (4 stacks) — Throws the net to root the enemy and heavily weaken armor; gladius attacks during the window deal 1.5× damage with extra reach.",
