@@ -59,7 +59,7 @@
   const recordDamage=dealt=>{const src=inferSource();if(window._balanceCombatTracker&&src&&dealt>0){if(src.type==='projectile')window._balanceCombatTracker.onProjectileHit(src.key,dealt);else if(src.type==='passive')window._balanceCombatTracker.onPassiveTrigger(src.key,dealt);else window._balanceCombatTracker.onDamage(src.key,dealt,src.type||'base');}};
   Sphere.prototype.receiveDamage=function(dmg){const before=this.hp;oldDamage.call(this,dmg);recordDamage(Math.max(0,before-this.hp));};
   Sphere.prototype.receiveMagicDamage=function(dmg){const before=this.hp;oldMagic.call(this,dmg);recordDamage(Math.max(0,before-this.hp));};
-  Sphere.prototype._checkAbilityTrigger=function(){const before=this.stacks,threshold=typeof getStackThreshold==='function'?getStackThreshold(this.key):0;const prior=window._balanceCurrentAbilityKey;window._balanceCurrentAbilityKey=this.key;try{oldAbility.call(this);}finally{window._balanceCurrentAbilityKey=prior;}if(window._balanceCombatTracker&&before>=threshold&&this.stacks===0)window._balanceCombatTracker.onAbilityUse(this.key,true);};
+  Sphere.prototype._checkAbilityTrigger=function(){const before=this.stacks,threshold=typeof getStackThreshold==='function'?getStackThreshold(this.key):0;const prior=window._balanceCurrentAbilityKey;window._balanceCurrentAbilityKey=this.key;try{oldAbility.call(this);}finally{window._balanceCurrentAbilityKey=prior;}if(window._balanceCombatTracker&&before>0&&this.stacks===0)window._balanceCombatTracker.onAbilityUse(this.key,true);};
   Sphere.prototype._balanceTrackerHooked=true;
   return function(){Sphere.prototype.receiveDamage=oldDamage;Sphere.prototype.receiveMagicDamage=oldMagic;Sphere.prototype._checkAbilityTrigger=oldAbility;delete Sphere.prototype._balanceTrackerHooked;};
  }
