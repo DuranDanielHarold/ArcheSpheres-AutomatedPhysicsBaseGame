@@ -2048,9 +2048,9 @@ class Sphere{
   _onHolyChargeCollision(target,nx,ny){
    if(!this.holyChargeActive||this.holyChargeCollisionCD>0||!target||!target.alive||target.dying)return;
    this.holyChargeCollisionCD=0.25;
-   const remainingCap=Math.max(0,5.0-(this.holyChargeElapsed||0));
+   const remainingCap=Math.max(0,4.0-(this.holyChargeElapsed||0));
    this.holyChargeT=Math.min(remainingCap,this.holyChargeT+0.4);
-   target.receiveDamage(this.d.dmg*2.0);
+   target.receiveDamage(this.d.dmg*1.6);
    target.applyImpact(nx*260,ny*260);
    spawnBurst(target.x,target.y,'#fffacc','#c8b870',10);
    spawnDmgNum(this.x,this.y-this.radius*1.4,'+0.4s','#fffacc');
