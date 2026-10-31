@@ -230,7 +230,7 @@ function _weaponHit(att,def){
   if(att.dmgHalvedT>0)dmg*=0.5;
   if(att.key==='gladiator'&&att.crowdDouble){dmg*=2;att.crowdDouble=false;att.favor=0;}
   if(att.key==='prince'){const wb=Math.min(5,att.wallBounceBonus||0);dmg*=1+wb*.08;if(Math.hypot(att.vx,att.vy)>att.baseSpd*.8)dmg*=1.18;}
-  if(att.key==='queen'&&def.courtlyT>0)dmg*=0.92;
+  if(att.courtlyT>0)dmg*=0.85;
   if(def.key==='spartan'&&def.ironStacks>0)dmg*=Math.max(.8,1-def.ironStacks*.04);
    if(traits&&att.key==='pirate'&&att.draining){
    att.receiveHeal(dmg*0.15);
@@ -310,7 +310,7 @@ function _weaponHit(att,def){
     // Ratcatcher — Rat Pack: each weapon hit releases one hunting rat.
     if(traits&&att.key==='ratcatcher')att._spawnRatBurst(1,false);
     if(traits&&att.key==='beastmaster'){noiseTraps.push(new RatMinion(att.x,att.y,(Math.random()-.5)*180,(Math.random()-.5)*180,att,false));def.markedBy=att;}
-    if(traits&&att.key==='gladiator'){att.favor=Math.min(10,(att.favor||0)+0.5);att.targetSpd=att.baseSpd+att.favor*2;att.omegaCur+=(0.12*Math.sign(att.omegaCur||1));if(att.favor>=10){att.crowdDouble=true;spawnDmgNum(att.x,att.y-att.radius*1.7,'FAVOR','#ffd35a');}}
+
     if(traits&&att.key==='queen'){att.queenDmgBonus=(att.queenDmgBonus||0)+0.005;att.d=Object.assign({},att.d);att.d.dmg+=DEF[att.key].dmg*.005;}
     if(traits&&att.key==='prince'&&att.rushT>0){att.rushT=Math.min(2.5-(att.rushElapsed||0),att.rushT+.25);}
     spawnSpark(hx,hy,att.d.rim,7);
@@ -415,7 +415,7 @@ function _weaponHit(att,def){
    if(att.dmgHalvedT>0)dmg*=.5;
    if(att.key==='gladiator'&&att.crowdDouble){dmg*=2;att.crowdDouble=false;att.favor=0;}
    if(att.key==='prince'){const wb=Math.min(5,att.wallBounceBonus||0);dmg*=1+wb*.08;if(Math.hypot(att.vx,att.vy)>att.baseSpd*.8)dmg*=1.18;}
-   if(att.key==='queen'&&def.courtlyT>0)dmg*=.92;
+   if(att.courtlyT>0)dmg*=.85;
    if(def.key==='spartan'&&def.ironStacks>0)dmg*=Math.max(.8,1-def.ironStacks*.04);
    if(traits&&att.key==='guardian')dmg*=1.22;
    dmg*=hb.damageMult||1;
