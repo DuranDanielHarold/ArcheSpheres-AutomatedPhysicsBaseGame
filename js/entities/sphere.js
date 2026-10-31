@@ -492,7 +492,7 @@ class Sphere{
    case 'druid':
     if(this.stacks>=3){
      this.stacks=0;this.snareActive=true;this.snareT=0;
-     thornPatches.push(new ThornPatch(this.x,this.y,this.radius*2.2,7.0,this));
+     thornPatches.push(new ThornPatch(this.x,this.y,this.radius*2.2,8.0,this));
      spawnBurst(this.x,this.y,this.d.rim,'#1b5e20',10);
     } break;
    case 'necromancer':
