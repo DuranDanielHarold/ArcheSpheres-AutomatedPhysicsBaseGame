@@ -543,7 +543,6 @@ class Sphere{
    case 'pirate':
     if(this.stacks>=3){
      this.stacks=0;
-     this.pirateRegenTimer=0;
      this._fireGrapplingHook();
     }
     break;
