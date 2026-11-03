@@ -152,11 +152,12 @@ class PirateBarrel{
   if(!this.alive)return;
   this.alive=false;
   const owner=this.owner,blastR=owner.radius*10.0;
+  let hitEnemy=false;
   for(const s of spheres){
    if(sameFaction(owner,s)||!s.alive||s.dying)continue;
    const dx=s.x-this.x,dy=s.y-this.y,dist=Math.hypot(dx,dy)||1;
    if(dist>blastR+s.radius)continue;
-   owner.gainStack();
+   hitEnemy=true;
    const falloff=Math.max(0.55,1-Math.max(0,dist-s.radius)/Math.max(1,blastR));
    const damage=Math.max(1,owner.d.dmg*1.2*falloff);
    const before=s.hp;s.receiveDamage(damage);
@@ -168,6 +169,7 @@ class PirateBarrel{
    spawnDmgNum(s.x,s.y-s.radius*1.55,damage,'#ff8a32');
    spawnSpark(s.x,s.y,'#ff6a22',7);
   }
+  if(hitEnemy)owner.gainStack();
   spawnBurst(this.x,this.y,'#ff8a22','#5a2410',26);
   spawnPulse(this.x,this.y,'#ff9b38');
   spawnShockwave(this.x,this.y,blastR);
