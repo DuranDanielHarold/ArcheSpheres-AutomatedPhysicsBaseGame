@@ -159,11 +159,11 @@ class PirateBarrel{
    if(dist>blastR+s.radius)continue;
    hitEnemy=true;
    const falloff=Math.max(0.55,1-Math.max(0,dist-s.radius)/Math.max(1,blastR));
-   const damage=Math.max(1,owner.d.dmg*1.2*falloff);
+   const damage=Math.max(1,owner.d.dmg*3.0*falloff);
    const before=s.hp;s.receiveDamage(damage);
    recordDamageEvent(owner.key,'passive',before-s.hp);
-   s.applyImpact((dx/dist)*300*falloff,(dy/dist)*300*falloff);
-   s.burning=true;s.burnSourceKey=owner.key;s.burnT=Math.max(s.burnT||0,3.0);
+   s.applyImpact((dx/dist)*420*falloff,(dy/dist)*420*falloff);
+   s.burning=true;s.burnSourceKey=owner.key;s.burnT=Math.max(s.burnT||0,4.0);
    s.burnTickInterval=DEFAULT_BURN_TICK_INTERVAL;
    s.burnTickT=Math.min(s.burnTickT||DEFAULT_BURN_TICK_INTERVAL,DEFAULT_BURN_TICK_INTERVAL);
    spawnDmgNum(s.x,s.y-s.radius*1.55,damage,'#ff8a32');

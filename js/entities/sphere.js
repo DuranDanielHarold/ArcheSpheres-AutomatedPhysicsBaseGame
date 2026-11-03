@@ -1117,12 +1117,44 @@ class Sphere{
    this.pirateBarrelTimer=(this.pirateBarrelTimer||0)+dt;
    if(this.pirateBarrelTimer>=4.0){
     this.pirateBarrelTimer-=4.0;
-    const owned=noiseTraps.filter(n=>n instanceof PirateBarrel&&n.owner===this&&n.alive);
-    if(owned.length>=2){owned.sort((a,b)=>a.seq-b.seq);owned[0]._destroy();}
-    const margin=Math.max(this.radius+18,24);
-    const bx=margin+Math.random()*Math.max(1,W-margin*2);
-    const by=margin+Math.random()*Math.max(1,H-margin*2);
-    noiseTraps.push(new PirateBarrel(bx,by,this));
+    const barrelRadius=this.radius*0.58;
+    // Keep the whole barrel inside the arena. On narrow/resized arenas, collapse
+    // the valid range to the arena midpoint instead of allowing min > max.
+    const edgePad=Math.min(Math.max(this.radius+18,barrelRadius+2,24),Math.max(0,Math.min(W,H)*0.5));
+    const minX=Math.min(W*0.5,edgePad),maxX=Math.max(W*0.5,W-edgePad);
+    const minY=Math.min(H*0.5,edgePad),maxY=Math.max(H*0.5,H-edgePad);
+    let bx=minX+Math.random()*Math.max(0,maxX-minX);
+    let by=minY+Math.random()*Math.max(0,maxY-minY);
+    const clampBarrelX=x=>Math.max(minX,Math.min(maxX,x));
+    const clampBarrelY=y=>Math.max(minY,Math.min(maxY,y));
+    // Keep random barrel spawns outside enemy weapon-tip reach with an extra 1.1× safety gap.
+    // Resolve unsafe candidates by pushing them away from enemies; retain the same two RNG rolls.
+    for(let pass=0;pass<8;pass++){
+     let adjusted=false;
+     for(const enemy of spheres){
+      if(enemy===this||sameFaction(this,enemy)||!enemy.alive||enemy.dying||enemy.isReplica)continue;
+      const safeDistance=enemy.radius*enemy.d.reach*1.1+barrelRadius;
+      const ex=bx-enemy.x,ey=by-enemy.y,dist=Math.hypot(ex,ey);
+      if(dist<safeDistance){
+       const nx=dist>0?ex/dist:1,ny=dist>0?ey/dist:0;
+       bx=clampBarrelX(enemy.x+nx*safeDistance);
+       by=clampBarrelY(enemy.y+ny*safeDistance);
+       adjusted=true;
+      }
+     }
+     if(!adjusted)break;
+    }
+    // Final bounds check after all enemy-avoidance adjustments.
+    bx=clampBarrelX(bx);by=clampBarrelY(by);
+    const safeFromEnemies=spheres.every(enemy=>{
+     if(enemy===this||sameFaction(this,enemy)||!enemy.alive||enemy.dying||enemy.isReplica)return true;
+     return Math.hypot(bx-enemy.x,by-enemy.y)>=enemy.radius*enemy.d.reach*1.1+barrelRadius-0.5;
+    });
+    if(safeFromEnemies){
+     const owned=noiseTraps.filter(n=>n instanceof PirateBarrel&&n.owner===this&&n.alive);
+     if(owned.length>=2){owned.sort((a,b)=>a.seq-b.seq);owned[0]._destroy();}
+     noiseTraps.push(new PirateBarrel(bx,by,this));
+    }
    }
   }
   if(this.key==='druid'){
