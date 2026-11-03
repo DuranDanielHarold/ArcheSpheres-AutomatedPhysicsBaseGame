@@ -3,7 +3,7 @@
 // Main Sphere class and class-specific behavior methods.
 
 // On desktop layouts, keep sphere radius proportional to arena height.
-const ARENA_HEIGHT_RADIUS_FRACTION = 0.042;
+const ARENA_HEIGHT_RADIUS_FRACTION = 0.046;
 
 class Sphere{
  constructor(key,faction,x,y,vx,vy,hpOverride,opts){
