@@ -207,7 +207,9 @@ class Skeleton{
   const r=this.radius;
   ctx.save();ctx.globalAlpha=alpha;
   ctx.save();ctx.translate(this.x,this.y);ctx.rotate(this.angle);
-  this._drawWeapon(r*1.35);
+  // Match the rendered weapon tip to the same centerline reach used by getTip()/getBladePoints().
+  const tipExtent={bow:2.05,sword:2.42,spear:2.95,hammer:2.10,axe:2.20}[this.weaponType]||2.0;
+  this._drawWeapon(r*this.reach/tipExtent);
   ctx.restore();
   ctx.beginPath();ctx.arc(this.x,this.y,r,0,Math.PI*2);
   ctx.fillStyle=this.bodyCol||'#2a2a1e';ctx.fill();
