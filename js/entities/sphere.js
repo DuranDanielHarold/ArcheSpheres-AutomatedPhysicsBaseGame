@@ -69,7 +69,6 @@ class Sphere{
   this.vikingLastStandActive=false;this.vikingLastStandT=0;this.vikingLastStandUsed=false;
   this.jesterLurchT=0;
   this.thornAoeTimer=0; // passive whip AoE sweep cooldown
-  this.draining=false;
   this.pirateBarrelTimer=0;
   this.grapplingHook=null;
   this.wrathActive=false;this.wrathT=0;
@@ -547,7 +546,7 @@ class Sphere{
      this.pirateRegenTimer=0;
      this._fireGrapplingHook();
     }
-    this.draining=this.stacks>=1; break;
+    break;
    case 'jester':
     this.omegaCur=this.d.om*(1+1.5*(this.stacks/5))*Math.sign(this.omegaCur||1);
     if(this.stacks>=3){this.stacks=0;
@@ -2389,7 +2388,6 @@ class Sphere{
   if(this.orbitActive){ctx.beginPath();ctx.arc(this.x,this.y,r+4,0,Math.PI*2);ctx.strokeStyle=`rgba(255,50,50,${.6+p*.3})`;ctx.lineWidth=4;ctx.stroke();ctx.shadowBlur=0;}
   if(this.blinking){ctx.shadowColor=this.d.rim;ctx.shadowBlur=22;ctx.beginPath();ctx.arc(this.x,this.y,r+6,0,Math.PI*2);ctx.strokeStyle=this.d.rim;ctx.lineWidth=3;ctx.stroke();ctx.shadowBlur=0;}
   if(this.backstabCharged){ctx.shadowColor='#e74c3c';ctx.shadowBlur=14;ctx.beginPath();ctx.arc(this.x,this.y,r+5,0,Math.PI*2);ctx.strokeStyle='rgba(231,76,60,.85)';ctx.lineWidth=3;ctx.stroke();ctx.shadowBlur=0;}
-  if(this.draining){ctx.beginPath();ctx.arc(this.x,this.y,r+3,0,Math.PI*2);ctx.strokeStyle=`rgba(255,100,0,${.4+p*.4})`;ctx.lineWidth=2;ctx.stroke();ctx.shadowBlur=0;}
   if(this.phalanxActive){ctx.shadowColor='#80cbc4';ctx.shadowBlur=10;ctx.beginPath();ctx.arc(this.x,this.y,r+7,0,Math.PI*2);ctx.strokeStyle='rgba(128,203,196,.75)';ctx.lineWidth=3;ctx.stroke();ctx.shadowBlur=0;}
   if(this.fortified){ctx.beginPath();ctx.arc(this.x,this.y,r+8,0,Math.PI*2);ctx.strokeStyle=`rgba(176,190,197,${.6+p*.3})`;ctx.lineWidth=4;ctx.stroke();ctx.shadowBlur=0;}
   if(this.rebirthDone){ctx.shadowColor=this.d.rim;ctx.shadowBlur=18;ctx.beginPath();ctx.arc(this.x,this.y,r+5,0,Math.PI*2);ctx.strokeStyle=`rgba(255,200,0,${.55+p*.4})`;ctx.lineWidth=4;ctx.stroke();ctx.shadowBlur=0;}
