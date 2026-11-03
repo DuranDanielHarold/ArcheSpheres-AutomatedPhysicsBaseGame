@@ -70,7 +70,7 @@ class Sphere{
   this.jesterLurchT=0;
   this.thornAoeTimer=0; // passive whip AoE sweep cooldown
   this.draining=false;
-  this.pirateRegenTimer=0; // vampiric aura passive regen tick
+  this.pirateBarrelTimer=0;
   this.grapplingHook=null;
   this.wrathActive=false;this.wrathT=0;
   this.wrathExhausted=false;this.wrathExhaustT=0;
@@ -1088,12 +1088,16 @@ class Sphere{
     return h.life>0;
    });
   }
-  if(this.key==='pirate'&&this.draining){
-   if(!this.draining){this.pirateRegenTimer=0;}
-   this.pirateRegenTimer+=dt;
-   if(this.pirateRegenTimer>=2.0){
-    this.pirateRegenTimer=0;
-    this.receiveHeal(1);
+  if(this.key==='pirate'&&this.canTriggerTraits!==false){
+   this.pirateBarrelTimer=(this.pirateBarrelTimer||0)+dt;
+   if(this.pirateBarrelTimer>=4.0){
+    this.pirateBarrelTimer-=4.0;
+    const owned=noiseTraps.filter(n=>n instanceof PirateBarrel&&n.owner===this&&n.alive);
+    if(owned.length>=2){owned.sort((a,b)=>a.seq-b.seq);owned[0]._destroy();}
+    const margin=Math.max(this.radius+18,24);
+    const bx=margin+Math.random()*Math.max(1,W-margin*2);
+    const by=margin+Math.random()*Math.max(1,H-margin*2);
+    noiseTraps.push(new PirateBarrel(bx,by,this));
    }
   }
   if(this.key==='druid'){
