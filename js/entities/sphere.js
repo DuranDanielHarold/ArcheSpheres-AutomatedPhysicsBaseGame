@@ -473,7 +473,7 @@ class Sphere{
      this.dmgMult=Math.min(2.5,2.5/Math.max(1,baseDmgRatio));
     } break;
    case 'barbarian':
-    if(this.stacks>=3){
+    if(this.stacks>=5){
      this.stacks=0;this.ramActive=true;this.ramT=0.7;
      const enRam=(this._nearestEnemy()||{}).enemy;
      if(enRam){
