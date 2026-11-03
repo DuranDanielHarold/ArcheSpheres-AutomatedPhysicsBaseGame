@@ -5,7 +5,7 @@ DEF.barbarian = {"label":"Barbarian","weapon":"Skull Flail","ab":"Ram Charge","c
 CLASS_ROLE.barbarian = "FIGHTER";
 CLASS_DESC.barbarian = {
   "ability": "Ram Charge (3 stacks) — Blasts toward the nearest enemy at 3.5× speed for 0.7s with 2× damage. Direction locks on target at cast.",
-  "passive": "Bloodlust — Each landed hit adds +6 speed (max +60). Speed decays at 4/s when not hitting. Taking any damage resets all stacks. Glow orange ring brightens with stacks. Punishes passivity but shatters on being touched."
+  "passive": "Bloodied Resolve — When HP falls to 35% or lower, gain +30% weapon damage for 2.5s. 8s cooldown; can reactivate while still low on HP once the cooldown expires."
 };
 STACK_THRESHOLD.barbarian = 3;
 STACK_DISPLAY_THRESHOLD.barbarian = 3;
