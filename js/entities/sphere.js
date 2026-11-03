@@ -2556,12 +2556,6 @@ class Sphere{
    ctx.strokeStyle=`rgba(180,180,180,${0.4+p*.2})`;ctx.lineWidth=3;ctx.setLineDash([3,3]);ctx.stroke();
    ctx.setLineDash([]);
   }
-  if(this.key==='pirate'&&this.draining){
-   ctx.shadowColor='#ff7043';ctx.shadowBlur=12;
-   ctx.beginPath();ctx.arc(this.x,this.y,r+3,0,Math.PI*2);
-   ctx.strokeStyle=`rgba(255,112,67,${0.4+p*.4})`;ctx.lineWidth=2;ctx.stroke();
-   ctx.shadowBlur=0;
-  }
   if(this.key==='sheriff'){
    const pipColors=['#d4a83a','#fff'];
    const total=getStackDisplayThreshold(this.key);
