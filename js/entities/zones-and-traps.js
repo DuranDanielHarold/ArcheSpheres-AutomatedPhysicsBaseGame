@@ -247,7 +247,7 @@ class SlowZone{
 }
 class GuardianBastionZone{
  constructor(owner){
-  this.owner=owner;this.x=owner.x;this.y=owner.y;this.r=owner.radius*3.2;
+  this.owner=owner;this.x=owner.x;this.y=owner.y;this.r=owner.radius*6.0;
   this.life=8.0;this.maxLife=8.0;this.capacity=40;this.maxCapacity=40;this.t=0;this.consumed=false;
  }
  update(dt){this.life-=dt;this.t+=dt;this.x=this.owner.x;this.y=this.owner.y;if(this.life<=0||this.capacity<=0)this.consumed=true;}
