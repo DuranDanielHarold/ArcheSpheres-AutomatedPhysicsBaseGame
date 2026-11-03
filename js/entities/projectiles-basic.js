@@ -139,7 +139,7 @@ class GrapplingHook{
     s.receiveDamage(this.dmg);
     const pullX=this.owner.x-s.x,pullY=this.owner.y-s.y;
     const pullD=Math.hypot(pullX,pullY)||1;
-    s.applyImpact((pullX/pullD)*1200,(pullY/pullD)*1200);
+    s.applyImpact((pullX/pullD)*380,(pullY/pullD)*380);
     this.owner.applyImpact((-pullX/pullD)*80,(-pullY/pullD)*80);
     spawnBurst(s.x,s.y,'#ffcc02',this.owner.d.rim,10);
     this.owner.gainStack();
