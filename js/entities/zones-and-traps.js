@@ -496,3 +496,55 @@ class SingularityZone{
  }
 }
 // ▓▓▓ END NEW CHARACTER PROJECTILES ▓▓▓
+
+
+// Barbarian — detached weapon. Reuses the owner's exact weapon renderer and data.
+class DroppedWeapon{
+ constructor(owner,x,y){
+  this.owner=owner;
+  this.d=Object.assign({},owner.d);
+  this.radius=owner.radius;
+  this.x=x;this.y=y;this.angle=owner.angle;
+  this.vx=Math.cos(owner.angle)*38;
+  this.vy=Math.sin(owner.angle)*38-24;
+  this.omega=(owner.faction===0?1:-1)*2.8;
+  this.life=4.0;this.alive=true;
+ }
+ update(dt){
+  if(!this.alive)return;
+  if(!this.owner||!this.owner.alive||this.owner.dying){
+   if(this.owner)this.owner.weaponDisarmedT=0;
+   this.alive=false;return;
+  }
+  this.life-=dt;
+  this.vy+=GRAVITY*.72*dt;
+  this.x+=this.vx*dt;this.y+=this.vy*dt;this.angle+=this.omega*dt;
+  if(this.x<14){this.x=14;this.vx=Math.abs(this.vx)*.35;}
+  if(this.x>W-14){this.x=W-14;this.vx=-Math.abs(this.vx)*.35;}
+  if(this.y<14){this.y=14;this.vy=Math.abs(this.vy)*.35;}
+  if(this.y>H-14){this.y=H-14;this.vy=-Math.abs(this.vy)*.28;this.vx*=.82;}
+  const pickupRange=this.owner.radius+Math.max(12,this.radius*.55);
+  if(Math.hypot(this.owner.x-this.x,this.owner.y-this.y)<=pickupRange){
+   this.owner.weaponDisarmedT=0;this.alive=false;
+   spawnDmgNum(this.owner.x,this.owner.y-this.owner.radius*1.7,'WEAPON RECOVERED','#e6d2a8');
+   spawnSpark(this.x,this.y,'#e6d2a8',7);return;
+  }
+  if(this.life<=0){
+   this.owner.weaponDisarmedT=0;this.alive=false;
+   spawnDmgNum(this.owner.x,this.owner.y-this.owner.radius*1.7,'WEAPON RETURNED','#e6d2a8');
+   spawnSpark(this.owner.x,this.owner.y,'#d7c49b',5);
+  }
+ }
+ draw(){
+  if(!this.alive)return;
+  const fade=Math.min(1,this.life/.45);
+  ctx.save();ctx.globalAlpha=.95*fade;
+  ctx.shadowColor='#d7c49b';ctx.shadowBlur=10;
+  ctx.beginPath();ctx.arc(this.x,this.y,Math.max(9,this.radius*.38),0,Math.PI*2);
+  ctx.strokeStyle='rgba(230,210,168,.65)';ctx.lineWidth=2;ctx.stroke();
+  ctx.shadowBlur=0;
+  ctx.translate(this.x,this.y);ctx.rotate(this.angle);
+  if(WEAPONS[this.d.wt])WEAPONS[this.d.wt](ctx,this.radius,this.d,null);
+  ctx.restore();
+ }
+}
