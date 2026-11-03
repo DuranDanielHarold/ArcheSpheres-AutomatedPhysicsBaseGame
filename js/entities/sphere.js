@@ -993,10 +993,15 @@ class Sphere{
     if(this.deathMarkTicks<=0){
      if(this.deathMarkDoTHits>=7){
       this.deathMarkDoTHits=0; // reset for next skeleton
-      const necro=spheres.find(s=>s.key==='necromancer'&&s.alive&&!s.dying&&
+      const necro=spheres.find(s=>s.key===this.deathMarkSourceKey&&s.key==='necromancer'&&s.alive&&!s.dying&&
        (!sameFaction(this,s)));
       if(necro){
-       skeletons.push(new Skeleton(this.x,this.y,necro.faction));
+       const ownedSkeletons=skeletons.filter(sk=>sk.alive&&sk.owner===necro);
+       if(ownedSkeletons.length>=3){
+        // The array preserves summon order, so its first living entry is the oldest.
+        ownedSkeletons[0].alive=false;
+       }
+       skeletons.push(new Skeleton(this.x,this.y,necro.faction,necro));
        spawnBurst(this.x,this.y,'#7c4dff','#1a0a2e',16);
       }
      }

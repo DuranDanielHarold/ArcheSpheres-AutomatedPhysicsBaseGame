@@ -101,8 +101,8 @@ class BeastCompanion{
 
 const SKELETON_WEAPONS=['bow','sword','spear','hammer','axe'];
 class Skeleton{
- constructor(x,y,faction){
-  this.x=x;this.y=y;this.faction=faction;
+ constructor(x,y,faction,owner=null){
+  this.x=x;this.y=y;this.faction=faction;this.owner=owner;
   this.alive=true;this.life=18.0;this.maxLife=18.0;
   this.hp=150;this.maxHp=150;
   this.hitFlash=0;
