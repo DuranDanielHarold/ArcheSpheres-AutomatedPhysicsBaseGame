@@ -529,7 +529,6 @@ class DroppedWeapon{
   }
   if(this.life<=0){
    this.owner.weaponDisarmedT=0;this.alive=false;
-   spawnDmgNum(this.owner.x,this.owner.y-this.owner.radius*1.7,'WEAPON RETURNED','#e6d2a8');
    spawnSpark(this.owner.x,this.owner.y,'#d7c49b',5);
   }
  }
