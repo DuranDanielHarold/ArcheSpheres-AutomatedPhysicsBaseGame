@@ -507,7 +507,7 @@ class DroppedWeapon{
   this.x=x;this.y=y;this.angle=owner.angle;
   this.vx=Math.cos(owner.angle)*38;
   this.vy=Math.sin(owner.angle)*38-24;
-  this.omega=(owner.faction===0?1:-1)*2.8;
+  this.omega=0; // Dropped weapons keep a fixed orientation instead of spinning.
   this.life=4.0;this.alive=true;
  }
  update(dt){
@@ -518,7 +518,7 @@ class DroppedWeapon{
   }
   this.life-=dt;
   this.vy+=GRAVITY*.72*dt;
-  this.x+=this.vx*dt;this.y+=this.vy*dt;this.angle+=this.omega*dt;
+  this.x+=this.vx*dt;this.y+=this.vy*dt;
   if(this.x<14){this.x=14;this.vx=Math.abs(this.vx)*.35;}
   if(this.x>W-14){this.x=W-14;this.vx=-Math.abs(this.vx)*.35;}
   if(this.y<14){this.y=14;this.vy=Math.abs(this.vy)*.35;}
