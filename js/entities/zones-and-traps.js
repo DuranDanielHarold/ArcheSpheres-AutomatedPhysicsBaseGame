@@ -176,7 +176,7 @@ class PirateBarrel{
   if(this.life<=0||!this.owner||!this.owner.alive||this.owner.dying){this._destroy();return;}
   for(const s of spheres){
    if(!s.alive||s.dying||s.isReplica||!s.getBladePoints)continue;
-   if(sameFaction(this.owner,s))continue;
+   if(s!==this.owner&&sameFaction(this.owner,s))continue;
    const points=s.getBladePoints();
    if(points.some(pt=>Math.hypot(pt.x-this.x,pt.y-this.y)<this.r+s.radius*s.d.tipR)){
     if(s===this.owner)this._explode();else this._destroy();
