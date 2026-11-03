@@ -488,6 +488,7 @@ const MELEE_WEAPONS={
   ctx.fillStyle='#2a1808';ctx.fillRect(r*.6,-r*.07,r*.22,r*.14);
   ctx.fillStyle='#5a3010';ctx.fillRect(r*.62,-r*.05,r*.18,r*.04);
  },
+ golemfists(ctx,r,d,s){const crystal=s&&s.golemAdaptType==='crystalline',active=s&&s.golemPunchActiveT>0,glow=crystal?'#c7a6ff':'#ffbd70',stone=crystal?'#51436b':'#34434a',edge=crystal?'#bda0ff':'#9b7856';for(const side of [-1,1]){const x=r*1.42,y=side*r*.78,punch=active&&side===(s.golemPunchSide||1)?r*.28:0;ctx.save();ctx.translate(x+punch,y);ctx.fillStyle='#172126';ctx.beginPath();ctx.arc(0,0,r*.57,0,Math.PI*2);ctx.fill();ctx.fillStyle=stone;ctx.beginPath();ctx.arc(0,0,r*.49,0,Math.PI*2);ctx.fill();ctx.strokeStyle=edge;ctx.lineWidth=r*.09;ctx.stroke();ctx.fillStyle=glow;for(let k=-1;k<=1;k++){ctx.beginPath();ctx.roundRect(r*.18,k*r*.2-r*.08,r*.32,r*.16,r*.06);ctx.fill();}ctx.strokeStyle=glow;ctx.globalAlpha=crystal?.8:.45;ctx.lineWidth=r*.045;ctx.beginPath();ctx.moveTo(-r*.2,-r*.18);ctx.lineTo(-r*.02,0);ctx.lineTo(-r*.16,r*.2);ctx.stroke();ctx.restore();}},
  stoneslab(ctx,r,d,s){
   const sw=r*.95,sh=r*1.75,sx=r*.62;
   ctx.fillStyle='#4a5a66';ctx.fillRect(sx,-sh/2,sw,sh);
