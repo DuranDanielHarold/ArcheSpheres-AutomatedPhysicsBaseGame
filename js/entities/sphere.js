@@ -3131,36 +3131,40 @@ class Sphere{
   return badges;
  }
  _drawStatusEffectBadges(){
-  const badges=this._collectStatusEffectBadges();
-  if(!badges.length)return;
+  const allBadges=this._collectStatusEffectBadges();
+  if(!allBadges.length)return;
+  const debuffs=allBadges.filter(b=>b.kind!=='buff');
+  const buffs=allBadges.filter(b=>b.kind==='buff');
   const r=this.radius,bw=r*2.35;
   const fontSize=Math.max(5,Math.min(7,r*.16));
   const gapX=4,rowGap=3,badgeH=fontSize+5;
   const maxRowW=Math.max(bw*2,140),colW=(maxRowW-gapX)/2;
-  // Stack pips sit at y + radius + 15; place status rows beneath them so
-  // badges never compete with the HP bar, crown, or other top-of-sphere art.
-  const firstRowY=this.y+r+23;
   ctx.save();
   ctx.font=`bold ${fontSize}px 'Press Start 2P',monospace`;ctx.textAlign='center';ctx.textBaseline='middle';
-  for(let i=0,rowIndex=0;i<badges.length;i+=2,rowIndex++){
-   const count=Math.min(2,badges.length-i);
-   const rowW=count===1?colW:maxRowW;
-   const startX=this.x-rowW/2;
-   const y=firstRowY+rowIndex*(badgeH+rowGap);
-   for(let col=0;col<count;col++){
-    const badge=badges[i+col];
-    const cellX=startX+col*(colW+gapX),by=y;
-    const measuredW=ctx.measureText(badge.label).width+10;
-    const badgeW=Math.min(colW,Math.max(fontSize+8,measuredW));
-    const bx=cellX+(colW-badgeW)/2;
-    ctx.fillStyle=badge.kind==='buff'?'rgba(5,24,25,.92)':'rgba(4,6,10,.86)';
-    rrect(ctx,bx,by,badgeW,badgeH,3);ctx.fill();
-    ctx.strokeStyle=badge.color;ctx.lineWidth=1;
-    rrect(ctx,bx+.5,by+.5,badgeW-1,badgeH-1,3);ctx.stroke();
-    ctx.fillStyle=badge.color;
-    ctx.fillText(badge.label,bx+badgeW/2,by+badgeH/2+0.5,badgeW-8);
+  const drawRows=(badges,firstRowY)=>{
+   for(let i=0,rowIndex=0;i<badges.length;i+=2,rowIndex++){
+    const count=Math.min(2,badges.length-i);
+    const rowW=count===1?colW:maxRowW;
+    const startX=this.x-rowW/2;
+    const y=firstRowY+rowIndex*(badgeH+rowGap);
+    for(let col=0;col<count;col++){
+     const badge=badges[i+col];
+     const cellX=startX+col*(colW+gapX),by=y;
+     const measuredW=ctx.measureText(badge.label).width+10;
+     const badgeW=Math.min(colW,Math.max(fontSize+8,measuredW));
+     const bx=cellX+(colW-badgeW)/2;
+     ctx.fillStyle=badge.kind==='buff'?'rgba(5,24,25,.92)':'rgba(4,6,10,.86)';
+     rrect(ctx,bx,by,badgeW,badgeH,3);ctx.fill();
+     ctx.strokeStyle=badge.color;ctx.lineWidth=1;
+     rrect(ctx,bx+.5,by+.5,badgeW-1,badgeH-1,3);ctx.stroke();
+     ctx.fillStyle=badge.color;
+     ctx.fillText(badge.label,bx+badgeW/2,by+badgeH/2+0.5,badgeW-8);
+    }
    }
-  }
+  };
+  // Debuffs sit above the HP bar; buffs sit below the floating ability-stack pips.
+  if(debuffs.length)drawRows(debuffs,this.y-r-29);
+  if(buffs.length)drawRows(buffs,this.y+r+23);
   ctx.restore();
  }
  _drawHpBar(){
