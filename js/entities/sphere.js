@@ -483,8 +483,8 @@ class Sphere{
       this.targetSpd=this.baseSpd*3.5;
       // Disarm is part of Ram Charge's ability trigger, not every melee hit.
       if(enRam.weaponDisarmedT<=0&&!enRam.dying){
-       const dropX=Math.max(18,Math.min(W-18,enRam.x+(dx/dist)*(enRam.radius+this.radius*.45+12)));
-       const dropY=Math.max(18,Math.min(H-18,enRam.y+(dy/dist)*(enRam.radius+this.radius*.45+12)));
+       const dropX=Math.max(18,Math.min(W-18,enRam.x+(dx/dist)*(5*(enRam.radius+this.radius*.45+12))));
+       const dropY=Math.max(18,Math.min(H-18,enRam.y+(dy/dist)*(5*(enRam.radius+this.radius*.45+12))));
        const enemyMoveSpeed=Math.hypot(enRam.vx,enRam.vy);
        const throwX=enemyMoveSpeed>8?-enRam.vx/enemyMoveSpeed:-dx/dist;
        const throwY=enemyMoveSpeed>8?-enRam.vy/enemyMoveSpeed:-dy/dist;
