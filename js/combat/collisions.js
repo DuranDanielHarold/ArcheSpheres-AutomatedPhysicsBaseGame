@@ -448,6 +448,7 @@ function _applyLocksmithLock(att,def){
  }
 }
 function _weaponClash(a,b){
+ if((a.weaponDisarmedT||0)>0||(b.weaponDisarmedT||0)>0)return;
  if((a.key==='prince'&&a.princeWeaponMode==='bow')||(b.key==='prince'&&b.princeWeaponMode==='bow'))return;
  if(a.weaponHitCD>0||b.weaponHitCD>0)return;
  const ptsA=a.getBladePoints(), ptsB=b.getBladePoints();
