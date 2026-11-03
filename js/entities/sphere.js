@@ -54,7 +54,6 @@ class Sphere{
   this.templarAnchor=0;
   this.snareActive=false;this.snareT=0;
   this.spreadActive=false;
-  this.phalanxActive=false;this.phalanxT=0;
   this.guardianSanctuaryTimer=0;this.guardianBastionZone=null;this.aegisSlamT=0;
   this.fortified=false;this.golemFortifyT=0;
   this.golemFortifyActive=false;
@@ -1347,7 +1346,7 @@ class Sphere{
   if(this.key==='dragoon'&&this.isLeaping)return; // suspended during leap — no gravity/walls/movement
   if(!this.bolaFloating)this.vy+=GRAVITY*dt;
   const baseOm=this.d.om*Math.sign(this.omegaCur||1);
-  if(!this.invincible&&!this.orbitActive&&!this.warlordSpinT&&!this.slowFieldActive&&!this.phalanxActive&&!this.fortified&&!this.ashwingActive){
+  if(!this.invincible&&!this.orbitActive&&!this.warlordSpinT&&!this.slowFieldActive&&!this.fortified&&!this.ashwingActive){
    this.omegaCur+=(baseOm-this.omegaCur)*Math.min(1,dt*2.5);
   }
   const waterSlowMult=this.waterSlow>0?(1-Math.min(0.7,this.waterSlow*0.35)):1;
@@ -2238,7 +2237,6 @@ class Sphere{
   if(this.vikingLastStandActive)return;
   if(this.untargetable)return; // vampire ghost mode / dragoon leap
   if(!isFinite(dmg)||dmg<=0)return;
-  if(this._consumeGuardianSanctuary())return;
   if(this.replicaKind==='phase'){this._destroyReplica('POOF');return;}
   // Wyrmscale passive — absorb one magic hit completely
   if(this.key==='dragoon'&&this.magicShield){
