@@ -6,11 +6,13 @@ function gameStep(dt){
  for(const s of spheres){
   const projectileCount=projectiles.length;
   s.update(dt);
-  if(!window._balanceNoVisuals&&projectiles.length>projectileCount&&s._audioProjectileThrowCooldown<=0){
+  if(s.weaponDisarmedT<=0&&!window._balanceNoVisuals&&projectiles.length>projectileCount&&s._audioProjectileThrowCooldown<=0){
    _playSphereAudio(s.key,'projectileThrow');s._audioProjectileThrowCooldown=0.14;
   }
  }
  for(const p of projectiles){
+  // Disarm suppresses every projectile owned by the disarmed sphere, including shots already in flight.
+  if(p.owner instanceof Sphere&&p.owner.weaponDisarmedT>0){p.alive=false;continue;}
   if(!window._balanceNoVisuals&&!p._sfxSeen){
    p._sfxSeen=true;
    if(p.owner instanceof Sphere&&typeof p.owner._throwSfxCD==='number'&&p.owner._throwSfxCD<=0&&SPHERE_AUDIO[p.owner.key]?.projectileThrow){
