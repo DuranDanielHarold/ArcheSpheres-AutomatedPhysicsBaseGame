@@ -504,8 +504,29 @@ const MELEE_WEAPONS={
   ctx.strokeStyle=crystal?'rgba(220,200,255,.65)':'rgba(25,35,38,.65)';ctx.lineWidth=r*.035;
   ctx.beginPath();ctx.moveTo(r*1.43,-r*.08);ctx.lineTo(r*1.62,-r*.02);ctx.lineTo(r*1.79,-r*.12);ctx.moveTo(r*1.57,-r*.02);ctx.lineTo(r*1.53,r*.25);ctx.lineTo(r*1.68,r*.34);ctx.stroke();
   ctx.fillStyle=dark;ctx.fillRect(r*1.34,-r*.2,r*.11,r*.4);ctx.fillRect(r*1.77,-r*.18,r*.09,r*.36);
-  if(crystal){ctx.shadowColor=glow;ctx.shadowBlur=r*.22;ctx.fillStyle=glow;for(const p of [[1.48,-.68,.15],[1.78,-.53,.12],[1.82,.42,.14],[1.48,.56,.12]]){ctx.beginPath();ctx.moveTo(r*p[0],r*p[1]);ctx.lineTo(r*(p[0]+p[2]*.35),r*(p[1]-.34));ctx.lineTo(r*(p[0]+p[2]),r*(p[1]+.02));ctx.lineTo(r*(p[0]+p[2]*.25),r*(p[1]+.18));ctx.closePath();ctx.fill();}ctx.shadowBlur=0;}
-  else{ctx.strokeStyle='rgba(224,181,125,.8)';ctx.lineWidth=r*.045;ctx.beginPath();ctx.moveTo(r*1.43,-r*.42);ctx.lineTo(r*1.53,-r*.23);ctx.lineTo(r*1.45,-r*.05);ctx.moveTo(r*1.72,r*.12);ctx.lineTo(r*1.64,r*.29);ctx.stroke();}
+  if(crystal){
+   // Large, high-contrast crystal clusters visibly break the fortress silhouette.
+   ctx.save();ctx.shadowColor='#b58cff';ctx.shadowBlur=r*.42;
+   const drawCrystal=(x,y,w,h,fill,highlight)=>{
+    ctx.fillStyle=fill;ctx.strokeStyle='#211b32';ctx.lineWidth=r*.035;
+    ctx.beginPath();ctx.moveTo(r*x,r*y);ctx.lineTo(r*(x+w*.22),r*(y-h));ctx.lineTo(r*(x+w*.55),r*(y-h*.72));ctx.lineTo(r*(x+w),r*(y+h*.08));ctx.lineTo(r*(x+w*.36),r*(y+h*.28));ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.strokeStyle=highlight;ctx.lineWidth=r*.045;ctx.beginPath();ctx.moveTo(r*(x+w*.22),r*(y-h));ctx.lineTo(r*(x+w*.36),r*(y+h*.12));ctx.stroke();
+   };
+   drawCrystal(1.43,-.47,.36,.34,'#a987ef','#eee3ff');
+   drawCrystal(1.67,-.40,.31,.28,'#d8c4ff','#ffffff');
+   drawCrystal(1.77,.36,.34,.31,'#9d7be0','#e8d9ff');
+   drawCrystal(1.47,.43,.29,.25,'#c6a9ff','#ffffff');
+   drawCrystal(1.27,-.12,.24,.22,'#8063c8','#d9c5ff');
+   ctx.shadowBlur=r*.16;ctx.strokeStyle='rgba(238,225,255,.9)';ctx.lineWidth=r*.055;
+   ctx.beginPath();ctx.moveTo(r*1.47,-r*.35);ctx.lineTo(r*1.59,-r*.08);ctx.lineTo(r*1.53,r*.18);ctx.moveTo(r*1.68,-r*.3);ctx.lineTo(r*1.72,r*.02);ctx.stroke();
+   ctx.restore();
+  }else{
+   // Ironstone stays matte and rugged, with warm mineral seams.
+   ctx.strokeStyle='rgba(224,181,125,.95)';ctx.lineWidth=r*.055;ctx.beginPath();
+   ctx.moveTo(r*1.43,-r*.42);ctx.lineTo(r*1.53,-r*.23);ctx.lineTo(r*1.45,-r*.05);
+   ctx.moveTo(r*1.72,r*.12);ctx.lineTo(r*1.64,r*.29);ctx.stroke();
+   ctx.fillStyle='rgba(17,25,29,.55)';ctx.fillRect(r*1.49,-r*.08,r*.2,r*.045);
+  }
   ctx.restore();
  },
  stoneslab(ctx,r,d,s){
