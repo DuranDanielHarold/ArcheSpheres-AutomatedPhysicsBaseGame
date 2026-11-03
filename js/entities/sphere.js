@@ -1411,7 +1411,7 @@ class Sphere{
   switch(this.key){
    case 'paladin':
     this.pulseTimer+=dt;
-    if(this.pulseTimer>=3.0){
+    if(this.pulseTimer>=4.0){
      this.pulseTimer=0;this.pulseWave={r:this.radius*1.1,life:1};
      const healAmt=6;
      const prevHpPal=this.hp;
