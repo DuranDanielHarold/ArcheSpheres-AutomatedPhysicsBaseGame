@@ -481,6 +481,14 @@ class Sphere{
       this.vx=(dx/dist)*this.targetSpd*3.5;
       this.vy=(dy/dist)*this.targetSpd*3.5;
       this.targetSpd=this.baseSpd*3.5;
+      // Disarm is part of Ram Charge's ability trigger, not every melee hit.
+      if(enRam.weaponDisarmedT<=0&&!enRam.dying){
+       const dropX=Math.max(18,Math.min(W-18,enRam.x+(dx/dist)*(enRam.radius+this.radius*.45+12)));
+       const dropY=Math.max(18,Math.min(H-18,enRam.y+(dy/dist)*(enRam.radius+this.radius*.45+12)));
+       enRam.weaponDisarmedT=4.0;
+       noiseTraps.push(new DroppedWeapon(enRam,dropX,dropY));
+       spawnSpark(dropX,dropY,'#d7c49b',7);
+      }
      }
      this.dmgMult=2.0;
     } break;
