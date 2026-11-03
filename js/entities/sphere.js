@@ -1105,12 +1105,36 @@ class Sphere{
    this.pirateBarrelTimer=(this.pirateBarrelTimer||0)+dt;
    if(this.pirateBarrelTimer>=4.0){
     this.pirateBarrelTimer-=4.0;
-    const owned=noiseTraps.filter(n=>n instanceof PirateBarrel&&n.owner===this&&n.alive);
-    if(owned.length>=2){owned.sort((a,b)=>a.seq-b.seq);owned[0]._destroy();}
     const margin=Math.max(this.radius+18,24);
-    const bx=margin+Math.random()*Math.max(1,W-margin*2);
-    const by=margin+Math.random()*Math.max(1,H-margin*2);
-    noiseTraps.push(new PirateBarrel(bx,by,this));
+    let bx=margin+Math.random()*Math.max(1,W-margin*2);
+    let by=margin+Math.random()*Math.max(1,H-margin*2);
+    const barrelRadius=this.radius*0.58;
+    // Keep random barrel spawns outside enemy weapon-tip reach with an extra 1.5× safety gap.
+    // Resolve unsafe candidates by pushing them away from enemies; retain the same two RNG rolls.
+    for(let pass=0;pass<8;pass++){
+     let adjusted=false;
+     for(const enemy of spheres){
+      if(enemy===this||sameFaction(this,enemy)||!enemy.alive||enemy.dying||enemy.isReplica)continue;
+      const safeDistance=enemy.radius*enemy.d.reach*1.5+barrelRadius;
+      const ex=bx-enemy.x,ey=by-enemy.y,dist=Math.hypot(ex,ey);
+      if(dist<safeDistance){
+       const nx=dist>0?ex/dist:1,ny=dist>0?ey/dist:0;
+       bx=Math.max(margin,Math.min(W-margin,enemy.x+nx*safeDistance));
+       by=Math.max(margin,Math.min(H-margin,enemy.y+ny*safeDistance));
+       adjusted=true;
+      }
+     }
+     if(!adjusted)break;
+    }
+    const safeFromEnemies=spheres.every(enemy=>{
+     if(enemy===this||sameFaction(this,enemy)||!enemy.alive||enemy.dying||enemy.isReplica)return true;
+     return Math.hypot(bx-enemy.x,by-enemy.y)>=enemy.radius*enemy.d.reach*1.5+barrelRadius-0.5;
+    });
+    if(safeFromEnemies){
+     const owned=noiseTraps.filter(n=>n instanceof PirateBarrel&&n.owner===this&&n.alive);
+     if(owned.length>=2){owned.sort((a,b)=>a.seq-b.seq);owned[0]._destroy();}
+     noiseTraps.push(new PirateBarrel(bx,by,this));
+    }
    }
   }
   if(this.key==='druid'){
