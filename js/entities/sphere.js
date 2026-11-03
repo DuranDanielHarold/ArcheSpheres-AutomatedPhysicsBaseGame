@@ -1952,10 +1952,49 @@ class Sphere{
  }
  _fireGrapplingHook(){
   const tip=this.getTip();
+  let targetX=null,targetY=null;
+  let priorityBarrel=null,priorityDistance=Infinity;
+
+  // Prioritize this Pirate's active barrel nearest to any living enemy.
+  const barrels=noiseTraps.filter(n=>n instanceof PirateBarrel&&n.owner===this&&n.alive);
+  for(const barrel of barrels){
+   for(const enemy of spheres){
+    if(enemy===this||!enemy.alive||enemy.dying||sameFaction(this,enemy))continue;
+    const enemyDistance=Math.hypot(enemy.x-barrel.x,enemy.y-barrel.y);
+    if(enemyDistance<priorityDistance||
+       (enemyDistance===priorityDistance&&priorityBarrel&&barrel.seq<priorityBarrel.seq)){
+     priorityDistance=enemyDistance;
+     priorityBarrel=barrel;
+    }
+   }
+  }
+
+  if(priorityBarrel){
+   // Hook toward the arena edge closest to the selected barrel.
+   const wallTargets=[
+    {distance:priorityBarrel.x,x:0,y:priorityBarrel.y},
+    {distance:W-priorityBarrel.x,x:W,y:priorityBarrel.y},
+    {distance:priorityBarrel.y,x:priorityBarrel.x,y:0},
+    {distance:H-priorityBarrel.y,x:priorityBarrel.x,y:H}
+   ];
+   let wallTarget=wallTargets[0];
+   for(let i=1;i<wallTargets.length;i++){
+    if(wallTargets[i].distance<wallTarget.distance)wallTarget=wallTargets[i];
+   }
+   targetX=wallTarget.x;targetY=wallTarget.y;
+  }else{
+   // No active barrel: fall back to the nearest living enemy.
+   const target=this._nearestEnemy();
+   if(!target)return false;
+   targetX=target.enemy.x;targetY=target.enemy.y;
+  }
+
+  this.angle=Math.atan2(targetY-this.y,targetX-this.x);
   const wx=Math.cos(this.angle),wy=Math.sin(this.angle);
   const hook=new GrapplingHook(tip.x,tip.y,wx*500,wy*500,this.d.dmg*1.5,this);
   projectiles.push(hook);
   spawnSpark(tip.x,tip.y,'#ffcc02',6);
+  return true;
  }
  _fireBola(){
   let nearest=null,nearDist=Infinity;
