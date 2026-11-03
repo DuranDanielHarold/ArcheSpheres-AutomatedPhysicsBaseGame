@@ -2442,6 +2442,24 @@ class Sphere{
  }
  _drawPowerOverlay(){
   const r=this.radius,p=0.5+0.5*Math.sin(Date.now()*.016); // visual-only: safe under fast-forward
+  if(this.priestShieldStacks>0&&this.priestShieldT>0){
+   const shieldPct=Math.min(1,this.priestShieldStacks/10),shieldPulse=0.5+0.5*Math.sin(Date.now()*.012);
+   ctx.shadowColor='#fff2a6';ctx.shadowBlur=8+shieldPct*10;
+   ctx.beginPath();ctx.arc(this.x,this.y,r+8+shieldPulse*2,0,Math.PI*2);
+   ctx.strokeStyle=`rgba(255,242,166,${0.35+shieldPct*0.5})`;ctx.lineWidth=2+shieldPct*1.5;ctx.stroke();ctx.shadowBlur=0;
+   for(let i=0;i<Math.min(4,Math.ceil(shieldPct*4));i++){
+    const a=Date.now()*.0015+i*Math.PI/2;
+    ctx.fillStyle='#fff8c0';ctx.beginPath();ctx.arc(this.x+Math.cos(a)*(r+12),this.y+Math.sin(a)*(r+12),2.3,0,Math.PI*2);ctx.fill();
+   }
+  }
+  if(this.key==='prince'&&this.princeRoyalShield>0&&this.princeRoyalShieldT>0){
+   const royalPct=Math.max(0,Math.min(1,this.princeRoyalShield/10));
+   ctx.shadowColor='#8bb7ff';ctx.shadowBlur=12;
+   ctx.beginPath();ctx.arc(this.x,this.y,r+10,0,Math.PI*2);
+   ctx.strokeStyle='rgba(139,183,255,.32)';ctx.lineWidth=2;ctx.stroke();
+   ctx.beginPath();ctx.arc(this.x,this.y,r+10,-Math.PI/2,-Math.PI/2+Math.PI*2*royalPct);
+   ctx.strokeStyle='#b9d4ff';ctx.lineWidth=4;ctx.stroke();ctx.shadowBlur=0;
+  }
   if(this.invincible){
    ctx.shadowColor='#fff';ctx.shadowBlur=20;
    ctx.beginPath();ctx.arc(this.x,this.y,r+8,0,Math.PI*2);
@@ -3032,7 +3050,9 @@ class Sphere{
  }
  _collectStatusEffectBadges(){
   const badges=[];
-  const add=(label,color)=>badges.push({label,color});
+  const add=(label,color,kind='debuff')=>badges.push({label,color,kind});
+  const addBuff=(label,color)=>add(label,color,'buff');
+  const seconds=t=>`${Math.max(0,t).toFixed(1)}s`;
   if(this.stunned)add('STUN','#ffee55');
   if((this.netRootT||0)>0)add('NET','#f0c08a');
   if((this.netSlowT||0)>0)add('NETSLOW','#f0c08a');
@@ -3056,6 +3076,29 @@ class Sphere{
   if((this.courtlyT||0)>0)add('MENACE','#ff8bd1');
   if((this.bolaSlowT||0)>0)add('SNARED','#ffaa44');
   if((this.locksmithLocks||0)>0)add(`LOCK×${this.locksmithLocks}`,'#d0b45a');
+
+  // Positive effects use the same compact badge language as debuffs, but a distinct
+  // teal/green treatment. Timed shields expose both remaining capacity and duration.
+  if(this.priestShieldStacks>0&&this.priestShieldT>0)addBuff(`P-SHLD ${this.priestShieldStacks*2} ${seconds(this.priestShieldT)}`,'#fff2a6');
+  if(this.blessDmgT>0&&(this.blessDmgAdded||0)>0)addBuff(`BLESS +${this.blessDmgAdded} ${seconds(this.blessDmgT)}`,'#fff2a6');
+  if(this.benedictionActive&&this.benedictionT>0)addBuff(`BENEDICTION ${seconds(this.benedictionT)}`,'#fff2a6');
+  if(this.key==='prince'&&this.princeRoyalShield>0&&this.princeRoyalShieldT>0)addBuff(`ROYAL ${Math.ceil(this.princeRoyalShield)} ${seconds(this.princeRoyalShieldT)}`,'#8bb7ff');
+  if(this.key==='prince'&&this.princeRoyalBulwarkT>0)addBuff(`BULWARK +30 ${seconds(this.princeRoyalBulwarkT)}`,'#ffd35a');
+  if(this.key==='guardian'&&this.guardianBastionZone&&!this.guardianBastionZone.consumed&&this.guardianBastionZone.life>0&&this.guardianBastionZone.capacity>0)addBuff(`BASTION ${Math.ceil(this.guardianBastionZone.capacity)} ${seconds(this.guardianBastionZone.life)}`,'#80cbc4');
+  if(this.key==='crusader'&&(this.crusaderRetributionShield||0)>0&&this.crusaderRetributionShieldT>0)addBuff(`SHIELD ${Math.ceil(this.crusaderRetributionShield)} ${seconds(this.crusaderRetributionShieldT)}`,'#fffacc');
+  if(this.key==='crusader'&&this.holyChargeActive&&this.holyChargeT>0)addBuff(`HOLY CHARGE ${seconds(this.holyChargeT)}`,'#fffacc');
+  if(this.key==='dragoon'&&this.magicShield)addBuff('WYRM SHIELD READY','#88bbdd');
+  if(this.key==='golem'&&this.fortified&&this.golemFortifyT>0)addBuff(`FORTIFIED ${seconds(this.golemFortifyT)}`,'#b0bec5');
+  if(this.key==='barbarian'&&this.barbarianResolveT>0)addBuff(`BLOODIED +30% ${seconds(this.barbarianResolveT)}`,'#ff9a52');
+  if(this.key==='berserker'&&this.ironWillActive&&this.ironWillT>0)addBuff(`IRON WILL ${seconds(this.ironWillT)}`,'#ff7777');
+  if(this.key==='ninja'&&this.shadowStepActive&&this.shadowStepT>0)addBuff(`SHADOW STEP ${seconds(this.shadowStepT)}`,'#c39bff');
+  if(this.key==='viking'&&this.vikingLastStandActive&&this.vikingLastStandT>0)addBuff(`LAST STAND ${seconds(this.vikingLastStandT)}`,'#c8a030');
+  if(this.key==='viking'&&this.vikingRageSpinActive&&this.vikingRageSpinT>0)addBuff(`RAGE SPIN ${seconds(this.vikingRageSpinT)}`,'#c8a030');
+  if(this.key==='phoenix'&&this.ashwingActive&&this.ashwingT>0)addBuff(`ASHWING ${seconds(this.ashwingT)}`,'#ffcc02');
+  if(this.key==='king'&&this.decreeT>0)addBuff(`DECREE ${seconds(this.decreeT)}`,'#ffd35a');
+  if(this.key==='sage'&&this.foresightT>0)addBuff(`FORESIGHT ${seconds(this.foresightT)}`,'#d6f0b2');
+  if(this.key==='bard'&&this.crescendoActive&&this.crescendoT>0)addBuff(`CRESCENDO ${seconds(this.crescendoT)}`,'#e040fb');
+  if(this.key==='stormbringer'&&this.thunderclapActive&&this.thunderclapT>0)addBuff(`THUNDERCLAP ${seconds(this.thunderclapT)}`,'#88ccff');
   return badges;
  }
  _drawStatusEffectBadges(){
@@ -3079,7 +3122,7 @@ class Sphere{
    const y=barY-5-badgeH-ri*(badgeH+rowGap);
    for(const badge of row.items){
     const bx=x,by=y;
-    ctx.fillStyle='rgba(4,6,10,.86)';rrect(ctx,bx,by,badge.w,badgeH,3);ctx.fill();
+    ctx.fillStyle=badge.kind==='buff'?'rgba(5,24,25,.92)':'rgba(4,6,10,.86)';rrect(ctx,bx,by,badge.w,badgeH,3);ctx.fill();
     ctx.strokeStyle=badge.color;ctx.lineWidth=1;rrect(ctx,bx+.5,by+.5,badge.w-1,badgeH-1,3);ctx.stroke();
     ctx.fillStyle=badge.color;ctx.fillText(badge.label,bx+badge.w/2,by+badgeH/2+0.5);
     x+=badge.w+gapX;
