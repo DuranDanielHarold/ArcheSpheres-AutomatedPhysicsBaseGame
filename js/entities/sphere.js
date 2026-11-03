@@ -55,8 +55,7 @@ class Sphere{
   this.snareActive=false;this.snareT=0;
   this.spreadActive=false;
   this.guardianSanctuaryTimer=0;this.guardianBastionZone=null;this.aegisSlamT=0;
-  this.fortified=false;this.golemFortifyT=0;
-  this.golemFortifyActive=false;
+  this.golemFortified=false;this.golemFortifyT=0;this.golemFortifyActive=false;this.golemAdaptPhysical=0;this.golemAdaptMagic=0;this.golemAdaptType='ironstone';this.golemAdaptTimer=0;this.golemPunchCD=0;this.golemPunchActiveT=0;this.golemPunchSide=1;this.golemPunchTarget=null;this.golemPunchHit=false;
   this.rebirthDone=false;
   this.phoenixEmber=0;this.phoenixEmberFlash=0;this.ashwingActive=false;this.ashwingT=0;
   this.deathMarkTicks=0;this.deathMarkTimer=0;this.deathMarkDmg=0;this.deathMarkDoTHits=0;this.deathMarkSourceKey=null;
@@ -572,12 +571,11 @@ class Sphere{
      this.jesterLurchT=1.5;
     } break;
    case 'golem':
-    if(this.stacks>=3){
-     this.stacks=0;this.fortified=true;this.golemFortifyActive=true;this.golemFortifyT=4.0;
-     this.dmgMult=1.4;
-     spawnBurst(this.x,this.y,'#b0bec5','#607d8b',16);
-    }
-    break;
+    if(this.stacks>=3){this.stacks=0;
+     if(this.golemAdaptType==='crystalline'){const burstR=this.radius*3.1;spawnBurst(this.x,this.y,'#c7a6ff','#59418b',26);spawnPulse(this.x,this.y,'#a987ef');for(const enemy of spheres){if(sameFaction(this,enemy)||!enemy.alive||enemy.dying)continue;const dx=enemy.x-this.x,dy=enemy.y-this.y,dist=Math.hypot(dx,dy)||1;if(dist>burstR+enemy.radius)continue;enemy.applyImpact(dx/dist*240,dy/dist*240);window._balanceDamageSource={key:this.key,type:'ability'};enemy.receiveMagicDamage((this.d.dmg*1.65+4)*this.dmgMult);window._balanceDamageSource=null;spawnSpark(enemy.x,enemy.y,'#c7a6ff',6);}spawnDmgNum(this.x,this.y-this.radius*1.8,'CRYSTALLINE','#c7a6ff');}
+     else{const target=(this._nearestEnemy()||{}).enemy;if(target){const dx=target.x-this.x,dy=target.y-this.y,dist=Math.hypot(dx,dy)||1;target.applyImpact(dx/dist*430,dy/dist*430);window._balanceDamageSource={key:this.key,type:'ability'};target.receiveDamage((this.d.dmg*2.1+5)*this.dmgMult);window._balanceDamageSource=null;spawnImpactBurst(target.x,target.y,'#ffbd70','#4a3020');spawnDmgNum(target.x,target.y-target.radius*1.5,'IRONSTONE','#ffbd70');}else spawnBurst(this.x,this.y,'#ffbd70','#4a3020',18);}
+     this.golemAdaptPhysical=0;this.golemAdaptMagic=0;this.golemAdaptTimer=0;
+    }break;
    case 'phoenix':
     if(this.stacks>=3){
      this.stacks=0;
@@ -901,6 +899,7 @@ class Sphere{
   if(this.virulenceStacks>0)this.virulenceStacks=Math.max(0,this.virulenceStacks-dt*0.15);
   if(this.discordFireRateT>0){this.discordFireRateT-=dt;this.shotCD=Math.max(0,this.shotCD-dt*0.35);}else{this.shotCD=Math.max(0,this.shotCD-dt);}
   this.weaponHitCD=Math.max(0,this.weaponHitCD-dt);
+  if(this.key==='golem'){this.golemPunchCD=Math.max(0,(this.golemPunchCD||0)-dt);this.golemPunchActiveT=Math.max(0,(this.golemPunchActiveT||0)-dt);if(this.golemAdaptTimer>0){this.golemAdaptTimer=Math.max(0,this.golemAdaptTimer-dt);if(this.golemAdaptTimer===0){this.golemAdaptPhysical=Math.max(0,(this.golemAdaptPhysical||0)-22);this.golemAdaptMagic=Math.max(0,(this.golemAdaptMagic||0)-22);}}if(this.golemPunchCD<=0){const target=(this._nearestEnemy()||{}).enemy;if(target){this.golemPunchTarget=target;this.angle=Math.atan2(target.y-this.y,target.x-this.x);this.golemPunchSide=-(this.golemPunchSide||1);this.golemPunchActiveT=.22;this.golemPunchCD=.82;this.golemPunchHit=false;}}else if(this.golemPunchActiveT<=0){const target=(this._nearestEnemy()||{}).enemy;if(target)this.angle=Math.atan2(target.y-this.y,target.x-this.x);}}
   if(this.impactDecay>0){
    this.impactDecay=Math.max(0,this.impactDecay-dt);
    this.impactVx*=Math.pow(0.04,dt);
@@ -1366,7 +1365,7 @@ class Sphere{
   }
   this.x+=(this.vx+this.impactVx)*dt;
   this.y+=(this.vy+this.impactVy)*dt;
-  if(this.abilityAimT>0){this.abilityAimT=Math.max(0,this.abilityAimT-dt);if(this.abilityAimAngle!==null)this.angle=this.abilityAimAngle;else this.angle+=this.omegaCur*dt;}
+  if(this.key==='golem'){}else if(this.abilityAimT>0){this.abilityAimT=Math.max(0,this.abilityAimT-dt);if(this.abilityAimAngle!==null)this.angle=this.abilityAimAngle;else this.angle+=this.omegaCur*dt;}
   else {this.abilityAimAngle=null;this.angle+=this.omegaCur*dt;}
   const R=this.radius;
   if(this.x-R<0){this.x=R;this.vx=Math.max(Math.abs(this.vx)*WALL_REST,tgt*0.5);this.impactVx=0;this.vy+=(Math.random()-.5)*tgt*.12;
@@ -2105,11 +2104,12 @@ class Sphere{
    return true;
   }
   getTip(){
-   const reach=this.radius*this.d.reach;
-   return{x:this.x+Math.cos(this.angle)*reach,y:this.y+Math.sin(this.angle)*reach};
+   if(this.key==='golem'){const reach=this.radius*1.55,side=this.radius*.78,sign=this.golemPunchSide||1;return{x:this.x+Math.cos(this.angle)*reach-Math.sin(this.angle)*side*sign,y:this.y+Math.sin(this.angle)*reach+Math.cos(this.angle)*side*sign};}
+   const reach=this.radius*this.d.reach;return{x:this.x+Math.cos(this.angle)*reach,y:this.y+Math.sin(this.angle)*reach};
   }
  getBladePoints(){
   const pts=[];const steps=5;
+  if(this.key==='golem'){const reach=this.radius*1.55,side=this.radius*.78;for(const sign of [-1,1])pts.push({x:this.x+Math.cos(this.angle)*reach-Math.sin(this.angle)*side*sign,y:this.y+Math.sin(this.angle)*reach+Math.cos(this.angle)*side*sign});return pts;}
   for(let i=1;i<=steps;i++){
    const t=i/steps,reach=this.radius*this.d.reach*t;
    pts.push({x:this.x+Math.cos(this.angle)*reach,y:this.y+Math.sin(this.angle)*reach});
@@ -2178,7 +2178,7 @@ class Sphere{
    const anchor=Math.max(0,Math.min(1,this.templarAnchor||0));
    fd*=0.85-(0.30*anchor);
   }
-  if(this.key==='golem')fd*=0.65;
+  if(this.key==='golem'){fd*=0.65;this.golemAdaptPhysical=Math.min(100,(this.golemAdaptPhysical||0)+dmg);this.golemAdaptTimer=8;if(this.golemAdaptPhysical>=(this.golemAdaptMagic||0))this.golemAdaptType='ironstone';if(this.golemAdaptType==='ironstone')fd*=0.82;}
   fd=this._applyGuardianBastion(fd);
   if(this.sepsisWeakenedT>0)fd*=1.15;
   if(this.key==='crusader'&&this.crusaderRetributionShield>0&&this.crusaderRetributionShieldT>0&&fd>0){
@@ -2252,6 +2252,7 @@ class Sphere{
    return;
   }
   let fd=dmg/(this.d.magDef*0.004+1);
+  if(this.key==='golem'){this.golemAdaptMagic=Math.min(100,(this.golemAdaptMagic||0)+dmg);this.golemAdaptTimer=8;if(this.golemAdaptMagic>(this.golemAdaptPhysical||0))this.golemAdaptType='crystalline';if(this.golemAdaptType==='crystalline')fd*=0.82;}
   if(this.sepsisWeakenedT>0)fd*=1.15;
   fd=this._applyGuardianBastion(fd);
   if(this.key==='prince'&&this.princeRoyalShield>0&&this.princeRoyalShieldT>0&&fd>0){
