@@ -251,6 +251,7 @@ class GuardianBastionZone{
   this.life=8.0;this.maxLife=8.0;this.capacity=40;this.maxCapacity=40;this.t=0;this.consumed=false;
  }
  update(dt){this.life-=dt;this.t+=dt;this.x=this.owner.x;this.y=this.owner.y;if(this.life<=0||this.capacity<=0)this.consumed=true;}
+ apply(){}
  contains(s){return !this.consumed&&this.life>0&&this.capacity>0&&sameFaction(this.owner,s)&&Math.hypot(s.x-this.x,s.y-this.y)<this.r+s.radius*.25;}
  absorb(damage,reinforced){
   if(this.consumed||this.capacity<=0||damage<=0)return damage;
