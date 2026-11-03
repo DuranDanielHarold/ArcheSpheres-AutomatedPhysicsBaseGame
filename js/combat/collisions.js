@@ -293,15 +293,6 @@ function _weaponHit(att,def){
     att.omegaCur=Math.abs(att.omegaCur)*1.006*Math.sign(att.omegaCur||1);
     if(att.stalwartStacks%5===0)spawnDmgNum(att.x,att.y-att.radius*1.5,'STALWART','#d8eaf8');
    }
-   // Barbarian — Disarm: drop the defender's existing weapon on a successful hit.
-   if(traits&&att.key==='barbarian'&&def.weaponDisarmedT<=0&&!def.dying){
-    const dx=def.x-att.x,dy=def.y-att.y,dist=Math.hypot(dx,dy)||1;
-    const dropX=Math.max(18,Math.min(W-18,def.x+(dx/dist)*(def.radius+att.radius*.45+12)));
-    const dropY=Math.max(18,Math.min(H-18,def.y+(dy/dist)*(def.radius+att.radius*.45+12)));
-    def.weaponDisarmedT=4.0;
-    noiseTraps.push(new DroppedWeapon(def,dropX,dropY));
-    spawnSpark(dropX,dropY,'#d7c49b',7);
-   }
    // Rogue — Hemorrhage: apply/refresh bleed stacks on target (max 3)
     if(traits&&att.key==='rogue'){
     def.bleedStacks=Math.min(3,(def.bleedStacks||0)+1);
