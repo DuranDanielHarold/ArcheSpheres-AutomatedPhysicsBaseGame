@@ -2467,13 +2467,31 @@ class Sphere{
    ctx.fillStyle='#000';for(const[ox,oy]of[[-1,-1],[1,-1],[-1,1],[1,1],[0,-2],[0,2],[-2,0],[2,0]])ctx.fillText(txt,this.x+ox,this.y+oy);
    ctx.fillStyle=this.hitFlash>.5?'#ffff44':'#fff';ctx.fillText(txt,this.x,this.y);
    if(this.key==='sage'&&(this.knowledge||0)>0){ctx.fillStyle='#d6f0b2';ctx.font=`bold ${Math.max(5,this.radius*.25)}px 'Press Start 2P',monospace`;ctx.fillText(`KNOW ${this.knowledge}`,this.x,this.y-this.radius-16);}
-   if(this.key==='king'&&(this.sovereignArmBonus||0)>0){ctx.fillStyle='#ffd35a';ctx.font=`bold ${Math.max(7,this.radius*.32)}px serif`;ctx.fillText('♛'.repeat(Math.min(5,Math.ceil(this.sovereignArmBonus/6))),this.x,this.y-this.radius-16);}
+   if(this.key==='king'&&(this.sovereignArmBonus||0)>0){ctx.fillStyle='#ffd35a';ctx.font=`bold ${Math.max(7,this.radius*.32)}px serif`;ctx.fillText('♛'.repeat(Math.min(5,Math.ceil(this.sovereignArmBonus/6))),this.x,this.y-this.radius-24);}
   }
   ctx.restore();
   if(!this.dying){this._drawHpBar();this._drawStatusEffectBadges();}
  }
  _drawPowerOverlay(){
   const r=this.radius,p=0.5+0.5*Math.sin(Date.now()*.016); // visual-only: safe under fast-forward
+  if(this.priestShieldStacks>0&&this.priestShieldT>0){
+   const shieldPct=Math.min(1,this.priestShieldStacks/10),shieldPulse=0.5+0.5*Math.sin(Date.now()*.012);
+   ctx.shadowColor='#fff2a6';ctx.shadowBlur=8+shieldPct*10;
+   ctx.beginPath();ctx.arc(this.x,this.y,r+8+shieldPulse*2,0,Math.PI*2);
+   ctx.strokeStyle=`rgba(255,242,166,${0.35+shieldPct*0.5})`;ctx.lineWidth=2+shieldPct*1.5;ctx.stroke();ctx.shadowBlur=0;
+   for(let i=0;i<Math.min(4,Math.ceil(shieldPct*4));i++){
+    const a=Date.now()*.0015+i*Math.PI/2;
+    ctx.fillStyle='#fff8c0';ctx.beginPath();ctx.arc(this.x+Math.cos(a)*(r+12),this.y+Math.sin(a)*(r+12),2.3,0,Math.PI*2);ctx.fill();
+   }
+  }
+  if(this.key==='prince'&&this.princeRoyalShield>0&&this.princeRoyalShieldT>0){
+   const royalPct=Math.max(0,Math.min(1,this.princeRoyalShield/10));
+   ctx.shadowColor='#8bb7ff';ctx.shadowBlur=12;
+   ctx.beginPath();ctx.arc(this.x,this.y,r+10,0,Math.PI*2);
+   ctx.strokeStyle='rgba(139,183,255,.32)';ctx.lineWidth=2;ctx.stroke();
+   ctx.beginPath();ctx.arc(this.x,this.y,r+10,-Math.PI/2,-Math.PI/2+Math.PI*2*royalPct);
+   ctx.strokeStyle='#b9d4ff';ctx.lineWidth=4;ctx.stroke();ctx.shadowBlur=0;
+  }
   if(this.invincible){
    ctx.shadowColor='#fff';ctx.shadowBlur=20;
    ctx.beginPath();ctx.arc(this.x,this.y,r+8,0,Math.PI*2);
@@ -2913,18 +2931,14 @@ class Sphere{
     ctx.strokeStyle=`rgba(255,250,204,${0.75+cp*0.25})`;ctx.lineWidth=4;
     ctx.beginPath();ctx.arc(this.x,this.y,r+10+cp*4,0,Math.PI*2);ctx.stroke();
     ctx.shadowBlur=0;
-    ctx.font=`bold ${Math.max(5,r*.22)}px 'Press Start 2P',monospace`;
-    ctx.textAlign='center';ctx.textBaseline='bottom';
-    ctx.fillStyle='#fffacc';ctx.fillText('CHARGE!',this.x,this.y-r-14);
+    // The shared status badge now carries the active charge label and timer.
    } else if((this.crusaderRetributionShield||0)>0&&this.crusaderRetributionShieldT>0){
     const si=Math.min(1,this.crusaderRetributionShield/45);
     ctx.shadowColor='#fffacc';ctx.shadowBlur=10+si*16;
     ctx.strokeStyle=`rgba(255,250,204,${0.45+si*0.45})`;ctx.lineWidth=3;
     ctx.beginPath();ctx.arc(this.x,this.y,r+7+si*3,0,Math.PI*2);ctx.stroke();
     ctx.shadowBlur=0;
-    ctx.font=`bold ${Math.max(4,r*.18)}px 'Press Start 2P',monospace`;
-    ctx.textAlign='center';ctx.textBaseline='bottom';
-    ctx.fillStyle='#fffacc';ctx.fillText(`SHLD ${Math.ceil(this.crusaderRetributionShield)}`,this.x,this.y-r-14);
+    // Shield capacity and duration are shown by the shared status badge.
    } else if((this.retributionCounter||0)>5){
     const ri=Math.min(1,this.retributionCounter/30);
     ctx.shadowColor='#ff8800';ctx.shadowBlur=6+ri*12;
@@ -2974,9 +2988,7 @@ class Sphere{
     ctx.strokeStyle=`rgba(200,230,255,${0.8+tp*0.2})`;ctx.lineWidth=4;
     ctx.beginPath();ctx.arc(this.x,this.y,r+12+tp*6,0,Math.PI*2);ctx.stroke();
     ctx.shadowBlur=0;
-    ctx.font=`bold ${Math.max(5,r*.22)}px 'Press Start 2P',monospace`;
-    ctx.textAlign='center';ctx.textBaseline='bottom';
-    ctx.fillStyle='#88ccff';ctx.fillText('CLAP!',this.x,this.y-r-14);
+    // The shared status badge carries the active thunderclap label and timer.
    }
   }
   // ── Void Walker overlays
@@ -3064,7 +3076,9 @@ class Sphere{
  }
  _collectStatusEffectBadges(){
   const badges=[];
-  const add=(label,color)=>badges.push({label,color});
+  const add=(label,color,kind='debuff')=>badges.push({label,color,kind});
+  const addBuff=(label,color)=>add(label,color,'buff');
+  const seconds=t=>`${Math.max(0,t).toFixed(1)}s`;
   if(this.stunned)add('STUN','#ffee55');
   if((this.netRootT||0)>0)add('NET','#f0c08a');
   if((this.netSlowT||0)>0)add('NETSLOW','#f0c08a');
@@ -3088,33 +3102,69 @@ class Sphere{
   if((this.courtlyT||0)>0)add('MENACE','#ff8bd1');
   if((this.bolaSlowT||0)>0)add('SNARED','#ffaa44');
   if((this.locksmithLocks||0)>0)add(`LOCK×${this.locksmithLocks}`,'#d0b45a');
+
+  // Positive effects use the same compact badge language as debuffs, but a distinct
+  // teal/green treatment. Timed shields expose both remaining capacity and duration.
+  if(this.priestShieldStacks>0&&this.priestShieldT>0)addBuff(`P-SHLD ${this.priestShieldStacks*2} ${seconds(this.priestShieldT)}`,'#fff2a6');
+  if(this.invincible&&this.invincibleT>0)addBuff(`INVINCIBLE ${seconds(this.invincibleT)}`,'#ffffff');
+  if(this.spiralActive&&this.spiralT>0)addBuff(`SPIRAL ${seconds(this.spiralT)}`,'#ffdc50');
+  if(this.ramActive&&this.ramT>0)addBuff(`RAM ${seconds(this.ramT)}`,'#ff6a34');
+  if(this.orbitActive&&this.orbitT>0)addBuff(`ORBIT ${seconds(this.orbitT)}`,'#ff5050');
+  if(this.iaijutsuReady)addBuff('IAIJUTSU READY','#c8c0a8');
+  if(this.stalwartStacks>0)addBuff(`STALWART ×${this.stalwartStacks}`,'#d8eaf8');
+  if(this.key==='spartan'&&(this.ironStacks||0)>0)addBuff(`IRON ×${this.ironStacks}`,'#d8b060');
+  if(this.key==='beastmaster'&&this.packHuntT>0)addBuff(`PACK HUNT ${seconds(this.packHuntT)}`,'#ffb060');
+  if(this.key==='arcanist'&&this.overloadActive&&this.overloadT>0)addBuff(`OVERLOAD ${seconds(this.overloadT)}`,'#78d8ff');
+  if(this.key!=='crusader'&&(this.hitBuffStacks||0)>0)addBuff(`HIT BUFF ×${this.hitBuffStacks}`,'#ffdc50');
+  if(this.volleyActive)addBuff(`VOLLEY ×${Math.max(0,this.volleyBurstsLeft||0)}`,'#88cc44');
+  if(this.crowdDouble)addBuff('CROWD DOUBLE','#ffd35a');
+  if(this.blessDmgT>0&&(this.blessDmgAdded||0)>0)addBuff(`BLESS +${this.blessDmgAdded} ${seconds(this.blessDmgT)}`,'#fff2a6');
+  if(this.benedictionActive&&this.benedictionT>0)addBuff(`BENEDICTION ${seconds(this.benedictionT)}`,'#fff2a6');
+  if(this.key==='prince'&&this.princeRoyalShield>0&&this.princeRoyalShieldT>0)addBuff(`ROYAL ${Math.ceil(this.princeRoyalShield)} ${seconds(this.princeRoyalShieldT)}`,'#8bb7ff');
+  if(this.key==='prince'&&this.princeRoyalBulwarkT>0)addBuff(`BULWARK +30 ${seconds(this.princeRoyalBulwarkT)}`,'#ffd35a');
+  if(this.key==='guardian'&&this.guardianBastionZone&&!this.guardianBastionZone.consumed&&this.guardianBastionZone.life>0&&this.guardianBastionZone.capacity>0)addBuff(`BASTION ${Math.ceil(this.guardianBastionZone.capacity)} ${seconds(this.guardianBastionZone.life)}`,'#80cbc4');
+  if(this.key==='crusader'&&(this.crusaderRetributionShield||0)>0&&this.crusaderRetributionShieldT>0)addBuff(`RETRI ${Math.ceil(this.crusaderRetributionShield)} ${seconds(this.crusaderRetributionShieldT)}`,'#fffacc');
+  if(this.key==='crusader'&&this.holyChargeActive&&this.holyChargeT>0)addBuff(`HOLY CHARGE ${seconds(this.holyChargeT)}`,'#fffacc');
+  if(this.key==='dragoon'&&this.magicShield)addBuff('WYRM SHIELD READY','#88bbdd');
+  if(this.key==='golem'&&this.fortified&&this.golemFortifyT>0)addBuff(`FORTIFIED ${seconds(this.golemFortifyT)}`,'#b0bec5');
+  if(this.key==='barbarian'&&this.barbarianResolveT>0)addBuff(`BLOODIED +30% ${seconds(this.barbarianResolveT)}`,'#ff9a52');
+  if(this.key==='berserker'&&this.ironWillActive&&this.ironWillT>0)addBuff(`IRON WILL ${seconds(this.ironWillT)}`,'#ff7777');
+  if(this.key==='ninja'&&this.shadowStepActive&&this.shadowStepT>0)addBuff(`SHADOW STEP ${seconds(this.shadowStepT)}`,'#c39bff');
+  if(this.key==='viking'&&this.vikingLastStandActive&&this.vikingLastStandT>0)addBuff(`LAST STAND ${seconds(this.vikingLastStandT)}`,'#c8a030');
+  if(this.key==='viking'&&this.vikingRageSpinActive&&this.vikingRageSpinT>0)addBuff(`RAGE SPIN ${seconds(this.vikingRageSpinT)}`,'#c8a030');
+  if(this.key==='phoenix'&&this.ashwingActive&&this.ashwingT>0)addBuff(`ASHWING ${seconds(this.ashwingT)}`,'#ffcc02');
+  if(this.key==='king'&&this.decreeT>0)addBuff(`DECREE ${seconds(this.decreeT)}`,'#ffd35a');
+  if(this.key==='sage'&&this.foresightT>0)addBuff(`FORESIGHT ${seconds(this.foresightT)}`,'#d6f0b2');
+  if(this.key==='bard'&&this.crescendoActive&&this.crescendoT>0)addBuff(`CRESCENDO ${seconds(this.crescendoT)}`,'#e040fb');
+  if(this.key==='stormbringer'&&this.thunderclapActive&&this.thunderclapT>0)addBuff(`THUNDERCLAP ${seconds(this.thunderclapT)}`,'#88ccff');
   return badges;
  }
  _drawStatusEffectBadges(){
   const badges=this._collectStatusEffectBadges();
   if(!badges.length)return;
-  const r=this.radius,bw=r*2.35,barY=this.y-r-13;
-  const fontSize=Math.max(5,Math.min(8,r*.18));
-  const padX=3,gapX=3,rowGap=3,badgeH=fontSize+5,maxRowW=Math.max(bw*1.35,70);
+  const r=this.radius,bw=r*2.35;
+  const fontSize=Math.max(5,Math.min(7,r*.16));
+  const gapX=4,rowGap=3,badgeH=fontSize+5;
+  const maxRowW=Math.max(bw*2,140),colW=(maxRowW-gapX)/2;
+  // Stack pips sit at y + radius + 15; place status rows beneath them so
+  // badges never compete with the HP bar, crown, or other top-of-sphere art.
+  const firstRowY=this.y+r+23;
   ctx.save();
   ctx.font=`bold ${fontSize}px 'Press Start 2P',monospace`;ctx.textAlign='center';ctx.textBaseline='middle';
-  const rows=[];let row=[],rowW=0;
-  for(const badge of badges){
-   const w=Math.ceil(ctx.measureText(badge.label).width)+padX*2;
-   if(row.length&&rowW+w+gapX>maxRowW){rows.push({items:row,w:rowW-gapX});row=[];rowW=0;}
-   row.push({...badge,w});rowW+=w+gapX;
-  }
-  if(row.length)rows.push({items:row,w:rowW-gapX});
-  for(let ri=0;ri<rows.length;ri++){
-   const row=rows[ri];
-   let x=this.x-row.w/2;
-   const y=barY-5-badgeH-ri*(badgeH+rowGap);
-   for(const badge of row.items){
-    const bx=x,by=y;
-    ctx.fillStyle='rgba(4,6,10,.86)';rrect(ctx,bx,by,badge.w,badgeH,3);ctx.fill();
-    ctx.strokeStyle=badge.color;ctx.lineWidth=1;rrect(ctx,bx+.5,by+.5,badge.w-1,badgeH-1,3);ctx.stroke();
-    ctx.fillStyle=badge.color;ctx.fillText(badge.label,bx+badge.w/2,by+badgeH/2+0.5);
-    x+=badge.w+gapX;
+  for(let i=0,rowIndex=0;i<badges.length;i+=2,rowIndex++){
+   const count=Math.min(2,badges.length-i);
+   const rowW=count===1?colW:maxRowW;
+   const startX=this.x-rowW/2;
+   const y=firstRowY+rowIndex*(badgeH+rowGap);
+   for(let col=0;col<count;col++){
+    const badge=badges[i+col];
+    const bx=startX+col*(colW+gapX),by=y;
+    ctx.fillStyle=badge.kind==='buff'?'rgba(5,24,25,.92)':'rgba(4,6,10,.86)';
+    rrect(ctx,bx,by,colW,badgeH,3);ctx.fill();
+    ctx.strokeStyle=badge.color;ctx.lineWidth=1;
+    rrect(ctx,bx+.5,by+.5,colW-1,badgeH-1,3);ctx.stroke();
+    ctx.fillStyle=badge.color;
+    ctx.fillText(badge.label,bx+colW/2,by+badgeH/2+0.5,colW-8);
    }
   }
   ctx.restore();

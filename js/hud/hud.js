@@ -24,7 +24,7 @@ function _hudCardHtml(s,side,slot){
  const d=s.d,colors=_hudStatColors(s),ability=_hudAbilityState(s),stackShown=Math.min(ability.stackValue,ability.thresh);
  const stackColor=ability.stackValue>=ability.thresh?'#ff4400':ability.stackValue>0?'#e8b430':'#556677';
  const out=!s.alive||s.dying;
- const badges=_hudStatusBadges(s).map(b=>`<span class="hud-badge" style="border-color:${b.color};color:${b.color}">${b.label}</span>`).join('')||'<span class="hud-badge empty">CLEAR</span>';
+ const badges=_hudStatusBadges(s).map(b=>`<span class="hud-badge ${b.kind||'debuff'}" style="border-color:${b.color};color:${b.color}">${b.label}</span>`).join('')||'<span class="hud-badge empty">CLEAR</span>';
  return `<div class="hud-card ${side} ${out?'out':''}" data-faction="${s.faction}" data-slot="${slot}">
   <div class="hud-card-head"><span class="sn ${side}">${d.weapon}</span>${out?'<span class="hud-out-tag">OUT</span>':''}</div>
   <div class="hud-rows">
