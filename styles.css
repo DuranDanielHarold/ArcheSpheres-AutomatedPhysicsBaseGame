@@ -293,7 +293,10 @@ body {
 }
 
 .hud-badge {
+  width: fit-content;
+  max-width: 100%;
   min-width: 0;
+  justify-self: center;
   overflow: hidden;
   text-overflow: ellipsis;
   font-family: 'Press Start 2P', monospace;
