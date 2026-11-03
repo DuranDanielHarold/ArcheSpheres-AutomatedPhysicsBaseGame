@@ -2899,18 +2899,14 @@ class Sphere{
     ctx.strokeStyle=`rgba(255,250,204,${0.75+cp*0.25})`;ctx.lineWidth=4;
     ctx.beginPath();ctx.arc(this.x,this.y,r+10+cp*4,0,Math.PI*2);ctx.stroke();
     ctx.shadowBlur=0;
-    ctx.font=`bold ${Math.max(5,r*.22)}px 'Press Start 2P',monospace`;
-    ctx.textAlign='center';ctx.textBaseline='bottom';
-    ctx.fillStyle='#fffacc';ctx.fillText('CHARGE!',this.x,this.y-r-14);
+    // The shared status badge now carries the active charge label and timer.
    } else if((this.crusaderRetributionShield||0)>0&&this.crusaderRetributionShieldT>0){
     const si=Math.min(1,this.crusaderRetributionShield/45);
     ctx.shadowColor='#fffacc';ctx.shadowBlur=10+si*16;
     ctx.strokeStyle=`rgba(255,250,204,${0.45+si*0.45})`;ctx.lineWidth=3;
     ctx.beginPath();ctx.arc(this.x,this.y,r+7+si*3,0,Math.PI*2);ctx.stroke();
     ctx.shadowBlur=0;
-    ctx.font=`bold ${Math.max(4,r*.18)}px 'Press Start 2P',monospace`;
-    ctx.textAlign='center';ctx.textBaseline='bottom';
-    ctx.fillStyle='#fffacc';ctx.fillText(`SHLD ${Math.ceil(this.crusaderRetributionShield)}`,this.x,this.y-r-14);
+    // Shield capacity and duration are shown by the shared status badge.
    } else if((this.retributionCounter||0)>5){
     const ri=Math.min(1,this.retributionCounter/30);
     ctx.shadowColor='#ff8800';ctx.shadowBlur=6+ri*12;
@@ -2960,9 +2956,7 @@ class Sphere{
     ctx.strokeStyle=`rgba(200,230,255,${0.8+tp*0.2})`;ctx.lineWidth=4;
     ctx.beginPath();ctx.arc(this.x,this.y,r+12+tp*6,0,Math.PI*2);ctx.stroke();
     ctx.shadowBlur=0;
-    ctx.font=`bold ${Math.max(5,r*.22)}px 'Press Start 2P',monospace`;
-    ctx.textAlign='center';ctx.textBaseline='bottom';
-    ctx.fillStyle='#88ccff';ctx.fillText('CLAP!',this.x,this.y-r-14);
+    // The shared status badge carries the active thunderclap label and timer.
    }
   }
   // ── Void Walker overlays
@@ -3080,6 +3074,19 @@ class Sphere{
   // Positive effects use the same compact badge language as debuffs, but a distinct
   // teal/green treatment. Timed shields expose both remaining capacity and duration.
   if(this.priestShieldStacks>0&&this.priestShieldT>0)addBuff(`P-SHLD ${this.priestShieldStacks*2} ${seconds(this.priestShieldT)}`,'#fff2a6');
+  if(this.invincible&&this.invincibleT>0)addBuff(`INVINCIBLE ${seconds(this.invincibleT)}`,'#ffffff');
+  if(this.spiralActive&&this.spiralT>0)addBuff(`SPIRAL ${seconds(this.spiralT)}`,'#ffdc50');
+  if(this.ramActive&&this.ramT>0)addBuff(`RAM ${seconds(this.ramT)}`,'#ff6a34');
+  if(this.orbitActive&&this.orbitT>0)addBuff(`ORBIT ${seconds(this.orbitT)}`,'#ff5050');
+  if(this.iaijutsuReady)addBuff('IAIJUTSU READY','#c8c0a8');
+  if(this.stalwartStacks>0)addBuff(`STALWART ×${this.stalwartStacks}`,'#d8eaf8');
+  if(this.key==='spartan'&&(this.ironStacks||0)>0)addBuff(`IRON ×${this.ironStacks}`,'#d8b060');
+  if(this.key==='beastmaster'&&this.packHuntT>0)addBuff(`PACK HUNT ${seconds(this.packHuntT)}`,'#ffb060');
+  if(this.key==='arcanist'&&this.overloadActive&&this.overloadT>0)addBuff(`OVERLOAD ${seconds(this.overloadT)}`,'#78d8ff');
+  if(this.lowHpBuffApplied)addBuff('LOW-HP POWER','#ff8800');
+  if((this.hitBuffStacks||0)>0)addBuff(`HIT BUFF ×${this.hitBuffStacks}`,'#ffdc50');
+  if(this.volleyActive)addBuff(`VOLLEY ×${Math.max(0,this.volleyBurstsLeft||0)}`,'#88cc44');
+  if(this.crowdDouble)addBuff('CROWD DOUBLE','#ffd35a');
   if(this.blessDmgT>0&&(this.blessDmgAdded||0)>0)addBuff(`BLESS +${this.blessDmgAdded} ${seconds(this.blessDmgT)}`,'#fff2a6');
   if(this.benedictionActive&&this.benedictionT>0)addBuff(`BENEDICTION ${seconds(this.benedictionT)}`,'#fff2a6');
   if(this.key==='prince'&&this.princeRoyalShield>0&&this.princeRoyalShieldT>0)addBuff(`ROYAL ${Math.ceil(this.princeRoyalShield)} ${seconds(this.princeRoyalShieldT)}`,'#8bb7ff');
