@@ -1,7 +1,7 @@
 'use strict';
 // ▓▓▓ MODULE: classes/ninja.js — Ninja sphere kit registry ▓▓▓
 
-DEF.ninja = {"label":"Ninja","weapon":"Kusarigama","ab":"Blink Strike","color":"#1a1a2e","dark":"#0d0d1a","rim":"#9b59b6","out":"#050510","wcol":"#9b59b6","wdrk":"#6c3483","mass":4,"spd":321,"hp":394,"om":10,"dmg":2.04,"arm":60,"magDef":30,"rest":0.84,"reach":3.74,"tipR":0.2,"abilityType":"utility","passiveType":"hybrid","wt":"kusarigama"};
+DEF.ninja = {"label":"Ninja","weapon":"Kusarigama","ab":"Blink Strike","color":"#1a1a2e","dark":"#0d0d1a","rim":"#9b59b6","out":"#050510","wcol":"#9b59b6","wdrk":"#6c3483","mass":4,"spd":321,"hp":430,"om":10,"dmg":2.2,"arm":70,"magDef":35,"rest":0.84,"reach":3.74,"tipR":0.2,"abilityType":"utility","passiveType":"hybrid","wt":"kusarigama"};
 CLASS_ROLE.ninja = "ASSASSIN";
 CLASS_DESC.ninja = {
   "ability": "Blink Strike (5 stacks) — Teleports instantly behind the enemy with a burst of particles.",

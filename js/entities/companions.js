@@ -18,7 +18,7 @@ class BeastCompanion{
   const m=Math.hypot(this.vx,this.vy)||1;if(m>spd){this.vx=this.vx/m*spd;this.vy=this.vy/m*spd;}
   this.x+=this.vx*dt;this.y+=this.vy*dt;
   if(d<t.radius+this.r){
-   const _companionBefore=t.hp;t.receiveDamage(this.kind==='boar'?9:this.kind==='ferret'?1:6);recordDamageEvent(this.owner.key,this.kind==='ferret'?'passive':'ability',_companionBefore-t.hp);
+   const _companionBefore=t.hp;t.receiveDamage(this.kind==='boar'?7:this.kind==='ferret'?1:5);recordDamageEvent(this.owner.key,this.kind==='ferret'?'passive':'ability',_companionBefore-t.hp);
    t.applyImpact((dx/d)*(this.kind==='boar'?360:120),(dy/d)*(this.kind==='boar'?360:120));
    spawnBurst(this.x,this.y,this.kind==='hawk'?'#f3df8f':this.kind==='ferret'?'#d0c090':this.kind==='wolf'?'#9aa080':'#ffb060','#5a2608',8);
    this.alive=false;
@@ -207,7 +207,9 @@ class Skeleton{
   const r=this.radius;
   ctx.save();ctx.globalAlpha=alpha;
   ctx.save();ctx.translate(this.x,this.y);ctx.rotate(this.angle);
-  this._drawWeapon(r*1.35);
+  // Match the rendered weapon tip to the same centerline reach used by getTip()/getBladePoints().
+  const tipExtent={bow:2.05,sword:2.42,spear:2.95,hammer:2.10,axe:2.20}[this.weaponType]||2.0;
+  this._drawWeapon(r*this.reach/tipExtent);
   ctx.restore();
   ctx.beginPath();ctx.arc(this.x,this.y,r,0,Math.PI*2);
   ctx.fillStyle=this.bodyCol||'#2a2a1e';ctx.fill();

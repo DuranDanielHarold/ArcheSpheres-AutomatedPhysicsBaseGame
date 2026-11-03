@@ -507,7 +507,7 @@ class Sphere{
     if(this.stacks>=3){
      this.stacks=0;
      const enNec=(this._nearestEnemy()||{}).enemy;
-     if(enNec&&enNec.deathMarkTicks===0){enNec.deathMarkTicks=7;enNec.deathMarkTimer=0.18;enNec.deathMarkSourceKey=this.key;enNec.deathMarkDmg=this.d.dmg*0.70+1;}
+     if(enNec&&enNec.deathMarkTicks===0){enNec.deathMarkTicks=7;enNec.deathMarkTimer=0.18;enNec.deathMarkSourceKey=this.key;enNec.deathMarkDmg=this.d.dmg*0.50+1;}
     } break;
     case 'trickster':
     if(this.stacks>=2){
@@ -825,7 +825,7 @@ class Sphere{
    case 'prince':
     if(this.stacks>=4)this._startPrinceRoyalBlood(); break;
    case 'fairy':
-    if(this.stacks>=4){this.stacks=0;this.wishFireRateT=2.6;const roll=Math.floor(Math.random()*4);if(roll===0){this.invincible=true;this.invincibleT=2.6;spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:SAFE','#fff0ff');}else if(roll===1){this.receiveHeal(this.maxHp*.45);spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:HEAL','#fff0ff');}else if(roll===2){this.targetSpd=this.baseSpd*3.35;this.wishDashT=2.0;spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:DASH','#fff0ff');}else{this._spawnTricksterMirrorReplica();spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:CLONE','#fff0ff');}} break;
+    if(this.stacks>=4){this.stacks=0;this.wishFireRateT=2.6;const roll=Math.floor(Math.random()*4);if(roll===0){this.invincible=true;this.invincibleT=2.0;spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:SAFE','#fff0ff');}else if(roll===1){this.receiveHeal(this.maxHp*.30);spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:HEAL','#fff0ff');}else if(roll===2){this.targetSpd=this.baseSpd*3.35;this.wishDashT=2.0;spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:DASH','#fff0ff');}else{this._spawnTricksterMirrorReplica();spawnDmgNum(this.x,this.y-this.radius*1.5,'WISH:CLONE','#fff0ff');}} break;
    case 'beastmaster':
     if(this.stacks>=4){this.stacks=0;this.packHuntT=10;for(const k of['wolf','boar','hawk'])noiseTraps.push(new BeastCompanion(this.x,this.y,this,k));spawnBurst(this.x,this.y,'#ffb060','#b85a13',20);} break;
    case 'sage':
@@ -848,14 +848,14 @@ class Sphere{
     if(this.stacks>=8){
      this.stacks=0;
      this.benedictionActive=true;this.benedictionT=10.0;
-     const preBenedictDmg=(this.d.dmg+2)*this.dmgMult;
+     const preBenedictDmg=(this.d.dmg+1.5)*this.dmgMult;
      for(let i=0;i<8;i++){
       const a=(i/8)*Math.PI*2;
       const orb=new HolyOrb(this.x,this.y,Math.cos(a)*260,Math.sin(a)*260,preBenedictDmg,this,true);
       projectiles.push(orb);
      }
      this.d=Object.assign({},this.d);
-     this.d.dmg+=8;
+     this.d.dmg+=5;
      spawnBurst(this.x,this.y,'#fff8c0','#f0e070',24);
      spawnPulse(this.x,this.y,'#fff8a0');
     } break;
@@ -1315,7 +1315,7 @@ class Sphere{
   if(this.glassBleedT>0){
    this.glassBleedT-=dt;this.glassBleedTickT-=dt;
    this.vx*=Math.pow(0.96,dt*10);this.vy*=Math.pow(0.96,dt*10);
-   if(this.glassBleedTickT<=0){this.glassBleedTickT=0.65;const _glassBefore=this.hp;this.receiveDamage(1.5);recordDamageEvent(this.glassBleedSourceKey,'dot',_glassBefore-this.hp);spawnSpark(this.x,this.y,'#82f4ff',2);}
+   if(this.glassBleedTickT<=0){this.glassBleedTickT=0.65;const _glassBefore=this.hp;this.receiveDamage(1.2);recordDamageEvent(this.glassBleedSourceKey,'dot',_glassBefore-this.hp);spawnSpark(this.x,this.y,'#82f4ff',2);}
   }
   // ── Hemorrhage bleed ticks — runs on the VICTIM, not the rogue
   if(this.bleedStacks>0){
@@ -1411,16 +1411,16 @@ class Sphere{
   switch(this.key){
    case 'paladin':
     this.pulseTimer+=dt;
-    if(this.pulseTimer>=3.0){
+    if(this.pulseTimer>=4.0){
      this.pulseTimer=0;this.pulseWave={r:this.radius*1.1,life:1};
-     const healAmt=8;
+     const healAmt=6;
      const prevHpPal=this.hp;
      this.receiveHeal(healAmt);
      spawnSpark(this.x,this.y,'#f0c040',4);
      const en=(this._nearestEnemy()||{}).enemy;
      if(en){const dx=en.x-this.x,dy=en.y-this.y,dist=Math.hypot(dx,dy)||1;
       en.applyImpact((dx/dist)*280,(dy/dist)*280);
-      const pulseBase=Number.isFinite(window._balanceClassOverrides?.paladinPulseDamage)?window._balanceClassOverrides.paladinPulseDamage:9;const pulseDmg=pulseBase/(en.d.arm*0.004+1);
+      const pulseBase=Number.isFinite(window._balanceClassOverrides?.paladinPulseDamage)?window._balanceClassOverrides.paladinPulseDamage:6;const pulseDmg=pulseBase/(en.d.arm*0.004+1);
       const _pulseBefore=en.hp;en.receiveDamage(pulseDmg);recordDamageEvent(this.key,'passive',_pulseBefore-en.hp);
       spawnPulse(this.x,this.y,this.d.rim);
      }
@@ -1745,8 +1745,8 @@ class Sphere{
      this.whelplingGrowth++;
      const prevR=this.radius;
      this.radius=Math.min(36,this.radius+2);
-     this.maxHp=Math.min(this.maxHp+15,800);
-     this.hp=Math.min(this.hp+8,this.maxHp);
+     this.maxHp=Math.min(this.maxHp+10,800);
+     this.hp=Math.min(this.hp+5,this.maxHp);
      this.d=Object.assign({},this.d);
      this.mass=Math.min(20,this.mass+1);
      spawnBurst(this.x,this.y,'#ff6600',this.d.rim,10);
@@ -1976,14 +1976,14 @@ class Sphere{
   this.angle=Math.atan2(dy,dx);
   const tip=this.getTip();
   const dist=Math.hypot(dx,dy)||1;
-  projectiles.push(new PiercingBullet(tip.x,tip.y,(dx/dist)*700,(dy/dist)*700,this,target,32));
+  projectiles.push(new PiercingBullet(tip.x,tip.y,(dx/dist)*700,(dy/dist)*700,this,target,24));
   spawnSpark(tip.x,tip.y,'#c8b840',8);
  }
  _fireHolyOrb(){
   const tip=this.getTip();
   const wx=Math.cos(this.angle),wy=Math.sin(this.angle);
   const spd=200; // starts slow — homing will guide it
-  projectiles.push(new HolyOrb(tip.x,tip.y,wx*spd,wy*spd,(this.d.dmg+2)*this.dmgMult,this,false));
+  projectiles.push(new HolyOrb(tip.x,tip.y,wx*spd,wy*spd,(this.d.dmg+1.5)*this.dmgMult,this,false));
  }
  _fireMusicNote(){
   const tip=this.getTip();

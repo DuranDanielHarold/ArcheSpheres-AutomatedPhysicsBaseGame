@@ -298,7 +298,7 @@ const RANGED_WEAPONS={
   const lp=leaping?(0.5+0.5*Math.sin(t*12)):0;
   if(leaping){ctx.shadowColor='#4488cc';ctx.shadowBlur=18+lp*10;}
   // === SHAFT — layered hardwood with metal bands ===
-  const shaftLen=r*4.0;
+  const shaftLen=r*3.41; // 0.72 + 3.41 + 0.22 + 0.65 = 5.0r reach
   const sx=r*.72;
   // Dark wood base
   ctx.fillStyle='#2a1608';ctx.fillRect(sx,-r*.065,shaftLen,r*.13);
@@ -721,13 +721,15 @@ const RANGED_WEAPONS={
  },
  keyring(ctx,r,d,s){
   ctx.save();
+  // Scale the complete keyring silhouette so its outer key tips reach 2.8r.
+  ctx.scale(2.8/2.08,1);
   ctx.fillStyle='#3a2b16';ctx.fillRect(r*.55,-r*.07,r*.55,r*.14);
   ctx.translate(r*1.18,0);
   ctx.strokeStyle=d.wcol;ctx.lineWidth=r*.065;ctx.beginPath();ctx.arc(0,0,r*.28,0,Math.PI*2);ctx.stroke();
   const t=performance.now()/1000;
   for(let i=0;i<6;i++){
    const a=i*Math.PI*2/6+t*.3,hang=r*.28;
-   ctx.save();ctx.translate(Math.cos(a)*hang,Math.sin(a)*hang);ctx.rotate(a+Math.PI/2);
+   ctx.save();ctx.translate(Math.cos(a)*hang,Math.sin(a)*hang);ctx.rotate(a-Math.PI/2);
    ctx.fillStyle=i%2?d.wcol:d.wdrk;ctx.fillRect(-r*.035,0,r*.07,r*.62);
    ctx.fillRect(-r*.08,r*.46,r*.16,r*.08);ctx.fillRect(r*.02,r*.36,r*.12,r*.06);
    ctx.beginPath();ctx.arc(0,-r*.04,r*.075,0,Math.PI*2);ctx.fill();
