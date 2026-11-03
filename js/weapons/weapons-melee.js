@@ -79,6 +79,8 @@ const MELEE_WEAPONS={
   ctx.restore();
  },
  battleaxe(ctx,r,d,s){
+  // Compress the model's horizontal footprint to the Viking's 2.9r reach.
+  ctx.save();ctx.scale(2.9/3.25,1);
   const sL=r*1.7,sT=r*.1;
   ctx.fillStyle='#6a3a10';ctx.fillRect(r*.6,-sT/2,sL,sT);
   ctx.fillStyle='#402010';ctx.fillRect(r*.6,sT*.15,sL,sT*.4);
@@ -98,6 +100,7 @@ const MELEE_WEAPONS={
    ctx.strokeStyle='rgba(255,180,0,.7)';ctx.lineWidth=2;ctx.stroke();
    ctx.shadowBlur=0;
   }
+  ctx.restore();
  },
  flail(ctx,r,d,s){
   const chainLen=r*2.2,t=s?s.abTimer:0;
@@ -500,7 +503,8 @@ const MELEE_WEAPONS={
   if(s&&s.fortified){ctx.shadowColor=d.rim;ctx.shadowBlur=12;ctx.strokeStyle='rgba(176,190,197,.8)';ctx.lineWidth=3.5;ctx.strokeRect(sx-3,-sh/2-3,sw+6,sh+6);ctx.shadowBlur=0;}
  },
  towershield(ctx,r,d,s){
-  const sw=r*.85,sh=r*1.9,sx=r*.72;
+  // Extend the shield face to the Guardian's 2.4r collision reach.
+  const sw=r*1.68,sh=r*1.9,sx=r*.72;
   ctx.fillStyle=d.wcol;
   ctx.beginPath();ctx.moveTo(sx,0);ctx.lineTo(sx,-sh*.48);ctx.lineTo(sx+sw,-sh*.48);ctx.lineTo(sx+sw,sh*.38);ctx.lineTo(sx+sw*.5,sh*.52);ctx.lineTo(sx,sh*.38);ctx.closePath();ctx.fill();
   ctx.fillStyle=d.wdrk;
