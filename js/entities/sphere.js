@@ -1958,7 +1958,7 @@ class Sphere{
   // Only prioritize a barrel when a living enemy is inside its blast radius.
   const barrels=noiseTraps.filter(n=>n instanceof PirateBarrel&&n.owner===this&&n.alive);
   for(const barrel of barrels){
-   const blastRadius=this.radius*7.0;
+   const blastRadius=this.radius*10.0;
    for(const enemy of spheres){
     if(enemy===this||!enemy.alive||enemy.dying||sameFaction(this,enemy))continue;
     const enemyDistance=Math.hypot(enemy.x-barrel.x,enemy.y-barrel.y);
