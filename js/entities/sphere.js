@@ -3142,14 +3142,14 @@ class Sphere{
   const maxRowW=Math.max(bw*2,140);
   ctx.save();
   ctx.font=`bold ${fontSize}px 'Press Start 2P',monospace`;ctx.textAlign='center';ctx.textBaseline='middle';
-  const drawRows=(badges,firstRowY)=>{
+  const drawRows=(badges,firstRowY,verticalDirection=1)=>{
    for(let i=0,rowIndex=0;i<badges.length;i+=2,rowIndex++){
     const count=Math.min(2,badges.length-i);
     const rowBadges=badges.slice(i,i+count);
     const widths=rowBadges.map(b=>Math.min(maxRowW/2,Math.max(fontSize+8,ctx.measureText(b.label).width+10)));
     const rowW=widths.reduce((sum,w)=>sum+w,0)+gapX*(count-1);
     let bx=this.x-rowW/2;
-    const y=firstRowY+rowIndex*(badgeH+rowGap);
+    const y=firstRowY+verticalDirection*rowIndex*(badgeH+rowGap);
     for(let col=0;col<count;col++){
      const badge=rowBadges[col],badgeW=widths[col],by=y;
      ctx.fillStyle=badge.kind==='buff'?'rgba(5,24,25,.92)':'rgba(4,6,10,.86)';
@@ -3162,9 +3162,11 @@ class Sphere{
     }
    }
   };
-  // Keep each group close to its anchor and pack neighboring badges tightly.
-  if(debuffs.length)drawRows(debuffs,this.y-r-26);
-  if(buffs.length)drawRows(buffs,this.y+r+19);
+  // Debuff rows grow upward from the HP bar so additional rows never cover it.
+  // Buff rows grow downward from the ability-stack pips.
+  const hpBarTop=this.y-r-15;
+  if(debuffs.length)drawRows(debuffs,hpBarTop-badgeH-2,-1);
+  if(buffs.length)drawRows(buffs,this.y+r+19,1);
   ctx.restore();
  }
  _drawHpBar(){
