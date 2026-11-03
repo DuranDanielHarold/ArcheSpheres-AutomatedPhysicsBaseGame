@@ -79,8 +79,8 @@ const MELEE_WEAPONS={
   ctx.restore();
  },
  battleaxe(ctx,r,d,s){
-  // Compress the model's horizontal footprint to the Viking's 2.9r reach.
-  ctx.save();ctx.scale(2.9/3.25,1);
+  // The outer Bezier blade curve peaks at bx + 0.70r; bx is 2.30r, so the visible tip is 3.00r before scaling.
+  ctx.save();ctx.scale(2.9/3.0,1);
   const sL=r*1.7,sT=r*.1;
   ctx.fillStyle='#6a3a10';ctx.fillRect(r*.6,-sT/2,sL,sT);
   ctx.fillStyle='#402010';ctx.fillRect(r*.6,sT*.15,sL,sT*.4);
