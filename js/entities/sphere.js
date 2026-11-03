@@ -3107,7 +3107,6 @@ class Sphere{
   if(this.key==='spartan'&&(this.ironStacks||0)>0)addBuff(`IRON ×${this.ironStacks}`,'#d8b060');
   if(this.key==='beastmaster'&&this.packHuntT>0)addBuff(`PACK HUNT ${seconds(this.packHuntT)}`,'#ffb060');
   if(this.key==='arcanist'&&this.overloadActive&&this.overloadT>0)addBuff(`OVERLOAD ${seconds(this.overloadT)}`,'#78d8ff');
-  if(this.key!=='crusader'&&(this.hitBuffStacks||0)>0)addBuff(`HIT BUFF ×${this.hitBuffStacks}`,'#ffdc50');
   if(this.volleyActive)addBuff(`VOLLEY ×${Math.max(0,this.volleyBurstsLeft||0)}`,'#88cc44');
   if(this.crowdDouble)addBuff('CROWD DOUBLE','#ffd35a');
   if(this.blessDmgT>0&&(this.blessDmgAdded||0)>0)addBuff(`BLESS +${this.blessDmgAdded} ${seconds(this.blessDmgT)}`,'#fff2a6');
@@ -3150,13 +3149,16 @@ class Sphere{
    const y=firstRowY+rowIndex*(badgeH+rowGap);
    for(let col=0;col<count;col++){
     const badge=badges[i+col];
-    const bx=startX+col*(colW+gapX),by=y;
+    const cellX=startX+col*(colW+gapX),by=y;
+    const measuredW=ctx.measureText(badge.label).width+10;
+    const badgeW=Math.min(colW,Math.max(fontSize+8,measuredW));
+    const bx=cellX+(colW-badgeW)/2;
     ctx.fillStyle=badge.kind==='buff'?'rgba(5,24,25,.92)':'rgba(4,6,10,.86)';
-    rrect(ctx,bx,by,colW,badgeH,3);ctx.fill();
+    rrect(ctx,bx,by,badgeW,badgeH,3);ctx.fill();
     ctx.strokeStyle=badge.color;ctx.lineWidth=1;
-    rrect(ctx,bx+.5,by+.5,colW-1,badgeH-1,3);ctx.stroke();
+    rrect(ctx,bx+.5,by+.5,badgeW-1,badgeH-1,3);ctx.stroke();
     ctx.fillStyle=badge.color;
-    ctx.fillText(badge.label,bx+colW/2,by+badgeH/2+0.5,colW-8);
+    ctx.fillText(badge.label,bx+badgeW/2,by+badgeH/2+0.5,badgeW-8);
    }
   }
   ctx.restore();
