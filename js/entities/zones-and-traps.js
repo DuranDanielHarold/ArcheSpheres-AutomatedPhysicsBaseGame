@@ -500,13 +500,14 @@ class SingularityZone{
 
 // Barbarian — detached weapon. Reuses the owner's exact weapon renderer and data.
 class DroppedWeapon{
- constructor(owner,x,y){
+ constructor(owner,x,y,dirX,dirY){
   this.owner=owner;
   this.d=Object.assign({},owner.d);
   this.radius=owner.radius;
   this.x=x;this.y=y;this.angle=owner.angle;
-  this.vx=Math.cos(owner.angle)*38;
-  this.vy=Math.sin(owner.angle)*38-24;
+  const launchLen=Math.hypot(dirX,dirY)||1;
+  this.vx=(dirX/launchLen)*52;
+  this.vy=(dirY/launchLen)*52;
   this.omega=0; // Dropped weapons keep a fixed orientation instead of spinning.
   this.life=4.0;this.alive=true;
  }
