@@ -245,39 +245,35 @@ class SlowZone{
   ctx.restore();
  }
 }
-class GuardianSanctuaryZone{
+class GuardianBastionZone{
  constructor(owner){
-  this.owner=owner;this.x=owner.x;this.y=owner.y;this.r=owner.radius*2.4;
-  this.life=8.0;this.maxLife=8.0;this.consumed=false;this.t=0;
+  this.owner=owner;this.x=owner.x;this.y=owner.y;this.r=owner.radius*3.2;
+  this.life=8.0;this.maxLife=8.0;this.capacity=40;this.maxCapacity=40;this.t=0;this.consumed=false;
  }
- update(dt){this.life-=dt;this.t+=dt;}
- apply(){}
- contains(s){return !this.consumed&&this.life>0&&Math.hypot(s.x-this.x,s.y-this.y)<this.r+s.radius*0.25;}
- consume(){this.consumed=true;this.life=0;}
+ update(dt){this.life-=dt;this.t+=dt;this.x=this.owner.x;this.y=this.owner.y;if(this.life<=0||this.capacity<=0)this.consumed=true;}
+ contains(s){return !this.consumed&&this.life>0&&this.capacity>0&&sameFaction(this.owner,s)&&Math.hypot(s.x-this.x,s.y-this.y)<this.r+s.radius*.25;}
+ absorb(damage,reinforced){
+  if(this.consumed||this.capacity<=0||damage<=0)return damage;
+  const rate=reinforced?.30:.15,preventable=damage*rate,prevented=Math.min(this.capacity,preventable);
+  this.capacity=Math.max(0,this.capacity-prevented);
+  if(this.capacity<=0)this.consumed=true;
+  return damage-prevented;
+ }
  draw(){
   if(this.consumed)return;
-  const pct=Math.max(0,this.life/this.maxLife);
-  const pulse=0.5+0.5*Math.sin(this.t*7);
-  ctx.save();ctx.globalAlpha=0.22+pct*0.48;
+  const pct=Math.max(0,this.capacity/this.maxCapacity),life=Math.max(0,this.life/this.maxLife),pulse=.5+.5*Math.sin(this.t*7);
+  ctx.save();ctx.globalAlpha=.12+.16*life+.12*pct;
   const g=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r);
-  g.addColorStop(0,'rgba(128,203,196,.34)');
-  g.addColorStop(0.55,'rgba(80,220,210,.18)');
-  g.addColorStop(1,'rgba(0,137,123,0)');
+  g.addColorStop(0,'rgba(128,203,196,.20)');g.addColorStop(.72,'rgba(80,220,210,.12)');g.addColorStop(1,'rgba(0,137,123,0)');
   ctx.fillStyle=g;ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);ctx.fill();
-  ctx.shadowColor='#80cbc4';ctx.shadowBlur=12+pulse*8;
-  ctx.strokeStyle=`rgba(128,235,225,${0.56+pulse*0.22})`;ctx.lineWidth=3;
-  ctx.beginPath();
-  for(let i=0;i<6;i++){
-   const a=-Math.PI/2+i*Math.PI/3;
-   const px=this.x+Math.cos(a)*this.r*0.88,py=this.y+Math.sin(a)*this.r*0.88;
-   if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
-  }
-  ctx.closePath();ctx.stroke();ctx.shadowBlur=0;
-  ctx.strokeStyle='rgba(224,247,250,.45)';ctx.lineWidth=1.5;
-  ctx.beginPath();ctx.arc(this.x,this.y,this.r*(0.42+0.05*pulse),0,Math.PI*2);ctx.stroke();
+  ctx.globalAlpha=.42+.22*pct;ctx.strokeStyle='#80cbc4';ctx.lineWidth=2.5;ctx.setLineDash([10,7]);ctx.lineDashOffset=-this.t*12;ctx.beginPath();ctx.arc(this.x,this.y,this.r*.94,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
+  ctx.shadowColor='#80cbc4';ctx.shadowBlur=8+pulse*5;ctx.strokeStyle='rgba(190,245,238,.72)';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(this.x,this.y,this.r*(.78+.025*pulse),0,Math.PI*2);ctx.stroke();ctx.shadowBlur=0;
+  // Compact capacity pips make the shared shield state readable without a large HUD.
+  for(let i=0;i<8;i++){const a=-Math.PI/2+i*Math.PI/4;ctx.globalAlpha=i/8<pct?.9:.18;ctx.fillStyle='#b2dfdb';ctx.beginPath();ctx.arc(this.x+Math.cos(a)*this.r*.94,this.y+Math.sin(a)*this.r*.94,2.2,0,Math.PI*2);ctx.fill();}
   ctx.restore();
  }
 }
+
 class ThornPatch{
  constructor(x,y,r,dur,owner){
   this.x=x;this.y=y;this.r=r;this.life=dur;this.maxLife=dur;this.owner=owner;
