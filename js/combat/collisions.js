@@ -311,11 +311,15 @@ function _weaponHit(att,def){
      if(traits&&att.key==='phoenix')att._releasePhoenixEmber(def,hx,hy);
    // Plague Doctor — Sepsis: repeated hits on one enemy burst into DOT + weaken.
     if(traits&&att.key==='plague'){
-    if(att.plagueSepsisTarget!==def){att.plagueSepsisTarget=def;att.plagueSepsisCount=0;}
+    if(att.plagueSepsisTarget!==def){
+     if(att.plagueSepsisTarget)att.plagueSepsisTarget.plagueSepsisStacks=0;
+     att.plagueSepsisTarget=def;att.plagueSepsisCount=0;
+    }
     att.plagueSepsisCount=(att.plagueSepsisCount||0)+1;
+    def.plagueSepsisStacks=att.plagueSepsisCount;
     spawnDmgNum(def.x,def.y-def.radius*1.8,`SEPSIS ${att.plagueSepsisCount}/5`,'#aadd44');
     if(att.plagueSepsisCount>=5){
-     att.plagueSepsisCount=0;
+     att.plagueSepsisCount=0;def.plagueSepsisStacks=0;
      def.sepsisWeakenedT=5.0;
      def.sepsisDotTicks=4;def.sepsisDotTimer=0.5;def.sepsisSourceKey=att.key;def.sepsisDotDmg=Math.max(1,def.hp*0.08/4);
      spawnBurst(def.x,def.y,'#aadd44','#2a3a1a',18);
