@@ -28,7 +28,7 @@ class BurialMound{
    if(Math.hypot(s.x-this.x,s.y-this.y)<this.r+s.radius*0.55){
     this.triggerCD=0.75;
     s.vx*=0.72;s.vy*=0.72;s.impactVx*=0.72;s.impactVy*=0.72;
-    const tdmg=Math.max(1,s.hp*0.03);
+    const tdmg=Math.max(1,s.hp*0.025);
     const _moundBefore=s.hp;s.hp=Math.max(0,s.hp-tdmg);s.hitFlash=1;recordDamageEvent(this.owner.key,'passive',_moundBefore-s.hp);
     spawnDmgNum(s.x,s.y-s.radius*1.4,tdmg,'#a7834b');
     spawnSpark(s.x,s.y,'#8a6a40',4);
@@ -105,7 +105,7 @@ class GlassShard{
    if(spd>170&&Math.hypot(s.x-this.x,s.y-this.y)<s.radius+this.r){this.shatter(s,8);break;}
   }
  }
- shatter(target,dmg=8,sourceType='passive'){
+ shatter(target,dmg=6,sourceType='passive'){
   if(!this.alive)return 0;
   this.alive=false;
   if(target&&target.alive&&!target.dying){
