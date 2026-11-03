@@ -155,7 +155,7 @@ class GrapplingHook{
   if(this.owner&&this.owner.alive&&!this.owner.dying){
    const pullX=hx-this.owner.x,pullY=hy-this.owner.y;
    const pullD=Math.hypot(pullX,pullY)||1;
-   this.owner.applyImpact((pullX/pullD)*380,(pullY/pullD)*380);
+   this.owner.applyImpact((pullX/pullD)*1200,(pullY/pullD)*1200);
    spawnBurst(hx,hy,'#ffcc02',this.owner.d.rim,10);
    spawnDmgNum(hx,hy-14,'HOOK','#ffcc02');
   }
