@@ -143,6 +143,7 @@ window._flushMeleeApproachEngagements=_flushMeleeApproachEngagements;
 window._resetMeleeDebug=function(){window._meleeDebug={frame:0,time:0,events:[],openCount:0,closeCount:0,hitEvents:0,hitAttempts:0,uncreditedHits:0};return window._meleeDebug;};
 function _weaponHit(att,def){
  if(sameFaction(att,def))return;
+ if((att.weaponDisarmedT||0)>0)return;
  if(def.untargetable)return; // vampire ghost mode — weapons pass through ghost vampire
  // Note: att.untargetable is intentionally NOT checked — ghost vampire can still deal bat damage
  const traits=att.canTriggerTraits!==false;
@@ -227,6 +228,7 @@ function _weaponHit(att,def){
   const spinRatio=Math.abs(att.omegaCur)/(att.d.om||1);
   const spinDmgMultiplier=Math.max(SPIN_DMG_MULT_MIN,Math.min(SPIN_DMG_MULT_MAX,spinRatio));
   dmg*=spinDmgMultiplier;
+  if(att.key==='barbarian'&&att.barbarianResolveT>0)dmg*=1.30;
   if(att.key==='golem')dmg*=att.golemAdaptType==='crystalline'?1.12:1.18;
   if(att.dmgHalvedT>0)dmg*=0.5;
   if(att.key==='gladiator'&&att.crowdDouble){dmg*=2;att.crowdDouble=false;att.favor=0;}
@@ -290,12 +292,6 @@ function _weaponHit(att,def){
     att.d.dmg*=1.006;att.d.arm=Math.round(att.d.arm*1.006);att.d.om*=1.006;
     att.omegaCur=Math.abs(att.omegaCur)*1.006*Math.sign(att.omegaCur||1);
     if(att.stalwartStacks%5===0)spawnDmgNum(att.x,att.y-att.radius*1.5,'STALWART','#d8eaf8');
-   }
-   // Barbarian — Bloodlust: +6 speed per hit, max +60, decays slowly
-    if(traits&&att.key==='barbarian'){
-    att.bloodlustBonus=Math.min(60,att.bloodlustBonus+6);
-    att.targetSpd=att.baseSpd+att.bloodlustBonus;
-    spawnSpark(att.x,att.y,'#b04010',3);
    }
    // Rogue — Hemorrhage: apply/refresh bleed stacks on target (max 3)
     if(traits&&att.key==='rogue'){
@@ -442,6 +438,7 @@ function _applyLocksmithLock(att,def){
  }
 }
 function _weaponClash(a,b){
+ if((a.weaponDisarmedT||0)>0||(b.weaponDisarmedT||0)>0)return;
  if((a.key==='prince'&&a.princeWeaponMode==='bow')||(b.key==='prince'&&b.princeWeaponMode==='bow'))return;
  if(a.weaponHitCD>0||b.weaponHitCD>0)return;
  const ptsA=a.getBladePoints(), ptsB=b.getBladePoints();

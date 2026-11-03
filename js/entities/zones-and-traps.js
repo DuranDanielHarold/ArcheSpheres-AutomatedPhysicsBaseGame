@@ -496,3 +496,59 @@ class SingularityZone{
  }
 }
 // ▓▓▓ END NEW CHARACTER PROJECTILES ▓▓▓
+
+
+// Barbarian — detached weapon. Reuses the owner's exact weapon renderer and data.
+class DroppedWeapon{
+ constructor(owner,x,y,dirX,dirY){
+  this.owner=owner;
+  this.d=Object.assign({},owner.d);
+  this.radius=owner.radius;
+  this.x=x;this.y=y;this.angle=owner.angle;
+  const launchLen=Math.hypot(dirX,dirY)||1;
+  this.vx=(dirX/launchLen)*300;
+  this.vy=(dirY/launchLen)*300;
+  this.omega=0; // Dropped weapons keep a fixed orientation instead of spinning.
+  this.knockbackActive=true; // Cannot be picked up until the launch animation has settled.
+  this.life=4.0;this.alive=true;
+ }
+ update(dt){
+  if(!this.alive)return;
+  if(!this.owner||!this.owner.alive||this.owner.dying){
+   if(this.owner)this.owner.weaponDisarmedT=0;
+   this.alive=false;return;
+  }
+  this.life-=dt;
+  this.x+=this.vx*dt;this.y+=this.vy*dt;
+  // Air resistance lets the weapon visibly fly away, then settle at a distance.
+  const drag=Math.exp(-1.5*dt);this.vx*=drag;this.vy*=drag;
+  if(this.x<14){this.x=14;this.vx=Math.abs(this.vx)*.35;}
+  if(this.x>W-14){this.x=W-14;this.vx=-Math.abs(this.vx)*.35;}
+  if(this.y<14){this.y=14;this.vy=Math.abs(this.vy)*.35;}
+  if(this.y>H-14){this.y=H-14;this.vy=-Math.abs(this.vy)*.28;this.vx*=.82;}
+  if(this.knockbackActive&&Math.hypot(this.vx,this.vy)<=20){
+   this.knockbackActive=false;this.vx=0;this.vy=0;
+  }
+  const pickupRange=this.owner.radius+Math.max(12,this.radius*.55);
+  if(!this.knockbackActive&&Math.hypot(this.owner.x-this.x,this.owner.y-this.y)<=pickupRange){
+   this.owner.weaponDisarmedT=0;this.alive=false;
+   spawnSpark(this.x,this.y,'#e6d2a8',7);return;
+  }
+  if(this.life<=0){
+   this.owner.weaponDisarmedT=0;this.alive=false;
+   spawnSpark(this.owner.x,this.owner.y,'#d7c49b',5);
+  }
+ }
+ draw(){
+  if(!this.alive)return;
+  const fade=Math.min(1,this.life/.45);
+  ctx.save();ctx.globalAlpha=.95*fade;
+  ctx.shadowColor='#d7c49b';ctx.shadowBlur=10;
+  ctx.beginPath();ctx.arc(this.x,this.y,Math.max(9,this.radius*.38),0,Math.PI*2);
+  ctx.strokeStyle='rgba(230,210,168,.65)';ctx.lineWidth=2;ctx.stroke();
+  ctx.shadowBlur=0;
+  ctx.translate(this.x,this.y);ctx.rotate(this.angle);
+  if(WEAPONS[this.d.wt])WEAPONS[this.d.wt](ctx,this.radius,this.d,null);
+  ctx.restore();
+ }
+}
