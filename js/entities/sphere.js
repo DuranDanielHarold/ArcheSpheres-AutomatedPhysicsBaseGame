@@ -2,6 +2,9 @@
 // ▓▓▓ MODULE: entities/sphere.js — extracted from former js/entities.js ▓▓▓
 // Main Sphere class and class-specific behavior methods.
 
+// On desktop layouts, keep sphere radius proportional to arena height.
+const ARENA_HEIGHT_RADIUS_FRACTION = 0.042;
+
 class Sphere{
  constructor(key,faction,x,y,vx,vy,hpOverride,opts){
   if(hpOverride&&typeof hpOverride==='object'){opts=hpOverride;hpOverride=opts.hpOverride;}
@@ -17,6 +20,11 @@ class Sphere{
   const landscapeHeightCap=landscapeViewportHeight<=500?Math.min(390,landscapeViewportHeight*.72):Math.min(660,landscapeViewportHeight*.62);
   const base=landscapeHeightCap;
   this.radius=base*(d.mass>=20?0.115:d.mass>=12?0.105:d.mass>=8?0.095:0.085);
+  if(landscapeViewportHeight>500&&Number.isFinite(H)&&H>0){
+   const tierScale=(d.mass>=20?0.115:d.mass>=12?0.105:d.mass>=8?0.095:0.085)/0.085;
+   const maxRadius=H*ARENA_HEIGHT_RADIUS_FRACTION*tierScale;
+   this.radius=Math.min(this.radius,maxRadius);
+  }
   this.mass=d.mass;
   const hp=hpOverride||d.hp;
   this.hp=hp;this.maxHp=hp;
