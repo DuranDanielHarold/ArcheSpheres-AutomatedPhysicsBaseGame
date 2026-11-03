@@ -1115,13 +1115,13 @@ class Sphere{
     let by=minY+Math.random()*Math.max(0,maxY-minY);
     const clampBarrelX=x=>Math.max(minX,Math.min(maxX,x));
     const clampBarrelY=y=>Math.max(minY,Math.min(maxY,y));
-    // Keep random barrel spawns outside enemy weapon-tip reach with an extra 1.5× safety gap.
+    // Keep random barrel spawns outside enemy weapon-tip reach with an extra 1.1× safety gap.
     // Resolve unsafe candidates by pushing them away from enemies; retain the same two RNG rolls.
     for(let pass=0;pass<8;pass++){
      let adjusted=false;
      for(const enemy of spheres){
       if(enemy===this||sameFaction(this,enemy)||!enemy.alive||enemy.dying||enemy.isReplica)continue;
-      const safeDistance=enemy.radius*enemy.d.reach*1.5+barrelRadius;
+      const safeDistance=enemy.radius*enemy.d.reach*1.1+barrelRadius;
       const ex=bx-enemy.x,ey=by-enemy.y,dist=Math.hypot(ex,ey);
       if(dist<safeDistance){
        const nx=dist>0?ex/dist:1,ny=dist>0?ey/dist:0;
@@ -1136,7 +1136,7 @@ class Sphere{
     bx=clampBarrelX(bx);by=clampBarrelY(by);
     const safeFromEnemies=spheres.every(enemy=>{
      if(enemy===this||sameFaction(this,enemy)||!enemy.alive||enemy.dying||enemy.isReplica)return true;
-     return Math.hypot(bx-enemy.x,by-enemy.y)>=enemy.radius*enemy.d.reach*1.5+barrelRadius-0.5;
+     return Math.hypot(bx-enemy.x,by-enemy.y)>=enemy.radius*enemy.d.reach*1.1+barrelRadius-0.5;
     });
     if(safeFromEnemies){
      const owned=noiseTraps.filter(n=>n instanceof PirateBarrel&&n.owner===this&&n.alive);
