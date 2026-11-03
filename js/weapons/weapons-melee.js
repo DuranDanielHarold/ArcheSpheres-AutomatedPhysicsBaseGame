@@ -488,7 +488,26 @@ const MELEE_WEAPONS={
   ctx.fillStyle='#2a1808';ctx.fillRect(r*.6,-r*.07,r*.22,r*.14);
   ctx.fillStyle='#5a3010';ctx.fillRect(r*.62,-r*.05,r*.18,r*.04);
  },
- golemfists(ctx,r,d,s){const crystal=s&&s.golemAdaptType==='crystalline',active=s&&s.golemPunchActiveT>0,glow=crystal?'#c7a6ff':'#ffbd70',stone=crystal?'#51436b':'#34434a',edge=crystal?'#bda0ff':'#9b7856';for(const side of [-1,1]){const x=r*1.42,y=side*r*.78,punch=active&&side===(s.golemPunchSide||1)?r*.28:0;ctx.save();ctx.translate(x+punch,y);ctx.fillStyle='#172126';ctx.beginPath();ctx.arc(0,0,r*.57,0,Math.PI*2);ctx.fill();ctx.fillStyle=stone;ctx.beginPath();ctx.arc(0,0,r*.49,0,Math.PI*2);ctx.fill();ctx.strokeStyle=edge;ctx.lineWidth=r*.09;ctx.stroke();ctx.fillStyle=glow;for(let k=-1;k<=1;k++){ctx.beginPath();ctx.roundRect(r*.18,k*r*.2-r*.08,r*.32,r*.16,r*.06);ctx.fill();}ctx.strokeStyle=glow;ctx.globalAlpha=crystal?.8:.45;ctx.lineWidth=r*.045;ctx.beginPath();ctx.moveTo(-r*.2,-r*.18);ctx.lineTo(-r*.02,0);ctx.lineTo(-r*.16,r*.2);ctx.stroke();ctx.restore();}},
+ golemfortress(ctx,r,d,s){
+  const crystal=s&&s.golemAdaptType==='crystalline';
+  const stone=crystal?'#51465f':'#46545a',dark=crystal?'#30283d':'#263238';
+  const face=crystal?'#8774a4':'#78868a',glow=crystal?'#c7a6ff':'#d5a56c';
+  ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
+  ctx.fillStyle=dark;ctx.fillRect(r*.48,-r*.105,r*1.12,r*.21);
+  ctx.fillStyle=stone;ctx.fillRect(r*.55,-r*.075,r*.98,r*.15);
+  for(let i=0;i<4;i++){const x=r*(.62+i*.19);ctx.strokeStyle=crystal?'#a58bc9':'#9a8061';ctx.lineWidth=r*.035;ctx.beginPath();ctx.moveTo(x,-r*.09);ctx.lineTo(x+r*.07,r*.09);ctx.stroke();}
+  // Broken fortress-wall head with crenellations and a battered masonry face.
+  ctx.fillStyle=dark;ctx.beginPath();ctx.moveTo(r*1.38,-r*.62);ctx.lineTo(r*1.55,-r*.78);ctx.lineTo(r*1.78,-r*.72);ctx.lineTo(r*1.91,-r*.52);ctx.lineTo(r*1.88,r*.53);ctx.lineTo(r*1.68,r*.73);ctx.lineTo(r*1.43,r*.66);ctx.lineTo(r*1.32,r*.42);ctx.closePath();ctx.fill();
+  ctx.fillStyle=stone;ctx.beginPath();ctx.moveTo(r*1.43,-r*.59);ctx.lineTo(r*1.57,-r*.68);ctx.lineTo(r*1.76,-r*.63);ctx.lineTo(r*1.83,-r*.45);ctx.lineTo(r*1.79,r*.45);ctx.lineTo(r*1.64,r*.62);ctx.lineTo(r*1.47,r*.57);ctx.lineTo(r*1.39,r*.38);ctx.closePath();ctx.fill();
+  ctx.fillStyle=face;ctx.beginPath();ctx.moveTo(r*1.48,-r*.49);ctx.lineTo(r*1.62,-r*.57);ctx.lineTo(r*1.73,-r*.48);ctx.lineTo(r*1.71,r*.37);ctx.lineTo(r*1.6,r*.51);ctx.lineTo(r*1.49,r*.43);ctx.closePath();ctx.fill();
+  ctx.strokeStyle=dark;ctx.lineWidth=r*.045;ctx.stroke();
+  ctx.strokeStyle=crystal?'rgba(220,200,255,.65)':'rgba(25,35,38,.65)';ctx.lineWidth=r*.035;
+  ctx.beginPath();ctx.moveTo(r*1.43,-r*.08);ctx.lineTo(r*1.62,-r*.02);ctx.lineTo(r*1.79,-r*.12);ctx.moveTo(r*1.57,-r*.02);ctx.lineTo(r*1.53,r*.25);ctx.lineTo(r*1.68,r*.34);ctx.stroke();
+  ctx.fillStyle=dark;ctx.fillRect(r*1.34,-r*.2,r*.11,r*.4);ctx.fillRect(r*1.77,-r*.18,r*.09,r*.36);
+  if(crystal){ctx.shadowColor=glow;ctx.shadowBlur=r*.22;ctx.fillStyle=glow;for(const p of [[1.48,-.68,.15],[1.78,-.53,.12],[1.82,.42,.14],[1.48,.56,.12]]){ctx.beginPath();ctx.moveTo(r*p[0],r*p[1]);ctx.lineTo(r*(p[0]+p[2]*.35),r*(p[1]-.34));ctx.lineTo(r*(p[0]+p[2]),r*(p[1]+.02));ctx.lineTo(r*(p[0]+p[2]*.25),r*(p[1]+.18));ctx.closePath();ctx.fill();}ctx.shadowBlur=0;}
+  else{ctx.strokeStyle='rgba(224,181,125,.8)';ctx.lineWidth=r*.045;ctx.beginPath();ctx.moveTo(r*1.43,-r*.42);ctx.lineTo(r*1.53,-r*.23);ctx.lineTo(r*1.45,-r*.05);ctx.moveTo(r*1.72,r*.12);ctx.lineTo(r*1.64,r*.29);ctx.stroke();}
+  ctx.restore();
+ },
  stoneslab(ctx,r,d,s){
   const sw=r*.95,sh=r*1.75,sx=r*.62;
   ctx.fillStyle='#4a5a66';ctx.fillRect(sx,-sh/2,sw,sh);
