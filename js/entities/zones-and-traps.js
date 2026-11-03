@@ -517,7 +517,6 @@ class DroppedWeapon{
    this.alive=false;return;
   }
   this.life-=dt;
-  this.vy+=GRAVITY*.72*dt;
   this.x+=this.vx*dt;this.y+=this.vy*dt;
   if(this.x<14){this.x=14;this.vx=Math.abs(this.vx)*.35;}
   if(this.x>W-14){this.x=W-14;this.vx=-Math.abs(this.vx)*.35;}
@@ -526,7 +525,6 @@ class DroppedWeapon{
   const pickupRange=this.owner.radius+Math.max(12,this.radius*.55);
   if(Math.hypot(this.owner.x-this.x,this.owner.y-this.y)<=pickupRange){
    this.owner.weaponDisarmedT=0;this.alive=false;
-   spawnDmgNum(this.owner.x,this.owner.y-this.owner.radius*1.7,'WEAPON RECOVERED','#e6d2a8');
    spawnSpark(this.x,this.y,'#e6d2a8',7);return;
   }
   if(this.life<=0){
