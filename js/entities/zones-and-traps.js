@@ -151,7 +151,7 @@ class PirateBarrel{
  _explode(){
   if(!this.alive)return;
   this.alive=false;
-  const owner=this.owner,blastR=owner.radius*7.0;
+  const owner=this.owner,blastR=owner.radius*10.0;
   for(const s of spheres){
    if(sameFaction(owner,s)||!s.alive||s.dying)continue;
    const dx=s.x-this.x,dy=s.y-this.y,dist=Math.hypot(dx,dy)||1;
