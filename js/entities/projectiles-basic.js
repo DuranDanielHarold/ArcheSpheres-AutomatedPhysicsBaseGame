@@ -316,7 +316,7 @@ class SheriffBullet{
    if(!isEnemy||!s.alive||s.dying)continue;
    if(Math.hypot(s.x-this.x,s.y-this.y)<s.radius+5){
        const penArm=s.d.arm*0.8;
-    const fd=this.dmg/(penArm*0.004+1)+(s.maxHp*0.05);
+    const fd=this.dmg/(penArm*0.004+1)+(s.maxHp*0.03);
     s.receiveDamage(fd);
     const nx=(s.x-this.x)/Math.hypot(s.x-this.x,s.y-this.y)||1;
     const ny=(s.y-this.y)/Math.hypot(s.x-this.x,s.y-this.y)||0;
@@ -420,7 +420,7 @@ class HolyOrb{
     s.receiveMagicDamage(this.dmg); // magic damage — uses magDef
        s.d=Object.assign({},s.d);
     const baseMagDef=DEF[s.key].magDef;
-    s.d.magDef=Math.max(Math.max(0,baseMagDef-30),s.d.magDef-5);
+    s.d.magDef=Math.max(Math.max(0,baseMagDef-20),s.d.magDef-3);
     if(this.fireBurn){s.burnSourceKey=this.owner.key;s.burning=true;s.burnT=2.5;s.burnTickInterval=1.0;s.burnTickT=1.0;}
     if(this.owner&&this.owner.gainStack){this.owner.gainStack();this.owner._applyHitBuff();}
     spawnSpark(this.x,this.y,'#fff8c0',8);
@@ -614,10 +614,10 @@ class SkullOrb{
      s.deathMarkTicks=7;
      s.deathMarkTimer=0.18;
      s.deathMarkSourceKey=this.owner.key;
-     s.deathMarkDmg=this.dmg*0.70+1;
+     s.deathMarkDmg=this.dmg*0.50+1;
     } else {
      s.deathMarkSourceKey=this.owner.key;
-     s.deathMarkDmg=this.dmg*0.70+1;
+     s.deathMarkDmg=this.dmg*0.50+1;
      s.deathMarkDoTHits=(s.deathMarkDoTHits||0)+7; // credit a full sequence
     }
     s.woundT=Math.max(s.woundT, 7*0.3+2.0);
