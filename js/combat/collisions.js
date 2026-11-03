@@ -166,6 +166,7 @@ function _weaponHit(att,def){
  }
  const pts=att.getBladePoints();
  const tipR=att.radius*att.d.tipR;
+ if(att.key==='golem'){if(att.golemPunchActiveT<=0)return;let hitPt=null,hitDist=Infinity;for(const pt of pts){const d=Math.hypot(pt.x-def.x,pt.y-def.y);if(d<def.radius+att.radius*.58&&d<hitDist){hitPt=pt;hitDist=d;}}if(!hitPt||att._hitDefenders.get(def)===true)return;att._hitDefenders.set(def,true);const raw=(att.d.dmg*(att.golemAdaptType==='crystalline'?1.12:1.18)+2)*(att.dmgMult||1);window._balanceDamageSource={key:att.key,type:'base'};if(att.golemAdaptType==='crystalline')def.receiveMagicDamage(raw);else def.receiveDamage(raw);window._balanceDamageSource=null;const dx=def.x-att.x,dy=def.y-att.y,dist=Math.hypot(dx,dy)||1;def.applyImpact(dx/dist*190,dy/dist*190);spawnImpactBurst(hitPt.x,hitPt.y,att.golemAdaptType==='crystalline'?'#c7a6ff':'#ffbd70','#4a3020');spawnSpark(hitPt.x,hitPt.y,att.golemAdaptType==='crystalline'?'#c7a6ff':'#ffbd70',6);return;}
  let hit=false,hitPt=null,hitDist=Infinity;
  for(const pt of pts){
   const pdx=pt.x-def.x,pdy=pt.y-def.y,d=Math.hypot(pdx,pdy);
