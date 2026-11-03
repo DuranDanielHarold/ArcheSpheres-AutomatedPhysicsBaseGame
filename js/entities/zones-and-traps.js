@@ -509,6 +509,7 @@ class DroppedWeapon{
   this.vx=(dirX/launchLen)*300;
   this.vy=(dirY/launchLen)*300;
   this.omega=0; // Dropped weapons keep a fixed orientation instead of spinning.
+  this.knockbackActive=true; // Cannot be picked up until the launch animation has settled.
   this.life=4.0;this.alive=true;
  }
  update(dt){
@@ -525,8 +526,11 @@ class DroppedWeapon{
   if(this.x>W-14){this.x=W-14;this.vx=-Math.abs(this.vx)*.35;}
   if(this.y<14){this.y=14;this.vy=Math.abs(this.vy)*.35;}
   if(this.y>H-14){this.y=H-14;this.vy=-Math.abs(this.vy)*.28;this.vx*=.82;}
+  if(this.knockbackActive&&Math.hypot(this.vx,this.vy)<=20){
+   this.knockbackActive=false;this.vx=0;this.vy=0;
+  }
   const pickupRange=this.owner.radius+Math.max(12,this.radius*.55);
-  if(Math.hypot(this.owner.x-this.x,this.owner.y-this.y)<=pickupRange){
+  if(!this.knockbackActive&&Math.hypot(this.owner.x-this.x,this.owner.y-this.y)<=pickupRange){
    this.owner.weaponDisarmedT=0;this.alive=false;
    spawnSpark(this.x,this.y,'#e6d2a8',7);return;
   }
