@@ -5,7 +5,7 @@ DEF.pirate = {"label":"Pirate","weapon":"Cutlass","ab":"Boarding Action","color"
 CLASS_ROLE.pirate = "FIGHTER";
 CLASS_DESC.pirate = {
   "ability": "Boarding Action (3 stacks) — Fires a grappling hook that yanks the enemy toward the Pirate with 380 force, dealing 1.5× DMG on contact. Wall hits hook the Pirate toward the wall.",
-  "passive": "While Draining (1+ stacks): heals 0.5 HP/sec passively and leeches 15% of melee damage dealt. Cutlass also pulls enemies on hit rather than pushing them."
+  "passive": "Explosive Barrels — Every 4 seconds, drops a barrel at a random arena position. Keeps at most 2 active barrels; each lasts 16 seconds. Pirate weapon hits detonate barrels, damaging, knocking back, and burning enemies. Enemy hits destroy barrels; allies cannot interact with them."
 };
 STACK_DISPLAY_THRESHOLD.pirate = 3;
 SPHERE_AUDIO.pirate = {
