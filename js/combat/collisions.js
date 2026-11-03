@@ -232,11 +232,7 @@ function _weaponHit(att,def){
   if(att.key==='prince'){const wb=Math.min(5,att.wallBounceBonus||0);dmg*=1+wb*.08;if(Math.hypot(att.vx,att.vy)>att.baseSpd*.8)dmg*=1.18;}
   if(att.key==='queen'&&def.courtlyT>0)dmg*=0.92;
   if(def.key==='spartan'&&def.ironStacks>0)dmg*=Math.max(.8,1-def.ironStacks*.04);
-   if(traits&&att.key==='pirate'&&att.draining){
-   att.receiveHeal(dmg*0.15);
-   const pullX=att.x-def.x,pullY=att.y-def.y,pullD=Math.hypot(pullX,pullY)||1;
-   def.applyImpact((pullX/pullD)*120,(pullY/pullD)*120);
-  }
+
    if(traits&&att.key==='necromancer'){
    def.woundT=Math.max(def.woundT||0, 4.0);
   }

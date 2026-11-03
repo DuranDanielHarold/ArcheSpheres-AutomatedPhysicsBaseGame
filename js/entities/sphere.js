@@ -69,8 +69,7 @@ class Sphere{
   this.vikingLastStandActive=false;this.vikingLastStandT=0;this.vikingLastStandUsed=false;
   this.jesterLurchT=0;
   this.thornAoeTimer=0; // passive whip AoE sweep cooldown
-  this.draining=false;
-  this.pirateRegenTimer=0; // vampiric aura passive regen tick
+  this.pirateBarrelTimer=0;
   this.grapplingHook=null;
   this.wrathActive=false;this.wrathT=0;
   this.wrathExhausted=false;this.wrathExhaustT=0;
@@ -544,10 +543,9 @@ class Sphere{
    case 'pirate':
     if(this.stacks>=3){
      this.stacks=0;
-     this.pirateRegenTimer=0;
      this._fireGrapplingHook();
     }
-    this.draining=this.stacks>=1; break;
+    break;
    case 'jester':
     this.omegaCur=this.d.om*(1+1.5*(this.stacks/5))*Math.sign(this.omegaCur||1);
     if(this.stacks>=3){this.stacks=0;
@@ -1088,12 +1086,16 @@ class Sphere{
     return h.life>0;
    });
   }
-  if(this.key==='pirate'&&this.draining){
-   if(!this.draining){this.pirateRegenTimer=0;}
-   this.pirateRegenTimer+=dt;
-   if(this.pirateRegenTimer>=2.0){
-    this.pirateRegenTimer=0;
-    this.receiveHeal(1);
+  if(this.key==='pirate'&&this.canTriggerTraits!==false){
+   this.pirateBarrelTimer=(this.pirateBarrelTimer||0)+dt;
+   if(this.pirateBarrelTimer>=4.0){
+    this.pirateBarrelTimer-=4.0;
+    const owned=noiseTraps.filter(n=>n instanceof PirateBarrel&&n.owner===this&&n.alive);
+    if(owned.length>=2){owned.sort((a,b)=>a.seq-b.seq);owned[0]._destroy();}
+    const margin=Math.max(this.radius+18,24);
+    const bx=margin+Math.random()*Math.max(1,W-margin*2);
+    const by=margin+Math.random()*Math.max(1,H-margin*2);
+    noiseTraps.push(new PirateBarrel(bx,by,this));
    }
   }
   if(this.key==='druid'){
@@ -2385,7 +2387,6 @@ class Sphere{
   if(this.orbitActive){ctx.beginPath();ctx.arc(this.x,this.y,r+4,0,Math.PI*2);ctx.strokeStyle=`rgba(255,50,50,${.6+p*.3})`;ctx.lineWidth=4;ctx.stroke();ctx.shadowBlur=0;}
   if(this.blinking){ctx.shadowColor=this.d.rim;ctx.shadowBlur=22;ctx.beginPath();ctx.arc(this.x,this.y,r+6,0,Math.PI*2);ctx.strokeStyle=this.d.rim;ctx.lineWidth=3;ctx.stroke();ctx.shadowBlur=0;}
   if(this.backstabCharged){ctx.shadowColor='#e74c3c';ctx.shadowBlur=14;ctx.beginPath();ctx.arc(this.x,this.y,r+5,0,Math.PI*2);ctx.strokeStyle='rgba(231,76,60,.85)';ctx.lineWidth=3;ctx.stroke();ctx.shadowBlur=0;}
-  if(this.draining){ctx.beginPath();ctx.arc(this.x,this.y,r+3,0,Math.PI*2);ctx.strokeStyle=`rgba(255,100,0,${.4+p*.4})`;ctx.lineWidth=2;ctx.stroke();ctx.shadowBlur=0;}
   if(this.phalanxActive){ctx.shadowColor='#80cbc4';ctx.shadowBlur=10;ctx.beginPath();ctx.arc(this.x,this.y,r+7,0,Math.PI*2);ctx.strokeStyle='rgba(128,203,196,.75)';ctx.lineWidth=3;ctx.stroke();ctx.shadowBlur=0;}
   if(this.fortified){ctx.beginPath();ctx.arc(this.x,this.y,r+8,0,Math.PI*2);ctx.strokeStyle=`rgba(176,190,197,${.6+p*.3})`;ctx.lineWidth=4;ctx.stroke();ctx.shadowBlur=0;}
   if(this.rebirthDone){ctx.shadowColor=this.d.rim;ctx.shadowBlur=18;ctx.beginPath();ctx.arc(this.x,this.y,r+5,0,Math.PI*2);ctx.strokeStyle=`rgba(255,200,0,${.55+p*.4})`;ctx.lineWidth=4;ctx.stroke();ctx.shadowBlur=0;}
@@ -2553,12 +2554,6 @@ class Sphere{
    ctx.beginPath();ctx.arc(this.x,this.y,r+4,0,Math.PI*2);
    ctx.strokeStyle=`rgba(180,180,180,${0.4+p*.2})`;ctx.lineWidth=3;ctx.setLineDash([3,3]);ctx.stroke();
    ctx.setLineDash([]);
-  }
-  if(this.key==='pirate'&&this.draining){
-   ctx.shadowColor='#ff7043';ctx.shadowBlur=12;
-   ctx.beginPath();ctx.arc(this.x,this.y,r+3,0,Math.PI*2);
-   ctx.strokeStyle=`rgba(255,112,67,${0.4+p*.4})`;ctx.lineWidth=2;ctx.stroke();
-   ctx.shadowBlur=0;
   }
   if(this.key==='sheriff'){
    const pipColors=['#d4a83a','#fff'];
