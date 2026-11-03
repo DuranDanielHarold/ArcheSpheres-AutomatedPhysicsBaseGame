@@ -143,6 +143,7 @@ window._flushMeleeApproachEngagements=_flushMeleeApproachEngagements;
 window._resetMeleeDebug=function(){window._meleeDebug={frame:0,time:0,events:[],openCount:0,closeCount:0,hitEvents:0,hitAttempts:0,uncreditedHits:0};return window._meleeDebug;};
 function _weaponHit(att,def){
  if(sameFaction(att,def))return;
+ if((att.weaponDisarmedT||0)>0)return;
  if(def.untargetable)return; // vampire ghost mode — weapons pass through ghost vampire
  // Note: att.untargetable is intentionally NOT checked — ghost vampire can still deal bat damage
  const traits=att.canTriggerTraits!==false;
@@ -227,6 +228,7 @@ function _weaponHit(att,def){
   const spinRatio=Math.abs(att.omegaCur)/(att.d.om||1);
   const spinDmgMultiplier=Math.max(SPIN_DMG_MULT_MIN,Math.min(SPIN_DMG_MULT_MAX,spinRatio));
   dmg*=spinDmgMultiplier;
+  if(att.key==='barbarian'&&att.barbarianResolveT>0)dmg*=1.30;
   if(att.key==='golem')dmg*=att.golemAdaptType==='crystalline'?1.12:1.18;
   if(att.dmgHalvedT>0)dmg*=0.5;
   if(att.key==='gladiator'&&att.crowdDouble){dmg*=2;att.crowdDouble=false;att.favor=0;}
@@ -291,11 +293,15 @@ function _weaponHit(att,def){
     att.omegaCur=Math.abs(att.omegaCur)*1.006*Math.sign(att.omegaCur||1);
     if(att.stalwartStacks%5===0)spawnDmgNum(att.x,att.y-att.radius*1.5,'STALWART','#d8eaf8');
    }
-   // Barbarian — Bloodlust: +6 speed per hit, max +60, decays slowly
-    if(traits&&att.key==='barbarian'){
-    att.bloodlustBonus=Math.min(60,att.bloodlustBonus+6);
-    att.targetSpd=att.baseSpd+att.bloodlustBonus;
-    spawnSpark(att.x,att.y,'#b04010',3);
+   // Barbarian — Disarm: drop the defender's existing weapon on a successful hit.
+   if(traits&&att.key==='barbarian'&&def.weaponDisarmedT<=0&&!def.dying){
+    const dx=def.x-att.x,dy=def.y-att.y,dist=Math.hypot(dx,dy)||1;
+    const dropX=Math.max(18,Math.min(W-18,def.x+(dx/dist)*(def.radius+att.radius*.45+12)));
+    const dropY=Math.max(18,Math.min(H-18,def.y+(dy/dist)*(def.radius+att.radius*.45+12)));
+    def.weaponDisarmedT=4.0;
+    noiseTraps.push(new DroppedWeapon(def,dropX,dropY));
+    spawnDmgNum(def.x,def.y-def.radius*1.7,'DISARMED','#e6d2a8');
+    spawnSpark(dropX,dropY,'#d7c49b',7);
    }
    // Rogue — Hemorrhage: apply/refresh bleed stacks on target (max 3)
     if(traits&&att.key==='rogue'){
