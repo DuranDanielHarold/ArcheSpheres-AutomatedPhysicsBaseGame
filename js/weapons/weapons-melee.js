@@ -503,16 +503,26 @@ const MELEE_WEAPONS={
   if(s&&s.fortified){ctx.shadowColor=d.rim;ctx.shadowBlur=12;ctx.strokeStyle='rgba(176,190,197,.8)';ctx.lineWidth=3.5;ctx.strokeRect(sx-3,-sh/2-3,sw+6,sh+6);ctx.shadowBlur=0;}
  },
  towershield(ctx,r,d,s){
-  // Extend the shield face to the Guardian's 2.4r collision reach.
-  const sw=r*1.68,sh=r*1.9,sx=r*.72;
-  ctx.fillStyle=d.wcol;
-  ctx.beginPath();ctx.moveTo(sx,0);ctx.lineTo(sx,-sh*.48);ctx.lineTo(sx+sw,-sh*.48);ctx.lineTo(sx+sw,sh*.38);ctx.lineTo(sx+sw*.5,sh*.52);ctx.lineTo(sx,sh*.38);ctx.closePath();ctx.fill();
-  ctx.fillStyle=d.wdrk;
-  ctx.beginPath();ctx.moveTo(sx+sw,sh*.02);ctx.lineTo(sx+sw,sh*.38);ctx.lineTo(sx+sw*.5,sh*.52);ctx.lineTo(sx,sh*.38);ctx.closePath();ctx.fill();
-  ctx.fillStyle=d.rim;ctx.fillRect(sx+sw*.38,-sh*.35,sw*.24,sh*.7);ctx.fillRect(sx+sw*.08,-sh*.05,sw*.84,sh*.18);
-  ctx.strokeStyle='#334';ctx.lineWidth=1.8;
-  ctx.beginPath();ctx.moveTo(sx,0);ctx.lineTo(sx,-sh*.48);ctx.lineTo(sx+sw,-sh*.48);ctx.lineTo(sx+sw,sh*.38);ctx.lineTo(sx+sw*.5,sh*.52);ctx.lineTo(sx,sh*.38);ctx.closePath();ctx.stroke();
-  if(s&&s.phalanxActive){ctx.shadowColor=d.rim;ctx.shadowBlur=12;ctx.strokeStyle='rgba(128,203,196,.8)';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(sx-2,-sh*.5);ctx.lineTo(sx+sw+2,-sh*.5);ctx.lineTo(sx+sw+2,sh*.4);ctx.lineTo(sx+sw*.5,sh*.55);ctx.lineTo(sx-2,sh*.4);ctx.closePath();ctx.stroke();ctx.shadowBlur=0;}
+  // Fortress-style tower shield: broad steel face, reinforced rim, rivets and a teal bastion crest.
+  const sx=r*.72,sw=r*1.68,sh=r*1.92;
+  ctx.save();ctx.lineJoin='round';
+  // Dark steel backing and heavy beveled silhouette.
+  ctx.fillStyle='#111c20';ctx.beginPath();ctx.moveTo(sx-r*.08,-sh*.5);ctx.lineTo(sx+sw+r*.08,-sh*.5);ctx.lineTo(sx+sw+r*.08,sh*.34);ctx.lineTo(sx+sw*.5,sh*.58);ctx.lineTo(sx-r*.08,sh*.34);ctx.closePath();ctx.fill();
+  const face=ctx.createLinearGradient(sx,-sh*.5,sx+sw,sh*.5);face.addColorStop(0,'#71858a');face.addColorStop(.22,'#34474d');face.addColorStop(.58,'#26383e');face.addColorStop(1,'#14252a');
+  ctx.fillStyle=face;ctx.beginPath();ctx.moveTo(sx,0);ctx.lineTo(sx,-sh*.46);ctx.lineTo(sx+sw,-sh*.46);ctx.lineTo(sx+sw,sh*.32);ctx.lineTo(sx+sw*.5,sh*.52);ctx.lineTo(sx,sh*.32);ctx.closePath();ctx.fill();
+  // Recessed center plate and vertical reinforcement ribs.
+  ctx.fillStyle='#1a2a30';ctx.beginPath();ctx.moveTo(sx+sw*.18,-sh*.34);ctx.lineTo(sx+sw*.82,-sh*.34);ctx.lineTo(sx+sw*.82,sh*.22);ctx.lineTo(sx+sw*.5,sh*.39);ctx.lineTo(sx+sw*.18,sh*.22);ctx.closePath();ctx.fill();
+  ctx.strokeStyle='#82969a';ctx.lineWidth=Math.max(1,r*.045);ctx.beginPath();ctx.moveTo(sx+sw*.08,-sh*.42);ctx.lineTo(sx+sw*.08,sh*.27);ctx.moveTo(sx+sw*.92,-sh*.42);ctx.lineTo(sx+sw*.92,sh*.27);ctx.stroke();
+  // Teal crest: stylized bastion/fortress mark, not a flat glowing stripe.
+  ctx.fillStyle=d.wdrk;ctx.beginPath();ctx.moveTo(sx+sw*.5,-sh*.25);ctx.lineTo(sx+sw*.69,-sh*.12);ctx.lineTo(sx+sw*.64,sh*.12);ctx.lineTo(sx+sw*.5,sh*.23);ctx.lineTo(sx+sw*.36,sh*.12);ctx.lineTo(sx+sw*.31,-sh*.12);ctx.closePath();ctx.fill();
+  ctx.strokeStyle=d.rim;ctx.lineWidth=Math.max(1.5,r*.045);ctx.stroke();
+  ctx.strokeStyle='#9aadb0';ctx.lineWidth=Math.max(1,r*.035);ctx.beginPath();ctx.moveTo(sx+sw*.5,-sh*.34);ctx.lineTo(sx+sw*.5,-sh*.27);ctx.moveTo(sx+sw*.5,sh*.23);ctx.lineTo(sx+sw*.5,sh*.32);ctx.stroke();
+  // Rivets and worn edge highlights.
+  ctx.fillStyle='#aab9b8';for(const yy of[-.38,-.12,.16,.28])for(const xx of[.07,.93]){ctx.beginPath();ctx.arc(sx+sw*xx,sh*yy,r*.045,0,Math.PI*2);ctx.fill();}
+  ctx.strokeStyle='#101a1e';ctx.lineWidth=Math.max(1.8,r*.055);ctx.beginPath();ctx.moveTo(sx,0);ctx.lineTo(sx,-sh*.46);ctx.lineTo(sx+sw,-sh*.46);ctx.lineTo(sx+sw,sh*.32);ctx.lineTo(sx+sw*.5,sh*.52);ctx.lineTo(sx,sh*.32);ctx.closePath();ctx.stroke();
+  ctx.strokeStyle='rgba(190,215,214,.72)';ctx.lineWidth=Math.max(1,r*.018);ctx.beginPath();ctx.moveTo(sx+r*.04,-sh*.42);ctx.lineTo(sx+sw-r*.04,-sh*.42);ctx.lineTo(sx+sw-r*.04,sh*.28);ctx.stroke();
+  if(s&&s.aegisSlamT>0){ctx.shadowColor=d.rim;ctx.shadowBlur=12;ctx.strokeStyle='rgba(128,203,196,.9)';ctx.lineWidth=Math.max(2,r*.06);ctx.stroke();ctx.shadowBlur=0;}
+  ctx.restore();
  },
  illusoryblade(ctx,r,d,s){
   const t=Date.now()*.003;
