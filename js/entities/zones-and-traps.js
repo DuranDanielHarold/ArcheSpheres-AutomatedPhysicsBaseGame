@@ -102,7 +102,7 @@ class GlassShard{
   for(const s of spheres){
    if(sameFaction(this.owner,s)||!s.alive||s.dying)continue;
    const spd=Math.hypot(s.vx+s.impactVx,s.vy+s.impactVy);
-   if(spd>170&&Math.hypot(s.x-this.x,s.y-this.y)<s.radius+this.r){this.shatter(s,8);break;}
+   if(spd>170&&Math.hypot(s.x-this.x,s.y-this.y)<s.radius+this.r){this.shatter(s,6);break;}
   }
  }
  shatter(target,dmg=6,sourceType='passive'){
