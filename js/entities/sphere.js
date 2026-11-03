@@ -152,7 +152,7 @@ class Sphere{
   this.discordFireRateT=0; // ranged fire rate penalty from NoiseTrap
   // Plague Doctor state
   this.virulenceStacks=0;this.virulenceWallHitCD=0;
-  this.plagueSepsisTarget=null;this.plagueSepsisCount=0;
+  this.plagueSepsisTarget=null;this.plagueSepsisCount=0;this.plagueSepsisStacks=0;
   this.sepsisWeakenedT=0;this.sepsisDotTicks=0;this.sepsisDotTimer=0;this.sepsisDotDmg=0;this.sepsisSourceKey=null;
   // Tidecaller state
   this.riptideCharged=false;
@@ -2466,7 +2466,7 @@ class Sphere{
    const txt=Math.ceil(this.hp).toString();
    ctx.fillStyle='#000';for(const[ox,oy]of[[-1,-1],[1,-1],[-1,1],[1,1],[0,-2],[0,2],[-2,0],[2,0]])ctx.fillText(txt,this.x+ox,this.y+oy);
    ctx.fillStyle=this.hitFlash>.5?'#ffff44':'#fff';ctx.fillText(txt,this.x,this.y);
-   if(this.key==='sage'&&(this.knowledge||0)>0){ctx.fillStyle='#d6f0b2';ctx.font=`bold ${Math.max(5,this.radius*.25)}px 'Press Start 2P',monospace`;ctx.fillText(`KNOW ${this.knowledge}`,this.x,this.y-this.radius-16);}
+
    if(this.key==='king'&&(this.sovereignArmBonus||0)>0){ctx.fillStyle='#ffd35a';ctx.font=`bold ${Math.max(7,this.radius*.32)}px serif`;ctx.fillText('♛'.repeat(Math.min(5,Math.ceil(this.sovereignArmBonus/6))),this.x,this.y-this.radius-24);}
   }
   ctx.restore();
@@ -2540,9 +2540,7 @@ class Sphere{
   if(this.key==='barbarian'&&this.barbarianResolveT>0){ctx.shadowColor='#ff6a22';ctx.shadowBlur=16;ctx.beginPath();ctx.arc(this.x,this.y,r+7,0,Math.PI*2);ctx.strokeStyle='rgba(255,106,34,.9)';ctx.lineWidth=3.5;ctx.stroke();ctx.shadowBlur=0;}
   if(this.weaponDisarmedT>0){ctx.strokeStyle='rgba(230,210,170,.85)';ctx.lineWidth=2;ctx.setLineDash([3,3]);ctx.beginPath();ctx.arc(this.x,this.y,r+5,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);}
   // Rogue — bleed indicator on bleeding target
-  if(this.bleedStacks>0){ctx.font=`bold ${Math.max(4,r*.18)}px 'Press Start 2P',monospace`;ctx.textAlign='center';ctx.textBaseline='bottom';
-   const bleedY=this.corrosionStacks>0&&this.blinded?(this.y-r-58):this.corrosionStacks>0||this.blinded?(this.y-r-44):(this.y-r-30);
-   ctx.fillStyle='#e74c3c';ctx.fillText(`BLEED x${this.bleedStacks}`,this.x,bleedY);}
+
   // Bard — Crescendo active: purple halo
   if(this.crescendoActive){ctx.shadowColor='#e040fb';ctx.shadowBlur=18;ctx.beginPath();ctx.arc(this.x,this.y,r+8,0,Math.PI*2);ctx.strokeStyle=`rgba(224,64,251,${0.7+p*0.3})`;ctx.lineWidth=3.5;ctx.stroke();ctx.shadowBlur=0;}
   // Knight — Stalwart stacks: dim blue aura building up
@@ -2836,10 +2834,7 @@ class Sphere{
    ctx.beginPath();ctx.arc(this.x,this.y,r+4,0,Math.PI*2);
    ctx.strokeStyle=`rgba(80,220,40,${0.3+ci*0.5})`;ctx.lineWidth=2+ci*2;
    ctx.setLineDash([3,3]);ctx.stroke();ctx.setLineDash([]);ctx.shadowBlur=0;
-   ctx.font=`bold ${Math.max(4,r*.2)}px 'Press Start 2P',monospace`;
-   ctx.textAlign='center';ctx.textBaseline='bottom';
-   const corrY=this.blinded?(this.y-r-44):(this.y-r-30);
-   ctx.fillStyle='#2a8822';ctx.fillText(`CORR x${this.corrosionStacks}`,this.x,corrY);
+
   }
   if(this.key==='dragoon'){
    if(this.magicShield){
@@ -2913,15 +2908,9 @@ class Sphere{
     ctx.strokeStyle=`rgba(170,221,68,${0.4+vi*0.5})`;ctx.lineWidth=2.5;
     ctx.setLineDash([4,3]);ctx.beginPath();ctx.arc(this.x,this.y,r+6,0,Math.PI*2);ctx.stroke();
     ctx.setLineDash([]);ctx.shadowBlur=0;
-    ctx.font=`bold ${Math.max(4,r*.19)}px 'Press Start 2P',monospace`;
-    ctx.textAlign='center';ctx.textBaseline='bottom';
-    ctx.fillStyle='#aadd44';ctx.fillText(`INFECT x${Math.ceil(this.virulenceStacks)}`,this.x,this.y-r-14);
+
    }
-   if((this.plagueSepsisCount||0)>0){
-    ctx.font=`bold ${Math.max(4,r*.18)}px 'Press Start 2P',monospace`;
-    ctx.textAlign='center';ctx.textBaseline='bottom';
-    ctx.fillStyle='#669922';ctx.fillText(`SEPSIS ${this.plagueSepsisCount}/5`,this.x,this.y-r-26);
-   }
+
   }
   // ── Crusader overlays
   if(this.key==='crusader'){
@@ -3017,9 +3006,7 @@ class Sphere{
    ctx.strokeStyle=`rgba(255,${Math.round(102+gp*80)},0,${0.3+gp*0.4})`;ctx.lineWidth=1.5+gp*2;
    ctx.beginPath();ctx.arc(this.x,this.y,r+3,0,Math.PI*2);ctx.stroke();
    ctx.shadowBlur=0;
-   ctx.font=`bold ${Math.max(4,r*.18)}px 'Press Start 2P',monospace`;
-   ctx.textAlign='center';ctx.textBaseline='bottom';
-   ctx.fillStyle='#ff6600';ctx.fillText(`G+${this.whelplingGrowth}`,this.x,this.y-r-14);
+
   }
  } // end _drawPowerOverlay
  _drawBody(){
@@ -3092,7 +3079,9 @@ class Sphere{
   if((this.bleedStacks||0)>0)add(`BLEED×${this.bleedStacks}`,'#e74c3c');
   if((this.corrosionStacks||0)>0)add(`CORR×${this.corrosionStacks}`,'#2a8822');
   if((this.virulenceStacks||0)>0)add(`INFECT×${Math.ceil(this.virulenceStacks)}`,'#aadd44');
-  if((this.sepsisWeakenedT||0)>0)add('WEAK','#aadd44');
+   if((this.plagueSepsisStacks||0)>0)add(`SEPSIS ${this.plagueSepsisStacks}/5`,'#aadd44');
+   if((this.sepsisDotTicks||0)>0)add(`SEPSIS DOT ×${this.sepsisDotTicks}`,'#aadd44');
+   if((this.sepsisWeakenedT||0)>0)add('WEAK','#aadd44');
   if((this.gnawedStacks||0)>0)add(`GNAW×${this.gnawedStacks}`,'#b7c06a');
   if((this.deathMarkTicks||0)>0)add(`MARK×${this.deathMarkTicks}`,'#7c4dff');
   if((this.subduedT||0)>0)add('SUBDUE','#ffd35a');
@@ -3112,6 +3101,9 @@ class Sphere{
   if(this.orbitActive&&this.orbitT>0)addBuff(`ORBIT ${seconds(this.orbitT)}`,'#ff5050');
   if(this.iaijutsuReady)addBuff('IAIJUTSU READY','#c8c0a8');
   if(this.stalwartStacks>0)addBuff(`STALWART ×${this.stalwartStacks}`,'#d8eaf8');
+   if(this.key==='whelpling'&&(this.whelplingGrowth||0)>0)addBuff(`GROWTH ×${this.whelplingGrowth}`,'#ff8a3d');
+   if(this.key==='king'&&(this.sovereignArmBonus||0)>0)addBuff(`CROWN ×${Math.ceil(this.sovereignArmBonus/2)}`,'#ffd35a');
+   if(this.key==='sage'&&(this.knowledge||0)>0)addBuff(`KNOW ×${this.knowledge}`,'#d6f0b2');
   if(this.key==='spartan'&&(this.ironStacks||0)>0)addBuff(`IRON ×${this.ironStacks}`,'#d8b060');
   if(this.key==='beastmaster'&&this.packHuntT>0)addBuff(`PACK HUNT ${seconds(this.packHuntT)}`,'#ffb060');
   if(this.key==='arcanist'&&this.overloadActive&&this.overloadT>0)addBuff(`OVERLOAD ${seconds(this.overloadT)}`,'#78d8ff');
