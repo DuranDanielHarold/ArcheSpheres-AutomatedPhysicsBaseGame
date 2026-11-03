@@ -519,6 +519,8 @@ class DroppedWeapon{
   }
   this.life-=dt;
   this.x+=this.vx*dt;this.y+=this.vy*dt;
+  // Air resistance lets the weapon visibly fly away, then settle at a distance.
+  const drag=Math.exp(-1.5*dt);this.vx*=drag;this.vy*=drag;
   if(this.x<14){this.x=14;this.vx=Math.abs(this.vx)*.35;}
   if(this.x>W-14){this.x=W-14;this.vx=-Math.abs(this.vx)*.35;}
   if(this.y<14){this.y=14;this.vy=Math.abs(this.vy)*.35;}
