@@ -300,7 +300,6 @@ function _weaponHit(att,def){
     const dropY=Math.max(18,Math.min(H-18,def.y+(dy/dist)*(def.radius+att.radius*.45+12)));
     def.weaponDisarmedT=4.0;
     noiseTraps.push(new DroppedWeapon(def,dropX,dropY));
-    spawnDmgNum(def.x,def.y-def.radius*1.7,'DISARMED','#e6d2a8');
     spawnSpark(dropX,dropY,'#d7c49b',7);
    }
    // Rogue — Hemorrhage: apply/refresh bleed stacks on target (max 3)
