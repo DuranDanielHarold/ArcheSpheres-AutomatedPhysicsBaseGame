@@ -225,6 +225,8 @@ class Shuriken{
     const nx=(s.x-this.x)/Math.hypot(s.x-this.x,s.y-this.y)||1;
     const ny=(s.y-this.y)/Math.hypot(s.x-this.x,s.y-this.y)||0;
     s.applyImpact(nx*90,ny*90);
+    // Ninja's Shadow Step shuriken hits count toward Blink Strike's 5-stack ability.
+    this.owner.gainStack();
     spawnSpark(this.x,this.y,this.owner.d.rim,5);
     this.alive=false;return;
    }
