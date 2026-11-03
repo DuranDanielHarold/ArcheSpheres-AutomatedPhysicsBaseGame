@@ -135,8 +135,9 @@ class Sphere{
   this.stalwartStacks=0;
   // Samurai — Iaijutsu: 2× dmg bonus on first hit after spin-direction reversal (cd 3s)
   this.iaijutsuReady=false;this.iaijutsuCD=0;this.lastOmegaSign=Math.sign(d.om)*(faction===0?1:-1);
-  // Barbarian — Bloodlust: +6 speed per hit landed (max +60), resets on taking a hit
-  this.bloodlustBonus=0;
+  // Barbarian — Bloodied Resolve and disarmed weapon state
+  this.barbarianResolveT=0;this.barbarianResolveCD=0;
+  this.weaponDisarmedT=0;
   // Ninja — Shadow Step: wall bounce fires shuriken at enemy + brief untargetable (3s CD)
   this.shadowStepCD=0;this.shadowStepActive=false;this.shadowStepT=0;
   // Berserker — Iron Will: below 40% HP, ignore knockback for 0.8s (6s CD)
@@ -1275,11 +1276,7 @@ class Sphere{
     if(this.iaijutsuCD<=0){this.iaijutsuReady=true;}
    }
   }
-  // ── Barbarian: Bloodlust – decay slowly over time
-  if(this.key==='barbarian'&&this.bloodlustBonus>0){
-   this.bloodlustBonus=Math.max(0,this.bloodlustBonus-dt*4);
-   this.targetSpd=this.baseSpd+this.bloodlustBonus;
-  }
+
   if(this.d.sphereMelee){
    const activeSpin=Math.abs(this.omegaCur||0);
    if(activeSpin>Math.max(1,this.d.om*0.65)){
@@ -1426,6 +1423,16 @@ class Sphere{
  _passiveAbility(dt){
   if(this.canTriggerTraits===false)return;
   switch(this.key){
+   case 'barbarian':
+    this.barbarianResolveCD=Math.max(0,(this.barbarianResolveCD||0)-dt);
+    this.barbarianResolveT=Math.max(0,(this.barbarianResolveT||0)-dt);
+    if(this.barbarianResolveT<=0&&this.barbarianResolveCD<=0&&this.hp>0&&this.hp<=this.maxHp*0.35){
+     this.barbarianResolveT=2.5;this.barbarianResolveCD=8.0;
+     spawnBurst(this.x,this.y,'#ff6a22','#7a2800',18);
+     spawnPulse(this.x,this.y,'#b04010');
+     spawnDmgNum(this.x,this.y-this.radius*1.7,'BLOODIED RESOLVE','#ff8a3d');
+    }
+    break;
    case 'paladin':
     this.pulseTimer+=dt;
     if(this.pulseTimer>=4.0){
@@ -2246,8 +2253,6 @@ class Sphere{
     spawnSpark(this.x,this.y,'#fff8c0',4);
    }
   }
-  // Barbarian — Bloodlust resets when hit
-  if(this.key==='barbarian'&&fd>0.5){this.bloodlustBonus=0;this.targetSpd=this.baseSpd;}
   // Crusader — Retribution counter charges on taking damage
   if(this.key==='crusader'&&fd>0.5){this.retributionCounter=Math.min(60,(this.retributionCounter||0)+fd);}
   this.hp=Math.max(0,this.hp-fd);this.hitFlash=1;
@@ -2395,7 +2400,7 @@ class Sphere{
   ctx.save();ctx.globalAlpha=baseAlpha;
   if(this.pulseWave){ctx.save();ctx.globalAlpha=baseAlpha*this.pulseWave.life*.45;ctx.beginPath();ctx.arc(this.x,this.y,this.pulseWave.r,0,Math.PI*2);ctx.strokeStyle=this.d.rim;ctx.lineWidth=5;ctx.stroke();ctx.restore();}
   ctx.save();ctx.translate(this.x,this.y);ctx.rotate(this.angle);
-  if(WEAPONS[this.d.wt])WEAPONS[this.d.wt](ctx,this.radius,this.d,this);
+  if(this.weaponDisarmedT<=0&&WEAPONS[this.d.wt])WEAPONS[this.d.wt](ctx,this.radius,this.d,this);
   if(window._debugSecondaryHitboxes&&!window._balanceNoVisuals&&!this.dying&&this.getSecondaryHitboxes().length){
    const r=this.radius;ctx.save();ctx.strokeStyle='#ff5ce1';ctx.lineWidth=2;ctx.setLineDash([4,3]);
    if(this.key==='crusader')ctx.strokeRect(-r*1.45-r*.49,-r*.715,r*.98,r*1.43);
@@ -2470,8 +2475,9 @@ class Sphere{
   if(this.ironWillActive){ctx.shadowColor='#ff4444';ctx.shadowBlur=16;ctx.beginPath();ctx.arc(this.x,this.y,r+9,0,Math.PI*2);ctx.strokeStyle=`rgba(255,68,68,${0.65+p*0.35})`;ctx.lineWidth=4;ctx.stroke();ctx.shadowBlur=0;}
   // Ninja — Shadow Step active: purple ghost ring
   if(this.shadowStepActive){ctx.shadowColor='#9b59b6';ctx.shadowBlur=12;ctx.beginPath();ctx.arc(this.x,this.y,r+7,0,Math.PI*2);ctx.strokeStyle=`rgba(155,89,182,${0.6+p*0.35})`;ctx.lineWidth=3;ctx.setLineDash([4,3]);ctx.stroke();ctx.setLineDash([]);ctx.shadowBlur=0;}
-  // Barbarian — Bloodlust stacks: speed glow
-  if(this.bloodlustBonus>0){const bl=this.bloodlustBonus/60;ctx.beginPath();ctx.arc(this.x,this.y,r+4,0,Math.PI*2);ctx.strokeStyle=`rgba(255,${Math.round(80+bl*80)},0,${0.35+bl*0.45})`;ctx.lineWidth=2+bl*2;ctx.stroke();}
+  // Barbarian — Bloodied Resolve: active low-health damage surge
+  if(this.key==='barbarian'&&this.barbarianResolveT>0){ctx.shadowColor='#ff6a22';ctx.shadowBlur=16;ctx.beginPath();ctx.arc(this.x,this.y,r+7,0,Math.PI*2);ctx.strokeStyle='rgba(255,106,34,.9)';ctx.lineWidth=3.5;ctx.stroke();ctx.shadowBlur=0;}
+  if(this.weaponDisarmedT>0){ctx.strokeStyle='rgba(230,210,170,.85)';ctx.lineWidth=2;ctx.setLineDash([3,3]);ctx.beginPath();ctx.arc(this.x,this.y,r+5,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);}
   // Rogue — bleed indicator on bleeding target
   if(this.bleedStacks>0){ctx.font=`bold ${Math.max(4,r*.18)}px 'Press Start 2P',monospace`;ctx.textAlign='center';ctx.textBaseline='bottom';
    const bleedY=this.corrosionStacks>0&&this.blinded?(this.y-r-58):this.corrosionStacks>0||this.blinded?(this.y-r-44):(this.y-r-30);
