@@ -169,6 +169,7 @@ class PirateBarrel{
   }
   spawnBurst(this.x,this.y,'#ff8a22','#5a2410',26);
   spawnPulse(this.x,this.y,'#ff9b38');
+  spawnShockwave(this.x,this.y,blastR);
  }
  update(dt){
   if(!this.alive)return;
