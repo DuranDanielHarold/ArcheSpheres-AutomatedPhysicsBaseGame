@@ -55,7 +55,7 @@ class Sphere{
   this.snareActive=false;this.snareT=0;
   this.spreadActive=false;
   this.phalanxActive=false;this.phalanxT=0;
-  this.guardianSanctuaryTimer=0;
+  this.guardianSanctuaryTimer=0;this.guardianBastionZone=null;this.aegisSlamT=0;
   this.fortified=false;this.golemFortifyT=0;
   this.golemFortifyActive=false;
   this.rebirthDone=false;
@@ -521,8 +521,24 @@ class Sphere{
     } break;
    case 'guardian':
     if(this.stacks>=2){
-     this.stacks=0;this.phalanxActive=true;this.phalanxT=3.5;
-     spawnBurst(this.x,this.y,'#80cbc4','#e0f7fa',14);
+     this.stacks=0;this.aegisSlamT=.55;
+     const blastR=this.radius*3.0,baseDamage=this.d.dmg;
+     spawnShockwave(this.x,this.y,blastR);
+     spawnBurst(this.x,this.y,'#80cbc4','#e0f7fa',20);
+     spawnPulse(this.x,this.y,'#80cbc4');
+     let hitCount=0;
+     for(const enemy of spheres){
+      if(enemy===this||sameFaction(this,enemy)||!enemy.alive||enemy.dying)continue;
+      const dx=enemy.x-this.x,dy=enemy.y-this.y,dist=Math.hypot(dx,dy);
+      if(dist>blastR+enemy.radius)continue;
+      const falloff=Math.max(.25,1-dist/(blastR+enemy.radius));
+      const damage=baseDamage*falloff/(enemy.d.arm*.004+1);
+      const before=enemy.hp;enemy.receiveDamage(damage);recordDamageEvent(this.key,'ability',before-enemy.hp);
+      const nx=dist>0?dx/dist:Math.cos(this.angle),ny=dist>0?dy/dist:Math.sin(this.angle);
+      enemy.applyImpact(nx*260*falloff,ny*260*falloff);
+      spawnSpark(enemy.x,enemy.y,'#80cbc4',7);hitCount++;
+     }
+     spawnDmgNum(this.x,this.y-this.radius*1.6,'AEGIS SLAM','#80cbc4');
     }
     break;
     case 'viking':
@@ -944,11 +960,7 @@ class Sphere{
    if(this.slowFieldT<=0){this.slowFieldActive=false;}
    else{this.omegaCur=this.d.om*2*Math.sign(this.omegaCur||1);}
   }
-  if(this.phalanxActive){
-   this.phalanxT-=dt;
-   if(this.phalanxT<=0){this.phalanxActive=false;this.phalanxT=0;}
-   else this.omegaCur=this.d.om*2*Math.sign(this.omegaCur||1);
-  }
+  if(this.aegisSlamT>0)this.aegisSlamT=Math.max(0,this.aegisSlamT-dt);
   if(this.fortified){
    this.golemFortifyT-=dt;
    if(this.golemFortifyT<=0){this.fortified=false;this.golemFortifyActive=false;this.golemFortifyT=0;this.dmgMult=1;}
@@ -1439,9 +1451,11 @@ class Sphere{
    case 'guardian':
     this.guardianSanctuaryTimer+=dt;
     if(this.guardianSanctuaryTimer>=10.0){
-     this.guardianSanctuaryTimer=0;
-     slowZones.push(new GuardianSanctuaryZone(this));
-     spawnDmgNum(this.x,this.y-this.radius*1.5,'SANCTUARY','#80cbc4');
+     this.guardianSanctuaryTimer-=10.0;
+     if(this.guardianBastionZone&&!this.guardianBastionZone.consumed)this.guardianBastionZone.consumed=true;
+     this.guardianBastionZone=new GuardianBastionZone(this);
+     slowZones.push(this.guardianBastionZone);
+     spawnDmgNum(this.x,this.y-this.radius*1.5,'BASTION','#80cbc4');
     }
     break;
    case 'ranger':
@@ -2122,14 +2136,16 @@ class Sphere{
   if(gained>=0.5)spawnHealNum(this.x,this.y-this.radius,gained);
   return gained;
  }
- _consumeGuardianSanctuary(){
-  if(this.key!=='guardian')return false;
-  const zone=slowZones.find(z=>z instanceof GuardianSanctuaryZone&&z.owner===this&&z.contains(this));
-  if(!zone)return false;
-  zone.consume();
-  spawnBurst(this.x,this.y,'#80cbc4','#e0f7fa',18);
-  spawnDmgNum(this.x,this.y-this.radius*1.3,'SANCTUARY','#80cbc4');
-  return true;
+ _applyGuardianBastion(damage){
+  if(!isFinite(damage)||damage<=0)return damage;
+  for(const zone of slowZones){
+   if(!(zone instanceof GuardianBastionZone)||!zone.contains(this))continue;
+   const reinforced=zone.owner.phalanxActive&&zone.owner.phalanxT>0;
+   const remaining=zone.absorb(damage,reinforced);
+   if(remaining<damage){spawnSpark(this.x,this.y,'#80cbc4',3);if(zone.consumed)spawnDmgNum(zone.x,zone.y-zone.owner.radius*1.4,'BASTION BROKEN','#80cbc4');}
+   return remaining;
+  }
+  return damage;
  }
  _recordLiveCombatDamage(dealt){
   const source=window._balanceDamageSource||(window._liveCurrentAbilityKey?{key:window._liveCurrentAbilityKey,type:'ability'}:null);
@@ -2152,7 +2168,6 @@ class Sphere{
   if(this.vikingLastStandActive)return;
   if(this.untargetable)return; // vampire ghost mode
   if(!isFinite(dmg)||dmg<=0)return;
-  if(this._consumeGuardianSanctuary())return;
   if(this.replicaKind==='phase'){this._destroyReplica('POOF');return;}
   let fd=dmg;
   if(this.key==='templar'){
@@ -2160,7 +2175,7 @@ class Sphere{
    fd*=0.85-(0.30*anchor);
   }
   if(this.key==='golem')fd*=0.65;
-  if(this.key==='guardian'&&this.phalanxActive)fd*=0.45;
+  fd=this._applyGuardianBastion(fd);
   if(this.sepsisWeakenedT>0)fd*=1.15;
   if(this.key==='crusader'&&this.crusaderRetributionShield>0&&this.crusaderRetributionShieldT>0&&fd>0){
    const absorbed=Math.min(fd,this.crusaderRetributionShield);
@@ -2235,6 +2250,7 @@ class Sphere{
   }
   let fd=dmg/(this.d.magDef*0.004+1);
   if(this.sepsisWeakenedT>0)fd*=1.15;
+  fd=this._applyGuardianBastion(fd);
   if(this.key==='prince'&&this.princeRoyalShield>0&&this.princeRoyalShieldT>0&&fd>0){
    const absorbed=Math.min(fd,this.princeRoyalShield);
    this.princeRoyalShield-=absorbed;fd-=absorbed;
@@ -2387,7 +2403,7 @@ class Sphere{
   if(this.orbitActive){ctx.beginPath();ctx.arc(this.x,this.y,r+4,0,Math.PI*2);ctx.strokeStyle=`rgba(255,50,50,${.6+p*.3})`;ctx.lineWidth=4;ctx.stroke();ctx.shadowBlur=0;}
   if(this.blinking){ctx.shadowColor=this.d.rim;ctx.shadowBlur=22;ctx.beginPath();ctx.arc(this.x,this.y,r+6,0,Math.PI*2);ctx.strokeStyle=this.d.rim;ctx.lineWidth=3;ctx.stroke();ctx.shadowBlur=0;}
   if(this.backstabCharged){ctx.shadowColor='#e74c3c';ctx.shadowBlur=14;ctx.beginPath();ctx.arc(this.x,this.y,r+5,0,Math.PI*2);ctx.strokeStyle='rgba(231,76,60,.85)';ctx.lineWidth=3;ctx.stroke();ctx.shadowBlur=0;}
-  if(this.phalanxActive){ctx.shadowColor='#80cbc4';ctx.shadowBlur=10;ctx.beginPath();ctx.arc(this.x,this.y,r+7,0,Math.PI*2);ctx.strokeStyle='rgba(128,203,196,.75)';ctx.lineWidth=3;ctx.stroke();ctx.shadowBlur=0;}
+  if(this.aegisSlamT>0){ctx.shadowColor='#80cbc4';ctx.shadowBlur=14;ctx.beginPath();ctx.arc(this.x,this.y,r+7+(1-this.aegisSlamT/.55)*r*.45,0,Math.PI*2);ctx.strokeStyle='rgba(128,203,196,.85)';ctx.lineWidth=3;ctx.stroke();ctx.shadowBlur=0;}
   if(this.fortified){ctx.beginPath();ctx.arc(this.x,this.y,r+8,0,Math.PI*2);ctx.strokeStyle=`rgba(176,190,197,${.6+p*.3})`;ctx.lineWidth=4;ctx.stroke();ctx.shadowBlur=0;}
   if(this.rebirthDone){ctx.shadowColor=this.d.rim;ctx.shadowBlur=18;ctx.beginPath();ctx.arc(this.x,this.y,r+5,0,Math.PI*2);ctx.strokeStyle=`rgba(255,200,0,${.55+p*.4})`;ctx.lineWidth=4;ctx.stroke();ctx.shadowBlur=0;}
   if(this.key==='phoenix'){
