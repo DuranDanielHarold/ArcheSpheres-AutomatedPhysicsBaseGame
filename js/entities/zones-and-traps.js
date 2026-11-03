@@ -506,8 +506,8 @@ class DroppedWeapon{
   this.radius=owner.radius;
   this.x=x;this.y=y;this.angle=owner.angle;
   const launchLen=Math.hypot(dirX,dirY)||1;
-  this.vx=(dirX/launchLen)*52;
-  this.vy=(dirY/launchLen)*52;
+  this.vx=(dirX/launchLen)*300;
+  this.vy=(dirY/launchLen)*300;
   this.omega=0; // Dropped weapons keep a fixed orientation instead of spinning.
   this.life=4.0;this.alive=true;
  }
