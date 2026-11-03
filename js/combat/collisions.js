@@ -166,7 +166,6 @@ function _weaponHit(att,def){
  }
  const pts=att.getBladePoints();
  const tipR=att.radius*att.d.tipR;
- if(att.key==='golem'){let hitPt=null,hitDist=Infinity;for(const pt of pts){const d=Math.hypot(pt.x-def.x,pt.y-def.y);if(d<def.radius+att.radius*.58&&d<hitDist){hitPt=pt;hitDist=d;}}if(!hitPt){att._hitDefenders.delete(def);return;}if(att.golemPunchActiveT<=0||att._hitDefenders.get(def)===true)return;att._hitDefenders.set(def,true);const raw=(att.d.dmg*(att.golemAdaptType==='crystalline'?1.12:1.18)+2)*(att.dmgMult||1);window._balanceDamageSource={key:att.key,type:'base'};if(att.golemAdaptType==='crystalline')def.receiveMagicDamage(raw);else def.receiveDamage(raw);window._balanceDamageSource=null;const dx=def.x-att.x,dy=def.y-att.y,dist=Math.hypot(dx,dy)||1;def.applyImpact(dx/dist*190,dy/dist*190);spawnImpactBurst(hitPt.x,hitPt.y,att.golemAdaptType==='crystalline'?'#c7a6ff':'#ffbd70','#4a3020');spawnSpark(hitPt.x,hitPt.y,att.golemAdaptType==='crystalline'?'#c7a6ff':'#ffbd70',6);return;}
  let hit=false,hitPt=null,hitDist=Infinity;
  for(const pt of pts){
   const pdx=pt.x-def.x,pdy=pt.y-def.y,d=Math.hypot(pdx,pdy);
@@ -228,6 +227,7 @@ function _weaponHit(att,def){
   const spinRatio=Math.abs(att.omegaCur)/(att.d.om||1);
   const spinDmgMultiplier=Math.max(SPIN_DMG_MULT_MIN,Math.min(SPIN_DMG_MULT_MAX,spinRatio));
   dmg*=spinDmgMultiplier;
+  if(att.key==='golem')dmg*=att.golemAdaptType==='crystalline'?1.12:1.18;
   if(att.dmgHalvedT>0)dmg*=0.5;
   if(att.key==='gladiator'&&att.crowdDouble){dmg*=2;att.crowdDouble=false;att.favor=0;}
   if(att.key==='prince'){const wb=Math.min(5,att.wallBounceBonus||0);dmg*=1+wb*.08;if(Math.hypot(att.vx,att.vy)>att.baseSpd*.8)dmg*=1.18;}
@@ -253,7 +253,7 @@ function _weaponHit(att,def){
     spawnSpark(hx,hy,att.d.color,7);
     if(def.hp<=0&&!def.dying){def.alive=false;def.dying=true;spawnBurst(def.x,def.y,def.d.rim,def.d.color,28);}
    }
-   else if(att.key==='alchemist'){window._balanceDamageSource={key:att.key,type:'base'};def.receiveMagicDamage(dmg);window._balanceDamageSource=null;}
+   else if(att.key==='alchemist'||(att.key==='golem'&&att.golemAdaptType==='crystalline')){window._balanceDamageSource={key:att.key,type:'base'};def.receiveMagicDamage(dmg);window._balanceDamageSource=null;}
    else{window._balanceDamageSource={key:att.key,type:'base'};def.receiveDamage(dmg);window._balanceDamageSource=null;}
     if(traits){att.gainStack();att._applyHitBuff();}
     // Whelpling: open the upper jaw, lunge forward, then clamp shut.
