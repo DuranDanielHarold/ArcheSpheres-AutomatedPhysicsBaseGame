@@ -3137,34 +3137,33 @@ class Sphere{
   const buffs=allBadges.filter(b=>b.kind==='buff');
   const r=this.radius,bw=r*2.35;
   const fontSize=Math.max(5,Math.min(7,r*.16));
-  const gapX=4,rowGap=3,badgeH=fontSize+5;
-  const maxRowW=Math.max(bw*2,140),colW=(maxRowW-gapX)/2;
+  const gapX=2,rowGap=1,badgeH=fontSize+5;
+  const maxRowW=Math.max(bw*2,140);
   ctx.save();
   ctx.font=`bold ${fontSize}px 'Press Start 2P',monospace`;ctx.textAlign='center';ctx.textBaseline='middle';
   const drawRows=(badges,firstRowY)=>{
    for(let i=0,rowIndex=0;i<badges.length;i+=2,rowIndex++){
     const count=Math.min(2,badges.length-i);
-    const rowW=count===1?colW:maxRowW;
-    const startX=this.x-rowW/2;
+    const rowBadges=badges.slice(i,i+count);
+    const widths=rowBadges.map(b=>Math.min(maxRowW/2,Math.max(fontSize+8,ctx.measureText(b.label).width+10)));
+    const rowW=widths.reduce((sum,w)=>sum+w,0)+gapX*(count-1);
+    let bx=this.x-rowW/2;
     const y=firstRowY+rowIndex*(badgeH+rowGap);
     for(let col=0;col<count;col++){
-     const badge=badges[i+col];
-     const cellX=startX+col*(colW+gapX),by=y;
-     const measuredW=ctx.measureText(badge.label).width+10;
-     const badgeW=Math.min(colW,Math.max(fontSize+8,measuredW));
-     const bx=cellX+(colW-badgeW)/2;
+     const badge=rowBadges[col],badgeW=widths[col],by=y;
      ctx.fillStyle=badge.kind==='buff'?'rgba(5,24,25,.92)':'rgba(4,6,10,.86)';
      rrect(ctx,bx,by,badgeW,badgeH,3);ctx.fill();
      ctx.strokeStyle=badge.color;ctx.lineWidth=1;
      rrect(ctx,bx+.5,by+.5,badgeW-1,badgeH-1,3);ctx.stroke();
      ctx.fillStyle=badge.color;
      ctx.fillText(badge.label,bx+badgeW/2,by+badgeH/2+0.5,badgeW-8);
+     bx+=badgeW+gapX;
     }
    }
   };
-  // Debuffs sit above the HP bar; buffs sit below the floating ability-stack pips.
-  if(debuffs.length)drawRows(debuffs,this.y-r-29);
-  if(buffs.length)drawRows(buffs,this.y+r+23);
+  // Keep each group close to its anchor and pack neighboring badges tightly.
+  if(debuffs.length)drawRows(debuffs,this.y-r-26);
+  if(buffs.length)drawRows(buffs,this.y+r+19);
   ctx.restore();
  }
  _drawHpBar(){
