@@ -62,6 +62,10 @@ function spawnPulse(x,y,col){
  for(let i=0;i<16;i++){const a=(i/16)*Math.PI*2,s=60+Math.random()*100;
   particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:1,maxL:.4,sz:3+Math.random()*3,col,sq:Math.random()>.5});}
 }
+function spawnShockwave(x,y,radius){
+ particles.push({x,y,vx:0,vy:0,life:1,maxL:.48,sz:5,col:'#ffd18a',sq:false,shockwave:true,maxRadius:radius});
+ particles.push({x,y,vx:0,vy:0,life:1,maxL:.34,sz:2.5,col:'#fff2cf',sq:false,shockwave:true,maxRadius:radius*.72});
+}
 function spawnImpactBurst(x,y,c1,c2){
  for(let i=0;i<8;i++){const a=Math.random()*Math.PI*2,s=35+Math.random()*70;
   particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:1,maxL:.18+Math.random()*.1,sz:2+Math.random()*4,col:Math.random()>.5?c1:c2,sq:Math.random()>.4});}
@@ -138,13 +142,21 @@ function spawnWizardTeleportArrive(x,y){
  }
 }
 function updateParticles(dt){
- for(const p of particles){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=55*dt;p.vx*=.965;p.life-=dt/p.maxL;}
+ for(const p of particles){
+  if(!p.shockwave){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=55*dt;p.vx*=.965;}
+  p.life-=dt/p.maxL;
+ }
  particles=particles.filter(p=>p.life>0);
 }
 function drawParticles(){
  for(const p of particles){ctx.save();ctx.globalAlpha=Math.max(0,p.life*p.life);ctx.fillStyle=p.col;
   const sz=p.sz*p.life;
-  if(p.sq){ctx.fillRect(p.x-sz/2,p.y-sz/2,sz,sz);
+  if(p.shockwave){
+   const progress=1-p.life,rr=p.maxRadius*(progress*0.88+0.12);
+   ctx.globalAlpha*=0.9-progress*.45;ctx.strokeStyle=p.col;ctx.lineWidth=Math.max(1,p.sz*(1-progress*.65));
+   ctx.shadowColor='#ff8a32';ctx.shadowBlur=12*(1-progress);
+   ctx.beginPath();ctx.arc(p.x,p.y,rr,0,Math.PI*2);ctx.stroke();
+  }else if(p.sq){ctx.fillRect(p.x-sz/2,p.y-sz/2,sz,sz);
   }else if(p.bubble){ctx.beginPath();ctx.arc(p.x,p.y,sz/2,0,Math.PI*2);ctx.strokeStyle=p.col;ctx.lineWidth=Math.max(1,sz*.18);ctx.globalAlpha*=0.75;ctx.stroke();
   }else{ctx.beginPath();ctx.arc(p.x,p.y,sz/2,0,Math.PI*2);ctx.fill();}ctx.restore();}
 }
