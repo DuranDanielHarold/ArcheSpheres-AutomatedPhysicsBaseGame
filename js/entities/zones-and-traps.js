@@ -156,6 +156,7 @@ class PirateBarrel{
    if(sameFaction(owner,s)||!s.alive||s.dying)continue;
    const dx=s.x-this.x,dy=s.y-this.y,dist=Math.hypot(dx,dy)||1;
    if(dist>blastR+s.radius)continue;
+   owner.gainStack();
    const falloff=Math.max(0.55,1-Math.max(0,dist-s.radius)/Math.max(1,blastR));
    const damage=Math.max(1,owner.d.dmg*1.2*falloff);
    const before=s.hp;s.receiveDamage(damage);
