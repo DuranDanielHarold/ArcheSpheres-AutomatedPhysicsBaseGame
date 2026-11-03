@@ -134,6 +134,81 @@ class GlassShard{
   ctx.strokeStyle='#ffffff';ctx.lineWidth=1;ctx.stroke();ctx.restore();
  }
 }
+
+let _pirateBarrelSeq=0;
+class PirateBarrel{
+ constructor(x,y,owner){
+  this.x=x;this.y=y;this.owner=owner;this.r=owner.radius*0.58;
+  this.life=16;this.maxLife=16;this.alive=true;this.t=0;
+  this.seq=++_pirateBarrelSeq;
+ }
+ _destroy(){
+  if(!this.alive)return;
+  this.alive=false;
+  spawnBurst(this.x,this.y,'#8b5a2b','#d6a35b',10);
+  spawnSpark(this.x,this.y,'#d6a35b',5);
+ }
+ _explode(){
+  if(!this.alive)return;
+  this.alive=false;
+  const owner=this.owner,blastR=owner.radius*3.0;
+  for(const s of spheres){
+   if(sameFaction(owner,s)||!s.alive||s.dying)continue;
+   const dx=s.x-this.x,dy=s.y-this.y,dist=Math.hypot(dx,dy)||1;
+   if(dist>blastR+s.radius)continue;
+   const falloff=Math.max(0.55,1-Math.max(0,dist-s.radius)/Math.max(1,blastR));
+   const damage=Math.max(1,owner.d.dmg*2.0*falloff);
+   const before=s.hp;s.receiveDamage(damage);
+   recordDamageEvent(owner.key,'passive',before-s.hp);
+   s.applyImpact((dx/dist)*300*falloff,(dy/dist)*300*falloff);
+   s.burning=true;s.burnSourceKey=owner.key;s.burnT=Math.max(s.burnT||0,3.0);
+   s.burnTickInterval=DEFAULT_BURN_TICK_INTERVAL;
+   s.burnTickT=Math.min(s.burnTickT||DEFAULT_BURN_TICK_INTERVAL,DEFAULT_BURN_TICK_INTERVAL);
+   spawnDmgNum(s.x,s.y-s.radius*1.55,damage,'#ff8a32');
+   spawnSpark(s.x,s.y,'#ff6a22',7);
+  }
+  spawnBurst(this.x,this.y,'#ff8a22','#5a2410',26);
+  spawnPulse(this.x,this.y,'#ff9b38');
+ }
+ update(dt){
+  if(!this.alive)return;
+  this.life-=dt;this.t+=dt;
+  if(this.life<=0||!this.owner||!this.owner.alive||this.owner.dying){this._destroy();return;}
+  for(const s of spheres){
+   if(!s.alive||s.dying||s.isReplica||!s.getBladePoints)continue;
+   if(sameFaction(this.owner,s))continue;
+   const points=s.getBladePoints();
+   if(points.some(pt=>Math.hypot(pt.x-this.x,pt.y-this.y)<this.r+s.radius*s.d.tipR)){
+    if(s===this.owner)this._explode();else this._destroy();
+    return;
+   }
+  }
+  for(const p of projectiles){
+   if(!p.alive||!p.owner||sameFaction(this.owner,p.owner))continue;
+   const pr=p.r||p.radius||5;
+   if(Math.hypot((p.x||0)-this.x,(p.y||0)-this.y)<this.r+pr){
+    p.alive=false;this._destroy();return;
+   }
+  }
+ }
+ draw(){
+  const fade=Math.max(0.2,Math.min(1,this.life/this.maxLife));
+  const fusePulse=0.5+0.5*Math.sin(this.t*9);
+  ctx.save();ctx.globalAlpha=fade;ctx.translate(this.x,this.y);
+  ctx.shadowColor='#ff8a32';ctx.shadowBlur=5+fusePulse*7;
+  ctx.fillStyle='#68401f';ctx.strokeStyle='#2b190d';ctx.lineWidth=2;
+  ctx.beginPath();ctx.roundRect(-this.r*.78,-this.r,this.r*1.56,this.r*2,this.r*.28);ctx.fill();ctx.stroke();
+  ctx.shadowBlur=0;ctx.fillStyle='#9b6a36';
+  for(const yy of[-.58,0,.58])ctx.fillRect(-this.r*.78,yy*this.r-this.r*.09,this.r*1.56,this.r*.18);
+  ctx.strokeStyle='#d1a05a';ctx.lineWidth=2;
+  ctx.beginPath();ctx.ellipse(0,-this.r*.78,this.r*.72,this.r*.2,0,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();ctx.ellipse(0,this.r*.78,this.r*.72,this.r*.2,0,0,Math.PI*2);ctx.stroke();
+  ctx.strokeStyle='#f3c36b';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,-this.r);ctx.lineTo(this.r*.12,-this.r*1.3);ctx.stroke();
+  ctx.fillStyle=fusePulse>.5?'#fff1a0':'#ff6a22';ctx.beginPath();ctx.arc(this.r*.12,-this.r*1.32,Math.max(2,this.r*.12),0,Math.PI*2);ctx.fill();
+  ctx.restore();
+ }
+}
+
 class SlowZone{
  constructor(x,y,r,dur,owner){this.x=x;this.y=y;this.r=r;this.life=dur;this.maxLife=dur;this.owner=owner;}
  update(dt){this.life-=dt;}
