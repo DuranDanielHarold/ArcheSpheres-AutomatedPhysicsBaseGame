@@ -3066,6 +3066,7 @@ class Sphere{
   const add=(label,color,kind='debuff')=>badges.push({label,color,kind});
   const addBuff=(label,color)=>add(label,color,'buff');
   const seconds=t=>`${Math.max(0,t).toFixed(1)}s`;
+  if((this.weaponDisarmedT||0)>0)add(`DISARM ${seconds(this.weaponDisarmedT)}`,'#e6d2a8');
   if(this.stunned)add('STUN','#ffee55');
   if((this.netRootT||0)>0)add('NET','#f0c08a');
   if((this.netSlowT||0)>0)add('NETSLOW','#f0c08a');
