@@ -17,7 +17,7 @@ function updateRoyaleFramework(dt){
  const effects=royaleState.timedEffects||[];
  for(let i=effects.length-1;i>=0;i--){const e=effects[i];e.t-=dt;if(e.tickEvery>0){e.tickT-=dt;while(e.tickT<=0&&e.t>0){if(e.onTick)e.onTick(e.s,dt);e.tickT+=e.tickEvery;}}if(e.t<=0){if(e.onEnd)e.onEnd(e.s);effects.splice(i,1);}}
 }
-function royaleClearFramework(){if(!royaleState)return;for(let i=0;i<spheres.length;i++){const s=spheres[i];if(s._royaleSizeMods){const old=s._royaleSizeMult||1;s.radius/=old;s._royaleSizeMult=1;delete s._royaleSizeMods;}delete s._royaleMoveMods;}royaleState.timedEffects=[];}
+function royaleClearFramework(){if(!royaleState)return;for(let i=0;i<spheres.length;i++){const s=spheres[i];delete s._royaleMoveMods;if(s._royaleSizeMods){for(const id in s._royaleSizeMods)royaleClearSizeMod(s,id,0.6);}}royaleState.timedEffects=[];}
 function royaleRegisterEvent(id,entry){ROYALE_EVENT_REGISTRY[id]=entry;}
 window.royaleDebug=window.royaleDebug||{};
 window.royaleDebug.listEvents=()=>ROYALE_EVENT_IDS.map(id=>({id,label:ROYALE_EVENT_LABELS[id],implemented:!!ROYALE_EVENT_REGISTRY[id]}));
