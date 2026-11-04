@@ -3093,22 +3093,15 @@ class Sphere{
   if((this.bolaSlowT||0)>0)add('SNARED','#ffaa44');
   if((this.locksmithLocks||0)>0)add(`LOCK×${this.locksmithLocks}`,'#d0b45a');
 
-  // Positive effects use the same compact badge language as debuffs, but a distinct
-  // teal/green treatment. Timed shields expose both remaining capacity and duration.
+  // Only show persistent gameplay modifiers here. Ability activation/state timers
+  // (movement modes, attack patterns, readiness, and temporary visual effects) are
+  // intentionally omitted so they do not crowd genuine buffs and debuffs.
   if(this.priestShieldStacks>0&&this.priestShieldT>0)addBuff(`P-SHLD ${this.priestShieldStacks*2} ${seconds(this.priestShieldT)}`,'#fff2a6');
-  if(this.invincible&&this.invincibleT>0)addBuff(`INVINCIBLE ${seconds(this.invincibleT)}`,'#ffffff');
-  if(this.spiralActive&&this.spiralT>0)addBuff(`SPIRAL ${seconds(this.spiralT)}`,'#ffdc50');
-  if(this.ramActive&&this.ramT>0)addBuff(`RAM ${seconds(this.ramT)}`,'#ff6a34');
-  if(this.orbitActive&&this.orbitT>0)addBuff(`ORBIT ${seconds(this.orbitT)}`,'#ff5050');
-  if(this.iaijutsuReady)addBuff('IAIJUTSU READY','#c8c0a8');
   if(this.stalwartStacks>0)addBuff(`STALWART ×${this.stalwartStacks}`,'#d8eaf8');
-   if(this.key==='whelpling'&&(this.whelplingGrowth||0)>0)addBuff(`GROWTH ×${this.whelplingGrowth}`,'#ff8a3d');
-   if(this.key==='king'&&(this.sovereignArmBonus||0)>0)addBuff(`CROWN ×${Math.ceil(this.sovereignArmBonus/2)}`,'#ffd35a');
-   if(this.key==='sage'&&(this.knowledge||0)>0)addBuff(`KNOW ×${this.knowledge}`,'#d6f0b2');
+  if(this.key==='whelpling'&&(this.whelplingGrowth||0)>0)addBuff(`GROWTH ×${this.whelplingGrowth}`,'#ff8a3d');
+  if(this.key==='king'&&(this.sovereignArmBonus||0)>0)addBuff(`CROWN ×${Math.ceil(this.sovereignArmBonus/2)}`,'#ffd35a');
+  if(this.key==='sage'&&(this.knowledge||0)>0)addBuff(`KNOW ×${this.knowledge}`,'#d6f0b2');
   if(this.key==='spartan'&&(this.ironStacks||0)>0)addBuff(`IRON ×${this.ironStacks}`,'#d8b060');
-  if(this.key==='beastmaster'&&this.packHuntT>0)addBuff(`PACK HUNT ${seconds(this.packHuntT)}`,'#ffb060');
-  if(this.key==='arcanist'&&this.overloadActive&&this.overloadT>0)addBuff(`OVERLOAD ${seconds(this.overloadT)}`,'#78d8ff');
-  if(this.volleyActive)addBuff(`VOLLEY ×${Math.max(0,this.volleyBurstsLeft||0)}`,'#88cc44');
   if(this.crowdDouble)addBuff('CROWD DOUBLE','#ffd35a');
   if(this.blessDmgT>0&&(this.blessDmgAdded||0)>0)addBuff(`BLESS +${this.blessDmgAdded} ${seconds(this.blessDmgT)}`,'#fff2a6');
   if(this.benedictionActive&&this.benedictionT>0)addBuff(`BENEDICTION ${seconds(this.benedictionT)}`,'#fff2a6');
@@ -3116,19 +3109,8 @@ class Sphere{
   if(this.key==='prince'&&this.princeRoyalBulwarkT>0)addBuff(`BULWARK +30 ${seconds(this.princeRoyalBulwarkT)}`,'#ffd35a');
   if(this.key==='guardian'&&this.guardianBastionZone&&!this.guardianBastionZone.consumed&&this.guardianBastionZone.life>0&&this.guardianBastionZone.capacity>0)addBuff(`BASTION ${Math.ceil(this.guardianBastionZone.capacity)} ${seconds(this.guardianBastionZone.life)}`,'#80cbc4');
   if(this.key==='crusader'&&(this.crusaderRetributionShield||0)>0&&this.crusaderRetributionShieldT>0)addBuff(`RETRI ${Math.ceil(this.crusaderRetributionShield)} ${seconds(this.crusaderRetributionShieldT)}`,'#fffacc');
-  if(this.key==='crusader'&&this.holyChargeActive&&this.holyChargeT>0)addBuff(`HOLY CHARGE ${seconds(this.holyChargeT)}`,'#fffacc');
-  if(this.key==='dragoon'&&this.magicShield)addBuff('WYRM SHIELD READY','#88bbdd');
   if(this.key==='golem'&&this.fortified&&this.golemFortifyT>0)addBuff(`FORTIFIED ${seconds(this.golemFortifyT)}`,'#b0bec5');
   if(this.key==='barbarian'&&this.barbarianResolveT>0)addBuff(`BLOODIED +30% ${seconds(this.barbarianResolveT)}`,'#ff9a52');
-  if(this.key==='berserker'&&this.ironWillActive&&this.ironWillT>0)addBuff(`IRON WILL ${seconds(this.ironWillT)}`,'#ff7777');
-  if(this.key==='ninja'&&this.shadowStepActive&&this.shadowStepT>0)addBuff(`SHADOW STEP ${seconds(this.shadowStepT)}`,'#c39bff');
-  if(this.key==='viking'&&this.vikingLastStandActive&&this.vikingLastStandT>0)addBuff(`LAST STAND ${seconds(this.vikingLastStandT)}`,'#c8a030');
-  if(this.key==='viking'&&this.vikingRageSpinActive&&this.vikingRageSpinT>0)addBuff(`RAGE SPIN ${seconds(this.vikingRageSpinT)}`,'#c8a030');
-  if(this.key==='phoenix'&&this.ashwingActive&&this.ashwingT>0)addBuff(`ASHWING ${seconds(this.ashwingT)}`,'#ffcc02');
-  if(this.key==='king'&&this.decreeT>0)addBuff(`DECREE ${seconds(this.decreeT)}`,'#ffd35a');
-  if(this.key==='sage'&&this.foresightT>0)addBuff(`FORESIGHT ${seconds(this.foresightT)}`,'#d6f0b2');
-  if(this.key==='bard'&&this.crescendoActive&&this.crescendoT>0)addBuff(`CRESCENDO ${seconds(this.crescendoT)}`,'#e040fb');
-  if(this.key==='stormbringer'&&this.thunderclapActive&&this.thunderclapT>0)addBuff(`THUNDERCLAP ${seconds(this.thunderclapT)}`,'#88ccff');
   return badges;
  }
  _drawStatusEffectBadges(){
