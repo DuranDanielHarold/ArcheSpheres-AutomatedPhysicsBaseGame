@@ -1,14 +1,4 @@
 'use strict';
-const ROYALE_EVENT_CONFIG={
- overgrowth:{mult:1.5,tween:0.6},dwarfism:{mult:0.6,tween:0.6},
- hurricane:{strength:170,gustPeriod:3.2,gustMin:0.55,driftRate:0.35,projectileFactor:0.5,streaks:70},
- lava:{countMin:3,countMax:6,radiusMin:80,radiusMax:140,tick:0.5,dmgPct:0.03,burnSecs:1.5,fadeSecs:0.5},
- thunderstorm:{interval:0.7,perVolley:2,targetedChance:0.5,telegraph:1.0,radius:75,dmgPct:0.06,stun:0.8,shock:2.5,shake:3},
- potions:{count:6,pickupPad:14,minSpacing:150,effectSecs:6},
- thornedWalls:{growSecs:1.0,contactCooldown:0.6,dmgPct:0.03,bleedStacks:1,thornLen:22,spacing:34},
- ghostSpheres:{count:2,hpFraction:0.35,lifeSecs:10},
- voidVortex:{countMin:2,countMax:4,pullRadius:260,pullMax:320,coreRadius:46,coreDmgPct:0.04,coreTick:0.5,growSecs:1.0,minSeparation:300}
-};
 const ROYALE_EVENT_REGISTRY={};
 function royaleSetSizeMod(s,id,mult,tween){if(!s._royaleSizeMods)s._royaleSizeMods={};s._royaleSizeMods[id]={target:mult,tween:Math.max(0,tween||0)};s._royaleSizeMult=s._royaleSizeMult||1;}
 function royaleClearSizeMod(s,id,tween){if(s._royaleSizeMods&&s._royaleSizeMods[id]){s._royaleSizeMods[id].target=1;s._royaleSizeMods[id].tween=Math.max(0,tween||0);s._royaleSizeMods[id].clear=true;}}
