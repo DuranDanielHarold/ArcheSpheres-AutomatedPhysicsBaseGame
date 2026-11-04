@@ -1,32 +1,26 @@
 'use strict';
 let royaleObstacles=[];
 function resetRoyaleObstacles(){royaleObstacles=[];}
-function refreshRoyaleObstaclePixels(){
- for(let i=0;i<royaleObstacles.length;i++){
-  const o=royaleObstacles[i];
-  o.pixel.x=o.x*W;o.pixel.y=o.y*H;o.pixel.w=o.w*W;o.pixel.h=o.h*H;
- }
-}
+function refreshRoyaleObstaclePixels(){ /* World-unit geometry is persistent across viewport resizes. */ }
 function initRoyaleObstacles(spawnPoints,largestRadius){
  royaleObstacles=[];
  const low=ROYALE_CONFIG.obstacleCount[0],high=ROYALE_CONFIG.obstacleCount[1];
  const target=low+Math.floor(Math.random()*(high-low+1));
- const cell=Math.max(4,Math.round(H*0.025));
+ const cell=20;
  const gap=largestRadius*2.5;
  for(let i=0;i<target;i++){
   let placed=false;
   for(let attempt=0;attempt<220&&!placed;attempt++){
-   const cols=2+Math.floor(Math.random()*3),rows=2+Math.floor(Math.random()*3);
-   const pw=cols*cell,ph=rows*cell;
-   if(pw>=W*.35||ph>=H*.35)continue;
-   const maxCol=Math.max(1,Math.floor((W-pw)/cell));
-   const maxRow=Math.max(1,Math.floor((H-ph)/cell));
+   const pw=(3+Math.floor(Math.random()*9))*cell,ph=(3+Math.floor(Math.random()*9))*cell;
+   if(pw>220||ph>220)continue;
+   const maxCol=Math.max(1,Math.floor((ROYALE_CONFIG.worldW-pw)/cell));
+   const maxRow=Math.max(1,Math.floor((ROYALE_CONFIG.worldH-ph)/cell));
    const px=Math.floor(Math.random()*(maxCol+1))*cell;
    const py=Math.floor(Math.random()*(maxRow+1))*cell;
    if(px+pw>W||py+ph>H)continue;
    let blocked=false;
    for(let j=0;j<royaleObstacles.length;j++){
-    const q=royaleObstacles[j].pixel;
+    const q=royaleObstacles[j];
     if(px+pw+gap>q.x&&px-gap<q.x+q.w&&py+ph+gap>q.y&&py-gap<q.y+q.h){blocked=true;break;}
    }
    if(blocked)continue;
@@ -37,14 +31,14 @@ function initRoyaleObstacles(spawnPoints,largestRadius){
     if(Math.hypot(sp.x-cx,sp.y-cy)<largestRadius*3){blocked=true;break;}
    }
    if(blocked)continue;
-   royaleObstacles.push({x:px/W,y:py/H,w:pw/W,h:ph/H,pixel:{x:px,y:py,w:pw,h:ph}});
+   royaleObstacles.push({x:px,y:py,w:pw,h:ph});
    placed=true;
   }
  }
 }
 function drawRoyaleObstacles(){
  for(let i=0;i<royaleObstacles.length;i++){
-  const p=royaleObstacles[i].pixel;
+  const p=royaleObstacles[i];
   ctx.fillStyle='#75634c';ctx.fillRect(p.x,p.y,p.w,p.h);
   ctx.fillStyle='rgba(255,232,190,.18)';ctx.fillRect(p.x+2,p.y+2,Math.max(0,p.w-4),Math.max(2,p.h*.16));
   ctx.strokeStyle='#3f3428';ctx.lineWidth=2;ctx.strokeRect(p.x+1,p.y+1,p.w-2,p.h-2);
@@ -64,7 +58,7 @@ function resolveRoyaleObstacles(){
   if(!s.alive||s.dying||s.isLeaping)continue;
   const r=s.radius;
   for(let j=0;j<royaleObstacles.length;j++){
-   const p=royaleObstacles[j].pixel;
+   const p=royaleObstacles[j];
    if(s.x+r<p.x||s.x-r>p.x+p.w||s.y+r<p.y||s.y-r>p.y+p.h)continue;
    let nx=0,ny=0,penetration=0;
    const inside=s.x>=p.x&&s.x<=p.x+p.w&&s.y>=p.y&&s.y<=p.y+p.h;
@@ -97,7 +91,7 @@ function killRoyaleProjectilesOnObstacles(){
   if(!p.alive||!Number.isFinite(p.x)||!Number.isFinite(p.y))continue;
   const r=p.r||p.radius||5;
   for(let j=0;j<royaleObstacles.length;j++){
-   const o=royaleObstacles[j].pixel;
+   const o=royaleObstacles[j];
    if(p.x+r<o.x||p.x-r>o.x+o.w||p.y+r<o.y||p.y-r>o.y+o.h)continue;
    const cx=Math.max(o.x,Math.min(o.x+o.w,p.x));
    const cy=Math.max(o.y,Math.min(o.y+o.h,p.y));
