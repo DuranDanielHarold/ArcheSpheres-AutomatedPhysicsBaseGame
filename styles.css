@@ -597,9 +597,10 @@ body {
 }
 
 /* Session 1 — Battle Royale functional layout; Session 2 owns the full landscape redesign. */
-#card.mode-royale{width:min(1000px,100vw);}
+#card.mode-royale{width:min(1600px,100vw);}
 #card.mode-royale #titlebar,#card.mode-royale #stats{display:none!important;}
-#card.mode-royale #arena-border{min-height:clamp(300px,62vh,640px);}
+#card.mode-royale #arena-outer{padding:2px;}
+#card.mode-royale #arena-border{min-height:clamp(520px,88vh,1100px);}
 #royale-hud{position:absolute;z-index:30;top:6px;left:6px;right:6px;display:flex;flex-direction:column;gap:5px;padding:6px;background:rgba(8,16,28,.82);border:1px solid rgba(232,180,48,.8);color:#fff;font-family:'Press Start 2P',monospace;font-size:clamp(5px,.75vw,8px);pointer-events:none;}
 .royale-hud-top{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;line-height:1.6;}
 .royale-hud-roster{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;}
