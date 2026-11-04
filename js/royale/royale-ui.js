@@ -24,10 +24,10 @@ function royaleUiBuildCards(){
  l.textContent='';r.textContent='';royaleUiCards=[];
  for(let i=0;i<8;i++){const s=spheres.find(x=>x.faction===i);if(!s)continue;
   const el=document.createElement('button');el.type='button';el.className='royale-card';el.style.setProperty('--faction',ROYALE_FACTION_COLORS[i].color);
-  el.innerHTML='<i class="royale-stripe"></i><span class="royale-card-head"><img class="avatar"><b class="name"></b><small class="faction"></small></span><span class="hp-track"><i class="trail"></i><i class="fill"></i></span><span class="card-foot"><b class="hp"></b><i class="stack"><i></i></i></span><span class="status"></span><b class="skull">☠</b><small class="place"></small>';
+  el.innerHTML='<i class="royale-stripe"></i><span class="royale-card-head"><img class="avatar"><b class="name"></b><small class="faction"></small></span><span class="hp-track"><i class="trail"></i><i class="fill"></i></span><span class="card-foot"><b class="hp"></b><i class="stack"><i></i></i></span><span class="status"><i></i><i></i></span><b class="skull">☠</b><small class="place"></small>';
   el.querySelector('.avatar').src=getSphereIcon(s.key,28);el.querySelector('.name').textContent=s.d.label;el.querySelector('.faction').textContent=i+1;
   el.onclick=()=>{const c=royaleCamera;if(!c)return;if(c.mode==='follow'&&c.followRef?.faction===i)c.setMode('auto');else c.follow(i);royaleUiFollow();};
-  (i<4?l:r).appendChild(el);royaleUiCards.push({i,s,el,hp:el.querySelector('.hp'),fill:el.querySelector('.fill'),trail:el.querySelector('.trail'),stack:el.querySelector('.stack>i'),status:el.querySelector('.status'),place:el.querySelector('.place'),last:{}});
+  (i<4?l:r).appendChild(el);royaleUiCards.push({i,s,el,hp:el.querySelector('.hp'),fill:el.querySelector('.fill'),trail:el.querySelector('.trail'),stack:el.querySelector('.stack>i'),status:el.querySelector('.status'),statusA:el.querySelector('.status i:first-child'),statusB:el.querySelector('.status i:last-child'),place:el.querySelector('.place'),last:{}});
  }
 }
 function royaleUiFollow(){const f=royaleCamera?.followRef?.faction;royaleUiCards.forEach(c=>c.el.classList.toggle('followed',c.i===f));}
@@ -41,7 +41,7 @@ function royaleUiUpdate(dt){
   if(c.last.hp!==txt){c.hp.textContent=txt;c.last.hp=txt;}if(c.last.pct!==hp){c.fill.style.width=hp+'%';c.trail.style.width=Math.max(hp,Number(c.last.pct)||hp)+'%';requestAnimationFrame(()=>c.trail.style.width=hp+'%');c.last.pct=hp;}
   const th=typeof getStackDisplayThreshold==='function'?getStackDisplayThreshold(s.key):1,v=s.key==='sheriff'?s.sheriffHitCount||0:s.stacks||0,st=Math.min(100,v/Math.max(1,th)*100);if(c.last.st!==st){c.stack.style.width=st+'%';c.last.st=st;}
   if(c.last.dead!==dead){c.el.classList.toggle('dead',dead);c.el.querySelector('.skull').hidden=!dead;c.place.textContent=dead?'#'+(royaleUiPlacements.get(c.i)||alive+1):'';c.last.dead=dead;}
-  const chips=(s._collectStatusEffectBadges?.()||[]).slice(0,2).map(x=>x.label).join(' · ');if(c.last.status!==chips){c.status.textContent=chips;c.status.hidden=!chips;c.last.status=chips;}
+  const chips=(s._collectStatusEffectBadges?.()||[]).slice(0,2).map(x=>x.label);const sig=chips.join('|');if(c.last.status!==sig){c.statusA.textContent=chips[0]||'';c.statusB.textContent=chips[1]||'';c.statusA.hidden=!chips[0];c.statusB.hidden=!chips[1];c.status.hidden=!chips.length;c.last.status=sig;}
  });royaleUiRibbon();}
  royaleUiFollow();
 }
@@ -50,7 +50,7 @@ function royaleUiRibbon(){
  crest.textContent=spheres.filter(s=>s.alive&&!s.dying&&!s.isReplica).length+' LEFT';
  const active=royaleState.state==='WARNING'||royaleState.state==='EVENT';r.classList.toggle('active',active);r.classList.toggle('collapsed',active&&royaleUiWarningAge>=2);
  r.querySelector('.phase').textContent='PHASE '+royaleState.phase+'/'+ROYALE_CONFIG.phases;
- r.querySelector('.event').textContent=(ROYALE_EVENT_LABELS[royaleState.currentEventId]||'NEXT EVENT').toUpperCase();
+ const upcoming=royaleState.currentEventId||(royaleState.eventBag&&royaleState.eventBag[royaleState.eventBag.length-1]);r.querySelector('.event').textContent=(ROYALE_EVENT_LABELS[upcoming]||'NEXT EVENT').toUpperCase();
  const n=royaleState.state==='WARNING'?royaleState.stateTimer:royaleState.state==='EVENT'?royaleState.stateTimer:0;
  r.querySelector('.count').textContent=(royaleState.state==='WARNING'?'EVENT IN ':'SHRINK IN ')+Math.ceil(n)+'s';
  r.querySelector('.royale-ribbon-drain i').style.width=(royaleState.state==='EVENT'?100*n/ROYALE_CONFIG.event:100)+'%';
