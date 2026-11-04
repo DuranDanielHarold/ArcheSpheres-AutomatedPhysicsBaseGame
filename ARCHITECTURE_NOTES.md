@@ -90,3 +90,11 @@ Current split foundations now exist:
 - `js/simulation.js` for future seeded / batch battle tools
 
 Next useful improvement is wiring logging into combat events without changing match behavior.
+
+## Battle Royale mode boundary
+
+- `js/data/royaleConfig.js` owns Battle Royale timing, faction colors, event ids/labels, and the initially empty event registry.
+- `js/royale/royale-obstacles.js` owns normalized mutable obstacle rectangles, sphere-body/projectile blocking, and obstacle rendering.
+- `js/royale/royale-zone.js` owns the physical inner bounds rectangle, phase shrink interpolation, resize scaling, and zone rendering.
+- `js/royale/royale-core.js` owns Royale setup, unique class selection, phase/event timing, HUD, debug helpers, and match resolution.
+- Session 1 does not alter `STALL_CONFIG`, the balance runner, `CombatTracker`, or stall resolution. Event effects and final presentation remain deferred.

@@ -303,3 +303,10 @@ After: not measured here. Owner browser execution is required before merge.
 8. Test Ground Knight vs Samurai, 5 games, seed 1337, PHONE, JSON/CSV populated and live view recovers.
 
 No merge is authorized by this audit entry.
+## Battle Royale Session 1 — deferred findings and known limits
+
+- Added `Sphere.receiveTrueDamage(amount, sourceKey, sourceType)` for new callers, including Phoenix Rebirth and Viking Last Stand handling. Existing direct-HP-write sites were deliberately not migrated in this session: BurialMound, GlassShard, Stormbringer discharge, Penitence, PiercingBullet, `_triggerImpactAoE`, Queen's Gambit, and related paths. These remain an observed, deferred cleanup; their current bypass of Phoenix Rebirth and Viking Last Stand is preserved.
+- Royale obstacle collision currently covers sphere bodies and ordinary projectiles only. Skeleton, BarbAlly, and ArcherAlly entities still ignore obstacles; companion/skeleton obstacle collision is deferred.
+- Future Time Warp and Hurricane effects must displace positions directly rather than rely only on velocity, because `Sphere.update` clamps speed.
+- Whelpling changes its radius directly over time. Future size-changing events must apply and revert radius by a stored ratio rather than restore an assumed fixed radius.
+- No event effects or final art are included in Session 1.

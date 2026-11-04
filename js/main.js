@@ -23,6 +23,7 @@ let gameMode='1v1';
  };
  window.setMode=function(m){
   gameMode=m;window.randomModeActive=false;
+  ['royale-cam-btn','royale-minimap-btn'].forEach(id=>{const b=document.getElementById(id);if(b)b.style.display='none';});
   document.querySelectorAll('.mtab').forEach(t=>t.classList.remove('active'));
   const tab=document.querySelector(`.mtab[onclick*=\"${m}\"]`);if(tab)tab.classList.add('active');
   document.getElementById('card').className=`mode-${m}`;
@@ -90,6 +91,14 @@ function togglePause(){if(window._testingDiagnosticRunning)return;paused=!paused
 function resize(){
  if(window._arenaSizeLocked)return;
  const rect=canvas.getBoundingClientRect();
+ if(gameMode==='royale'){
+  canvas.width=Math.max(1,Math.floor(rect.width));
+  canvas.height=Math.max(1,Math.floor(rect.height));
+  W=ROYALE_CONFIG.worldW;H=ROYALE_CONFIG.worldH;
+  ctx.imageSmoothingEnabled=false;
+  if(typeof royaleViewportChanged==='function')royaleViewportChanged();
+  return;
+ }
  W=canvas.width=Math.max(1,Math.floor(rect.width));
  H=canvas.height=Math.max(1,Math.floor(rect.height));
  ctx.imageSmoothingEnabled=false;

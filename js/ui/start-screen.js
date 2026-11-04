@@ -58,6 +58,7 @@ function showStartScreen(){
    <button class="ss-mbtn" onclick="window.startPicker('2v2')">⚔&nbsp;&nbsp;2 V 2</button>
    <button class="ss-mbtn" onclick="window.startRandomBattle()">🎲&nbsp;&nbsp;RANDOM</button>
    <button class="ss-mbtn" onclick="window.startPicker('testing')">🧪&nbsp;&nbsp;TEST GROUND</button>
+   <button class="ss-mbtn" onclick="window.startRoyale()">♛&nbsp;&nbsp;BATTLE ROYALE</button>
   </div>`;
  ss.appendChild(inner);
  document.body.appendChild(ss);

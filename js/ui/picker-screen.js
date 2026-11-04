@@ -13,6 +13,7 @@ function randomizeSelections(slotIds){slotIds.forEach(id=>{pendingSelections[id]
 window.pickRandomClassKey=pickRandomClassKey;window.randomizeSelections=randomizeSelections;
 window.startRandomBattle=function(){gameMode='1v1';window.randomModeActive=true;pendingSelections={};const slots=getBattleSlots('1v1');randomizeSelections(slots.map(s=>s.id));launchBattle();};
 window.startPicker=function(mode){
+ if(mode==='royale'){window.startRoyale();return;}
  pickerDetailMode=false;pendingSelections={};pickerSearch='';pickerRole='ALL';pickerLastPick=null;gameMode=mode||'1v1';window.randomModeActive=false;if(gameMode==='testing'&&typeof resetTestingOptions==='function')resetTestingOptions();
  const ss=document.getElementById('start-screen');if(ss)ss.style.display='none';
  const old=document.getElementById('picker-screen');if(old)old.remove();
