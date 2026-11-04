@@ -733,7 +733,7 @@ class Sphere{
      if(dischargeDmg>0){
       for(const s of spheres){
        if(sameFaction(this,s)||!s.alive||s.dying)continue;
-       const _dischargeBefore=s.hp;s.hp=Math.max(0,s.hp-dischargeDmg);recordDamageEvent(this.key,'ability',_dischargeBefore-s.hp);
+       const _dischargeBefore=s.hp;s.hp=Math.max(0,s.hp-(gameMode==='royale'?dischargeDmg*0.85:dischargeDmg));recordDamageEvent(this.key,'ability',_dischargeBefore-s.hp);
        if(s.hp<=0&&!s.dying){s.alive=false;s.dying=true;spawnBurst(s.x,s.y,s.d.rim,s.d.color,28);}
        spawnDmgNum(s.x,s.y-s.radius*1.5,dischargeDmg,'#88ccff');
       }
