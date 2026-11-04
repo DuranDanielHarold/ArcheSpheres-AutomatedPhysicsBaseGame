@@ -2254,7 +2254,7 @@ class Sphere{
   if(this.untargetable)return; // vampire ghost mode
   if(!isFinite(dmg)||dmg<=0)return;
   if(this.replicaKind==='phase'){this._destroyReplica('POOF');return;}
-  let fd=dmg;
+  let fd=gameMode==='royale'?dmg*0.85:dmg;
   if(this.key==='templar'){
    const anchor=Math.max(0,Math.min(1,this.templarAnchor||0));
    fd*=0.85-(0.30*anchor);
@@ -2320,6 +2320,7 @@ class Sphere{
   if(!Number.isFinite(amount)||amount<=0)return 0;
   if(this.replicaKind==='phase'){const replicaHp=this.hp;this._destroyReplica('POOF');return replicaHp;}
   const before=this.hp;
+  amount=gameMode==='royale'?amount*0.85:amount;
   this.hp=Math.max(0,this.hp-amount);
   const removed=before-this.hp;
   if(removed<=0)return 0;
@@ -2351,7 +2352,7 @@ class Sphere{
    spawnDmgNum(this.x,this.y-this.radius*0.5,0,'#4488cc');
    return;
   }
-  let fd=dmg/(this.d.magDef*0.004+1);
+  let fd=(gameMode==='royale'?dmg*0.85:dmg)/(this.d.magDef*0.004+1);
   if(this.key==='golem'){this.golemAdaptMagic=Math.min(100,(this.golemAdaptMagic||0)+dmg);this.golemAdaptTimer=8;this.golemAdaptType=this.golemAdaptMagic>=(this.golemAdaptPhysical||0)?'crystalline':'ironstone';if(this.golemAdaptType==='crystalline')fd*=0.82;}
   if(this.sepsisWeakenedT>0)fd*=1.15;
   fd=this._applyGuardianBastion(fd);
