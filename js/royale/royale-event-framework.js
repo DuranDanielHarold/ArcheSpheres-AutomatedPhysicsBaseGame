@@ -1,5 +1,4 @@
 'use strict';
-const ROYALE_EVENT_REGISTRY={};
 function royaleSetSizeMod(s,id,mult,tween){if(!s._royaleSizeMods)s._royaleSizeMods={};s._royaleSizeMods[id]={target:mult,tween:Math.max(0,tween||0)};s._royaleSizeMult=s._royaleSizeMult||1;}
 function royaleClearSizeMod(s,id,tween){if(s._royaleSizeMods&&s._royaleSizeMods[id]){s._royaleSizeMods[id].target=1;s._royaleSizeMods[id].tween=Math.max(0,tween||0);s._royaleSizeMods[id].clear=true;}}
 function royaleSetMoveMod(s,id,mult){if(!s._royaleMoveMods)s._royaleMoveMods={};s._royaleMoveMods[id]=mult;}
