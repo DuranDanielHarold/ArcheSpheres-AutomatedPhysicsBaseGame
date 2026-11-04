@@ -56,7 +56,7 @@ function updateRoyale(dt){
   if(royaleState.finalTimer<=0){
    let best=null,bestPct=-Infinity,tied=false;
    for(let i=0;i<spheres.length;i++){
-    const s=spheres[i];if(s.isReplica||!s.alive||s.dying)continue;
+    const s=spheres[i];if(!s.alive||s.dying)continue;
     const pct=s.maxHp>0?s.hp/s.maxHp:0;
     if(pct>bestPct+1e-9){best=s;bestPct=pct;tied=false;}
     else if(Math.abs(pct-bestPct)<=1e-9)tied=true;
