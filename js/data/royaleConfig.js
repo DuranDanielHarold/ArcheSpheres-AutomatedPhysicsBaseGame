@@ -1,7 +1,7 @@
 'use strict';
 const ROYALE_CONFIG={
  count:8,phases:10,calm:12,warning:3,event:10,shrink:4,finalTimeout:30,
- shrinkAreaStep:0.10,obstacleCount:[14,18],radiusHeightFraction:0.04,
+ shrinkAreaStep:0.10,obstacleCount:[14,18],radiusHeightFraction:0.022,
  speedScaleRef:400,speedScaleMax:2.5,obstacleCooldown:0.25
 };
 const ROYALE_FACTION_COLORS=[
