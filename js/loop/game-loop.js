@@ -93,6 +93,8 @@ function loop(ts){
 function concludeMatch(winner,endReason){
  if(winDone)return;
  winDone=true;
+ // Keep the Royale winner and final arena state frozen inside the completed zone.
+ if(gameMode==='royale')paused=true;
  if(window._liveCombatTracker){
   const duration=window.matchTime||0;
   window._liveCombatTracker.onMatchEnd(duration);
