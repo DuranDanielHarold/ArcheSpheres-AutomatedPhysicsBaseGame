@@ -9,7 +9,7 @@ const ROYALE_CAMERA_CONFIG={
 const royaleCamera={
  x:1200,y:675,zoom:1,view:{w:1,h:1},mode:'auto',followRef:null,shots:[],shakeX:0,shakeY:0,
  shakeMag:0,heat:new WeakMap(),minimap:true,anchor:null,switchCandidate:null,switchCandidateT:0,
- anchorSince:0,matchT:0,establishT:0,establishing:true,snap:true,shakeSeed:0x7a31c4d9,
+ anchorSince:0,matchT:0,establishT:0,establishing:true,snap:true,shakeSeed:0x7a31c4d9,lastHp:new WeakMap(),lastLiving:new Set(),
  shakeEnabled:!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches),
  switchCount:0
 };
@@ -19,6 +19,8 @@ function initRoyaleCamera(){
  royaleCamera.mode='auto';royaleCamera.followRef=null;royaleCamera.shots=[];royaleCamera.heat=new WeakMap();
  royaleCamera.anchor=null;royaleCamera.switchCandidate=null;royaleCamera.switchCandidateT=0;royaleCamera.anchorSince=0;
  royaleCamera.matchT=0;royaleCamera.establishT=0;royaleCamera.establishing=true;royaleCamera.snap=true;
+ royaleCamera.lastHp=new WeakMap();royaleCamera.lastLiving=new Set();
+ royaleCamera.x=ROYALE_CONFIG.worldW/2;royaleCamera.y=ROYALE_CONFIG.worldH/2;royaleCamera.zoom=royaleCameraMinZoom();
  royaleCamera.shakeX=royaleCamera.shakeY=royaleCamera.shakeMag=0;royaleCamera.switchCount=0;
  royaleViewportChanged();
 }
@@ -45,11 +47,11 @@ royaleCamera.shake=royaleCameraShake;royaleCamera.pushShot=royaleCameraPushShot;
 function royaleCameraLiving(){return spheres.filter(s=>s.alive&&!s.dying);}
 function royaleCameraBoundsFit(){const b=royaleZone&&royaleZone.bounds||{l:0,t:0,r:ROYALE_CONFIG.worldW,b:ROYALE_CONFIG.worldH};return{l:b.l,t:b.t,r:b.r,b:b.b};}
 function royaleCameraHeatPass(living,dt){
- for(const s of living){const hp=Number.isFinite(s.hp)?s.hp:0,max=Math.max(1,s.maxHp||1),prev=Number.isFinite(s._camLastHp)?s._camLastHp:hp;
+ for(const s of living){const hp=Number.isFinite(s.hp)?s.hp:0,max=Math.max(1,s.maxHp||1),prev=royaleCamera.lastHp.has(s)?royaleCamera.lastHp.get(s):hp;
   const dmg=Math.max(0,prev-hp),add=Math.max(0,Math.min(1.5,dmg/(max*.02)));
   let heat=royaleCamera.heat.get(s)||0;heat=(heat+add)*Math.exp(-Math.max(0,dt)/ROYALE_CAMERA_CONFIG.heatDecay);royaleCamera.heat.set(s,heat);
   if(dmg>max*.06)royaleCameraShake(Math.min(ROYALE_CAMERA_CONFIG.shakeMax,dmg/max*ROYALE_CAMERA_CONFIG.shakeMax));
-  s._camLastHp=hp;
+  royaleCamera.lastHp.set(s,hp);
  }
 }
 function royaleCameraFocus(living,dt){
@@ -89,6 +91,11 @@ function royaleCameraGroupTarget(group){
 function updateRoyaleCamera(dtReal){
  if(!Number.isFinite(dtReal)||dtReal<0)dtReal=0;const dt=Math.min(dtReal,.25);royaleCamera.matchT+=dt;
  const living=royaleCameraLiving();royaleCameraHeatPass(living,dt);
+ const liveSet=new Set(living);
+ for(const prior of royaleCamera.lastLiving){if(!liveSet.has(prior)&&(royaleCamera.heat.get(prior)||0)>0){
+  royaleCameraPushShot({x:prior.x,y:prior.y,zoomFactor:ROYALE_CAMERA_CONFIG.killcamZoomFactor,secs:ROYALE_CAMERA_CONFIG.killcamSecs,priority:100});
+ }}
+ royaleCamera.lastLiving=liveSet;
  let target=null,zoom=null,override=false;
  // Death killcam shots are queued from the heat pass in the death observer below.
  if(royaleCamera.shots.length){royaleCamera.shots.sort((a,b)=>b.priority-a.priority);const shot=royaleCamera.shots[0];shot.t+=dt;target={x:shot.x,y:shot.y};zoom=royaleCameraClampZoom(royaleCameraBaseZoom()*shot.zoomFactor);override=true;if(shot.t>=shot.secs)royaleCamera.shots.shift();}
@@ -99,8 +106,8 @@ function updateRoyaleCamera(dtReal){
  }
  if(!override&&royaleCamera.mode==='full'){const b=royaleCameraBoundsFit();target={x:(b.l+b.r)/2,y:(b.t+b.b)/2};zoom=royaleCameraFit(b);override=true;}
  if(!override&&ROYALE_CAMERA_CONFIG.establishWarning&&royaleState&&(royaleState.state==='WARNING'||(royaleState.state==='EVENT'&&royaleState.stateTimer>ROYALE_CONFIG.event-ROYALE_CAMERA_CONFIG.establishEventSecs))){
-  if(royaleCamera.establishing){const all= living;if(all.length){const xs=all.map(s=>s.x),ys=all.map(s=>s.y),b={l:Math.min(...xs),r:Math.max(...xs),t:Math.min(...ys),b:Math.max(...ys)};target={x:(b.l+b.r)/2,y:(b.t+b.b)/2};zoom=royaleCameraFit(b,ROYALE_CONFIG.sphereRadius*5);override=true;}}
- }else royaleCamera.establishing=false;
+  if(living.length){const xs=living.map(s=>s.x),ys=living.map(s=>s.y),b={l:Math.min(...xs),r:Math.max(...xs),t:Math.min(...ys),b:Math.max(...ys)};target={x:(b.l+b.r)/2,y:(b.t+b.b)/2};zoom=royaleCameraFit(b,ROYALE_CONFIG.sphereRadius*5);override=true;}
+ }
  if(!override&&(living.length<=2||(royaleState&&royaleState.state==='FINAL'))){const b=royaleCameraBoundsFit();target={x:(b.l+b.r)/2,y:(b.t+b.b)/2};zoom=royaleCameraFit(b,ROYALE_CONFIG.sphereRadius*ROYALE_CAMERA_CONFIG.pad);override=true;}
  if(!override){const group=royaleCameraFocus(living,dt),f=royaleCameraGroupTarget(group);if(f){target={x:f.x,y:f.y};zoom=f.zoom;}}
  if(!target){target={x:ROYALE_CONFIG.worldW/2,y:ROYALE_CONFIG.worldH/2};zoom=royaleCameraMinZoom();}
@@ -136,3 +143,19 @@ function royaleCameraDrawPointers(){
   ctx.save();ctx.translate(cx,cy);ctx.rotate(a);ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(8,0);ctx.lineTo(-5,-5);ctx.lineTo(-3,0);ctx.lineTo(-5,5);ctx.closePath();ctx.fill();ctx.rotate(-a);ctx.fillStyle='#fff';ctx.font='bold 10px monospace';ctx.textAlign='center';ctx.fillText(String(s.faction+1),0,14);ctx.restore();
  }
 }
+
+function royaleEnsureCameraButton(){
+ const controls=document.getElementById('controls');if(!controls)return;
+ let cam=document.getElementById('royale-cam-btn');
+ if(!cam){cam=document.createElement('button');cam.id='royale-cam-btn';cam.className='pbtn';cam.style.cssText='font-size:9px;padding:7px 9px';controls.appendChild(cam);}
+ const sync=()=>{cam.textContent='CAM: '+(royaleCamera.mode==='full'?'FULL':'AUTO');};
+ cam.onclick=()=>{royaleCameraSetMode(royaleCamera.mode==='full'?'auto':'full');sync();};sync();
+ let mini=document.getElementById('royale-minimap-btn');
+ if(!mini){mini=document.createElement('button');mini.id='royale-minimap-btn';mini.className='pbtn';mini.textContent='MAP: ON';mini.style.cssText='font-size:9px;padding:7px 9px';controls.appendChild(mini);}
+ mini.onclick=()=>{royaleCamera.minimap=!royaleCamera.minimap;mini.textContent='MAP: '+(royaleCamera.minimap?'ON':'OFF');};
+}
+window.addEventListener('keydown',ev=>{
+ if(gameMode!=='royale'||ev.repeat)return;
+ if(ev.key.toLowerCase()==='c'){royaleCameraSetMode(royaleCamera.mode==='full'?'auto':'full');royaleEnsureCameraButton();}
+ if(ev.key.toLowerCase()==='m'){royaleCamera.minimap=!royaleCamera.minimap;const b=document.getElementById('royale-minimap-btn');if(b)b.textContent='MAP: '+(royaleCamera.minimap?'ON':'OFF');}
+});
