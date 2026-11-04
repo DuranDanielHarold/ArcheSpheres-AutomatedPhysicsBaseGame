@@ -37,8 +37,10 @@ function initRoyaleObstacles(spawnPoints,largestRadius){
  }
 }
 function drawRoyaleObstacles(){
+ const view=typeof royaleCameraViewRect==='function'?royaleCameraViewRect():{l:0,t:0,r:W,b:H};
  for(let i=0;i<royaleObstacles.length;i++){
   const p=royaleObstacles[i];
+  if(p.x+p.w<view.l-40||p.x>view.r+40||p.y+p.h<view.t-40||p.y>view.b+40)continue;
   ctx.fillStyle='#75634c';ctx.fillRect(p.x,p.y,p.w,p.h);
   ctx.fillStyle='rgba(255,232,190,.18)';ctx.fillRect(p.x+2,p.y+2,Math.max(0,p.w-4),Math.max(2,p.h*.16));
   ctx.strokeStyle='#3f3428';ctx.lineWidth=2;ctx.strokeRect(p.x+1,p.y+1,p.w-2,p.h-2);
