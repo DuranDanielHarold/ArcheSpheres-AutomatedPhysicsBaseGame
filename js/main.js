@@ -23,6 +23,7 @@ let gameMode='1v1';
  };
  window.setMode=function(m){
   gameMode=m;window.randomModeActive=false;
+  ['royale-cam-btn','royale-minimap-btn'].forEach(id=>{const b=document.getElementById(id);if(b)b.style.display='none';});
   document.querySelectorAll('.mtab').forEach(t=>t.classList.remove('active'));
   const tab=document.querySelector(`.mtab[onclick*=\"${m}\"]`);if(tab)tab.classList.add('active');
   document.getElementById('card').className=`mode-${m}`;
