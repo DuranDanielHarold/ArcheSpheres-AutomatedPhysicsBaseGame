@@ -3065,8 +3065,7 @@ class Sphere{
   const badges=[];
   const add=(label,color,kind='debuff')=>badges.push({label,color,kind});
   const addBuff=(label,color)=>add(label,color,'buff');
-  const seconds=t=>`${Math.max(0,t).toFixed(1)}s`;
-  if((this.weaponDisarmedT||0)>0)add(`DISARM ${seconds(this.weaponDisarmedT)}`,'#e6d2a8');
+  if((this.weaponDisarmedT||0)>0)add('DISARM','#e6d2a8');
   if(this.stunned)add('STUN','#ffee55');
   if((this.netRootT||0)>0)add('NET','#f0c08a');
   if((this.netSlowT||0)>0)add('NETSLOW','#f0c08a');
@@ -3096,21 +3095,21 @@ class Sphere{
   // Only show persistent gameplay modifiers here. Ability activation/state timers
   // (movement modes, attack patterns, readiness, and temporary visual effects) are
   // intentionally omitted so they do not crowd genuine buffs and debuffs.
-  if(this.priestShieldStacks>0&&this.priestShieldT>0)addBuff(`P-SHLD ${this.priestShieldStacks*2} ${seconds(this.priestShieldT)}`,'#fff2a6');
+  if(this.priestShieldStacks>0&&this.priestShieldT>0)addBuff(`SHIELD ${this.priestShieldStacks*2}`,'#fff2a6');
   if(this.stalwartStacks>0)addBuff(`STALWART ×${this.stalwartStacks}`,'#d8eaf8');
   if(this.key==='whelpling'&&(this.whelplingGrowth||0)>0)addBuff(`GROWTH ×${this.whelplingGrowth}`,'#ff8a3d');
   if(this.key==='king'&&(this.sovereignArmBonus||0)>0)addBuff(`CROWN ×${Math.ceil(this.sovereignArmBonus/2)}`,'#ffd35a');
   if(this.key==='sage'&&(this.knowledge||0)>0)addBuff(`KNOW ×${this.knowledge}`,'#d6f0b2');
   if(this.key==='spartan'&&(this.ironStacks||0)>0)addBuff(`IRON ×${this.ironStacks}`,'#d8b060');
   if(this.crowdDouble)addBuff('CROWD DOUBLE','#ffd35a');
-  if(this.blessDmgT>0&&(this.blessDmgAdded||0)>0)addBuff(`BLESS +${this.blessDmgAdded} ${seconds(this.blessDmgT)}`,'#fff2a6');
-  if(this.benedictionActive&&this.benedictionT>0)addBuff(`BENEDICTION ${seconds(this.benedictionT)}`,'#fff2a6');
-  if(this.key==='prince'&&this.princeRoyalShield>0&&this.princeRoyalShieldT>0)addBuff(`ROYAL ${Math.ceil(this.princeRoyalShield)} ${seconds(this.princeRoyalShieldT)}`,'#8bb7ff');
-  if(this.key==='prince'&&this.princeRoyalBulwarkT>0)addBuff(`BULWARK +30 ${seconds(this.princeRoyalBulwarkT)}`,'#ffd35a');
-  if(this.key==='guardian'&&this.guardianBastionZone&&!this.guardianBastionZone.consumed&&this.guardianBastionZone.life>0&&this.guardianBastionZone.capacity>0)addBuff(`BASTION ${Math.ceil(this.guardianBastionZone.capacity)} ${seconds(this.guardianBastionZone.life)}`,'#80cbc4');
-  if(this.key==='crusader'&&(this.crusaderRetributionShield||0)>0&&this.crusaderRetributionShieldT>0)addBuff(`RETRI ${Math.ceil(this.crusaderRetributionShield)} ${seconds(this.crusaderRetributionShieldT)}`,'#fffacc');
-  if(this.key==='golem'&&this.fortified&&this.golemFortifyT>0)addBuff(`FORTIFIED ${seconds(this.golemFortifyT)}`,'#b0bec5');
-  if(this.key==='barbarian'&&this.barbarianResolveT>0)addBuff(`BLOODIED +30% ${seconds(this.barbarianResolveT)}`,'#ff9a52');
+  if(this.blessDmgT>0&&(this.blessDmgAdded||0)>0)addBuff(`AMPLIFY +${this.blessDmgAdded}`,'#fff2a6');
+  if(this.benedictionActive&&this.benedictionT>0)addBuff('BENEDICT','#fff2a6');
+  if(this.key==='prince'&&this.princeRoyalShield>0&&this.princeRoyalShieldT>0)addBuff(`ROYAL SHLD ${Math.ceil(this.princeRoyalShield)}`,'#8bb7ff');
+  if(this.key==='prince'&&this.princeRoyalBulwarkT>0)addBuff('BULWARK','#ffd35a');
+  if(this.key==='guardian'&&this.guardianBastionZone&&!this.guardianBastionZone.consumed&&this.guardianBastionZone.life>0&&this.guardianBastionZone.capacity>0)addBuff(`BASTION ${Math.ceil(this.guardianBastionZone.capacity)}`,'#80cbc4');
+  if(this.key==='crusader'&&(this.crusaderRetributionShield||0)>0&&this.crusaderRetributionShieldT>0)addBuff(`RETRI ${Math.ceil(this.crusaderRetributionShield)}`,'#fffacc');
+  if(this.key==='golem'&&this.fortified&&this.golemFortifyT>0)addBuff('FORTIFIED','#b0bec5');
+  if(this.key==='barbarian'&&this.barbarianResolveT>0)addBuff('BLOODIED','#ff9a52');
   return badges;
  }
  _drawStatusEffectBadges(){
