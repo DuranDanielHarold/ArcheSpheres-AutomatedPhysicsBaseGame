@@ -38,7 +38,7 @@ function updateRoyale(dt){
   if(royaleState.stateTimer<=0){royaleState.state='WARNING';royaleState.stateTimer=ROYALE_CONFIG.warning;planNextZone();}
  }else if(royaleState.state==='WARNING'){
   royaleState.stateTimer-=dt;
-  if(royaleState.stateTimer<=0){royaleEnterEvent();royaleState.state='EVENT';royaleState.stateTimer=ROYALE_CONFIG.event;}
+  if(royaleState.stateTimer<=0){royaleState.state='EVENT';royaleState.stateTimer=ROYALE_CONFIG.event;royaleEnterEvent();}
  }else if(royaleState.state==='EVENT'){
   const entry=ROYALE_EVENT_REGISTRY[royaleState.currentEventId];
   if(entry&&typeof entry.update==='function')entry.update(dt,royaleState);
@@ -155,7 +155,7 @@ function newRoyaleBattle(){
  const eventBag=royaleShuffle(ROYALE_EVENT_IDS.slice());
  royaleState={phase:1,state:'CALM',stateTimer:ROYALE_CONFIG.calm,currentEventId:null,
   eventBag:eventBag,eventSequence:[],finalTimer:0};
- console.log('[Royale] next 10 shuffle-bag events:',eventBag.slice(0,ROYALE_CONFIG.phases));
+ console.log('[Royale] next 10 shuffle-bag events:',eventBag.slice().reverse().slice(0,ROYALE_CONFIG.phases));
  console.log('[Royale] unique classes:',keys.slice());
  if(typeof _preloadConfiguredAudio==='function')_preloadConfiguredAudio(keys);
  if(typeof _syncArenaBgm==='function')_syncArenaBgm();
