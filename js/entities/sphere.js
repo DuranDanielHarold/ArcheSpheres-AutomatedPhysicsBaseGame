@@ -2306,7 +2306,7 @@ class Sphere{
    const col=fd>=15?'#ff4444':fd>=6?'#ffaa22':'#ffffff';
    spawnDmgNum(this.x,this.y-this.radius*0.5,fd,col);
   }
-  if(this.canTriggerTraits!==false&&!this.lowHpBuffApplied&&this.hp/this.maxHp<0.30&&this.hp>0){
+  if(gameMode!=='royale'&&this.canTriggerTraits!==false&&!this.lowHpBuffApplied&&this.hp/this.maxHp<0.30&&this.hp>0){
    this.lowHpBuffApplied=true;
    this._applyLowHpBuff();
   }
@@ -2326,7 +2326,7 @@ class Sphere{
   this.hitFlash=1;
   if(sourceKey)recordDamageEvent(sourceKey,sourceType,removed);
   spawnDmgNum(this.x,this.y-this.radius*0.5,removed,'#cc88ff');
-  if(this.canTriggerTraits!==false&&!this.lowHpBuffApplied&&this.hp/this.maxHp<0.30&&this.hp>0){
+  if(gameMode!=='royale'&&this.canTriggerTraits!==false&&!this.lowHpBuffApplied&&this.hp/this.maxHp<0.30&&this.hp>0){
    this.lowHpBuffApplied=true;this._applyLowHpBuff();
   }
   if(this.hp<=0&&!this.dying){
@@ -2388,7 +2388,7 @@ class Sphere{
   if(fd>0.2){
    spawnDmgNum(this.x,this.y-this.radius*0.5,fd,'#cc88ff');
   }
-  if(this.canTriggerTraits!==false&&!this.lowHpBuffApplied&&this.hp/this.maxHp<0.30&&this.hp>0){
+  if(gameMode!=='royale'&&this.canTriggerTraits!==false&&!this.lowHpBuffApplied&&this.hp/this.maxHp<0.30&&this.hp>0){
    this.lowHpBuffApplied=true;this._applyLowHpBuff();
   }
   if(this.hp<=0&&!this.dying){
@@ -2414,7 +2414,7 @@ class Sphere{
   const hitBuffCap=configuredCap===false?Infinity:(Number.isFinite(configuredCap)?Math.max(0,Math.floor(configuredCap)):10);
   // Cap only the shared permanent stat growth. Class-specific on-hit effects below
   // (e.g. Gladiator Favor and Beastmaster companion spawning) still run on every hit.
-  if(this.hitBuffStacks<=hitBuffCap){
+  if(gameMode!=='royale'&&this.hitBuffStacks<=hitBuffCap){
    this.d=Object.assign({},this.d);
    this.d.dmg*=1.004;
    this.d.arm=Math.round(this.d.arm*1.004);
