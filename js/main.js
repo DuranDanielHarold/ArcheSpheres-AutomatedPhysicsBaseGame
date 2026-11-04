@@ -89,12 +89,18 @@ function togglePause(){if(window._testingDiagnosticRunning)return;paused=!paused
 
 function resize(){
  if(window._arenaSizeLocked)return;
- const oldW=W,oldH=H;
  const rect=canvas.getBoundingClientRect();
+ if(gameMode==='royale'){
+  canvas.width=Math.max(1,Math.floor(rect.width));
+  canvas.height=Math.max(1,Math.floor(rect.height));
+  W=ROYALE_CONFIG.worldW;H=ROYALE_CONFIG.worldH;
+  ctx.imageSmoothingEnabled=false;
+  if(typeof royaleViewportChanged==='function')royaleViewportChanged();
+  return;
+ }
  W=canvas.width=Math.max(1,Math.floor(rect.width));
  H=canvas.height=Math.max(1,Math.floor(rect.height));
  ctx.imageSmoothingEnabled=false;
- if(gameMode==='royale'&&typeof royaleHandleResize==='function')royaleHandleResize(oldW,oldH);
 }
 
 if(window.ResizeObserver){
