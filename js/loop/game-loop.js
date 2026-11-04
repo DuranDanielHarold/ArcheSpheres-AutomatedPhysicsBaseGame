@@ -69,6 +69,7 @@ function drawGameFrame(){
  for(const s of spheres)if(s.dying)s.draw();
  for(const s of spheres)if(!s.dying&&s.alive)s.draw();
  drawDmgNums();
+ if(gameMode==='royale')drawRoyaleFrame('top');
  if(gameMode==='royale'&&typeof resetRoyaleCamera==='function'){
   resetRoyaleCamera(ctx);royaleCameraDrawMinimap();royaleCameraDrawPointers();
  }
