@@ -52,6 +52,7 @@ function gameStep(dt){
  if(timeoutResult)concludeMatch(timeoutResult.winner,timeoutResult.endReason);
 }
 function drawGameFrame(){
+ if(gameMode==='royale'&&typeof applyRoyaleCamera==='function')applyRoyaleCamera(ctx);
  drawBg();
  if(gameMode==='royale')drawRoyaleFrame('obstacles');
  drawBloodSplats();
@@ -68,13 +69,18 @@ function drawGameFrame(){
  for(const s of spheres)if(s.dying)s.draw();
  for(const s of spheres)if(!s.dying&&s.alive)s.draw();
  drawDmgNums();
+ if(gameMode==='royale'&&typeof resetRoyaleCamera==='function'){
+  resetRoyaleCamera(ctx);royaleCameraDrawMinimap();royaleCameraDrawPointers();
+ }
 }
 function scaledGameDt(dt){
  if(gameMode==='testing'&&typeof getTestingGroundSpeed==='function')return dt*getTestingGroundSpeed();
  return dt;
 }
 function stepGameFrame(dt){
- gameStep(scaledGameDt(dt));
+ const scaled=scaledGameDt(dt);
+ gameStep(scaled);
+ if(gameMode==='royale'&&!paused&&typeof updateRoyaleCamera==='function')updateRoyaleCamera(dt);
  drawGameFrame();
  if(typeof renderTestingTelemetry==='function')renderTestingTelemetry();
 }
