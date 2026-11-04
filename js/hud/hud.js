@@ -2,7 +2,7 @@
 // ▓▓▓ MODULE: hud/hud.js — extracted from former js/engine.js ▓▓▓
 // Per-sphere match HUD card rendering helpers.
 
-function _hudRoster(faction){return spheres.filter(s=>s.faction===faction&&!s.isReplica);}
+function _hudRoster(faction){if(gameMode==='royale')return[];return spheres.filter(s=>s.faction===faction&&!s.isReplica);}
 function _hudAbilityState(s){
  const thresh=getStackDisplayThreshold(s.key);
  const stackValue=s.key==='sheriff'?s.sheriffHitCount:s.stacks;
@@ -41,6 +41,7 @@ function _hudCardHtml(s,side,slot){
  </div>`;
 }
 function updateBattleHud(){
+ if(gameMode==='royale'){if(typeof updateRoyaleHud==='function')updateRoyaleHud();return;}
  const stats=document.getElementById('stats');if(!stats)return;
  const red=_hudRoster(0),blue=_hudRoster(1);
  stats.innerHTML=`<div class="hud-team red">${red.map((s,i)=>_hudCardHtml(s,'r',i)).join('')}</div><div class="sdiv"></div><div class="hud-team blue">${blue.map((s,i)=>_hudCardHtml(s,'b',i)).join('')}</div>`;
