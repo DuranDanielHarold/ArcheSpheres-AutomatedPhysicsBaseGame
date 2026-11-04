@@ -89,10 +89,12 @@ function togglePause(){if(window._testingDiagnosticRunning)return;paused=!paused
 
 function resize(){
  if(window._arenaSizeLocked)return;
+ const oldW=W,oldH=H;
  const rect=canvas.getBoundingClientRect();
  W=canvas.width=Math.max(1,Math.floor(rect.width));
  H=canvas.height=Math.max(1,Math.floor(rect.height));
  ctx.imageSmoothingEnabled=false;
+ if(gameMode==='royale'&&typeof royaleHandleResize==='function')royaleHandleResize(oldW,oldH);
 }
 
 if(window.ResizeObserver){
