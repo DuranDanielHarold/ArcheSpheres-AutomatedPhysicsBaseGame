@@ -118,6 +118,7 @@ function startRoyale(){
  document.getElementById('sel-row').style.display='none';
  const card=document.getElementById('card');card.style.display='flex';card.className='mode-royale';
  document.getElementById('controls').style.display='flex';
+ if(typeof royaleEnsureCameraButton==='function')royaleEnsureCameraButton();
  newRoyaleBattle();
  paused=true;
  showCountdown(3,()=>{paused=false;lastTime=performance.now();});
@@ -134,7 +135,7 @@ function newRoyaleBattle(){
  window._liveCombatTracker=null;window._lastMatchReport=null;
  document.getElementById('pbtn').textContent='PAUSE';
  const keys=royaleShuffle(Object.keys(DEF).slice()).slice(0,ROYALE_CONFIG.count);
- const speedScale=Math.max(1,Math.min(ROYALE_CONFIG.speedScaleMax,W/ROYALE_CONFIG.speedScaleRef));
+ const speedScale=ROYALE_CONFIG.speedScale;
  const offset=Math.random()*Math.PI*2;
  const spawnPoints=[];
  for(let i=0;i<keys.length;i++){
@@ -144,15 +145,16 @@ function newRoyaleBattle(){
   const raw=DEF[key].spd*(1.0+Math.random()*0.25);
   const vx=Math.cos(a)*raw*speedScale,vy=Math.sin(a)*raw*speedScale;
   const slotAngle=offset+(i/ROYALE_CONFIG.count)*Math.PI*2;
-  const x=W*.5+Math.cos(slotAngle)*W*.32;
-  const y=H*.5+Math.sin(slotAngle)*H*.30;
-  const s=new Sphere(key,i,x,y,vx,vy,undefined,{radiusFraction:ROYALE_CONFIG.radiusHeightFraction});
+  const x=W*.5+Math.cos(slotAngle)*W*.40;
+  const y=H*.5+Math.sin(slotAngle)*H*.40;
+  const s=new Sphere(key,i,x,y,vx,vy,undefined,{radiusPx:ROYALE_CONFIG.sphereRadius});
   s._royaleObstacleCooldown=0;
   spheres.push(s);spawnPoints.push({x:x,y:y,r:s.radius});
  }
  let largestRadius=0;for(let i=0;i<spheres.length;i++)largestRadius=Math.max(largestRadius,spheres[i].radius);
  initRoyaleObstacles(spawnPoints,largestRadius);
  initRoyaleZone(largestRadius);
+ if(typeof initRoyaleCamera==='function')initRoyaleCamera();
  const eventBag=royaleShuffle(ROYALE_EVENT_IDS.slice());
  royaleState={phase:1,state:'CALM',stateTimer:ROYALE_CONFIG.calm,currentEventId:null,
   eventBag:eventBag,eventSequence:[],finalTimer:0};
@@ -161,6 +163,7 @@ function newRoyaleBattle(){
  if(typeof _preloadConfiguredAudio==='function')_preloadConfiguredAudio(keys);
  if(typeof _syncArenaBgm==='function')_syncArenaBgm();
  updateRoyaleHud(true);
+ if(typeof drawGameFrame==='function')drawGameFrame();
  lastTime=performance.now();animId=requestAnimationFrame(loop);
 }
 window.startRoyale=startRoyale;
