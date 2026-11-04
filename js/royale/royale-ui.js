@@ -24,8 +24,8 @@ function royaleUiBuildCards(){
  l.textContent='';r.textContent='';royaleUiCards=[];
  for(let i=0;i<8;i++){const s=spheres.find(x=>x.faction===i);if(!s)continue;
   const el=document.createElement('button');el.type='button';el.className='royale-card';el.style.setProperty('--faction',ROYALE_FACTION_COLORS[i].color);
-  el.innerHTML='<i class="royale-stripe"></i><span class="royale-card-head"><img class="avatar"><b class="name"></b><small class="faction"></small></span><span class="hp-track"><i class="trail"></i><i class="fill"></i></span><span class="card-foot"><b class="hp"></b><i class="stack"><i></i></i></span><span class="status"><i></i><i></i></span><b class="skull">☠</b><small class="place"></small>';
-  el.querySelector('.avatar').src=getSphereIcon(s.key,28);el.querySelector('.name').textContent=s.d.label;el.querySelector('.faction').textContent=i+1;
+  el.innerHTML='<i class="royale-stripe"></i><span class="royale-card-head"><b class="name"></b><small class="faction"></small></span><span class="royale-hp-line"><b class="hp"></b><span>HP</span></span><span class="hp-track"><i class="trail"></i><i class="fill"></i></span><span class="royale-ability-line"><b>ABILITY</b><i class="stack"><i></i></i></span><span class="status"><i></i><i></i></span><b class="skull">☠</b><small class="place"></small>'
+  el.querySelector('.name').textContent=s.d.label;el.querySelector('.faction').textContent=i+1;
   el.onclick=()=>{const c=royaleCamera;if(!c)return;if(c.mode==='follow'&&c.followRef?.faction===i)c.setMode('auto');else c.follow(i);royaleUiFollow();};
   (i<4?l:r).appendChild(el);royaleUiCards.push({i,s,el,hp:el.querySelector('.hp'),fill:el.querySelector('.fill'),trail:el.querySelector('.trail'),stack:el.querySelector('.stack>i'),status:el.querySelector('.status'),statusA:el.querySelector('.status i:first-child'),statusB:el.querySelector('.status i:last-child'),place:el.querySelector('.place'),last:{}});
  }
