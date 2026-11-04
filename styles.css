@@ -721,3 +721,23 @@ body:has(#card.mode-royale) #mode-row,body:has(#card.mode-royale) #sel-row{displ
  .royale-card .status{min-height:8px;}
  .royale-card .status i{font-size:4px;padding:1px 2px;}
 }
+
+
+/* Session 2B layout correction — pin each faction rail to the arena's sides. */
+#card.mode-royale{
+ display:grid!important;
+ grid-template-columns:minmax(104px,15vw) minmax(0,1fr) minmax(104px,15vw)!important;
+ grid-template-rows:minmax(0,1fr)!important;
+ grid-auto-flow:column!important;
+ align-items:stretch!important;
+}
+#card.mode-royale > #royale-rail-l{grid-column:1!important;grid-row:1!important;align-self:stretch!important;min-width:0!important;}
+#card.mode-royale > #arena-outer{grid-column:2!important;grid-row:1!important;min-width:0!important;min-height:0!important;}
+#card.mode-royale > #royale-rail-r{grid-column:3!important;grid-row:1!important;align-self:stretch!important;min-width:0!important;}
+#card.mode-royale > #royale-rail-l,
+#card.mode-royale > #royale-rail-r{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:repeat(4,minmax(0,1fr))!important;flex-direction:column!important;}
+@media(max-width:700px){
+ #card.mode-royale{grid-template-columns:minmax(76px,22vw) minmax(0,1fr) minmax(76px,22vw)!important;gap:2px!important;}
+ #card.mode-royale > #royale-rail-l,
+ #card.mode-royale > #royale-rail-r{gap:0!important;}
+}
