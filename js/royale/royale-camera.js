@@ -157,10 +157,12 @@ function royaleEnsureCameraButton(){
  const controls=document.getElementById('controls');if(!controls)return;
  let cam=document.getElementById('royale-cam-btn');
  if(!cam){cam=document.createElement('button');cam.id='royale-cam-btn';cam.className='pbtn';cam.style.cssText='font-size:9px;padding:7px 9px';controls.appendChild(cam);}
+ cam.style.display='';
  const sync=()=>{cam.textContent='CAM: '+(royaleCamera.mode==='full'?'FULL':'AUTO');};
  cam.onclick=()=>{royaleCameraSetMode(royaleCamera.mode==='full'?'auto':'full');sync();};sync();
  let mini=document.getElementById('royale-minimap-btn');
  if(!mini){mini=document.createElement('button');mini.id='royale-minimap-btn';mini.className='pbtn';mini.textContent='MAP: ON';mini.style.cssText='font-size:9px;padding:7px 9px';controls.appendChild(mini);}
+ mini.style.display='';
  mini.onclick=()=>{royaleCamera.minimap=!royaleCamera.minimap;mini.textContent='MAP: '+(royaleCamera.minimap?'ON':'OFF');};
 }
 window.addEventListener('keydown',ev=>{
