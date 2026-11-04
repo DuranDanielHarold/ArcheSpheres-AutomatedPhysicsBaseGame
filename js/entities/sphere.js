@@ -1807,7 +1807,7 @@ class Sphere{
      this.whelplingGrowTimer=0;
      this.whelplingGrowth++;
      const prevR=this.radius;
-     this.radius=Math.min(36,this.radius+2);
+     const rm=this._royaleSizeMult||1;this.radius=Math.min(36,this.radius/rm+2)*rm;
      this.maxHp=Math.min(this.maxHp+10,800);
      this.hp=Math.min(this.hp+5,this.maxHp);
      this.d=Object.assign({},this.d);
