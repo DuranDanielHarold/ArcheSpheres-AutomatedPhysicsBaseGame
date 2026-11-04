@@ -6,8 +6,8 @@ function royaleShuffle(list){
  return list;
 }
 function royaleLivingRoster(){
- let count=0;for(let i=0;i<spheres.length;i++){const s=spheres[i];if(!s.isReplica&&s.alive&&!s.dying)count++;}
- return count;
+ let factions=0;for(let i=0;i<spheres.length;i++){const s=spheres[i];if(s.alive&&!s.dying&&s.faction>=0&&s.faction<ROYALE_CONFIG.count)factions|=(1<<s.faction);}
+ let count=0;while(factions){count+=factions&1;factions>>=1;}return count;
 }
 function royaleNextEvent(){
  if(!royaleState.eventBag.length)royaleState.eventBag=royaleShuffle(ROYALE_EVENT_IDS.slice());
@@ -101,8 +101,8 @@ function updateRoyaleHud(force){
   (royaleState.state==='FINAL'?'FINAL '+Math.max(0,royaleState.finalTimer).toFixed(1)+'s':'SHRINK IN '+Math.max(0,shrinkIn).toFixed(1)+'s');
  let html='<div class="royale-hud-top"><span>PHASE '+royaleState.phase+'/'+ROYALE_CONFIG.phases+' - '+royaleState.state+' - '+eventLabel+' - '+timeText+'</span><span>'+royaleLivingRoster()+' REMAINING</span></div><div class="royale-hud-roster">';
  for(let i=0;i<ROYALE_CONFIG.count;i++){
-  let s=null;for(let j=0;j<spheres.length;j++){if(!spheres[j].isReplica&&spheres[j].faction===i){s=spheres[j];break;}}
-  if(!s)continue;
+  let s=null,fallback=null;for(let j=0;j<spheres.length;j++){const candidate=spheres[j];if(candidate.faction!==i)continue;if(!fallback)fallback=candidate;if(candidate.alive&&!candidate.dying){s=candidate;break;}}
+  if(!s)s=fallback;if(!s)continue;
   const dead=!s.alive||s.dying,pct=s.maxHp>0?Math.max(0,Math.min(100,s.hp/s.maxHp*100)):0;
   const color=ROYALE_FACTION_COLORS[i].color;
   html+='<div class="royale-chip'+(dead?' dead':'')+'"><img src="'+getSphereIcon(s.key,24)+'" alt=""><div><div class="royale-chip-name">'+s.d.label+'</div><div class="royale-chip-hp"><i style="width:'+pct+'%;background:'+color+'"></i></div></div></div>';
