@@ -104,7 +104,7 @@ function startRoyale(){
  if(typeof royaleUiTryLandscape==='function')royaleUiTryLandscape();
  newRoyaleBattle();
  paused=true;
- showCountdown(3,()=>{paused=false;lastTime=performance.now();});
+ showCountdown(3,()=>{const portrait=window.matchMedia('(orientation: portrait)').matches&&window.matchMedia('(pointer: coarse)').matches;paused=portrait;lastTime=performance.now();const p=document.getElementById('pbtn');if(p)p.textContent=paused?'RESUME':'PAUSE';});
 }
 function newRoyaleBattle(){
  royaleHudClock=0;
