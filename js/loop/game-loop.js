@@ -40,6 +40,12 @@ function gameStep(dt){
  skeletons=skeletons.filter(sk=>{sk.update(dt);return sk.alive;});
  projectiles=projectiles.filter(p=>p.alive);
  spheres=spheres.filter(s=>!s.isReplica||s.alive||s.dyingT<=0.8);
+ if(gameMode==='royale'){
+  updateRoyale(dt);
+  projectiles=projectiles.filter(p=>p.alive);
+  checkEliminationWin();
+  return;
+ }
  updateStallState(dt);
  checkEliminationWin();
  const timeoutResult=checkMatchTimeout();
@@ -47,6 +53,7 @@ function gameStep(dt){
 }
 function drawGameFrame(){
  drawBg();
+ if(gameMode==='royale')drawRoyaleFrame('obstacles');
  drawBloodSplats();
  for(const z of slowZones)z.draw();
  for(const p of thornPatches)p.draw();
@@ -54,6 +61,8 @@ function drawGameFrame(){
  for(const a of afterimages)a.draw();
  for(const n of noiseTraps)n.draw();
  drawParticles();
+ if(gameMode==='royale')drawZone();
+ if(gameMode==='royale')drawRoyaleFrame('markers');
  for(const sk of skeletons)sk.draw();
  for(const p of projectiles)p.draw();
  for(const s of spheres)if(s.dying)s.draw();
@@ -106,8 +115,8 @@ function showWinner(w){
  const ov=document.getElementById('winner'),wt=document.getElementById('wt'),ws=document.getElementById('ws');
  if(!w)wt.innerHTML=`<span style="color:#ffcc44">DRAW!</span><br><span style="color:#aac;font-size:.75em">ALL FELL</span>`;
  else{
-  const col=w.faction===0?'#ff6633':'#88aaff';
-  const team=gameMode==='2v2'?(w.faction===0?'TEAM RED':'TEAM BLUE'):w.d.label.toUpperCase();
+  const col=gameMode==='royale'?(ROYALE_FACTION_COLORS[w.faction]?.color||'#ffcc44'):(w.faction===0?'#ff6633':'#88aaff');
+  const team=gameMode==='royale'?w.d.label.toUpperCase():(gameMode==='2v2'?(w.faction===0?'TEAM RED':'TEAM BLUE'):w.d.label.toUpperCase());
   wt.innerHTML=`<span style="color:${col}">${team}</span><br><span style="color:#ffcc44;font-size:.8em">WINS!</span>`;
  }
  if(ws){
@@ -125,8 +134,8 @@ function showWinner(w){
  let pressTimer=null;
  const cleanup=()=>{ov.removeEventListener('mousedown',onDown);ov.removeEventListener('touchstart',onDown);ov.removeEventListener('mouseup',onUp);ov.removeEventListener('touchend',onUp);};
  // UI-only: not reached during balance simulation
-const onDown=()=>{pressTimer=setTimeout(()=>{cleanup();window.randomModeActive=false;ov.classList.remove('show');window.startPicker(gameMode);},600);};
- const onUp=()=>{if(pressTimer){clearTimeout(pressTimer);pressTimer=null;cleanup();ov.classList.remove('show');if(window.randomModeActive&&typeof window.startRandomBattle==='function')window.startRandomBattle();else launchBattle();}};
+const onDown=()=>{pressTimer=setTimeout(()=>{cleanup();window.randomModeActive=false;ov.classList.remove('show');if(gameMode==='royale')showStartScreen();else window.startPicker(gameMode);},600);};
+ const onUp=()=>{if(pressTimer){clearTimeout(pressTimer);pressTimer=null;cleanup();ov.classList.remove('show');if(gameMode==='royale')window.startRoyale();else if(window.randomModeActive&&typeof window.startRandomBattle==='function')window.startRandomBattle();else launchBattle();}};
  ov.addEventListener('mousedown',onDown);ov.addEventListener('touchstart',onDown);
  ov.addEventListener('mouseup',onUp,{once:true});ov.addEventListener('touchend',onUp,{once:true});
 }
