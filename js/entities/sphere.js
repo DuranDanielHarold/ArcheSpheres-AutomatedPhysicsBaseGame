@@ -20,8 +20,8 @@ class Sphere{
   const landscapeHeightCap=landscapeViewportHeight<=500?Math.min(390,landscapeViewportHeight*.72):Math.min(660,landscapeViewportHeight*.62);
   const base=landscapeHeightCap;
   const tierScale=(d.mass>=20?0.115:d.mass>=12?0.105:d.mass>=8?0.095:0.085)/0.085;
-  if(Number.isFinite(opts.radiusFraction)&&Number.isFinite(H)&&H>0){
-   this.radius=H*opts.radiusFraction*tierScale;
+  if(Number.isFinite(opts.radiusPx)){
+   this.radius=opts.radiusPx*tierScale;
   }else{
    this.radius=base*(d.mass>=20?0.115:d.mass>=12?0.105:d.mass>=8?0.095:0.085);
    if(landscapeViewportHeight>500&&Number.isFinite(H)&&H>0){
