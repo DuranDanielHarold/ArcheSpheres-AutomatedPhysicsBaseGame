@@ -152,7 +152,7 @@ class Sphere{
   this.discordFireRateT=0; // ranged fire rate penalty from NoiseTrap
   // Plague Doctor state
   this.virulenceStacks=0;this.virulenceWallHitCD=0;
-  this.plagueSepsisTarget=null;this.plagueSepsisCount=0;
+  this.plagueSepsisTarget=null;this.plagueSepsisCount=0;this.plagueSepsisStacks=0;
   this.sepsisWeakenedT=0;this.sepsisDotTicks=0;this.sepsisDotTimer=0;this.sepsisDotDmg=0;this.sepsisSourceKey=null;
   // Tidecaller state
   this.riptideCharged=false;
@@ -2466,14 +2466,32 @@ class Sphere{
    const txt=Math.ceil(this.hp).toString();
    ctx.fillStyle='#000';for(const[ox,oy]of[[-1,-1],[1,-1],[-1,1],[1,1],[0,-2],[0,2],[-2,0],[2,0]])ctx.fillText(txt,this.x+ox,this.y+oy);
    ctx.fillStyle=this.hitFlash>.5?'#ffff44':'#fff';ctx.fillText(txt,this.x,this.y);
-   if(this.key==='sage'&&(this.knowledge||0)>0){ctx.fillStyle='#d6f0b2';ctx.font=`bold ${Math.max(5,this.radius*.25)}px 'Press Start 2P',monospace`;ctx.fillText(`KNOW ${this.knowledge}`,this.x,this.y-this.radius-16);}
-   if(this.key==='king'&&(this.sovereignArmBonus||0)>0){ctx.fillStyle='#ffd35a';ctx.font=`bold ${Math.max(7,this.radius*.32)}px serif`;ctx.fillText('♛'.repeat(Math.min(5,Math.ceil(this.sovereignArmBonus/6))),this.x,this.y-this.radius-16);}
+
+   if(this.key==='king'&&(this.sovereignArmBonus||0)>0){ctx.fillStyle='#ffd35a';ctx.font=`bold ${Math.max(7,this.radius*.32)}px serif`;ctx.fillText('♛'.repeat(Math.min(5,Math.ceil(this.sovereignArmBonus/6))),this.x,this.y-this.radius-24);}
   }
   ctx.restore();
   if(!this.dying){this._drawHpBar();this._drawStatusEffectBadges();}
  }
  _drawPowerOverlay(){
   const r=this.radius,p=0.5+0.5*Math.sin(Date.now()*.016); // visual-only: safe under fast-forward
+  if(this.priestShieldStacks>0&&this.priestShieldT>0){
+   const shieldPct=Math.min(1,this.priestShieldStacks/10),shieldPulse=0.5+0.5*Math.sin(Date.now()*.012);
+   ctx.shadowColor='#fff2a6';ctx.shadowBlur=8+shieldPct*10;
+   ctx.beginPath();ctx.arc(this.x,this.y,r+8+shieldPulse*2,0,Math.PI*2);
+   ctx.strokeStyle=`rgba(255,242,166,${0.35+shieldPct*0.5})`;ctx.lineWidth=2+shieldPct*1.5;ctx.stroke();ctx.shadowBlur=0;
+   for(let i=0;i<Math.min(4,Math.ceil(shieldPct*4));i++){
+    const a=Date.now()*.0015+i*Math.PI/2;
+    ctx.fillStyle='#fff8c0';ctx.beginPath();ctx.arc(this.x+Math.cos(a)*(r+12),this.y+Math.sin(a)*(r+12),2.3,0,Math.PI*2);ctx.fill();
+   }
+  }
+  if(this.key==='prince'&&this.princeRoyalShield>0&&this.princeRoyalShieldT>0){
+   const royalPct=Math.max(0,Math.min(1,this.princeRoyalShield/10));
+   ctx.shadowColor='#8bb7ff';ctx.shadowBlur=12;
+   ctx.beginPath();ctx.arc(this.x,this.y,r+10,0,Math.PI*2);
+   ctx.strokeStyle='rgba(139,183,255,.32)';ctx.lineWidth=2;ctx.stroke();
+   ctx.beginPath();ctx.arc(this.x,this.y,r+10,-Math.PI/2,-Math.PI/2+Math.PI*2*royalPct);
+   ctx.strokeStyle='#b9d4ff';ctx.lineWidth=4;ctx.stroke();ctx.shadowBlur=0;
+  }
   if(this.invincible){
    ctx.shadowColor='#fff';ctx.shadowBlur=20;
    ctx.beginPath();ctx.arc(this.x,this.y,r+8,0,Math.PI*2);
@@ -2522,9 +2540,7 @@ class Sphere{
   if(this.key==='barbarian'&&this.barbarianResolveT>0){ctx.shadowColor='#ff6a22';ctx.shadowBlur=16;ctx.beginPath();ctx.arc(this.x,this.y,r+7,0,Math.PI*2);ctx.strokeStyle='rgba(255,106,34,.9)';ctx.lineWidth=3.5;ctx.stroke();ctx.shadowBlur=0;}
   if(this.weaponDisarmedT>0){ctx.strokeStyle='rgba(230,210,170,.85)';ctx.lineWidth=2;ctx.setLineDash([3,3]);ctx.beginPath();ctx.arc(this.x,this.y,r+5,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);}
   // Rogue — bleed indicator on bleeding target
-  if(this.bleedStacks>0){ctx.font=`bold ${Math.max(4,r*.18)}px 'Press Start 2P',monospace`;ctx.textAlign='center';ctx.textBaseline='bottom';
-   const bleedY=this.corrosionStacks>0&&this.blinded?(this.y-r-58):this.corrosionStacks>0||this.blinded?(this.y-r-44):(this.y-r-30);
-   ctx.fillStyle='#e74c3c';ctx.fillText(`BLEED x${this.bleedStacks}`,this.x,bleedY);}
+
   // Bard — Crescendo active: purple halo
   if(this.crescendoActive){ctx.shadowColor='#e040fb';ctx.shadowBlur=18;ctx.beginPath();ctx.arc(this.x,this.y,r+8,0,Math.PI*2);ctx.strokeStyle=`rgba(224,64,251,${0.7+p*0.3})`;ctx.lineWidth=3.5;ctx.stroke();ctx.shadowBlur=0;}
   // Knight — Stalwart stacks: dim blue aura building up
@@ -2818,10 +2834,7 @@ class Sphere{
    ctx.beginPath();ctx.arc(this.x,this.y,r+4,0,Math.PI*2);
    ctx.strokeStyle=`rgba(80,220,40,${0.3+ci*0.5})`;ctx.lineWidth=2+ci*2;
    ctx.setLineDash([3,3]);ctx.stroke();ctx.setLineDash([]);ctx.shadowBlur=0;
-   ctx.font=`bold ${Math.max(4,r*.2)}px 'Press Start 2P',monospace`;
-   ctx.textAlign='center';ctx.textBaseline='bottom';
-   const corrY=this.blinded?(this.y-r-44):(this.y-r-30);
-   ctx.fillStyle='#2a8822';ctx.fillText(`CORR x${this.corrosionStacks}`,this.x,corrY);
+
   }
   if(this.key==='dragoon'){
    if(this.magicShield){
@@ -2895,15 +2908,9 @@ class Sphere{
     ctx.strokeStyle=`rgba(170,221,68,${0.4+vi*0.5})`;ctx.lineWidth=2.5;
     ctx.setLineDash([4,3]);ctx.beginPath();ctx.arc(this.x,this.y,r+6,0,Math.PI*2);ctx.stroke();
     ctx.setLineDash([]);ctx.shadowBlur=0;
-    ctx.font=`bold ${Math.max(4,r*.19)}px 'Press Start 2P',monospace`;
-    ctx.textAlign='center';ctx.textBaseline='bottom';
-    ctx.fillStyle='#aadd44';ctx.fillText(`INFECT x${Math.ceil(this.virulenceStacks)}`,this.x,this.y-r-14);
+
    }
-   if((this.plagueSepsisCount||0)>0){
-    ctx.font=`bold ${Math.max(4,r*.18)}px 'Press Start 2P',monospace`;
-    ctx.textAlign='center';ctx.textBaseline='bottom';
-    ctx.fillStyle='#669922';ctx.fillText(`SEPSIS ${this.plagueSepsisCount}/5`,this.x,this.y-r-26);
-   }
+
   }
   // ── Crusader overlays
   if(this.key==='crusader'){
@@ -2913,18 +2920,14 @@ class Sphere{
     ctx.strokeStyle=`rgba(255,250,204,${0.75+cp*0.25})`;ctx.lineWidth=4;
     ctx.beginPath();ctx.arc(this.x,this.y,r+10+cp*4,0,Math.PI*2);ctx.stroke();
     ctx.shadowBlur=0;
-    ctx.font=`bold ${Math.max(5,r*.22)}px 'Press Start 2P',monospace`;
-    ctx.textAlign='center';ctx.textBaseline='bottom';
-    ctx.fillStyle='#fffacc';ctx.fillText('CHARGE!',this.x,this.y-r-14);
+    // The shared status badge now carries the active charge label and timer.
    } else if((this.crusaderRetributionShield||0)>0&&this.crusaderRetributionShieldT>0){
     const si=Math.min(1,this.crusaderRetributionShield/45);
     ctx.shadowColor='#fffacc';ctx.shadowBlur=10+si*16;
     ctx.strokeStyle=`rgba(255,250,204,${0.45+si*0.45})`;ctx.lineWidth=3;
     ctx.beginPath();ctx.arc(this.x,this.y,r+7+si*3,0,Math.PI*2);ctx.stroke();
     ctx.shadowBlur=0;
-    ctx.font=`bold ${Math.max(4,r*.18)}px 'Press Start 2P',monospace`;
-    ctx.textAlign='center';ctx.textBaseline='bottom';
-    ctx.fillStyle='#fffacc';ctx.fillText(`SHLD ${Math.ceil(this.crusaderRetributionShield)}`,this.x,this.y-r-14);
+    // Shield capacity and duration are shown by the shared status badge.
    } else if((this.retributionCounter||0)>5){
     const ri=Math.min(1,this.retributionCounter/30);
     ctx.shadowColor='#ff8800';ctx.shadowBlur=6+ri*12;
@@ -2974,9 +2977,7 @@ class Sphere{
     ctx.strokeStyle=`rgba(200,230,255,${0.8+tp*0.2})`;ctx.lineWidth=4;
     ctx.beginPath();ctx.arc(this.x,this.y,r+12+tp*6,0,Math.PI*2);ctx.stroke();
     ctx.shadowBlur=0;
-    ctx.font=`bold ${Math.max(5,r*.22)}px 'Press Start 2P',monospace`;
-    ctx.textAlign='center';ctx.textBaseline='bottom';
-    ctx.fillStyle='#88ccff';ctx.fillText('CLAP!',this.x,this.y-r-14);
+    // The shared status badge carries the active thunderclap label and timer.
    }
   }
   // ── Void Walker overlays
@@ -3005,9 +3006,7 @@ class Sphere{
    ctx.strokeStyle=`rgba(255,${Math.round(102+gp*80)},0,${0.3+gp*0.4})`;ctx.lineWidth=1.5+gp*2;
    ctx.beginPath();ctx.arc(this.x,this.y,r+3,0,Math.PI*2);ctx.stroke();
    ctx.shadowBlur=0;
-   ctx.font=`bold ${Math.max(4,r*.18)}px 'Press Start 2P',monospace`;
-   ctx.textAlign='center';ctx.textBaseline='bottom';
-   ctx.fillStyle='#ff6600';ctx.fillText(`G+${this.whelplingGrowth}`,this.x,this.y-r-14);
+
   }
  } // end _drawPowerOverlay
  _drawBody(){
@@ -3064,10 +3063,12 @@ class Sphere{
  }
  _collectStatusEffectBadges(){
   const badges=[];
-  const add=(label,color)=>badges.push({label,color});
+  const add=(label,color,kind='debuff')=>badges.push({label,color,kind});
+  const addBuff=(label,color)=>add(label,color,'buff');
+  if((this.weaponDisarmedT||0)>0)add('DISARM','#e6d2a8');
   if(this.stunned)add('STUN','#ffee55');
   if((this.netRootT||0)>0)add('NET','#f0c08a');
-  if((this.netSlowT||0)>0)add('NETSLOW','#f0c08a');
+  if((this.netSlowT||0)>0)add('SLOW','#f0c08a');
   if((this.bolaRootT||0)>0)add('ROOT','#ffaa44');
   if((this.locksmithJamT||0)>0)add('JAM','#d0b45a');
   if(this.blinded)add('BLIND','#ffee22');
@@ -3078,7 +3079,9 @@ class Sphere{
   if((this.bleedStacks||0)>0)add(`BLEED×${this.bleedStacks}`,'#e74c3c');
   if((this.corrosionStacks||0)>0)add(`CORR×${this.corrosionStacks}`,'#2a8822');
   if((this.virulenceStacks||0)>0)add(`INFECT×${Math.ceil(this.virulenceStacks)}`,'#aadd44');
-  if((this.sepsisWeakenedT||0)>0)add('WEAK','#aadd44');
+   if((this.plagueSepsisStacks||0)>0)add(`SEPSIS ${this.plagueSepsisStacks}/5`,'#aadd44');
+   if((this.sepsisDotTicks||0)>0)add(`SEPSIS ×${this.sepsisDotTicks}`,'#aadd44');
+   if((this.sepsisWeakenedT||0)>0)add('WEAK','#aadd44');
   if((this.gnawedStacks||0)>0)add(`GNAW×${this.gnawedStacks}`,'#b7c06a');
   if((this.deathMarkTicks||0)>0)add(`MARK×${this.deathMarkTicks}`,'#7c4dff');
   if((this.subduedT||0)>0)add('SUBDUE','#ffd35a');
@@ -3088,35 +3091,63 @@ class Sphere{
   if((this.courtlyT||0)>0)add('MENACE','#ff8bd1');
   if((this.bolaSlowT||0)>0)add('SNARED','#ffaa44');
   if((this.locksmithLocks||0)>0)add(`LOCK×${this.locksmithLocks}`,'#d0b45a');
+
+  // Only show persistent gameplay modifiers here. Ability activation/state timers
+  // (movement modes, attack patterns, readiness, and temporary visual effects) are
+  // intentionally omitted so they do not crowd genuine buffs and debuffs.
+  if(this.priestShieldStacks>0&&this.priestShieldT>0)addBuff(`SHIELD ${this.priestShieldStacks*2}`,'#fff2a6');
+  if(this.stalwartStacks>0)addBuff(`STALWART ×${this.stalwartStacks}`,'#d8eaf8');
+  if(this.key==='whelpling'&&(this.whelplingGrowth||0)>0)addBuff(`GROWTH ×${this.whelplingGrowth}`,'#ff8a3d');
+  if(this.key==='king'&&(this.sovereignArmBonus||0)>0)addBuff(`CROWN ×${Math.ceil(this.sovereignArmBonus/2)}`,'#ffd35a');
+  if(this.key==='sage'&&(this.knowledge||0)>0)addBuff(`KNOW ×${this.knowledge}`,'#d6f0b2');
+  if(this.key==='spartan'&&(this.ironStacks||0)>0)addBuff(`IRON ×${this.ironStacks}`,'#d8b060');
+  if(this.crowdDouble)addBuff('CROWD DOUBLE','#ffd35a');
+  if(this.blessDmgT>0&&(this.blessDmgAdded||0)>0)addBuff(`AMPLIFY +${this.blessDmgAdded}`,'#fff2a6');
+  if(this.benedictionActive&&this.benedictionT>0)addBuff('BENEDICT','#fff2a6');
+  if(this.key==='prince'&&this.princeRoyalShield>0&&this.princeRoyalShieldT>0)addBuff(`ROYAL SHLD ${Math.ceil(this.princeRoyalShield)}`,'#8bb7ff');
+  if(this.key==='prince'&&this.princeRoyalBulwarkT>0)addBuff('BULWARK','#ffd35a');
+  if(this.key==='guardian'&&this.guardianBastionZone&&!this.guardianBastionZone.consumed&&this.guardianBastionZone.life>0&&this.guardianBastionZone.capacity>0)addBuff(`BASTION ${Math.ceil(this.guardianBastionZone.capacity)}`,'#80cbc4');
+  if(this.key==='crusader'&&(this.crusaderRetributionShield||0)>0&&this.crusaderRetributionShieldT>0)addBuff(`RETRI ${Math.ceil(this.crusaderRetributionShield)}`,'#fffacc');
+  if(this.key==='golem'&&this.fortified&&this.golemFortifyT>0)addBuff('FORTIFIED','#b0bec5');
+  if(this.key==='barbarian'&&this.barbarianResolveT>0)addBuff('BLOODIED','#ff9a52');
   return badges;
  }
  _drawStatusEffectBadges(){
-  const badges=this._collectStatusEffectBadges();
-  if(!badges.length)return;
-  const r=this.radius,bw=r*2.35,barY=this.y-r-13;
-  const fontSize=Math.max(5,Math.min(8,r*.18));
-  const padX=3,gapX=3,rowGap=3,badgeH=fontSize+5,maxRowW=Math.max(bw*1.35,70);
+  const allBadges=this._collectStatusEffectBadges();
+  if(!allBadges.length)return;
+  const debuffs=allBadges.filter(b=>b.kind!=='buff');
+  const buffs=allBadges.filter(b=>b.kind==='buff');
+  const r=this.radius,bw=r*2.35;
+  const fontSize=Math.max(5,Math.min(7,r*.16));
+  const gapX=2,rowGap=1,badgeH=fontSize+5;
+  const maxRowW=Math.max(bw*2,140);
   ctx.save();
   ctx.font=`bold ${fontSize}px 'Press Start 2P',monospace`;ctx.textAlign='center';ctx.textBaseline='middle';
-  const rows=[];let row=[],rowW=0;
-  for(const badge of badges){
-   const w=Math.ceil(ctx.measureText(badge.label).width)+padX*2;
-   if(row.length&&rowW+w+gapX>maxRowW){rows.push({items:row,w:rowW-gapX});row=[];rowW=0;}
-   row.push({...badge,w});rowW+=w+gapX;
-  }
-  if(row.length)rows.push({items:row,w:rowW-gapX});
-  for(let ri=0;ri<rows.length;ri++){
-   const row=rows[ri];
-   let x=this.x-row.w/2;
-   const y=barY-5-badgeH-ri*(badgeH+rowGap);
-   for(const badge of row.items){
-    const bx=x,by=y;
-    ctx.fillStyle='rgba(4,6,10,.86)';rrect(ctx,bx,by,badge.w,badgeH,3);ctx.fill();
-    ctx.strokeStyle=badge.color;ctx.lineWidth=1;rrect(ctx,bx+.5,by+.5,badge.w-1,badgeH-1,3);ctx.stroke();
-    ctx.fillStyle=badge.color;ctx.fillText(badge.label,bx+badge.w/2,by+badgeH/2+0.5);
-    x+=badge.w+gapX;
+  const drawRows=(badges,firstRowY,verticalDirection=1)=>{
+   for(let i=0,rowIndex=0;i<badges.length;i+=2,rowIndex++){
+    const count=Math.min(2,badges.length-i);
+    const rowBadges=badges.slice(i,i+count);
+    const widths=rowBadges.map(b=>Math.min(maxRowW/2,Math.max(fontSize+8,ctx.measureText(b.label).width+10)));
+    const rowW=widths.reduce((sum,w)=>sum+w,0)+gapX*(count-1);
+    let bx=this.x-rowW/2;
+    const y=firstRowY+verticalDirection*rowIndex*(badgeH+rowGap);
+    for(let col=0;col<count;col++){
+     const badge=rowBadges[col],badgeW=widths[col],by=y;
+     ctx.fillStyle=badge.kind==='buff'?'rgba(5,24,25,.92)':'rgba(4,6,10,.86)';
+     rrect(ctx,bx,by,badgeW,badgeH,3);ctx.fill();
+     ctx.strokeStyle=badge.color;ctx.lineWidth=1;
+     rrect(ctx,bx+.5,by+.5,badgeW-1,badgeH-1,3);ctx.stroke();
+     ctx.fillStyle=badge.color;
+     ctx.fillText(badge.label,bx+badgeW/2,by+badgeH/2+0.5,badgeW-8);
+     bx+=badgeW+gapX;
+    }
    }
-  }
+  };
+  // Debuff rows grow upward from the HP bar so additional rows never cover it.
+  // Buff rows grow downward from the ability-stack pips.
+  const hpBarTop=this.y-r-15;
+  if(debuffs.length)drawRows(debuffs,hpBarTop-badgeH-2,-1);
+  if(buffs.length)drawRows(buffs,this.y+r+19,1);
   ctx.restore();
  }
  _drawHpBar(){
