@@ -159,10 +159,10 @@ function newRoyaleBattle(){
 }
 window.startRoyale=startRoyale;
 window.newRoyaleBattle=newRoyaleBattle;
-window.royaleDebug={
+window.royaleDebug=Object.assign(window.royaleDebug||{}, {
  state:()=>royaleState?{phase:royaleState.phase,state:royaleState.state,stateTimer:royaleState.stateTimer,
   currentEventId:royaleState.currentEventId,eventSequence:royaleState.eventSequence.slice(),
   bounds:royaleZone?Object.assign({},royaleZone.bounds):null,finalTimer:royaleState.finalTimer}:null,
  skipPhase:()=>{if(royaleState){royaleState.stateTimer=0;updateRoyale(0);}},
  forceEvent:id=>{if(royaleState&&ROYALE_EVENT_IDS.includes(id)){royaleEndEvent();royaleState.currentEventId=id;royaleState.state='EVENT';royaleState.stateTimer=ROYALE_CONFIG.event;const entry=ROYALE_EVENT_REGISTRY[id];if(entry&&entry.start)entry.start(royaleState);}}
-};
+});
