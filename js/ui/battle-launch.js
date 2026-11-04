@@ -20,7 +20,13 @@ function launchBattle(){
  paused=true;
  showCountdown(3,()=>{paused=false;lastTime=performance.now();});
 }
+let countdownTimer=null;
+let countdownRunId=0;
 function showCountdown(n,onDone){
+ const runId=++countdownRunId;
+ if(countdownTimer!==null){clearTimeout(countdownTimer);countdownTimer=null;}
+ window._battleCountdownActive=true;
+ paused=true;
  let ov=document.getElementById('countdown-overlay');
  if(!ov){
   ov=document.createElement('div');ov.id='countdown-overlay';
@@ -31,12 +37,13 @@ function showCountdown(n,onDone){
  const numEl=document.getElementById('countdown-num');
  const lblEl=document.getElementById('countdown-label');
  function tick(r){
+  if(runId!==countdownRunId)return;
   if(r<=0){ov.classList.remove('show');numEl.textContent='FIGHT!';numEl.classList.remove('cd-pop');void numEl.offsetWidth;numEl.classList.add('cd-pop');
-   setTimeout(()=>{numEl.textContent='';lblEl.textContent='GET READY';ov.classList.remove('show');onDone();},600);return;}
+   countdownTimer=setTimeout(()=>{if(runId!==countdownRunId)return;countdownTimer=null;numEl.textContent='';lblEl.textContent='GET READY';ov.classList.remove('show');window._battleCountdownActive=false;onDone();},600);return;}
   numEl.classList.remove('cd-pop');void numEl.offsetWidth;numEl.classList.add('cd-pop');
   numEl.textContent=r;
   lblEl.textContent=r===1?'LAST CHANCE':'GET READY';
-  countdownTimer=setTimeout(()=>tick(r-1),1000);
+  countdownTimer=setTimeout(()=>{countdownTimer=null;tick(r-1);},1000);
  }
  tick(n);
 }
