@@ -2318,7 +2318,7 @@ class Sphere{
  receiveTrueDamage(amount,sourceKey=null,sourceType='ability'){
   if(this.dying||this.invincible||this.vikingLastStandActive||this.untargetable)return 0;
   if(!Number.isFinite(amount)||amount<=0)return 0;
-  if(this.replicaKind==='phase'){this._destroyReplica('POOF');return 0;}
+  if(this.replicaKind==='phase'){const replicaHp=this.hp;this._destroyReplica('POOF');return replicaHp;}
   const before=this.hp;
   this.hp=Math.max(0,this.hp-amount);
   const removed=before-this.hp;
