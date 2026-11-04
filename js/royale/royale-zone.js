@@ -2,8 +2,8 @@
 let royaleZone=null;
 function resetRoyaleZone(){royaleZone=null;}
 function initRoyaleZone(largestRadius){
- royaleZone={bounds:{l:0,t:0,r:W,b:H},from:{l:0,t:0,r:W,b:H},to:null,
-  progress:0,originalW:W,originalH:H,largestRadius:largestRadius||0};
+ royaleZone={bounds:{l:0,t:0,r:ROYALE_CONFIG.worldW,b:ROYALE_CONFIG.worldH},from:{l:0,t:0,r:ROYALE_CONFIG.worldW,b:ROYALE_CONFIG.worldH},to:null,
+  progress:0,originalW:ROYALE_CONFIG.worldW,originalH:ROYALE_CONFIG.worldH,largestRadius:largestRadius||0};
 }
 function planNextZone(){
  if(!royaleZone)return;
@@ -63,20 +63,4 @@ function drawZone(){
  ctx.shadowColor='#d66a32';ctx.shadowBlur=12;ctx.strokeStyle='#e5a23c';ctx.lineWidth=7;
  ctx.strokeRect(b.l,b.t,b.r-b.l,b.b-b.t);ctx.shadowBlur=0;ctx.restore();
 }
-function royaleHandleResize(oldW,oldH){
- if(oldW>0&&oldH>0&&royaleZone){
-  const sx=W/oldW,sy=H/oldH;
-  const scaleRect=r=>{r.l*=sx;r.r*=sx;r.t*=sy;r.b*=sy;};
-  scaleRect(royaleZone.bounds);scaleRect(royaleZone.from);if(royaleZone.to)scaleRect(royaleZone.to);
-  royaleZone.originalW=W;royaleZone.originalH=H;
- }
- if(typeof refreshRoyaleObstaclePixels==='function')refreshRoyaleObstaclePixels();
- if(royaleZone){
-  const b=royaleZone.bounds;
-  for(let i=0;i<spheres.length;i++){
-   const s=spheres[i];if(!s.alive||s.dying)continue;
-   s.x=Math.max(b.l+s.radius,Math.min(b.r-s.radius,s.x));
-   s.y=Math.max(b.t+s.radius,Math.min(b.b-s.radius,s.y));
-  }
- }
-}
+function royaleHandleResize(){ if(typeof royaleViewportChanged==='function')royaleViewportChanged(); }
