@@ -95,8 +95,14 @@ function updateRoyaleCamera(dtReal){
  if(royaleCamera.snap)royaleCamera.snap=false;
  const living=royaleCameraLiving();royaleCameraHeatPass(living,dt);
  const liveSet=new Set(living);
- for(const prior of royaleCamera.lastLiving){if(!liveSet.has(prior)&&(royaleCamera.heat.get(prior)||0)>0){
-  royaleCameraPushShot({x:prior.x,y:prior.y,zoomFactor:ROYALE_CAMERA_CONFIG.killcamZoomFactor,secs:ROYALE_CAMERA_CONFIG.killcamSecs,priority:100});
+ for(const prior of royaleCamera.lastLiving){if(!liveSet.has(prior)){
+  const hp=Number.isFinite(prior.hp)?prior.hp:0,max=Math.max(1,prior.maxHp||1),prev=royaleCamera.lastHp.has(prior)?royaleCamera.lastHp.get(prior):hp;
+  const finalDamage=Math.max(0,prev-hp);
+  let heat=royaleCamera.heat.get(prior)||0;
+  heat=(heat+Math.max(0,Math.min(1.5,finalDamage/(max*.02))))*Math.exp(-dt/ROYALE_CAMERA_CONFIG.heatDecay);
+  royaleCamera.heat.set(prior,heat);royaleCamera.lastHp.set(prior,hp);
+  if(finalDamage>max*.06)royaleCameraShake(Math.min(ROYALE_CAMERA_CONFIG.shakeMax,finalDamage/max*ROYALE_CAMERA_CONFIG.shakeMax));
+  if(heat>0)royaleCameraPushShot({x:prior.x,y:prior.y,zoomFactor:ROYALE_CAMERA_CONFIG.killcamZoomFactor,secs:ROYALE_CAMERA_CONFIG.killcamSecs,priority:100});
  }}
  royaleCamera.lastLiving=liveSet;
  let target=null,zoom=null,override=false;
