@@ -123,6 +123,7 @@ function startRoyale(){
  showCountdown(3,()=>{paused=false;lastTime=performance.now();});
 }
 function newRoyaleBattle(){
+ royaleHudClock=0;
  if(typeof restoreTestingRandom==='function')restoreTestingRandom();
  cancelAnimationFrame(animId);
  document.getElementById('winner').classList.remove('show');
