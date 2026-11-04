@@ -615,13 +615,14 @@ body {
 
 /* Session 2B — Battle Royale-only full-screen command layout and HUD. */
 body:has(#card.mode-royale){overflow:hidden;padding:0;gap:0;}
+body:has(#card.mode-royale) #mode-row,body:has(#card.mode-royale) #sel-row{display:none!important;}
 #card.mode-royale{
  position:fixed;inset:0;width:100%;height:100%;max-width:none;min-height:0;flex:none;
  display:grid;grid-template-columns:clamp(84px,8vw,132px) minmax(0,1fr) clamp(84px,8vw,132px);
  grid-template-rows:minmax(0,1fr);gap:4px;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
  box-shadow:none;background:#111a29;overflow:hidden;
 }
-#card.mode-royale #mode-row,#card.mode-royale #sel-row,#card.mode-royale #titlebar,#card.mode-royale #divider,#card.mode-royale #stats{display:none!important;}
+#card.mode-royale #titlebar,#card.mode-royale #divider,#card.mode-royale #stats{display:none!important;}
 #card.mode-royale #arena-outer{grid-column:2;grid-row:1;min-width:0;min-height:0;height:100%;padding:3px;background:#111a29;overflow:hidden;}
 #card.mode-royale #arena-border{height:100%;min-height:0;flex:1 1 auto;position:relative;}
 #royale-rail-l,#royale-rail-r{grid-row:1;min-height:0;display:grid;grid-template-rows:repeat(4,minmax(0,1fr));gap:5px;align-self:stretch;z-index:2;}
@@ -668,3 +669,6 @@ body:has(#card.mode-royale){overflow:hidden;padding:0;gap:0;}
 #card.mode-royale #wt{padding:12px 22px;border:3px solid #d6a83e;background:rgba(10,17,29,.92);box-shadow:0 0 0 4px #382b19;font-size:clamp(9px,1.4vw,17px);}
 @media (orientation:landscape) and (pointer:coarse){#card.mode-royale{grid-template-columns:clamp(84px,11vw,118px) minmax(0,1fr) clamp(84px,11vw,118px);}}
 @media (max-width:700px){.royale-card{padding:3px 2px 3px 5px;gap:2px}.royale-avatar{width:22px;height:22px;flex-basis:22px}.royale-card .hp{font-size:12px}.royale-card .status{font-size:4px}.royale-ribbon-main{gap:5px;font-size:5px}}
+
+#card.mode-royale #winner.royale-win #wt{border-color:var(--royale-winner,#d6a83e);box-shadow:0 0 18px color-mix(in srgb,var(--royale-winner,#d6a83e) 55%,transparent),0 0 0 4px #382b19;}
+#card.mode-royale #winner.royale-draw #wt{border-color:#aeb8c8;background:rgba(18,25,38,.96);color:#e0e7f0;box-shadow:0 0 0 4px #4a5362;}
