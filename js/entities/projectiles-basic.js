@@ -82,7 +82,7 @@ class Arrow{
    if(!isEnemy||sk===this.owner||sameFaction(this.owner,sk)||!sk.alive)continue;
    if(Math.hypot(sk.x-this.x,sk.y-this.y)<sk.radius+8){
     const dmg=this.dmg/(sk.arm*0.004+1);
-    sk.hp=Math.max(0,sk.hp-(gameMode==='royale'?dmg*0.85:dmg));sk.hitFlash=1;
+    sk.hp=Math.max(0,sk.hp-(gameMode==='royale'?dmg*0.8:dmg));sk.hitFlash=1;
     const nx=(sk.x-this.x)/Math.hypot(sk.x-this.x,sk.y-this.y)||1;
     const ny=(sk.y-this.y)/Math.hypot(sk.x-this.x,sk.y-this.y)||0;
     sk.applyImpact(nx*80,ny*80);
@@ -257,7 +257,7 @@ class PiercingBullet{
    if(Math.hypot(this.target.x-this.x,this.target.y-this.y)<this.target.radius+8){
        let finalDmg=this.damage+(this.target.maxHp*0.05);
 if(this.target._sheriffArmPen){const penBonus=this.target.d.arm*0.40*0.004;finalDmg+=penBonus;this.target._sheriffArmPen=false;}
-    const _pierceBefore=this.target.hp;this.target.hp=Math.max(0,this.target.hp-(gameMode==='royale'?finalDmg*0.85:finalDmg));recordDamageEvent(this.owner.key,'ability',_pierceBefore-this.target.hp);
+    const _pierceBefore=this.target.hp;this.target.hp=Math.max(0,this.target.hp-(gameMode==='royale'?finalDmg*0.8:finalDmg));recordDamageEvent(this.owner.key,'ability',_pierceBefore-this.target.hp);
     this.target.hitFlash=1;
     spawnBloodSplat(this.target.x,this.target.y,this.target.d.color,finalDmg);
    
@@ -331,7 +331,7 @@ class SheriffBullet{
    if(!isEnemy||!sk.alive)continue;
    if(Math.hypot(sk.x-this.x,sk.y-this.y)<sk.radius+5){
     const dmg=this.dmg/(sk.arm*0.004+1);
-    sk.hp=Math.max(0,sk.hp-(gameMode==='royale'?dmg*0.85:dmg));sk.hitFlash=1;
+    sk.hp=Math.max(0,sk.hp-(gameMode==='royale'?dmg*0.8:dmg));sk.hitFlash=1;
     const nx=(sk.x-this.x)/Math.hypot(sk.x-this.x,sk.y-this.y)||1;
     const ny=(sk.y-this.y)/Math.hypot(sk.x-this.x,sk.y-this.y)||0;
     sk.applyImpact(nx*80,ny*80);
@@ -433,7 +433,7 @@ class HolyOrb{
    if(!isEnemy||!sk.alive)continue;
    if(Math.hypot(sk.x-this.x,sk.y-this.y)<sk.radius+this.r){
     const dmg=this.dmg/(sk.arm*0.004+1);
-    sk.hp=Math.max(0,sk.hp-(gameMode==='royale'?dmg*0.85:dmg));sk.hitFlash=1;
+    sk.hp=Math.max(0,sk.hp-(gameMode==='royale'?dmg*0.8:dmg));sk.hitFlash=1;
     const nx=(sk.x-this.x)/Math.hypot(sk.x-this.x,sk.y-this.y)||1;
     const ny=(sk.y-this.y)/Math.hypot(sk.x-this.x,sk.y-this.y)||0;
     sk.applyImpact(nx*70,ny*70);
@@ -550,7 +550,7 @@ class FlameBolt{
    if(!sk.alive||sk.faction===this.owner.faction)continue;
    if(Math.hypot(sk.x-this.x,sk.y-this.y)<sk.radius+this.r+3){
     const dmg=this.dmg/(sk.arm*0.004+1);
-    sk.hp=Math.max(0,sk.hp-(gameMode==='royale'?dmg*0.85:dmg));sk.hitFlash=1;
+    sk.hp=Math.max(0,sk.hp-(gameMode==='royale'?dmg*0.8:dmg));sk.hitFlash=1;
    const nx=(sk.x-this.x)/Math.hypot(sk.x-this.x,sk.y-this.y)||1;
    const ny=(sk.y-this.y)/Math.hypot(sk.x-this.x,sk.y-this.y)||0;
    sk.applyImpact(nx*100,ny*100);
@@ -632,7 +632,7 @@ class SkullOrb{
    if(!isEnemy||!sk.alive)continue;
    if(Math.hypot(sk.x-this.x,sk.y-this.y)<sk.radius+this.r+3){
     const dmg=this.dmg/(sk.arm*0.004+1);
-    sk.hp=Math.max(0,sk.hp-(gameMode==='royale'?dmg*0.85:dmg));sk.hitFlash=1;
+    sk.hp=Math.max(0,sk.hp-(gameMode==='royale'?dmg*0.8:dmg));sk.hitFlash=1;
     const nx=(sk.x-this.x)/Math.hypot(sk.x-this.x,sk.y-this.y)||1;
     const ny=(sk.y-this.y)/Math.hypot(sk.x-this.x,sk.y-this.y)||0;
     sk.applyImpact(nx*60,ny*60);
