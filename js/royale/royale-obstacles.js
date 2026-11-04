@@ -66,14 +66,16 @@ function drawRoyaleObstacles(){
  }
 }
 function royaleWallContact(s,smearTextDy){
+ if(typeof s._wallContactPassives!=='function')return;
  if(!Number.isFinite(s._royaleObstacleCooldown)||s._royaleObstacleCooldown<=0){
   s._wallContactPassives(smearTextDy);
   s._royaleObstacleCooldown=ROYALE_CONFIG.obstacleCooldown;
  }
 }
 function resolveRoyaleObstacles(){
- for(let i=0;i<spheres.length;i++){
-  const s=spheres[i];
+ for(const bodies of [spheres,skeletons]){
+ for(let i=0;i<bodies.length;i++){
+  const s=bodies[i];
   if(!s.alive||s.dying||s.isLeaping)continue;
   const r=s.radius;
   for(let j=0;j<royaleObstacles.length;j++){
@@ -102,6 +104,7 @@ function resolveRoyaleObstacles(){
    s.impactVx-=impactN*nx;s.impactVy-=impactN*ny;
    royaleWallContact(s,-r-10);
   }
+ }
  }
 }
 function killRoyaleProjectilesOnObstacles(){
