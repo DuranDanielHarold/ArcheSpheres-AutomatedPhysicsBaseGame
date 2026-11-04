@@ -21,7 +21,7 @@ function initRoyaleCamera(){
  royaleCamera.matchT=0;royaleCamera.establishT=0;royaleCamera.establishing=true;royaleCamera.snap=true;
  royaleCamera.lastHp=new WeakMap();royaleCamera.lastLiving=new Set();
  royaleCamera.x=ROYALE_CONFIG.worldW/2;royaleCamera.y=ROYALE_CONFIG.worldH/2;royaleCamera.zoom=royaleCameraMinZoom();
- royaleCamera.shakeX=royaleCamera.shakeY=royaleCamera.shakeMag=0;royaleCamera.switchCount=0;
+ royaleCamera.shakeX=royaleCamera.shakeY=royaleCamera.shakeMag=0;royaleCamera.shakeSeed=0x7a31c4d9;royaleCamera.switchCount=0;
  royaleViewportChanged();
 }
 function royaleViewportChanged(){
