@@ -1,5 +1,5 @@
 'use strict';
-let royaleUiCards=[],royaleUiPlacements=new Map(),royaleUiClock=0,royaleUiLast=0,royaleUiWarningAge=99,royaleUiState='',royaleUiIdleTimer=0;
+let royaleUiCards=[],royaleUiPlacements=new Map(),royaleUiClock=0,royaleUiLast=0,royaleUiWarningAge=99,royaleUiState='',royaleUiIdleTimer=0,royaleUiListenersReady=false;
 function royaleUiInit(){
  const card=document.getElementById('card'),arena=document.getElementById('arena-outer'),border=document.getElementById('arena-border');if(!card||!arena||!border)return;
  card.classList.add('mode-royale');
@@ -15,9 +15,7 @@ function royaleUiInit(){
  add('royale-sound-btn','SOUND',()=>{if(typeof toggleAudioMute==='function')toggleAudioMute();});
  add('royale-exit-btn','EXIT',()=>showStartScreen());
  const pause=document.getElementById('pbtn');if(pause)pause.textContent='PAUSE';
- window.addEventListener('resize',royaleUiViewportChanged,{passive:true});
- window.addEventListener('pointerdown',royaleUiActivity,{passive:true});window.addEventListener('pointermove',royaleUiActivity,{passive:true});
- const mq=window.matchMedia('(orientation: landscape)');mq.addEventListener?.('change',royaleUiViewportChanged);
+ if(!royaleUiListenersReady){window.addEventListener('resize',royaleUiViewportChanged,{passive:true});window.addEventListener('pointerdown',royaleUiActivity,{passive:true});window.addEventListener('pointermove',royaleUiActivity,{passive:true});const mq=window.matchMedia('(orientation: landscape)');mq.addEventListener?.('change',royaleUiViewportChanged);royaleUiListenersReady=true;}
  royaleUiBuildCards();royaleUiViewportChanged();royaleUiActivity();
 }
 function royaleUiBuildCards(){
@@ -27,11 +25,11 @@ function royaleUiBuildCards(){
   const el=document.createElement('button');el.type='button';el.className='royale-card';el.style.setProperty('--faction',ROYALE_FACTION_COLORS[i].color);
   el.innerHTML='<i class="royale-stripe"></i><span class="royale-card-head"><img class="avatar"><b class="name"></b><small class="faction"></small></span><span class="hp-track"><i class="trail"></i><i class="fill"></i></span><span class="card-foot"><b class="hp"></b><i class="stack"><i></i></i></span><span class="status"></span><b class="skull">☠</b><small class="place"></small>';
   el.querySelector('.avatar').src=getSphereIcon(s.key,28);el.querySelector('.name').textContent=s.d.label;el.querySelector('.faction').textContent=i+1;
-  el.onclick=()=>{const c=window.royaleCamera;if(!c)return;if(c.mode==='follow'&&c.followRef?.faction===i)c.setMode('auto');else c.follow(i);royaleUiFollow();};
+  el.onclick=()=>{const c=royaleCamera;if(!c)return;if(c.mode==='follow'&&c.followRef?.faction===i)c.setMode('auto');else c.follow(i);royaleUiFollow();};
   (i<4?l:r).appendChild(el);royaleUiCards.push({i,s,el,hp:el.querySelector('.hp'),fill:el.querySelector('.fill'),trail:el.querySelector('.trail'),stack:el.querySelector('.stack>i'),status:el.querySelector('.status'),place:el.querySelector('.place'),last:{}});
  }
 }
-function royaleUiFollow(){const f=window.royaleCamera?.followRef?.faction;royaleUiCards.forEach(c=>c.el.classList.toggle('followed',c.i===f));}
+function royaleUiFollow(){const f=royaleCamera?.followRef?.faction;royaleUiCards.forEach(c=>c.el.classList.toggle('followed',c.i===f));}
 function royaleUiUpdate(dt){
  if(gameMode!=='royale'||!royaleState)return;royaleUiClock+=Math.max(0,dt||0);
  if(royaleUiState!==royaleState.state){royaleUiState=royaleState.state;if(royaleUiState==='WARNING')royaleUiWarningAge=0;}else if(['WARNING','EVENT'].includes(royaleUiState))royaleUiWarningAge+=Math.max(0,dt||0);
