@@ -91,6 +91,8 @@ function royaleCameraGroupTarget(group){
 }
 function updateRoyaleCamera(dtReal){
  if(!Number.isFinite(dtReal)||dtReal<0)dtReal=0;const dt=Math.min(dtReal,.25);royaleCamera.matchT+=dt;
+ // The static countdown frame is snapped to the full world; resumed frames ease toward focus.
+ if(royaleCamera.snap)royaleCamera.snap=false;
  const living=royaleCameraLiving();royaleCameraHeatPass(living,dt);
  const liveSet=new Set(living);
  for(const prior of royaleCamera.lastLiving){if(!liveSet.has(prior)&&(royaleCamera.heat.get(prior)||0)>0){
