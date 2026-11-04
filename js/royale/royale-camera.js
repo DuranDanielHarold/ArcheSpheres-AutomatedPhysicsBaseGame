@@ -56,7 +56,8 @@ function royaleCameraHeatPass(living,dt){
 }
 function royaleCameraFocus(living,dt){
  const cfg=ROYALE_CAMERA_CONFIG;if(!living.length)return null;
- const scores=living.map(s=>{let nearby=0;for(const o of living){if(o===s)continue;if(Math.hypot(o.x-s.x,o.y-s.y)<=cfg.clashDist*ROYALE_CONFIG.sphereRadius)nearby++;}
+ const scoreCandidates=living.filter(s=>!s.isReplica||(royaleCamera.heat.get(s)||0)>0);if(!scoreCandidates.length)return living.filter(s=>!s.isReplica).slice(0,2);
+ const scores=scoreCandidates.map(s=>{let nearby=0;for(const o of living){if(o===s)continue;if(Math.hypot(o.x-s.x,o.y-s.y)<=cfg.clashDist*ROYALE_CONFIG.sphereRadius)nearby++;}
   const hp=(s.maxHp||1)>0?s.hp/s.maxHp:0;return{s,score:(royaleCamera.heat.get(s)||0)+.6*nearby+(hp<.25?.3:0)+.05};});
  let best=scores.reduce((a,b)=>b.score>a.score?b:a,scores[0]),anchor=best.s;
  if(royaleCamera.anchor&&living.includes(royaleCamera.anchor)){
