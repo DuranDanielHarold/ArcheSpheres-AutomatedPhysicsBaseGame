@@ -113,7 +113,7 @@ function concludeMatch(winner,endReason){
 function checkEliminationWin(){
  if(winDone)return;
  if(gameMode==='royale'){
-  const alive=spheres.filter(s=>s.alive&&!s.dying);
+  const alive=spheres.filter(s=>s.alive&&!s.dying&&!s.isReplica);
   const factions=[...new Set(alive.map(s=>s.faction))];
   if(factions.length<2&&spheres.length>=ROYALE_CONFIG.count){
    const winnerFaction=factions[0];
