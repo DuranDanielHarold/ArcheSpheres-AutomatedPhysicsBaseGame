@@ -595,3 +595,18 @@ body {
     min-height: clamp(360px, 62dvh, 660px);
   }
 }
+
+/* Session 1 — Battle Royale functional layout; Session 2 owns the full landscape redesign. */
+#card.mode-royale{width:min(1000px,100vw);}
+#card.mode-royale #titlebar,#card.mode-royale #stats{display:none!important;}
+#card.mode-royale #arena-border{min-height:clamp(300px,62vh,640px);}
+#royale-hud{position:absolute;z-index:30;top:6px;left:6px;right:6px;display:flex;flex-direction:column;gap:5px;padding:6px;background:rgba(8,16,28,.82);border:1px solid rgba(232,180,48,.8);color:#fff;font-family:'Press Start 2P',monospace;font-size:clamp(5px,.75vw,8px);pointer-events:none;}
+.royale-hud-top{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;line-height:1.6;}
+.royale-hud-roster{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;}
+.royale-chip{min-width:0;display:grid;grid-template-columns:22px minmax(0,1fr);align-items:center;gap:4px;padding:3px;background:rgba(30,44,62,.92);border:1px solid rgba(255,255,255,.2);}
+.royale-chip.dead{filter:grayscale(1);opacity:.45;}
+.royale-chip img{width:20px;height:20px;object-fit:contain;}
+.royale-chip-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:clamp(4px,.62vw,6px);line-height:1.5;}
+.royale-chip-hp{height:4px;background:#263342;margin-top:2px;overflow:hidden;}
+.royale-chip-hp>i{display:block;height:100%;background:#64d18a;}
+@media(max-width:600px){.royale-hud-roster{grid-template-columns:repeat(2,minmax(0,1fr));}}
