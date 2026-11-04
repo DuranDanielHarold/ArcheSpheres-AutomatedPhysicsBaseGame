@@ -611,3 +611,60 @@ body {
 .royale-chip-hp{height:4px;background:#263342;margin-top:2px;overflow:hidden;}
 .royale-chip-hp>i{display:block;height:100%;background:#64d18a;}
 @media(max-width:600px){.royale-hud-roster{grid-template-columns:repeat(2,minmax(0,1fr));}}
+
+
+/* Session 2B — Battle Royale-only full-screen command layout and HUD. */
+body:has(#card.mode-royale){overflow:hidden;padding:0;gap:0;}
+#card.mode-royale{
+ position:fixed;inset:0;width:100%;height:100%;max-width:none;min-height:0;flex:none;
+ display:grid;grid-template-columns:clamp(84px,8vw,132px) minmax(0,1fr) clamp(84px,8vw,132px);
+ grid-template-rows:minmax(0,1fr);gap:4px;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+ box-shadow:none;background:#111a29;overflow:hidden;
+}
+#card.mode-royale #mode-row,#card.mode-royale #sel-row,#card.mode-royale #titlebar,#card.mode-royale #divider,#card.mode-royale #stats{display:none!important;}
+#card.mode-royale #arena-outer{grid-column:2;grid-row:1;min-width:0;min-height:0;height:100%;padding:3px;background:#111a29;overflow:hidden;}
+#card.mode-royale #arena-border{height:100%;min-height:0;flex:1 1 auto;position:relative;}
+#royale-rail-l,#royale-rail-r{grid-row:1;min-height:0;display:grid;grid-template-rows:repeat(4,minmax(0,1fr));gap:5px;align-self:stretch;z-index:2;}
+#royale-rail-l{grid-column:1;}#royale-rail-r{grid-column:3;}
+.royale-card{position:relative;display:flex;flex-direction:column;justify-content:center;gap:3px;min-width:0;min-height:0;overflow:hidden;padding:4px 4px 4px 7px;background:linear-gradient(135deg,#243149,#101a2a);border:1px solid #8a6828;box-shadow:inset 0 0 0 1px #3a2c18;color:#f6e7bd;text-align:left;cursor:pointer;}
+.royale-stripe{position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--faction);}
+.royale-card-head{display:flex;align-items:center;gap:4px;min-width:0;}
+.royale-avatar{width:28px;height:28px;flex:0 0 28px;object-fit:contain;}
+.royale-card-name{font:clamp(4px,.55vw,7px)/1.5 'Press Start 2P',monospace;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#f4d99a;}
+.royale-faction-number{font:10px 'VT323',monospace;color:#f6d47e;border:1px solid #94723b;padding:0 3px;}
+.hp-track{display:block;position:relative;height:5px;background:#273142;overflow:hidden;border:1px solid #090f18;}
+.hp-track i{position:absolute;left:0;top:0;height:100%;width:0;transition:width .25s ease;}
+.hp-track .trail{background:#d7aa55;opacity:.8;z-index:0;transition:width .55s ease;}
+.hp-track .fill{background:#54bf72;z-index:1;}
+.card-foot{display:flex;align-items:center;justify-content:space-between;gap:4px;}
+.royale-card .hp{font:14px/1 'VT323',monospace;color:#fff1ce;white-space:nowrap;}
+.royale-card .stack{height:3px;flex:1;background:#293348;overflow:hidden;}
+.royale-card .stack i{display:block;height:100%;width:0;background:#e8b430;}
+.royale-card .status{font:5px/1.4 'Press Start 2P',monospace;color:#e7c66e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.royale-card .status[hidden],.royale-card .skull[hidden]{display:none;}
+.royale-card.dead{filter:grayscale(1);opacity:.48;}
+.royale-card .skull{position:absolute;right:5px;top:4px;color:#fff;font-size:20px;text-shadow:1px 2px #000;}
+.royale-card .place{position:absolute;right:4px;bottom:3px;font:10px 'VT323',monospace;color:#f8d77d;text-shadow:1px 1px #000;}
+.royale-card.followed{outline:2px solid #f4d06f;outline-offset:-3px;box-shadow:0 0 9px #f4d06f,inset 0 0 0 1px #fff1b5;}
+#controls.royale-controls{position:fixed;z-index:45;left:50%;bottom:calc(env(safe-area-inset-bottom) + 8px);transform:translateX(-50%);display:flex;flex-wrap:nowrap;gap:5px;padding:5px 8px;border:1px solid rgba(232,180,48,.65);border-radius:30px;background:rgba(8,14,24,.8);opacity:.55;transition:opacity .25s;backdrop-filter:blur(4px);}
+#controls.royale-controls.idle{opacity:.2;}
+#controls.royale-controls .pbtn{font-size:clamp(5px,.55vw,8px);padding:6px 8px;white-space:nowrap;box-shadow:none;border:1px solid #8a6828;border-radius:20px;}
+#controls.royale-controls #balance-btn,#controls.royale-controls #balance-status,#controls.royale-controls #audio-panel,#controls.royale-controls .pbtn.new{display:none!important;}
+#royale-ribbon{position:absolute;z-index:32;top:8px;left:50%;transform:translateX(-50%);width:min(76%,560px);padding:8px 12px;background:rgba(9,16,28,.9);border:2px solid #c8920a;color:#f5dca2;text-align:center;pointer-events:none;opacity:0;transition:opacity .2s,padding .2s,width .2s;}
+#royale-ribbon.active{opacity:1;}
+.royale-ribbon-main{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap;font:clamp(5px,.65vw,8px)/1.6 'Press Start 2P',monospace;}
+.royale-ribbon-drain{height:4px;margin-top:5px;background:#263348;overflow:hidden;}
+.royale-ribbon-drain i{display:block;height:100%;width:100%;background:#e8b430;transition:width .12s linear;}
+#royale-ribbon.collapsed{width:min(60%,520px);height:20px;padding:2px 8px;border-width:1px;background:rgba(9,16,28,.62);}
+#royale-ribbon.collapsed .royale-ribbon-main{font-size:5px;line-height:14px;flex-wrap:nowrap;gap:7px;white-space:nowrap;overflow:hidden;}
+#royale-ribbon.collapsed .royale-ribbon-drain{display:none;}
+#royale-left-crest{position:absolute;z-index:33;top:8px;left:10px;padding:3px 5px;background:rgba(9,16,28,.72);border:1px solid #9a762e;color:#f4d06f;font:6px 'Press Start 2P',monospace;pointer-events:none;}
+#royale-rotate{display:none;position:fixed;inset:0;z-index:200;background:rgba(5,9,17,.96);align-items:center;justify-content:center;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);}
+#royale-rotate.show{display:flex;}
+.royale-rotate-panel{text-align:center;padding:28px;border:3px solid #c8920a;background:#111a2b;box-shadow:0 0 0 5px #493719;}
+.royale-rotate-panel b{display:block;color:#f3d17d;font:clamp(12px,4vw,22px) 'Press Start 2P',monospace;}
+.royale-rotate-panel span{display:block;margin-top:14px;color:#b8c5d8;font:18px 'VT323',monospace;letter-spacing:2px;}
+#card.mode-royale #winner{background:rgba(3,8,16,.76);}
+#card.mode-royale #wt{padding:12px 22px;border:3px solid #d6a83e;background:rgba(10,17,29,.92);box-shadow:0 0 0 4px #382b19;font-size:clamp(9px,1.4vw,17px);}
+@media (orientation:landscape) and (pointer:coarse){#card.mode-royale{grid-template-columns:clamp(84px,11vw,118px) minmax(0,1fr) clamp(84px,11vw,118px);}}
+@media (max-width:700px){.royale-card{padding:3px 2px 3px 5px;gap:2px}.royale-avatar{width:22px;height:22px;flex-basis:22px}.royale-card .hp{font-size:12px}.royale-card .status{font-size:4px}.royale-ribbon-main{gap:5px;font-size:5px}}
