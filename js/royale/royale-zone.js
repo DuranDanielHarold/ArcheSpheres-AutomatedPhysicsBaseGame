@@ -49,6 +49,10 @@ function resolveRoyaleBounds(){
   if(touched)royaleWallContact(s,smear);
  }
 }
+function royaleZoneIntersectsView(l,t,r,b){
+ const view=typeof royaleCameraViewRect==='function'?royaleCameraViewRect():{l:0,t:0,r:W,b:H};
+ return r>=view.l&&l<=view.r&&b>=view.t&&t<=view.b;
+}
 function drawZone(){
  if(!royaleZone)return;
  const b=royaleZone.bounds;
@@ -58,9 +62,9 @@ function drawZone(){
  ctx.fillRect(0,b.t,Math.max(0,b.l),Math.max(0,b.b-b.t));
  ctx.fillRect(b.r,b.t,Math.max(0,W-b.r),Math.max(0,b.b-b.t));
  if(royaleZone.to&&(royaleState.state==='WARNING'||royaleState.state==='EVENT')){
-  const n=royaleZone.to;if(intersects(n.l,n.t,n.r,n.b)){ctx.strokeStyle='#f4d06f';ctx.lineWidth=2;ctx.setLineDash([9,6]);ctx.strokeRect(n.l,n.t,n.r-n.l,n.b-n.t);ctx.setLineDash([]);}
+  const n=royaleZone.to;if(royaleZoneIntersectsView(n.l,n.t,n.r,n.b)){ctx.strokeStyle='#f4d06f';ctx.lineWidth=2;ctx.setLineDash([9,6]);ctx.strokeRect(n.l,n.t,n.r-n.l,n.b-n.t);ctx.setLineDash([]);}
  }
- if(intersects(b.l,b.t,b.r,b.b)){ctx.shadowColor='#d66a32';ctx.shadowBlur=12;ctx.strokeStyle='#e5a23c';ctx.lineWidth=7;
+ if(royaleZoneIntersectsView(b.l,b.t,b.r,b.b)){ctx.shadowColor='#d66a32';ctx.shadowBlur=12;ctx.strokeStyle='#e5a23c';ctx.lineWidth=7;
   ctx.strokeRect(b.l,b.t,b.r-b.l,b.b-b.t);ctx.shadowBlur=0;}ctx.restore();
 }
 function royaleHandleResize(){ if(typeof royaleViewportChanged==='function')royaleViewportChanged(); }
