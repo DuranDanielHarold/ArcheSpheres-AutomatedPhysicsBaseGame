@@ -70,6 +70,7 @@ function updateRoyale(dt){
  killRoyaleProjectilesOnObstacles();
  royaleHudClock+=dt;
  if(royaleHudClock>=0.125){royaleHudClock=0;updateRoyaleHud(true);}
+ if(typeof royaleUiUpdate==='function')royaleUiUpdate(dt);
 }
 function drawRoyaleFrame(stage){
  if(stage==='obstacles'){drawRoyaleObstacles();return;}
@@ -119,6 +120,7 @@ function startRoyale(){
  const card=document.getElementById('card');card.style.display='flex';card.className='mode-royale';
  document.getElementById('controls').style.display='flex';
  if(typeof royaleEnsureCameraButton==='function')royaleEnsureCameraButton();
+ if(typeof royaleUiTryLandscape==='function')royaleUiTryLandscape();
  newRoyaleBattle();
  paused=true;
  showCountdown(3,()=>{paused=false;lastTime=performance.now();});
@@ -163,6 +165,7 @@ function newRoyaleBattle(){
  if(typeof _preloadConfiguredAudio==='function')_preloadConfiguredAudio(keys);
  if(typeof _syncArenaBgm==='function')_syncArenaBgm();
  updateRoyaleHud(true);
+ if(typeof royaleUiInit==='function')royaleUiInit();
  if(typeof drawGameFrame==='function')drawGameFrame();
  lastTime=performance.now();animId=requestAnimationFrame(loop);
 }
