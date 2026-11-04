@@ -11,14 +11,14 @@ function royaleLivingPrimaries(){const out=[];for(let i=0;i<spheres.length;i++){
 function royaleStrikePercent(s,pct){if(!s||!s.alive||s.dying||s.leaping)return 0;return s.receiveTrueDamage(Math.max(0,s.maxHp*pct),null,'ability');}
 function updateRoyaleFramework(dt){
  if(!royaleState)return;
- for(let i=0;i<spheres.length;i++){const s=spheres[i];const mods=s._royaleSizeMods;if(mods){let product=1;for(const id in mods){const m=mods[id];const cur=mods[id].current===undefined?1:mods[id].current;const target=m.target;const step=m.tween>0?1-Math.exp(-dt/m.tween):1;const next=cur+(target-cur)*step;m.current=Math.abs(next-target)<1e-3?target:next;if(m.current===1&&m.clear)delete mods[id];product*=m.current;}s._royaleSizeMult=product;}
+ for(let i=0;i<spheres.length;i++){const s=spheres[i];const mods=s._royaleSizeMods;if(mods){const oldMult=s._royaleSizeMult||1;const rawRadius=s.radius/oldMult;let product=1;for(const id in mods){const m=mods[id];const cur=mods[id].current===undefined?1:mods[id].current;const target=m.target;const step=m.tween>0?1-Math.exp(-dt/m.tween):1;const next=cur+(target-cur)*step;m.current=Math.abs(next-target)<1e-3?target:next;if(m.current===1&&m.clear)delete mods[id];product*=m.current;}s._royaleSizeMult=product;s.radius=rawRadius*product;}
   const move=s._royaleMoveMods;if(move&&!s.dying&&!s.leaping){let product=1;for(const id in move)product*=move[id];const vx=(s.vx||0)+(s.impactVx||0),vy=(s.vy||0)+(s.impactVy||0);s.x+=vx*(product-1)*dt;s.y+=vy*(product-1)*dt;}
  }
  const effects=royaleState.timedEffects||[];
  for(let i=effects.length-1;i>=0;i--){const e=effects[i];e.t-=dt;if(e.tickEvery>0){e.tickT-=dt;while(e.tickT<=0&&e.t>0){if(e.onTick)e.onTick(e.s,dt);e.tickT+=e.tickEvery;}}if(e.t<=0){if(e.onEnd)e.onEnd(e.s);effects.splice(i,1);}}
 }
-function royaleClearFramework(){if(!royaleState)return;for(let i=0;i<spheres.length;i++){const s=spheres[i];if(s._royaleSizeMods){for(const id in s._royaleSizeMods)royaleClearSizeMod(s,id,0);s._royaleSizeMult=1;delete s._royaleSizeMods;}delete s._royaleMoveMods;}royaleState.timedEffects=[];}
+function royaleClearFramework(){if(!royaleState)return;for(let i=0;i<spheres.length;i++){const s=spheres[i];if(s._royaleSizeMods){const old=s._royaleSizeMult||1;s.radius/=old;s._royaleSizeMult=1;delete s._royaleSizeMods;}delete s._royaleMoveMods;}royaleState.timedEffects=[];}
 function royaleRegisterEvent(id,entry){ROYALE_EVENT_REGISTRY[id]=entry;}
 window.royaleDebug=window.royaleDebug||{};
 window.royaleDebug.listEvents=()=>ROYALE_EVENT_IDS.map(id=>({id,label:ROYALE_EVENT_LABELS[id],implemented:!!ROYALE_EVENT_REGISTRY[id]}));
-window.royaleDebug.runEvent=id=>{if(!royaleState||!ROYALE_EVENT_IDS.includes(id))return false;royaleEndEvent();royaleState.currentEventId=id;royaleState.state='EVENT';royaleState.stateTimer=ROYALE_CONFIG.event;royaleEnterEvent();return true;};
+window.royaleDebug.runEvent=id=>{if(!royaleState||!ROYALE_EVENT_IDS.includes(id))return false;royaleEndEvent();royaleState.currentEventId=id;royaleState.state='EVENT';royaleState.stateTimer=ROYALE_CONFIG.event;royaleState.eventSequence.push(id);const entry=ROYALE_EVENT_REGISTRY[id];if(entry&&entry.start)entry.start(royaleState);return true;};
