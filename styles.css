@@ -596,11 +596,11 @@ body {
   }
 }
 
-/* Session 1 — Battle Royale gets a viewport-sized playfield; Session 2 owns the full landscape redesign. */
-#card.mode-royale{width:100vw;max-width:none;height:calc(100dvh - 100px);min-height:calc(100dvh - 100px);flex:0 0 auto;}
+/* Session 1 — Battle Royale uses an oversized, centered playfield without forcing full-viewport dimensions. */
+#card.mode-royale{width:min(2200px,96vw);max-width:none;flex:1 1 auto;min-height:0;}
 #card.mode-royale #titlebar,#card.mode-royale #stats{display:none!important;}
 #card.mode-royale #arena-outer{padding:2px;flex:1 1 auto;min-height:0;}
-#card.mode-royale #arena-border{min-height:0;height:100%;flex:1 1 auto;}
+#card.mode-royale #arena-border{min-height:clamp(700px,105vh,1500px);height:auto;flex:1 0 auto;}
 #royale-hud{position:absolute;z-index:30;top:6px;left:6px;right:6px;display:flex;flex-direction:column;gap:5px;padding:6px;background:rgba(8,16,28,.82);border:1px solid rgba(232,180,48,.8);color:#fff;font-family:'Press Start 2P',monospace;font-size:clamp(5px,.75vw,8px);pointer-events:none;}
 .royale-hud-top{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;line-height:1.6;}
 .royale-hud-roster{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;}
