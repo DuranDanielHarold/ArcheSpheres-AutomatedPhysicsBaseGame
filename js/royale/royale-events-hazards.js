@@ -3,7 +3,7 @@ const royaleHazardState={lava:[],bolts:[],vortices:[],impacts:[],particles:[]};
 function royaleHazardRand(min,max){return min+Math.random()*(max-min);}
 function royaleHazardVisible(x,y,r){const v=royaleCameraViewRect();return x+r>=v.l&&x-r<=v.r&&y+r>=v.t&&y-r<=v.b;}
 function royaleHazardTime(){return window.matchTime||0;}
-function royaleDrawLavaBlob(x,y,r,seed,scale=1){const count=18;ctx.beginPath();for(let k=0;k<count;k++){const a=k*Math.PI*2/count,variation=.78+Math.sin(seed*2.17+k*4.13)*.11+Math.sin(seed*5.31+k*1.73)*.09,px=x+Math.cos(a)*r*variation*scale,py=y+Math.sin(a)*r*variation*scale*.82;if(k===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);}ctx.closePath();ctx.fill();}\n
+function royaleDrawLavaBlob(x,y,r,seed,scale=1){const count=18;ctx.beginPath();for(let k=0;k<count;k++){const a=k*Math.PI*2/count,variation=.78+Math.sin(seed*2.17+k*4.13)*.11+Math.sin(seed*5.31+k*1.73)*.09,px=x+Math.cos(a)*r*variation*scale,py=y+Math.sin(a)*r*variation*scale*.82;if(k===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);}ctx.closePath();ctx.fill();}
 
 function royaleDrawLightningPath(x1,y1,x2,y2,seed,segments,jag,branchCount){
  const dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy)||1,px=-dy/len,py=dx/len,pts=[{x:x1,y:y1}];
