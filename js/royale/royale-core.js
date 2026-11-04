@@ -75,7 +75,7 @@ function drawRoyaleFrame(stage){
  if(stage==='obstacles'){drawRoyaleObstacles();return;}
  if(stage==='markers'){
   for(let i=0;i<spheres.length;i++){
-   const s=spheres[i];if(s.isReplica||!s.alive||s.dying)continue;
+   const s=spheres[i];if(!s.alive||s.dying)continue;
    const faction=ROYALE_FACTION_COLORS[s.faction];if(!faction)continue;
    ctx.save();ctx.strokeStyle=faction.color;ctx.lineWidth=2.5;
    ctx.beginPath();ctx.arc(s.x,s.y,s.radius+5,0,Math.PI*2);ctx.stroke();
