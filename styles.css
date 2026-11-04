@@ -741,3 +741,52 @@ body:has(#card.mode-royale) #mode-row,body:has(#card.mode-royale) #sel-row{displ
  #card.mode-royale > #royale-rail-l,
  #card.mode-royale > #royale-rail-r{gap:0!important;}
 }
+
+
+/* Session 2B compact side rails — narrow columns, wrapping labels, denser cards. */
+#card.mode-royale{
+ grid-template-columns:clamp(72px,9vw,112px) minmax(0,1fr) clamp(72px,9vw,112px)!important;
+ gap:2px!important;
+}
+#card.mode-royale > #royale-rail-l,
+#card.mode-royale > #royale-rail-r{
+ grid-template-rows:repeat(4,minmax(0,1fr))!important;
+ gap:2px!important;
+ background:transparent!important;
+ border:0!important;
+}
+#card.mode-royale .royale-card{
+ min-width:0!important;
+ padding:3px 3px 3px 6px!important;
+ gap:2px!important;
+ justify-content:center!important;
+ background:rgba(7,12,18,.62)!important;
+ border:1px solid rgba(190,205,200,.2)!important;
+ border-left:2px solid var(--faction)!important;
+}
+#card.mode-royale .royale-card-head{justify-content:flex-start!important;flex-wrap:wrap!important;gap:2px!important;}
+#card.mode-royale .royale-card .name{
+ flex:1 1 100%!important;
+ white-space:normal!important;
+ overflow-wrap:anywhere!important;
+ text-overflow:clip!important;
+ font-size:clamp(5px,.58vw,8px)!important;
+ line-height:1.25!important;
+}
+#card.mode-royale .royale-card .faction{font-size:8px!important;line-height:1!important;}
+#card.mode-royale .royale-hp-line{align-items:center!important;}
+#card.mode-royale .royale-card .hp{font-size:clamp(12px,1.05vw,17px)!important;}
+#card.mode-royale .royale-hp-line>span{font-size:6px!important;}
+#card.mode-royale .royale-card .hp-track{height:3px!important;}
+#card.mode-royale .royale-ability-line{gap:3px!important;margin-top:0!important;}
+#card.mode-royale .royale-ability-line>b{font-size:4px!important;}
+#card.mode-royale .royale-card .stack{height:2px!important;}
+#card.mode-royale .royale-card .status{min-height:0!important;flex-wrap:wrap!important;gap:1px!important;}
+#card.mode-royale .royale-card .status i{font-size:4px!important;padding:1px!important;white-space:normal!important;overflow-wrap:anywhere!important;}
+@media(max-width:700px){
+ #card.mode-royale{grid-template-columns:clamp(62px,17vw,82px) minmax(0,1fr) clamp(62px,17vw,82px)!important;}
+ #card.mode-royale .royale-card{padding:2px 2px 2px 4px!important;}
+ #card.mode-royale .royale-card .name{font-size:5px!important;}
+ #card.mode-royale .royale-card .hp{font-size:12px!important;}
+ #card.mode-royale .royale-card .status i{font-size:3px!important;}
+}
