@@ -31,32 +31,51 @@ function initRoyaleObstacles(spawnPoints,largestRadius){
     if(Math.hypot(sp.x-cx,sp.y-cy)<largestRadius*3){blocked=true;break;}
    }
    if(blocked)continue;
-   royaleObstacles.push({x:px,y:py,w:pw,h:ph});
+   royaleObstacles.push({x:px,y:py,w:pw,h:ph,sprite:royaleBuildObstacleSprite(pw,ph),bobSeed:i*1.71});
    placed=true;
   }
  }
 }
+function royaleBuildObstacleSprite(w,h){
+ const scale=2,cv=document.createElement('canvas');cv.width=Math.ceil(w*scale);cv.height=Math.ceil(h*scale);
+ const c=cv.getContext('2d');c.scale(scale,scale);
+ c.fillStyle='#514b3e';c.fillRect(0,0,w,h);
+ c.fillStyle='#756b55';c.fillRect(2,2,w-4,h-4);
+ c.fillStyle='rgba(180,190,145,.22)';c.fillRect(3,3,w-6,Math.max(3,h*.12));
+ c.strokeStyle='#3b3429';c.lineWidth=2;c.strokeRect(1,1,w-2,h-2);
+ const brickH=18,brickW=38;
+ for(let y=5,row=0;y<h-4;y+=brickH,row++){
+  const offset=row%2?brickW/2:0;
+  c.strokeStyle='rgba(35,30,24,.58)';c.lineWidth=1;c.beginPath();c.moveTo(2,y);c.lineTo(w-2,y);
+  for(let x=offset;x<w;x+=brickW){c.moveTo(x,y);c.lineTo(x,y+brickH);}c.stroke();
+  c.strokeStyle='rgba(220,208,170,.12)';c.beginPath();c.moveTo(3,y+1);c.lineTo(w-3,y+1);c.stroke();
+ }
+ c.fillStyle='rgba(63,91,52,.18)';
+ for(let x=8;x<w-4;x+=31){c.fillRect(x,Math.max(3,(x*7)%Math.max(5,h-8)),3,2);}
+ return cv;
+}
 function drawRoyaleObstacles(){
  const view=typeof royaleCameraViewRect==='function'?royaleCameraViewRect():{l:0,t:0,r:W,b:H};
+ const t=(window.matchTime||0);
  for(let i=0;i<royaleObstacles.length;i++){
   const p=royaleObstacles[i];
   if(p.x+p.w<view.l-40||p.x>view.r+40||p.y+p.h<view.t-40||p.y>view.b+40)continue;
-  ctx.fillStyle='#75634c';ctx.fillRect(p.x,p.y,p.w,p.h);
-  ctx.fillStyle='rgba(255,232,190,.18)';ctx.fillRect(p.x+2,p.y+2,Math.max(0,p.w-4),Math.max(2,p.h*.16));
-  ctx.strokeStyle='#3f3428';ctx.lineWidth=2;ctx.strokeRect(p.x+1,p.y+1,p.w-2,p.h-2);
-  ctx.strokeStyle='rgba(255,255,255,.12)';ctx.lineWidth=1;
-  ctx.beginPath();ctx.moveTo(p.x+p.w*.5,p.y);ctx.lineTo(p.x+p.w*.5,p.y+p.h);ctx.stroke();
+  const bob=Math.sin(t*1.15+(p.bobSeed||0))*.8;
+  if(p.sprite)ctx.drawImage(p.sprite,p.x,p.y+bob,p.w,p.h);
+  else{ctx.fillStyle='#75634c';ctx.fillRect(p.x,p.y+bob,p.w,p.h);}
  }
 }
 function royaleWallContact(s,smearTextDy){
+ if(typeof s._wallContactPassives!=='function')return;
  if(!Number.isFinite(s._royaleObstacleCooldown)||s._royaleObstacleCooldown<=0){
   s._wallContactPassives(smearTextDy);
   s._royaleObstacleCooldown=ROYALE_CONFIG.obstacleCooldown;
  }
 }
 function resolveRoyaleObstacles(){
- for(let i=0;i<spheres.length;i++){
-  const s=spheres[i];
+ for(const bodies of [spheres,skeletons]){
+ for(let i=0;i<bodies.length;i++){
+  const s=bodies[i];
   if(!s.alive||s.dying||s.isLeaping)continue;
   const r=s.radius;
   for(let j=0;j<royaleObstacles.length;j++){
@@ -85,6 +104,7 @@ function resolveRoyaleObstacles(){
    s.impactVx-=impactN*nx;s.impactVy-=impactN*ny;
    royaleWallContact(s,-r-10);
   }
+ }
  }
 }
 function killRoyaleProjectilesOnObstacles(){

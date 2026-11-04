@@ -37,16 +37,18 @@ function finishRoyaleZone(){
 function resolveRoyaleBounds(){
  if(!royaleZone)return;
  const b=royaleZone.bounds;
- for(let i=0;i<spheres.length;i++){
-  const s=spheres[i];
+ for(const bodies of [spheres,skeletons]){
+ for(let i=0;i<bodies.length;i++){
+  const s=bodies[i];
   if(!s.alive||s.dying||s.isLeaping)continue;
-  const r=s.radius,spd=s.targetSpd||s.baseSpd||0;
+  const r=s.radius,spd=s.targetSpd||s.baseSpd||s.speed||0;
   let touched=false,smear=-r-10;
   if(s.x-r<b.l){s.x=b.l+r;s.vx=Math.max(Math.abs(s.vx)*WALL_REST,spd*.5);s.impactVx=0;touched=true;}
   else if(s.x+r>b.r){s.x=b.r-r;s.vx=-Math.max(Math.abs(s.vx)*WALL_REST,spd*.5);s.impactVx=0;touched=true;}
   if(s.y-r<b.t){s.y=b.t+r;s.vy=Math.max(Math.abs(s.vy)*WALL_REST,spd*.5);s.impactVy=0;touched=true;smear=r+10;}
   else if(s.y+r>b.b){s.y=b.b-r;s.vy=-Math.max(Math.abs(s.vy)*WALL_REST,spd*.5);s.impactVy=0;touched=true;}
   if(touched)royaleWallContact(s,smear);
+ }
  }
 }
 function royaleZoneIntersectsView(l,t,r,b){

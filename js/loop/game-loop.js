@@ -93,6 +93,8 @@ function loop(ts){
 function concludeMatch(winner,endReason){
  if(winDone)return;
  winDone=true;
+ // Keep the Royale winner and final arena state frozen inside the completed zone.
+ if(gameMode==='royale')paused=true;
  if(window._liveCombatTracker){
   const duration=window.matchTime||0;
   window._liveCombatTracker.onMatchEnd(duration);
@@ -129,6 +131,8 @@ function checkEliminationWin(){
 }
 function showWinner(w){
  const ov=document.getElementById('winner'),wt=document.getElementById('wt'),ws=document.getElementById('ws');
+ ov.classList.remove('royale-win','royale-draw');ov.style.removeProperty('--royale-winner');
+ if(gameMode==='royale'){if(!w)ov.classList.add('royale-draw');else{ov.classList.add('royale-win');ov.style.setProperty('--royale-winner',ROYALE_FACTION_COLORS[w.faction]?.color||'#d6a83e');}}
  if(!w)wt.innerHTML=`<span style="color:#ffcc44">DRAW!</span><br><span style="color:#aac;font-size:.75em">ALL FELL</span>`;
  else{
   const col=gameMode==='royale'?(ROYALE_FACTION_COLORS[w.faction]?.color||'#ffcc44'):(w.faction===0?'#ff6633':'#88aaff');

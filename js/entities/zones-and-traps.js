@@ -29,7 +29,7 @@ class BurialMound{
     this.triggerCD=0.75;
     s.vx*=0.72;s.vy*=0.72;s.impactVx*=0.72;s.impactVy*=0.72;
     const tdmg=Math.max(1,s.hp*0.025);
-    const _moundBefore=s.hp;s.hp=Math.max(0,s.hp-tdmg);s.hitFlash=1;recordDamageEvent(this.owner.key,'passive',_moundBefore-s.hp);
+    const _moundBefore=s.hp;s.hp=Math.max(0,s.hp-(gameMode==='royale'?tdmg*0.8:tdmg));s.hitFlash=1;recordDamageEvent(this.owner.key,'passive',_moundBefore-s.hp);
     spawnDmgNum(s.x,s.y-s.radius*1.4,tdmg,'#a7834b');
     spawnSpark(s.x,s.y,'#8a6a40',4);
     if(s.hp<=0&&!s.dying){s.alive=false;s.dying=true;spawnBurst(s.x,s.y,s.d.rim,s.d.color,28);}
@@ -109,7 +109,7 @@ class GlassShard{
   if(!this.alive)return 0;
   this.alive=false;
   if(target&&target.alive&&!target.dying){
-   const _shatterBefore=target.hp;target.hp=Math.max(0,target.hp-dmg);target.hitFlash=1;recordDamageEvent(this.owner.key,sourceType,_shatterBefore-target.hp);target.glassBleedSourceKey=this.owner.key;target.glassBleedT=Math.max(target.glassBleedT||0,4.0);
+   const _shatterBefore=target.hp;target.hp=Math.max(0,target.hp-(gameMode==='royale'?dmg*0.8:dmg));target.hitFlash=1;recordDamageEvent(this.owner.key,sourceType,_shatterBefore-target.hp);target.glassBleedSourceKey=this.owner.key;target.glassBleedT=Math.max(target.glassBleedT||0,4.0);
    spawnDmgNum(target.x,target.y-target.radius*1.4,dmg,'#82f4ff');
    if(target.hp<=0&&!target.dying){target.alive=false;target.dying=true;spawnBurst(target.x,target.y,target.d.rim,target.d.color,28);}
   }

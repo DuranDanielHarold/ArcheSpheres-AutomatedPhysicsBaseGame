@@ -11,6 +11,8 @@ class Sphere{
   opts=opts||{};
   const d=DEF[key];
   this.key=key;this.d=Object.assign({},d);this.faction=faction;
+  const royaleStatBuff=gameMode==='royale'&&!opts.isReplica;
+  if(royaleStatBuff){this.d.arm=Math.round(this.d.arm*1.2);this.d.magDef=Math.round(this.d.magDef*1.2);}
   this.x=x;this.y=y;this.vx=vx;this.vy=vy;
   this.targetSpd=Math.hypot(vx,vy);
   this.baseSpd=this.targetSpd;
@@ -30,7 +32,7 @@ class Sphere{
    }
   }
   this.mass=d.mass;
-  const hp=hpOverride||d.hp;
+  const hp=(hpOverride||d.hp)*(royaleStatBuff?1.2:1);
   this.hp=hp;this.maxHp=hp;
   this.hpBarDisplayHp=hp;this.hpBarLastHp=hp;
   this.hpBarDamageGhostHp=hp;this.hpBarDamageHoldT=0;this.hpBarDamageAlpha=0;
@@ -733,7 +735,7 @@ class Sphere{
      if(dischargeDmg>0){
       for(const s of spheres){
        if(sameFaction(this,s)||!s.alive||s.dying)continue;
-       const _dischargeBefore=s.hp;s.hp=Math.max(0,s.hp-dischargeDmg);recordDamageEvent(this.key,'ability',_dischargeBefore-s.hp);
+       const _dischargeBefore=s.hp;s.hp=Math.max(0,s.hp-(gameMode==='royale'?dischargeDmg*0.8:dischargeDmg));recordDamageEvent(this.key,'ability',_dischargeBefore-s.hp);
        if(s.hp<=0&&!s.dying){s.alive=false;s.dying=true;spawnBurst(s.x,s.y,s.d.rim,s.d.color,28);}
        spawnDmgNum(s.x,s.y-s.radius*1.5,dischargeDmg,'#88ccff');
       }
@@ -789,7 +791,7 @@ class Sphere{
       if(sameFaction(this,s)||!s.alive||s.dying)continue;
       const dx=s.x-this.x,dy=s.y-this.y,d=Math.hypot(dx,dy)||1;
       if(d<this.radius+s.radius+18){
-       const _penitenceBefore=s.hp;s.hp=Math.max(0,s.hp-10);s.hitFlash=1;recordDamageEvent(this.key,'ability',_penitenceBefore-s.hp);
+       const _penitenceBefore=s.hp;s.hp=Math.max(0,s.hp-(gameMode==='royale'?10*0.8:10));s.hitFlash=1;recordDamageEvent(this.key,'ability',_penitenceBefore-s.hp);
        s.applyImpact((dx/d)*180,(dy/d)*180);
        spawnDmgNum(s.x,s.y-s.radius*1.5,10,'#d8b06a');
        if(s.hp<=0&&!s.dying){s.alive=false;s.dying=true;spawnBurst(s.x,s.y,s.d.rim,s.d.color,28);}
@@ -1213,7 +1215,7 @@ class Sphere{
    this.sepsisDotTimer-=dt;
    if(this.sepsisDotTimer<=0){
     const sdmg=this.sepsisDotDmg;
-    const _sepsisBefore=this.hp;this.hp=Math.max(0,this.hp-sdmg);this.hitFlash=1;recordDamageEvent(this.sepsisSourceKey,'dot',_sepsisBefore-this.hp);
+    const _sepsisBefore=this.hp;this.hp=Math.max(0,this.hp-(gameMode==='royale'?sdmg*0.8:sdmg));this.hitFlash=1;recordDamageEvent(this.sepsisSourceKey,'dot',_sepsisBefore-this.hp);
     spawnDmgNum(this.x,this.y-this.radius*1.2,sdmg,'#aadd44');
     spawnToxicCloud(this.x,this.y);
     this.sepsisDotTicks--;this.sepsisDotTimer=0.5;
@@ -1916,7 +1918,7 @@ class Sphere{
    const dist=Math.hypot(s.x-this.x,s.y-this.y);
    if(dist<radius+s.radius){
     // True damage — bypasses armor, this is the lance strike on descent
-    const _impactBefore=s.hp;s.hp=Math.max(0,s.hp-dmg);
+    const _impactBefore=s.hp;s.hp=Math.max(0,s.hp-(gameMode==='royale'?dmg*0.8:dmg));
     s.hitFlash=1;recordDamageEvent(this.key,'ability',_impactBefore-s.hp);
     if(dmg>0.5)spawnBloodSplat(s.x,s.y,s.d.color,dmg);
     if(dmg>0.2)spawnDmgNum(s.x,s.y-s.radius*0.5,dmg,'#4488cc');
@@ -2254,7 +2256,7 @@ class Sphere{
   if(this.untargetable)return; // vampire ghost mode
   if(!isFinite(dmg)||dmg<=0)return;
   if(this.replicaKind==='phase'){this._destroyReplica('POOF');return;}
-  let fd=dmg;
+  let fd=gameMode==='royale'?dmg*0.8:dmg;
   if(this.key==='templar'){
    const anchor=Math.max(0,Math.min(1,this.templarAnchor||0));
    fd*=0.85-(0.30*anchor);
@@ -2306,7 +2308,7 @@ class Sphere{
    const col=fd>=15?'#ff4444':fd>=6?'#ffaa22':'#ffffff';
    spawnDmgNum(this.x,this.y-this.radius*0.5,fd,col);
   }
-  if(this.canTriggerTraits!==false&&!this.lowHpBuffApplied&&this.hp/this.maxHp<0.30&&this.hp>0){
+  if(gameMode!=='royale'&&this.canTriggerTraits!==false&&!this.lowHpBuffApplied&&this.hp/this.maxHp<0.30&&this.hp>0){
    this.lowHpBuffApplied=true;
    this._applyLowHpBuff();
   }
@@ -2320,13 +2322,14 @@ class Sphere{
   if(!Number.isFinite(amount)||amount<=0)return 0;
   if(this.replicaKind==='phase'){const replicaHp=this.hp;this._destroyReplica('POOF');return replicaHp;}
   const before=this.hp;
+  amount=gameMode==='royale'?amount*0.8:amount;
   this.hp=Math.max(0,this.hp-amount);
   const removed=before-this.hp;
   if(removed<=0)return 0;
   this.hitFlash=1;
   if(sourceKey)recordDamageEvent(sourceKey,sourceType,removed);
   spawnDmgNum(this.x,this.y-this.radius*0.5,removed,'#cc88ff');
-  if(this.canTriggerTraits!==false&&!this.lowHpBuffApplied&&this.hp/this.maxHp<0.30&&this.hp>0){
+  if(gameMode!=='royale'&&this.canTriggerTraits!==false&&!this.lowHpBuffApplied&&this.hp/this.maxHp<0.30&&this.hp>0){
    this.lowHpBuffApplied=true;this._applyLowHpBuff();
   }
   if(this.hp<=0&&!this.dying){
@@ -2351,7 +2354,7 @@ class Sphere{
    spawnDmgNum(this.x,this.y-this.radius*0.5,0,'#4488cc');
    return;
   }
-  let fd=dmg/(this.d.magDef*0.004+1);
+  let fd=(gameMode==='royale'?dmg*0.8:dmg)/(this.d.magDef*0.004+1);
   if(this.key==='golem'){this.golemAdaptMagic=Math.min(100,(this.golemAdaptMagic||0)+dmg);this.golemAdaptTimer=8;this.golemAdaptType=this.golemAdaptMagic>=(this.golemAdaptPhysical||0)?'crystalline':'ironstone';if(this.golemAdaptType==='crystalline')fd*=0.82;}
   if(this.sepsisWeakenedT>0)fd*=1.15;
   fd=this._applyGuardianBastion(fd);
@@ -2388,7 +2391,7 @@ class Sphere{
   if(fd>0.2){
    spawnDmgNum(this.x,this.y-this.radius*0.5,fd,'#cc88ff');
   }
-  if(this.canTriggerTraits!==false&&!this.lowHpBuffApplied&&this.hp/this.maxHp<0.30&&this.hp>0){
+  if(gameMode!=='royale'&&this.canTriggerTraits!==false&&!this.lowHpBuffApplied&&this.hp/this.maxHp<0.30&&this.hp>0){
    this.lowHpBuffApplied=true;this._applyLowHpBuff();
   }
   if(this.hp<=0&&!this.dying){
@@ -2414,7 +2417,7 @@ class Sphere{
   const hitBuffCap=configuredCap===false?Infinity:(Number.isFinite(configuredCap)?Math.max(0,Math.floor(configuredCap)):10);
   // Cap only the shared permanent stat growth. Class-specific on-hit effects below
   // (e.g. Gladiator Favor and Beastmaster companion spawning) still run on every hit.
-  if(this.hitBuffStacks<=hitBuffCap){
+  if(gameMode!=='royale'&&this.hitBuffStacks<=hitBuffCap){
    this.d=Object.assign({},this.d);
    this.d.dmg*=1.004;
    this.d.arm=Math.round(this.d.arm*1.004);

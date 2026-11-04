@@ -1,7 +1,7 @@
 'use strict';
 // Royale-only world camera. It observes simulation state and changes render transforms only.
 const ROYALE_CAMERA_CONFIG={
- zoomMinFactor:0.55,zoomMaxFactor:1.7,posTau:0.30,zoomTau:0.55,lookAhead:0.3,deadzone:0.03,
+ zoomMinFactor:0.55,zoomMaxFactor:1.7,autoZoomMaxFactor:0.88,posTau:0.30,zoomTau:0.55,lookAhead:0.3,deadzone:0.03,
  heatDecay:1.2,clashDist:7,groupDist:12,pad:4,switchRatio:1.4,switchBias:0.2,switchHold:0.6,
  minDwell:1.5,idleScore:0.35,establishWarning:true,establishEventSecs:2,killcamSecs:1.0,
  killcamZoomFactor:1.5,followSecs:8,shakeMax:6,shakeDecay:0.25
@@ -87,7 +87,7 @@ function royaleCameraGroupTarget(group){
  const cx=(l+rr)/2*.7+(wt?wx/wt:(l+rr)/2)*.3+(vx/group.length)*ROYALE_CAMERA_CONFIG.lookAhead;
  const cy=(t+b)/2*.7+(wt?wy/wt:(t+b)/2)*.3+(vy/group.length)*ROYALE_CAMERA_CONFIG.lookAhead;
  const rect={l:l-pad,t:t-pad,r:rr+pad,b:b+pad};
- return{x:cx,y:cy,zoom:royaleCameraFit(rect),rect};
+ return{x:cx,y:cy,zoom:Math.min(royaleCameraFit(rect),royaleCameraBaseZoom()*ROYALE_CAMERA_CONFIG.autoZoomMaxFactor),rect};
 }
 function updateRoyaleCamera(dtReal){
  if(!Number.isFinite(dtReal)||dtReal<0)dtReal=0;const dt=Math.min(dtReal,.25);royaleCamera.matchT+=dt;

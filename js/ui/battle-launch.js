@@ -31,12 +31,11 @@ function showCountdown(n,onDone){
  const numEl=document.getElementById('countdown-num');
  const lblEl=document.getElementById('countdown-label');
  function tick(r){
-  if(r<=0){ov.classList.remove('show');numEl.textContent='FIGHT!';numEl.classList.remove('cd-pop');void numEl.offsetWidth;numEl.classList.add('cd-pop');
-   setTimeout(()=>{numEl.textContent='';lblEl.textContent='GET READY';ov.classList.remove('show');onDone();},600);return;}
+  if(r<=0){ov.classList.remove('show');numEl.textContent='FIGHT!';numEl.classList.remove('cd-pop');void numEl.offsetWidth;numEl.classList.add('cd-pop');setTimeout(()=>{numEl.textContent='';lblEl.textContent='GET READY';ov.classList.remove('show');onDone();},600);return;}
   numEl.classList.remove('cd-pop');void numEl.offsetWidth;numEl.classList.add('cd-pop');
   numEl.textContent=r;
   lblEl.textContent=r===1?'LAST CHANCE':'GET READY';
-  countdownTimer=setTimeout(()=>tick(r-1),1000);
+  setTimeout(()=>tick(r-1),1000);
  }
  tick(n);
 }

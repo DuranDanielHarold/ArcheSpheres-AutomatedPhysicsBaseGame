@@ -250,7 +250,7 @@ function _weaponHit(att,def){
    if(window._balanceCombatTracker&&att.d&&att.d.sphereMelee)window._balanceCombatTracker.onRotationUpdate(att.key,att.rotationSpeed||0,true);
    if(window._liveCombatTracker&&att.d&&att.d.sphereMelee)window._liveCombatTracker.onRotationUpdate(att.key,att.rotationSpeed||0,true);
    if(att.key==='queen'&&att.queenGambitT>0){
-    const _qBefore=def.hp;def.hp=Math.max(0,def.hp-dmg);def.hitFlash=1;recordDamageEvent(att.key,'ability',Math.max(0,_qBefore-def.hp));
+    const _qBefore=def.hp;def.hp=Math.max(0,def.hp-(gameMode==='royale'?dmg*0.8:dmg));def.hitFlash=1;recordDamageEvent(att.key,'ability',Math.max(0,_qBefore-def.hp));
     spawnDmgNum(def.x,def.y-def.radius*0.5,dmg,'#ff8bd1');
     spawnSpark(hx,hy,att.d.color,7);
     if(def.hp<=0&&!def.dying){def.alive=false;def.dying=true;spawnBurst(def.x,def.y,def.d.rim,def.d.color,28);}
@@ -339,7 +339,7 @@ function _weaponHit(att,def){
    // Stormbringer — discharge static charge on hit
     if(traits&&att.key==='stormbringer'&&att.staticCharge>0){
     const trueDmg=att.staticCharge*0.6;
-    const _staticBefore=def.hp;def.hp=Math.max(0,def.hp-trueDmg);
+    const _staticBefore=def.hp;def.hp=Math.max(0,def.hp-(gameMode==='royale'?trueDmg*0.8:trueDmg));
     def.hitFlash=1;recordDamageEvent(att.key,'passive',_staticBefore-def.hp);
     if(trueDmg>0.5){spawnDmgNum(def.x,def.y-def.radius*1.8,trueDmg,'#88ccff');spawnSpark(def.x,def.y,'#88ccff',5);}
     att.staticCharge=0;
@@ -530,7 +530,7 @@ function _sphereHitSkeleton(att,sk){
   const tipSpd=Math.hypot(tvx,tvy);
   const dmg=(tipSpd*att.d.dmg*0.010+(att.mass*0.35)*0.12)*att.dmgMult/(sk.arm*0.004+1);
   if(dmg>0.1){
-   sk.hp=Math.max(0,sk.hp-dmg);
+   sk.hp=Math.max(0,sk.hp-(gameMode==='royale'?dmg*0.8:dmg));
    sk.hitFlash=1;
    spawnBloodSplat(sk.x,sk.y,'#c8c0a0',dmg);
    spawnDmgNum(sk.x,sk.y-sk.radius*0.5,dmg,dmg>=10?'#ff4444':dmg>=4?'#ffaa22':'#ffffff');

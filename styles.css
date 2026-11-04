@@ -611,3 +611,182 @@ body {
 .royale-chip-hp{height:4px;background:#263342;margin-top:2px;overflow:hidden;}
 .royale-chip-hp>i{display:block;height:100%;background:#64d18a;}
 @media(max-width:600px){.royale-hud-roster{grid-template-columns:repeat(2,minmax(0,1fr));}}
+
+
+/* Session 2B — Battle Royale-only full-screen command layout and HUD. */
+body:has(#card.mode-royale){overflow:hidden;padding:0;gap:0;}
+body:has(#card.mode-royale) #mode-row,body:has(#card.mode-royale) #sel-row{display:none!important;}
+#card.mode-royale{
+ position:fixed;inset:0;width:100%;height:100%;max-width:none;min-height:0;flex:none;
+ display:grid;grid-template-columns:clamp(84px,8vw,132px) minmax(0,1fr) clamp(84px,8vw,132px);
+ grid-template-rows:minmax(0,1fr);gap:4px;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+ box-shadow:none;background:#111a29;overflow:hidden;
+}
+#card.mode-royale #titlebar,#card.mode-royale #divider,#card.mode-royale #stats{display:none!important;}
+#card.mode-royale #arena-outer{grid-column:2;grid-row:1;min-width:0;min-height:0;height:100%;padding:3px;background:#111a29;overflow:hidden;}
+#card.mode-royale #arena-border{height:100%;min-height:0;flex:1 1 auto;position:relative;}
+#royale-rail-l,#royale-rail-r{grid-row:1;min-height:0;display:grid;grid-template-rows:repeat(4,minmax(0,1fr));gap:5px;align-self:stretch;z-index:2;}
+#royale-rail-l{grid-column:1;}#royale-rail-r{grid-column:3;}
+.royale-card{position:relative;display:flex;flex-direction:column;justify-content:center;gap:3px;min-width:0;min-height:0;overflow:hidden;padding:4px 4px 4px 7px;background:linear-gradient(135deg,#243149,#101a2a);border:1px solid #8a6828;box-shadow:inset 0 0 0 1px #3a2c18;color:#f6e7bd;text-align:left;cursor:pointer;}
+.royale-stripe{position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--faction);}
+.royale-card-head{display:flex;align-items:center;gap:4px;min-width:0;}
+.royale-avatar{width:28px;height:28px;flex:0 0 28px;object-fit:contain;}
+.royale-card-name{font:clamp(4px,.55vw,7px)/1.5 'Press Start 2P',monospace;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#f4d99a;}
+.royale-faction-number{font:10px 'VT323',monospace;color:#f6d47e;border:1px solid #94723b;padding:0 3px;}
+.hp-track{display:block;position:relative;height:5px;background:#273142;overflow:hidden;border:1px solid #090f18;}
+.hp-track i{position:absolute;left:0;top:0;height:100%;width:0;transition:width .25s ease;}
+.hp-track .trail{background:#d7aa55;opacity:.8;z-index:0;transition:width .55s ease;}
+.hp-track .fill{background:#54bf72;z-index:1;}
+.card-foot{display:flex;align-items:center;justify-content:space-between;gap:4px;}
+.royale-card .hp{font:14px/1 'VT323',monospace;color:#fff1ce;white-space:nowrap;}
+.royale-card .stack{height:3px;flex:1;background:#293348;overflow:hidden;}
+.royale-card .stack i{display:block;height:100%;width:0;background:#e8b430;}
+.royale-card .status{font:5px/1.4 'Press Start 2P',monospace;color:#e7c66e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.royale-card .status[hidden],.royale-card .skull[hidden]{display:none;}
+.royale-card.dead{filter:grayscale(1);opacity:.48;}
+.royale-card .skull{position:absolute;right:5px;top:4px;color:#fff;font-size:20px;text-shadow:1px 2px #000;}
+.royale-card .place{position:absolute;right:4px;bottom:3px;font:10px 'VT323',monospace;color:#f8d77d;text-shadow:1px 1px #000;}
+.royale-card.followed{outline:2px solid #f4d06f;outline-offset:-3px;box-shadow:0 0 9px #f4d06f,inset 0 0 0 1px #fff1b5;}
+#controls.royale-controls{position:fixed;z-index:45;left:50%;bottom:calc(env(safe-area-inset-bottom) + 8px);transform:translateX(-50%);display:flex;flex-wrap:nowrap;gap:5px;padding:5px 8px;border:1px solid rgba(232,180,48,.65);border-radius:30px;background:rgba(8,14,24,.8);opacity:.55;transition:opacity .25s;backdrop-filter:blur(4px);}
+#controls.royale-controls.idle{opacity:.2;}
+#controls.royale-controls .pbtn{font-size:clamp(5px,.55vw,8px);padding:6px 8px;white-space:nowrap;box-shadow:none;border:1px solid #8a6828;border-radius:20px;}
+#controls.royale-controls #balance-btn,#controls.royale-controls #balance-status,#controls.royale-controls #audio-panel{display:none!important;}
+#royale-ribbon{position:absolute;z-index:32;top:8px;left:50%;transform:translateX(-50%);width:min(76%,560px);padding:8px 12px;background:rgba(9,16,28,.9);border:2px solid #c8920a;color:#f5dca2;text-align:center;pointer-events:none;opacity:0;transition:opacity .2s,padding .2s,width .2s;}
+#royale-ribbon.active{opacity:1;}
+.royale-ribbon-main{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap;font:clamp(5px,.65vw,8px)/1.6 'Press Start 2P',monospace;}
+.royale-ribbon-drain{height:4px;margin-top:5px;background:#263348;overflow:hidden;}
+.royale-ribbon-drain i{display:block;height:100%;width:100%;background:#e8b430;transition:width .12s linear;}
+#royale-ribbon.collapsed{width:min(60%,520px);height:20px;padding:2px 8px;border-width:1px;background:rgba(9,16,28,.62);}
+#royale-ribbon.collapsed .royale-ribbon-main{font-size:5px;line-height:14px;flex-wrap:nowrap;gap:7px;white-space:nowrap;overflow:hidden;}
+#royale-ribbon.collapsed .royale-ribbon-drain{display:none;}
+#royale-left-crest{position:absolute;z-index:33;top:8px;left:10px;padding:3px 5px;background:rgba(9,16,28,.72);border:1px solid #9a762e;color:#f4d06f;font:6px 'Press Start 2P',monospace;pointer-events:none;}
+#royale-rotate{display:none;position:fixed;inset:0;z-index:200;background:rgba(5,9,17,.96);align-items:center;justify-content:center;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);}
+#royale-rotate.show{display:flex;}
+.royale-rotate-panel{text-align:center;padding:28px;border:3px solid #c8920a;background:#111a2b;box-shadow:0 0 0 5px #493719;}
+.royale-rotate-panel b{display:block;color:#f3d17d;font:clamp(12px,4vw,22px) 'Press Start 2P',monospace;}
+.royale-rotate-panel span{display:block;margin-top:14px;color:#b8c5d8;font:18px 'VT323',monospace;letter-spacing:2px;}
+#card.mode-royale #winner{background:rgba(3,8,16,.76);}
+#card.mode-royale #wt{padding:12px 22px;border:3px solid #d6a83e;background:rgba(10,17,29,.92);box-shadow:0 0 0 4px #382b19;font-size:clamp(9px,1.4vw,17px);}
+@media (orientation:landscape) and (pointer:coarse){#card.mode-royale{grid-template-columns:clamp(84px,11vw,118px) minmax(0,1fr) clamp(84px,11vw,118px);}}
+@media (max-width:700px){.royale-card{padding:3px 2px 3px 5px;gap:2px}.royale-avatar{width:22px;height:22px;flex-basis:22px}.royale-card .hp{font-size:12px}.royale-card .status{font-size:4px}.royale-ribbon-main{gap:5px;font-size:5px}}
+
+#card.mode-royale #winner.royale-win #wt{border-color:var(--royale-winner,#d6a83e);box-shadow:0 0 18px color-mix(in srgb,var(--royale-winner,#d6a83e) 55%,transparent),0 0 0 4px #382b19;}
+#card.mode-royale #winner.royale-draw #wt{border-color:#aeb8c8;background:rgba(18,25,38,.96);color:#e0e7f0;box-shadow:0 0 0 4px #4a5362;}
+
+.royale-card .status{display:flex;gap:2px;min-height:7px;}
+.royale-card .status i{display:block;min-width:0;max-width:50%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-style:normal;padding:1px 2px;border:1px solid #8e783e;background:rgba(10,18,29,.82);}
+.royale-card .status i[hidden]{display:none;}
+
+
+/* Session 2B visual refinement — compact broadcast-style faction panels. */
+#royale-rail-l,#royale-rail-r{gap:0;background:rgba(7,12,18,.28);border-top:1px solid rgba(210,220,220,.2);border-bottom:1px solid rgba(210,220,220,.2);}
+.royale-card{
+ display:flex;flex-direction:column;justify-content:center;align-items:stretch;gap:3px;
+ min-width:0;min-height:0;padding:7px 5px 6px 9px;
+ border:0;border-bottom:1px solid rgba(190,205,200,.3);border-radius:0;
+ background:linear-gradient(90deg,rgba(6,12,18,.68),rgba(13,20,24,.32));
+ box-shadow:none;color:#e6e8e3;text-align:left;position:relative;
+}
+.royale-card:last-child{border-bottom:0;}
+.royale-card .royale-stripe{width:3px;opacity:.95;box-shadow:0 0 7px color-mix(in srgb,var(--faction) 40%,transparent);}
+.royale-card-head{display:flex;align-items:center;justify-content:space-between;gap:3px;min-width:0;margin-bottom:1px;}
+.royale-card .name{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+ color:var(--faction);font:clamp(7px,.88vw,12px)/1.35 'Press Start 2P',monospace;
+ text-shadow:0 1px 2px #000,0 0 8px color-mix(in srgb,var(--faction) 24%,transparent);}
+.royale-card .faction{flex:0 0 auto;color:#d8d9d1;font:11px 'VT323',monospace;opacity:.8;}
+.royale-hp-line{display:flex;align-items:baseline;justify-content:space-between;gap:4px;}
+.royale-card .hp{font:clamp(17px,1.5vw,22px)/.9 'VT323',monospace;color:#f4f2e9;letter-spacing:.3px;}
+.royale-hp-line>span{font:9px 'Press Start 2P',monospace;color:#aeb7b2;opacity:.8;}
+.royale-card .hp-track{height:4px;border:0;background:rgba(0,0,0,.55);box-shadow:inset 0 1px 2px #000;}
+.royale-card .hp-track .trail{background:#b7b7a2;opacity:.65;}
+.royale-card .hp-track .fill{background:var(--faction);filter:saturate(.8);}
+.royale-ability-line{display:flex;align-items:center;gap:5px;min-width:0;margin-top:1px;}
+.royale-ability-line>b{font:5px 'Press Start 2P',monospace;color:#d6d8cf;white-space:nowrap;opacity:.76;}
+.royale-card .stack{height:3px;flex:1;background:rgba(0,0,0,.45);border:1px solid rgba(220,220,200,.15);}
+.royale-card .stack i{background:var(--faction);box-shadow:0 0 5px var(--faction);}
+.royale-card .status{display:flex;gap:2px;min-height:10px;overflow:hidden;}
+.royale-card .status i{max-width:100%;padding:2px 3px;border:0;border-left:2px solid var(--faction);background:rgba(100,110,103,.2);
+ color:#d9ddd4;font:5px/1.3 'Press Start 2P',monospace;letter-spacing:-.3px;}
+.royale-card .status i[hidden]{display:none;}
+.royale-card.dead{filter:grayscale(1);opacity:.4;background:rgba(8,10,12,.55);}
+.royale-card .skull{right:5px;top:4px;font-size:17px;opacity:.85;}
+.royale-card .place{right:5px;bottom:4px;font:12px 'VT323',monospace;color:#f2d38a;}
+.royale-card.followed{outline:1px solid rgba(246,218,145,.9);outline-offset:-2px;box-shadow:inset 0 0 16px rgba(246,218,145,.1);}
+@media (max-width:700px){
+ .royale-card{padding:5px 3px 4px 7px;gap:2px;}
+ .royale-card .name{font-size:clamp(5px,.9vw,8px);}
+ .royale-card .hp{font-size:16px;}
+ .royale-card .faction{font-size:9px;}
+ .royale-ability-line>b{font-size:4px;}
+ .royale-card .status{min-height:8px;}
+ .royale-card .status i{font-size:4px;padding:1px 2px;}
+}
+
+
+/* Session 2B layout correction — pin each faction rail to the arena's sides. */
+#card.mode-royale{
+ display:grid!important;
+ grid-template-columns:minmax(104px,15vw) minmax(0,1fr) minmax(104px,15vw)!important;
+ grid-template-rows:minmax(0,1fr)!important;
+ grid-auto-flow:column!important;
+ align-items:stretch!important;
+}
+#card.mode-royale > #royale-rail-l{grid-column:1!important;grid-row:1!important;align-self:stretch!important;min-width:0!important;}
+#card.mode-royale > #arena-outer{grid-column:2!important;grid-row:1!important;min-width:0!important;min-height:0!important;}
+#card.mode-royale > #royale-rail-r{grid-column:3!important;grid-row:1!important;align-self:stretch!important;min-width:0!important;}
+#card.mode-royale > #royale-rail-l,
+#card.mode-royale > #royale-rail-r{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:repeat(4,minmax(0,1fr))!important;flex-direction:column!important;}
+@media(max-width:700px){
+ #card.mode-royale{grid-template-columns:minmax(76px,22vw) minmax(0,1fr) minmax(76px,22vw)!important;gap:2px!important;}
+ #card.mode-royale > #royale-rail-l,
+ #card.mode-royale > #royale-rail-r{gap:0!important;}
+}
+
+
+/* Session 2B compact side rails — narrow columns, wrapping labels, denser cards. */
+#card.mode-royale{
+ grid-template-columns:clamp(72px,9vw,112px) minmax(0,1fr) clamp(72px,9vw,112px)!important;
+ gap:2px!important;
+}
+#card.mode-royale > #royale-rail-l,
+#card.mode-royale > #royale-rail-r{
+ grid-template-rows:repeat(4,minmax(0,1fr))!important;
+ gap:2px!important;
+ background:transparent!important;
+ border:0!important;
+}
+#card.mode-royale .royale-card{
+ min-width:0!important;
+ padding:3px 3px 3px 6px!important;
+ gap:2px!important;
+ justify-content:center!important;
+ background:rgba(7,12,18,.62)!important;
+ border:1px solid rgba(190,205,200,.2)!important;
+ border-left:2px solid var(--faction)!important;
+}
+#card.mode-royale .royale-card-head{justify-content:flex-start!important;flex-wrap:wrap!important;gap:2px!important;}
+#card.mode-royale .royale-card .name{
+ flex:1 1 100%!important;
+ white-space:normal!important;
+ overflow-wrap:anywhere!important;
+ text-overflow:clip!important;
+ font-size:clamp(5px,.58vw,8px)!important;
+ line-height:1.25!important;
+}
+#card.mode-royale .royale-card .faction{font-size:8px!important;line-height:1!important;}
+#card.mode-royale .royale-hp-line{align-items:center!important;}
+#card.mode-royale .royale-card .hp{font-size:clamp(12px,1.05vw,17px)!important;}
+#card.mode-royale .royale-hp-line>span{font-size:6px!important;}
+#card.mode-royale .royale-card .hp-track{height:3px!important;}
+#card.mode-royale .royale-ability-line{gap:3px!important;margin-top:0!important;}
+#card.mode-royale .royale-ability-line>b{font-size:4px!important;}
+#card.mode-royale .royale-card .stack{height:2px!important;}
+#card.mode-royale .royale-card .status{min-height:0!important;flex-wrap:wrap!important;gap:1px!important;}
+#card.mode-royale .royale-card .status i{font-size:4px!important;padding:1px!important;white-space:normal!important;overflow-wrap:anywhere!important;}
+@media(max-width:700px){
+ #card.mode-royale{grid-template-columns:clamp(62px,17vw,82px) minmax(0,1fr) clamp(62px,17vw,82px)!important;}
+ #card.mode-royale .royale-card{padding:2px 2px 2px 4px!important;}
+ #card.mode-royale .royale-card .name{font-size:5px!important;}
+ #card.mode-royale .royale-card .hp{font-size:12px!important;}
+ #card.mode-royale .royale-card .status i{font-size:3px!important;}
+}

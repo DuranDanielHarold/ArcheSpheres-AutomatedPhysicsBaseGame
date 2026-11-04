@@ -70,6 +70,7 @@ function updateRoyale(dt){
  killRoyaleProjectilesOnObstacles();
  royaleHudClock+=dt;
  if(royaleHudClock>=0.125){royaleHudClock=0;updateRoyaleHud(true);}
+ if(typeof royaleUiUpdate==='function')royaleUiUpdate(dt);
 }
 function drawRoyaleFrame(stage){
  if(stage==='obstacles'){drawRoyaleObstacles();return;}
@@ -86,29 +87,10 @@ function drawRoyaleFrame(stage){
   if(royaleState?.state==='EVENT'&&event&&typeof event.draw==='function')event.draw(royaleState);
  }
 }
-function updateRoyaleHud(force){
- if(!royaleState)return;
- const border=document.getElementById('arena-border');if(!border)return;
- let hud=document.getElementById('royale-hud');
- if(!hud){hud=document.createElement('div');hud.id='royale-hud';border.appendChild(hud);}
- if(!force&&royaleHudClock<0.125)return;
- const eventId=royaleState.currentEventId;
- const eventLabel=eventId?(ROYALE_EVENT_LABELS[eventId]||eventId):'—';
- let shrinkIn=royaleState.stateTimer;
- if(royaleState.state==='CALM')shrinkIn+=ROYALE_CONFIG.warning+ROYALE_CONFIG.event;
- else if(royaleState.state==='WARNING')shrinkIn+=ROYALE_CONFIG.event;
- const timeText=royaleState.state==='SHRINK'?'SHRINKING '+Math.max(0,royaleState.stateTimer).toFixed(1)+'s':
-  (royaleState.state==='FINAL'?'FINAL '+Math.max(0,royaleState.finalTimer).toFixed(1)+'s':'SHRINK IN '+Math.max(0,shrinkIn).toFixed(1)+'s');
- let html='<div class="royale-hud-top"><span>PHASE '+royaleState.phase+'/'+ROYALE_CONFIG.phases+' - '+royaleState.state+' - '+eventLabel+' - '+timeText+'</span><span>'+royaleLivingRoster()+' REMAINING</span></div><div class="royale-hud-roster">';
- for(let i=0;i<ROYALE_CONFIG.count;i++){
-  let s=null,fallback=null;for(let j=0;j<spheres.length;j++){const candidate=spheres[j];if(candidate.faction!==i)continue;if(!fallback)fallback=candidate;if(candidate.alive&&!candidate.dying){s=candidate;break;}}
-  if(!s)s=fallback;if(!s)continue;
-  const dead=!s.alive||s.dying,pct=s.maxHp>0?Math.max(0,Math.min(100,s.hp/s.maxHp*100)):0;
-  const color=ROYALE_FACTION_COLORS[i].color;
-  html+='<div class="royale-chip'+(dead?' dead':'')+'"><img src="'+getSphereIcon(s.key,24)+'" alt=""><div><div class="royale-chip-name">'+s.d.label+'</div><div class="royale-chip-hp"><i style="width:'+pct+'%;background:'+color+'"></i></div></div></div>';
- }
- hud.innerHTML=html+'</div>';
+function updateRoyaleHud(){
+ const old=document.getElementById('royale-hud');if(old)old.remove();
 }
+
 function startRoyale(){
  gameMode='royale';window.randomModeActive=false;
  if(typeof restoreTestingRandom==='function')restoreTestingRandom();
@@ -119,9 +101,10 @@ function startRoyale(){
  const card=document.getElementById('card');card.style.display='flex';card.className='mode-royale';
  document.getElementById('controls').style.display='flex';
  if(typeof royaleEnsureCameraButton==='function')royaleEnsureCameraButton();
+ if(typeof royaleUiTryLandscape==='function')royaleUiTryLandscape();
  newRoyaleBattle();
  paused=true;
- showCountdown(3,()=>{paused=false;lastTime=performance.now();});
+ showCountdown(3,()=>{const portrait=window.matchMedia('(orientation: portrait)').matches&&window.matchMedia('(pointer: coarse)').matches;paused=portrait;lastTime=performance.now();const p=document.getElementById('pbtn');if(p)p.textContent=paused?'RESUME':'PAUSE';});
 }
 function newRoyaleBattle(){
  royaleHudClock=0;
@@ -163,6 +146,7 @@ function newRoyaleBattle(){
  if(typeof _preloadConfiguredAudio==='function')_preloadConfiguredAudio(keys);
  if(typeof _syncArenaBgm==='function')_syncArenaBgm();
  updateRoyaleHud(true);
+ if(typeof royaleUiInit==='function')royaleUiInit();
  if(typeof drawGameFrame==='function')drawGameFrame();
  lastTime=performance.now();animId=requestAnimationFrame(loop);
 }
