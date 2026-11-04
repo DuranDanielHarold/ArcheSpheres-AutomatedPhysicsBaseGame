@@ -53,7 +53,7 @@ function drawRoyaleObstacles(){
  }
 }
 function royaleWallContact(s,smearTextDy){
- if(s._royaleObstacleCooldown<=0){
+ if(!Number.isFinite(s._royaleObstacleCooldown)||s._royaleObstacleCooldown<=0){
   s._wallContactPassives(smearTextDy);
   s._royaleObstacleCooldown=ROYALE_CONFIG.obstacleCooldown;
  }
