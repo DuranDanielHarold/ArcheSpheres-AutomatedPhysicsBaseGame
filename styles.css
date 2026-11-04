@@ -672,3 +672,7 @@ body:has(#card.mode-royale) #mode-row,body:has(#card.mode-royale) #sel-row{displ
 
 #card.mode-royale #winner.royale-win #wt{border-color:var(--royale-winner,#d6a83e);box-shadow:0 0 18px color-mix(in srgb,var(--royale-winner,#d6a83e) 55%,transparent),0 0 0 4px #382b19;}
 #card.mode-royale #winner.royale-draw #wt{border-color:#aeb8c8;background:rgba(18,25,38,.96);color:#e0e7f0;box-shadow:0 0 0 4px #4a5362;}
+
+.royale-card .status{display:flex;gap:2px;min-height:7px;}
+.royale-card .status i{display:block;min-width:0;max-width:50%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-style:normal;padding:1px 2px;border:1px solid #8e783e;background:rgba(10,18,29,.82);}
+.royale-card .status i[hidden]{display:none;}
