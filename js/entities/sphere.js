@@ -789,7 +789,7 @@ class Sphere{
       if(sameFaction(this,s)||!s.alive||s.dying)continue;
       const dx=s.x-this.x,dy=s.y-this.y,d=Math.hypot(dx,dy)||1;
       if(d<this.radius+s.radius+18){
-       const _penitenceBefore=s.hp;s.hp=Math.max(0,s.hp-10);s.hitFlash=1;recordDamageEvent(this.key,'ability',_penitenceBefore-s.hp);
+       const _penitenceBefore=s.hp;s.hp=Math.max(0,s.hp-(gameMode==='royale'?10*0.85:10));s.hitFlash=1;recordDamageEvent(this.key,'ability',_penitenceBefore-s.hp);
        s.applyImpact((dx/d)*180,(dy/d)*180);
        spawnDmgNum(s.x,s.y-s.radius*1.5,10,'#d8b06a');
        if(s.hp<=0&&!s.dying){s.alive=false;s.dying=true;spawnBurst(s.x,s.y,s.d.rim,s.d.color,28);}
@@ -1213,7 +1213,7 @@ class Sphere{
    this.sepsisDotTimer-=dt;
    if(this.sepsisDotTimer<=0){
     const sdmg=this.sepsisDotDmg;
-    const _sepsisBefore=this.hp;this.hp=Math.max(0,this.hp-sdmg);this.hitFlash=1;recordDamageEvent(this.sepsisSourceKey,'dot',_sepsisBefore-this.hp);
+    const _sepsisBefore=this.hp;this.hp=Math.max(0,this.hp-(gameMode==='royale'?sdmg*0.85:sdmg));this.hitFlash=1;recordDamageEvent(this.sepsisSourceKey,'dot',_sepsisBefore-this.hp);
     spawnDmgNum(this.x,this.y-this.radius*1.2,sdmg,'#aadd44');
     spawnToxicCloud(this.x,this.y);
     this.sepsisDotTicks--;this.sepsisDotTimer=0.5;
@@ -1916,7 +1916,7 @@ class Sphere{
    const dist=Math.hypot(s.x-this.x,s.y-this.y);
    if(dist<radius+s.radius){
     // True damage — bypasses armor, this is the lance strike on descent
-    const _impactBefore=s.hp;s.hp=Math.max(0,s.hp-dmg);
+    const _impactBefore=s.hp;s.hp=Math.max(0,s.hp-(gameMode==='royale'?dmg*0.85:dmg));
     s.hitFlash=1;recordDamageEvent(this.key,'ability',_impactBefore-s.hp);
     if(dmg>0.5)spawnBloodSplat(s.x,s.y,s.d.color,dmg);
     if(dmg>0.2)spawnDmgNum(s.x,s.y-s.radius*0.5,dmg,'#4488cc');
