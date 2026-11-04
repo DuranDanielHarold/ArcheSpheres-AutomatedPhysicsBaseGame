@@ -103,6 +103,16 @@ function concludeMatch(winner,endReason){
 }
 function checkEliminationWin(){
  if(winDone)return;
+ if(gameMode==='royale'){
+  const alive=spheres.filter(s=>s.alive&&!s.dying);
+  const factions=[...new Set(alive.map(s=>s.faction))];
+  if(factions.length<2&&spheres.length>=ROYALE_CONFIG.count){
+   const winnerFaction=factions[0];
+   const winner=winnerFaction===undefined?null:(alive.find(s=>s.faction===winnerFaction)||null);
+   concludeMatch(winner,'elimination');
+  }
+  return;
+ }
  const alive=spheres.filter(s=>s.alive&&!s.dying);
  const factions=[...new Set(alive.filter(s=>!s.isReplica).map(s=>s.faction))];
  if(factions.length<2&&spheres.length>=2){
