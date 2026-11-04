@@ -45,6 +45,7 @@ function updateRoyale(dt){
   royaleState.stateTimer-=dt;
   if(royaleState.stateTimer<=0){royaleEndEvent();royaleState.state='SHRINK';royaleState.stateTimer=ROYALE_CONFIG.shrink;}
  }else if(royaleState.state==='SHRINK'){
+  updateZone(dt);
   royaleState.stateTimer-=dt;
   if(royaleState.stateTimer<=0){
    finishRoyaleZone();
@@ -64,7 +65,6 @@ function updateRoyale(dt){
    concludeMatch(best&&!tied?best:null,best&&!tied?'royale_timeout_hp':'royale_timeout_tie');
   }
  }
- updateZone(dt);
  resolveRoyaleObstacles();
  resolveRoyaleBounds();
  killRoyaleProjectilesOnObstacles();
