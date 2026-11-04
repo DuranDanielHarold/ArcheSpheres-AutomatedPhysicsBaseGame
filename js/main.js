@@ -86,7 +86,7 @@ function newBattle(){
 }
 
 
-function togglePause(){if(window._testingDiagnosticRunning||window._battleCountdownActive)return;paused=!paused;document.getElementById('pbtn').textContent=paused?'RESUME':'PAUSE';if(!paused)lastTime=performance.now();if(typeof _syncArenaBgm==='function')_syncArenaBgm();}
+function togglePause(){if(window._testingDiagnosticRunning)return;paused=!paused;document.getElementById('pbtn').textContent=paused?'RESUME':'PAUSE';if(!paused)lastTime=performance.now();if(typeof _syncArenaBgm==='function')_syncArenaBgm();}
 
 function resize(){
  if(window._arenaSizeLocked)return;
