@@ -650,7 +650,7 @@ body:has(#card.mode-royale) #mode-row,body:has(#card.mode-royale) #sel-row{displ
 #controls.royale-controls{position:fixed;z-index:45;left:50%;bottom:calc(env(safe-area-inset-bottom) + 8px);transform:translateX(-50%);display:flex;flex-wrap:nowrap;gap:5px;padding:5px 8px;border:1px solid rgba(232,180,48,.65);border-radius:30px;background:rgba(8,14,24,.8);opacity:.55;transition:opacity .25s;backdrop-filter:blur(4px);}
 #controls.royale-controls.idle{opacity:.2;}
 #controls.royale-controls .pbtn{font-size:clamp(5px,.55vw,8px);padding:6px 8px;white-space:nowrap;box-shadow:none;border:1px solid #8a6828;border-radius:20px;}
-#controls.royale-controls #balance-btn,#controls.royale-controls #balance-status,#controls.royale-controls #audio-panel,#controls.royale-controls .pbtn.new{display:none!important;}
+#controls.royale-controls #balance-btn,#controls.royale-controls #balance-status,#controls.royale-controls #audio-panel{display:none!important;}
 #royale-ribbon{position:absolute;z-index:32;top:8px;left:50%;transform:translateX(-50%);width:min(76%,560px);padding:8px 12px;background:rgba(9,16,28,.9);border:2px solid #c8920a;color:#f5dca2;text-align:center;pointer-events:none;opacity:0;transition:opacity .2s,padding .2s,width .2s;}
 #royale-ribbon.active{opacity:1;}
 .royale-ribbon-main{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap;font:clamp(5px,.65vw,8px)/1.6 'Press Start 2P',monospace;}
