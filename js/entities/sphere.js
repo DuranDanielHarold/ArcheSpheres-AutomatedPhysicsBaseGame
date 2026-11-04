@@ -3068,7 +3068,7 @@ class Sphere{
   if((this.weaponDisarmedT||0)>0)add('DISARM','#e6d2a8');
   if(this.stunned)add('STUN','#ffee55');
   if((this.netRootT||0)>0)add('NET','#f0c08a');
-  if((this.netSlowT||0)>0)add('NETSLOW','#f0c08a');
+  if((this.netSlowT||0)>0)add('SLOW','#f0c08a');
   if((this.bolaRootT||0)>0)add('ROOT','#ffaa44');
   if((this.locksmithJamT||0)>0)add('JAM','#d0b45a');
   if(this.blinded)add('BLIND','#ffee22');
@@ -3080,7 +3080,7 @@ class Sphere{
   if((this.corrosionStacks||0)>0)add(`CORR×${this.corrosionStacks}`,'#2a8822');
   if((this.virulenceStacks||0)>0)add(`INFECT×${Math.ceil(this.virulenceStacks)}`,'#aadd44');
    if((this.plagueSepsisStacks||0)>0)add(`SEPSIS ${this.plagueSepsisStacks}/5`,'#aadd44');
-   if((this.sepsisDotTicks||0)>0)add(`SEPSIS DOT ×${this.sepsisDotTicks}`,'#aadd44');
+   if((this.sepsisDotTicks||0)>0)add(`SEPSIS ×${this.sepsisDotTicks}`,'#aadd44');
    if((this.sepsisWeakenedT||0)>0)add('WEAK','#aadd44');
   if((this.gnawedStacks||0)>0)add(`GNAW×${this.gnawedStacks}`,'#b7c06a');
   if((this.deathMarkTicks||0)>0)add(`MARK×${this.deathMarkTicks}`,'#7c4dff');
