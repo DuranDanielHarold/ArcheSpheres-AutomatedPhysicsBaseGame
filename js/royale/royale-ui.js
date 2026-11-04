@@ -10,7 +10,8 @@ function royaleUiInit(){
  let crest=document.getElementById('royale-left-crest');if(!crest){crest=document.createElement('div');crest.id='royale-left-crest';border.appendChild(crest);}
  let rotate=document.getElementById('royale-rotate');if(!rotate){rotate=document.createElement('div');rotate.id='royale-rotate';rotate.innerHTML='<div class="royale-rotate-panel"><b>ROTATE DEVICE</b><span>LANDSCAPE REQUIRED</span></div>';document.body.appendChild(rotate);}
  const controls=document.getElementById('controls');controls.classList.add('royale-controls');
- ['#balance-btn','#balance-status','#audio-panel','.pbtn.new'].forEach(sel=>controls.querySelectorAll(sel).forEach(el=>el.style.display='none'));
+ ['#balance-btn','#balance-status','#audio-panel'].forEach(sel=>controls.querySelectorAll(sel).forEach(el=>el.style.display='none'));
+ const repick=controls.querySelector('.pbtn.new');if(repick){repick.style.display='';repick.textContent='REPICK';repick.onclick=()=>window.startRoyale();}
  const add=(id,label,fn)=>{let b=document.getElementById(id);if(!b){b=document.createElement('button');b.id=id;b.className='pbtn';b.textContent=label;b.onclick=fn;controls.appendChild(b);}return b;};
  add('royale-sound-btn','SOUND',()=>{if(typeof toggleAudioMute==='function')toggleAudioMute();});
  add('royale-exit-btn','EXIT',()=>showStartScreen());
