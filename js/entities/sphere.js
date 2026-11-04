@@ -913,7 +913,6 @@ class Sphere{
  }
  update(dt){
   if(this.dying){this.dyingT+=dt;return;}
-  if(gameMode==='royale'&&this._royaleSizeMult&&this._royaleSizeMult!==1){const rm=this._royaleSizeMult;this.radius=Math.max(1,this.radius);}
   if(this.key==='trickster'&&this.canTriggerTraits!==false)this._checkTricksterMirrorPassive();
   this.hitFlash=Math.max(0,this.hitFlash-dt*5);
   if(this.netRootT>0){this.netRootT-=dt;this.vx*=0.04;this.vy*=0.04;this.impactVx*=0.04;this.impactVy*=0.04;if(this.netRootT<=0&&this.savedArm!==null){this.d=Object.assign({},this.d);this.d.arm=this.savedArm;this.savedArm=null;}}
