@@ -17,11 +17,13 @@ function royaleEnterEvent(){
  royaleState.currentEventId=royaleNextEvent();
  royaleState.eventSequence.push(royaleState.currentEventId);
  const entry=ROYALE_EVENT_REGISTRY[royaleState.currentEventId];
+ if(entry&&typeof entry.warn==='function')entry.warn(royaleState);
  if(entry&&typeof entry.start==='function')entry.start(royaleState);
 }
 function royaleEndEvent(){
  const entry=ROYALE_EVENT_REGISTRY[royaleState.currentEventId];
  if(entry&&typeof entry.end==='function')entry.end(royaleState);
+ if(typeof royaleClearFramework==='function')royaleClearFramework();
 }
 function royaleStartCalm(){
  royaleState.state='CALM';royaleState.stateTimer=ROYALE_CONFIG.calm;
@@ -57,7 +59,7 @@ function updateRoyale(dt){
   if(royaleState.finalTimer<=0){
    let best=null,bestPct=-Infinity,tied=false;
    for(let i=0;i<spheres.length;i++){
-    const s=spheres[i];if(!s.alive||s.dying)continue;
+    const s=spheres[i];if(!s.alive||s.dying||s.isReplica)continue;
     const pct=s.maxHp>0?s.hp/s.maxHp:0;
     if(pct>bestPct+1e-9){best=s;bestPct=pct;tied=false;}
     else if(Math.abs(pct-bestPct)<=1e-9)tied=true;
@@ -65,6 +67,7 @@ function updateRoyale(dt){
    concludeMatch(best&&!tied?best:null,best&&!tied?'royale_timeout_hp':'royale_timeout_tie');
   }
  }
+ if(typeof updateRoyaleFramework==='function')updateRoyaleFramework(dt);
  resolveRoyaleObstacles();
  resolveRoyaleBounds();
  killRoyaleProjectilesOnObstacles();
@@ -85,6 +88,10 @@ function drawRoyaleFrame(stage){
   }
   const event=ROYALE_EVENT_REGISTRY[royaleState?.currentEventId];
   if(royaleState?.state==='EVENT'&&event&&typeof event.draw==='function')event.draw(royaleState);
+ }
+ if(stage==='top'){
+  const event=ROYALE_EVENT_REGISTRY[royaleState?.currentEventId];
+  if(royaleState?.state==='EVENT'&&event&&typeof event.drawTop==='function')event.drawTop(royaleState);
  }
 }
 function updateRoyaleHud(){
@@ -140,7 +147,7 @@ function newRoyaleBattle(){
  if(typeof initRoyaleCamera==='function')initRoyaleCamera();
  const eventBag=royaleShuffle(ROYALE_EVENT_IDS.slice());
  royaleState={phase:1,state:'CALM',stateTimer:ROYALE_CONFIG.calm,currentEventId:null,
-  eventBag:eventBag,eventSequence:[],finalTimer:0};
+  eventBag:eventBag,eventSequence:[],finalTimer:0,timedEffects:[]};
  console.log('[Royale] next 10 shuffle-bag events:',eventBag.slice().reverse().slice(0,ROYALE_CONFIG.phases));
  console.log('[Royale] unique classes:',keys.slice());
  if(typeof _preloadConfiguredAudio==='function')_preloadConfiguredAudio(keys);
@@ -152,10 +159,10 @@ function newRoyaleBattle(){
 }
 window.startRoyale=startRoyale;
 window.newRoyaleBattle=newRoyaleBattle;
-window.royaleDebug={
+window.royaleDebug=Object.assign(window.royaleDebug||{}, {
  state:()=>royaleState?{phase:royaleState.phase,state:royaleState.state,stateTimer:royaleState.stateTimer,
   currentEventId:royaleState.currentEventId,eventSequence:royaleState.eventSequence.slice(),
   bounds:royaleZone?Object.assign({},royaleZone.bounds):null,finalTimer:royaleState.finalTimer}:null,
  skipPhase:()=>{if(royaleState){royaleState.stateTimer=0;updateRoyale(0);}},
- forceEvent:id=>{if(royaleState&&ROYALE_EVENT_IDS.includes(id))royaleState.currentEventId=id;}
-};
+ forceEvent:id=>{if(royaleState&&ROYALE_EVENT_IDS.includes(id)){royaleEndEvent();royaleState.currentEventId=id;royaleState.state='EVENT';royaleState.stateTimer=ROYALE_CONFIG.event;const entry=ROYALE_EVENT_REGISTRY[id];if(entry&&entry.start)entry.start(royaleState);}}
+});
