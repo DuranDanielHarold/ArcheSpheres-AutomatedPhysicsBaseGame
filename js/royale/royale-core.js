@@ -30,32 +30,34 @@ function royaleStartCalm(){
 }
 function updateRoyale(dt){
  if(!royaleState||winDone)return;
- window.matchTime=(window.matchTime||0)+dt;
+ const realDt=window._royaleRealStep||dt;
+ if(typeof royaleUpdateTimeScale==='function')royaleUpdateTimeScale(realDt);
+ window.matchTime=(window.matchTime||0)+realDt;
  for(let i=0;i<spheres.length;i++){
   const s=spheres[i];
   if(s._royaleObstacleCooldown>0)s._royaleObstacleCooldown=Math.max(0,s._royaleObstacleCooldown-dt);
  }
  if(royaleState.state==='CALM'){
-  royaleState.stateTimer-=dt;
+  royaleState.stateTimer-=realDt;
   if(royaleState.stateTimer<=0){royaleState.state='WARNING';royaleState.stateTimer=ROYALE_CONFIG.warning;planNextZone();}
  }else if(royaleState.state==='WARNING'){
-  royaleState.stateTimer-=dt;
+  royaleState.stateTimer-=realDt;
   if(royaleState.stateTimer<=0){royaleState.state='EVENT';royaleState.stateTimer=ROYALE_CONFIG.event;royaleEnterEvent();}
  }else if(royaleState.state==='EVENT'){
   const entry=ROYALE_EVENT_REGISTRY[royaleState.currentEventId];
   if(entry&&typeof entry.update==='function')entry.update(dt,royaleState);
-  royaleState.stateTimer-=dt;
+  royaleState.stateTimer-=realDt;
   if(royaleState.stateTimer<=0){royaleEndEvent();royaleState.state='SHRINK';royaleState.stateTimer=ROYALE_CONFIG.shrink;}
  }else if(royaleState.state==='SHRINK'){
   updateZone(dt);
-  royaleState.stateTimer-=dt;
+  royaleState.stateTimer-=realDt;
   if(royaleState.stateTimer<=0){
    finishRoyaleZone();
    if(royaleState.phase>=ROYALE_CONFIG.phases){royaleState.state='FINAL';royaleState.finalTimer=ROYALE_CONFIG.finalTimeout;royaleState.stateTimer=royaleState.finalTimer;}
    else{royaleState.phase++;royaleStartCalm();}
   }
  }else if(royaleState.state==='FINAL'){
-  royaleState.finalTimer-=dt;royaleState.stateTimer=royaleState.finalTimer;
+  royaleState.finalTimer-=realDt;royaleState.stateTimer=royaleState.finalTimer;
   if(royaleState.finalTimer<=0){
    let best=null,bestPct=-Infinity,tied=false;
    for(let i=0;i<spheres.length;i++){
@@ -114,6 +116,7 @@ function startRoyale(){
  showCountdown(3,()=>{const portrait=window.matchMedia('(orientation: portrait)').matches&&window.matchMedia('(pointer: coarse)').matches;paused=portrait;lastTime=performance.now();const p=document.getElementById('pbtn');if(p)p.textContent=paused?'RESUME':'PAUSE';});
 }
 function newRoyaleBattle(){
+ if(typeof resetRoyaleFramework==='function')resetRoyaleFramework();
  royaleHudClock=0;
  if(typeof restoreTestingRandom==='function')restoreTestingRandom();
  cancelAnimationFrame(animId);
@@ -160,7 +163,7 @@ function newRoyaleBattle(){
 window.startRoyale=startRoyale;
 window.newRoyaleBattle=newRoyaleBattle;
 window.royaleDebug=Object.assign(window.royaleDebug||{}, {
- state:()=>royaleState?{phase:royaleState.phase,state:royaleState.state,stateTimer:royaleState.stateTimer,
+ state:()=>royaleState?{phase:royaleState.phase,state:royaleState.state,stateTimer:royaleState.stateTimer,gravity:GRAVITY,timeScale:window._royaleTimeScale,spheres:spheres.map(s=>({key:s.key,dmgTakenMult:s._royaleDmgTakenMult||1,healMult:s._royaleHealMult||1})),
   currentEventId:royaleState.currentEventId,eventSequence:royaleState.eventSequence.slice(),
   bounds:royaleZone?Object.assign({},royaleZone.bounds):null,finalTimer:royaleState.finalTimer}:null,
  skipPhase:()=>{if(royaleState){royaleState.stateTimer=0;updateRoyale(0);}},
