@@ -5,7 +5,7 @@
 const GRAVITY_BASE=200;
 let GRAVITY=GRAVITY_BASE;
 function royaleResetGravity(){GRAVITY=GRAVITY_BASE;}
-function royaleSetGravity(mult){if(Number.isFinite(mult)&&mult>=0)GRAVITY=GRAVITY_BASE*mult;}
+function royaleSetGravity(mult){if(Number.isFinite(mult))GRAVITY=GRAVITY_BASE*mult;}
 const WALL_REST = 1.30;
 const DEFAULT_BURN_TICK_INTERVAL=1.5;
 const WHELPLING_BURN_TICK_INTERVAL=0.75;
