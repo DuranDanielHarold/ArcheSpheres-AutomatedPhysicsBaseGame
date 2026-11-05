@@ -1,0 +1,69 @@
+/* Experimental UI layout layer. Additive only; legacy styling remains fallback. */
+:root {
+  --ui-panel: rgba(12, 20, 38, .94);
+  --ui-edge: rgba(232, 180, 48, .72);
+  --ui-glow: 0 0 0 1px rgba(232,180,48,.12), 0 8px 24px rgba(0,0,0,.22);
+}
+body.ui-overhaul {
+  background: radial-gradient(ellipse at 50% 0%, #7db9d1 0%, #3e7594 58%, #203d5c 100%);
+  gap: clamp(4px, .65vh, 9px);
+  padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+}
+body.ui-overhaul #mode-row { align-self: stretch; justify-content: center; gap: 7px; }
+body.ui-overhaul .mtab { padding: 8px 12px; border-radius: 3px; box-shadow: 0 3px 0 #000; transition: transform .12s, filter .12s; }
+body.ui-overhaul .mtab:hover { filter: brightness(1.16); transform: translateY(-1px); }
+body.ui-overhaul #sel-row { padding: 4px 8px; gap: 7px; }
+body.ui-overhaul .sel-chip { border-radius: 3px; box-shadow: var(--ui-glow); padding: 3px; }
+body.ui-overhaul #card {
+  width: min(100%, 1100px);
+  border: 1px solid rgba(255,255,255,.22);
+  border-radius: 4px;
+  box-shadow: 0 5px 0 var(--goldsh), 0 10px 0 #17263b, 0 18px 40px rgba(0,0,0,.25);
+  overflow: hidden;
+}
+body.ui-overhaul #card.mode-1v1,
+body.ui-overhaul #card.mode-2v2,
+body.ui-overhaul #card.mode-testing { width: min(100%, 1100px); }
+body.ui-overhaul #titlebar { padding: 10px 12px; background: linear-gradient(180deg,#c6e9f4,#a8d8ea); }
+body.ui-overhaul #title-text { font-size: clamp(8px, 1.1vw, 12px); }
+body.ui-overhaul #arena-outer { padding: 10px; }
+body.ui-overhaul #arena-border { border-width: 5px; outline-width: 3px; }
+body.ui-overhaul #card.mode-1v1 #arena-border,
+body.ui-overhaul #card.mode-2v2 #arena-border { min-height: clamp(240px, 52vh, 650px); }
+body.ui-overhaul #stats { padding: 8px; gap: 8px; }
+body.ui-overhaul .hud-card { padding: 6px; border-radius: 3px; }
+body.ui-overhaul .sn { font-size: clamp(6px, .7vw, 9px); }
+body.ui-overhaul .sr { font-size: clamp(12px, 1.2vw, 17px); }
+body.ui-overhaul .hud-ability-name { font-size: clamp(12px, 1.2vw, 17px); }
+body.ui-overhaul .hud-gauge { height: 7px; }
+body.ui-overhaul #controls {
+  width: min(100%, 1100px);
+  gap: 8px;
+  padding: 8px;
+  background: var(--ui-panel);
+  border: 1px solid var(--ui-edge);
+  border-radius: 4px;
+  box-shadow: var(--ui-glow);
+}
+body.ui-overhaul .pbtn { padding: 9px 12px; border-radius: 2px; }
+body.ui-overhaul #audio-panel { border-radius: 3px; }
+body.ui-overhaul .pbtn:focus-visible,
+body.ui-overhaul .mtab:focus-visible,
+body.ui-overhaul select:focus-visible,
+body.ui-overhaul input:focus-visible { outline: 2px solid #fff2a8; outline-offset: 2px; }
+#ui-layout-toggle {
+  position: fixed; right: max(10px, env(safe-area-inset-right)); top: max(10px, env(safe-area-inset-top));
+  z-index: 120; font: 6px 'Press Start 2P', monospace; padding: 8px 10px;
+  color: var(--goldl); background: var(--navy); border: 1px solid var(--goldd);
+  box-shadow: 2px 2px 0 #000; cursor: pointer;
+}
+@media (max-width: 640px) {
+  body.ui-overhaul { padding-left: 5px; padding-right: 5px; }
+  body.ui-overhaul #card, body.ui-overhaul #card.mode-1v1, body.ui-overhaul #card.mode-2v2, body.ui-overhaul #card.mode-testing { width: 100%; }
+  body.ui-overhaul #card.mode-1v1 #arena-border, body.ui-overhaul #card.mode-2v2 #arena-border { min-height: clamp(210px, 42vh, 430px); }
+  body.ui-overhaul #controls { padding: 6px; gap: 6px; }
+  body.ui-overhaul #audio-panel { gap: 5px; padding: 5px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.ui-overhaul *, body.ui-overhaul *::before, body.ui-overhaul *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}
