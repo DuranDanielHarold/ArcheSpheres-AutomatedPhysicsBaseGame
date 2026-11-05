@@ -2216,7 +2216,7 @@ class Sphere{
  }
  receiveHeal(amount){
   if(amount<=0)return 0;
-  const actual=this.woundT>0?amount*0.5:amount;
+  const actual=(this.woundT>0?amount*0.5:amount)*(this._royaleHealMult||1);
   const prevHp=this.hp;
   this.hp=Math.min(this.maxHp,this.hp+actual);
   const gained=this.hp-prevHp;
@@ -2292,7 +2292,11 @@ class Sphere{
   }
   // Crusader — Retribution counter charges on taking damage
   if(this.key==='crusader'&&fd>0.5){this.retributionCounter=Math.min(60,(this.retributionCounter||0)+fd);}
+  fd*=(this._royaleDmgTakenMult||1);
+  const hpBeforeRoyaleDamage=this.hp;
   this.hp=Math.max(0,this.hp-fd);this.hitFlash=1;
+  const removedHp=hpBeforeRoyaleDamage-this.hp;
+  if(removedHp>0&&typeof window._royaleOnDamage==='function')window._royaleOnDamage(this,removedHp,window._balanceDamageSource);
   if(fd>=2.5)this._playHurtSfx(fd);
   const audioProjectileSource=window._balanceDamageSource;
   if(!window._balanceNoVisuals&&fd>0&&audioProjectileSource?.type==='projectile'&&SPHERE_AUDIO[audioProjectileSource.key]?.projectileHit){
@@ -2322,9 +2326,10 @@ class Sphere{
   if(!Number.isFinite(amount)||amount<=0)return 0;
   if(this.replicaKind==='phase'){const replicaHp=this.hp;this._destroyReplica('POOF');return replicaHp;}
   const before=this.hp;
-  amount=gameMode==='royale'?amount*0.8:amount;
+  amount=(gameMode==='royale'?amount*0.8:amount)*(this._royaleDmgTakenMult||1);
   this.hp=Math.max(0,this.hp-amount);
   const removed=before-this.hp;
+  if(removed>0&&typeof window._royaleOnDamage==='function')window._royaleOnDamage(this,removed,window._balanceDamageSource);
   if(removed<=0)return 0;
   this.hitFlash=1;
   if(sourceKey)recordDamageEvent(sourceKey,sourceType,removed);
@@ -2378,8 +2383,12 @@ class Sphere{
     spawnSpark(this.x,this.y,'#fff8c0',4);
    }
   }
+  fd*=(this._royaleDmgTakenMult||1);
   if(fd<=0)return;
+  const hpBeforeRoyaleDamage=this.hp;
   this.hp=Math.max(0,this.hp-fd);this.hitFlash=1;
+  const removedHp=hpBeforeRoyaleDamage-this.hp;
+  if(removedHp>0&&typeof window._royaleOnDamage==='function')window._royaleOnDamage(this,removedHp,window._balanceDamageSource);
   if(fd>=2.5)this._playHurtSfx(fd);
   const audioProjectileSource=window._balanceDamageSource;
   if(!window._balanceNoVisuals&&fd>0&&audioProjectileSource?.type==='projectile'&&SPHERE_AUDIO[audioProjectileSource.key]?.projectileHit){

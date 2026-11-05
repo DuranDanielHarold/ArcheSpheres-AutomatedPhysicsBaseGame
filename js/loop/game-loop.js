@@ -71,7 +71,9 @@ function drawGameFrame(){
  drawDmgNums();
  if(gameMode==='royale')drawRoyaleFrame('top');
  if(gameMode==='royale'&&typeof resetRoyaleCamera==='function'){
-  resetRoyaleCamera(ctx);royaleCameraDrawMinimap();royaleCameraDrawPointers();
+  resetRoyaleCamera(ctx);
+  if(royaleState){const entry=ROYALE_EVENT_REGISTRY[royaleState.currentEventId];if(royaleState.state==='EVENT'&&entry&&typeof entry.drawScreen==='function')entry.drawScreen(royaleState);}
+  royaleCameraDrawMinimap();royaleCameraDrawPointers();
  }
 }
 function scaledGameDt(dt){
@@ -79,8 +81,12 @@ function scaledGameDt(dt){
  return dt;
 }
 function stepGameFrame(dt){
- const scaled=scaledGameDt(dt);
- gameStep(scaled);
+ if(gameMode==='royale'){
+  const scale=window._royaleTimeScale||1;
+  const steps=Math.max(1,Math.ceil(dt*scale/0.05));
+  for(let i=0;i<steps;i++){window._royaleRealStep=dt/steps;gameStep(dt*scale/steps);}
+  window._royaleRealStep=dt/steps;
+ }else gameStep(scaledGameDt(dt));
  if(gameMode==='royale'&&!paused&&typeof updateRoyaleCamera==='function')updateRoyaleCamera(dt);
  drawGameFrame();
  if(typeof renderTestingTelemetry==='function')renderTestingTelemetry();

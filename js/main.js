@@ -47,6 +47,7 @@ let gameMode='1v1';
 })();
 
 function newBattle(){
+ if(typeof resetRoyaleFramework==='function')resetRoyaleFramework();else if(typeof royaleResetGravity==='function')royaleResetGravity();
  if(gameMode!=='testing'&&typeof restoreTestingRandom==='function')restoreTestingRandom();
  cancelAnimationFrame(animId);
  document.getElementById('winner').classList.remove('show');
