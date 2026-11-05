@@ -24,7 +24,7 @@ function serve(req,res){
    const missing=ids.filter(id=>!ROYALE_EVENT_REGISTRY[id]);
    if(missing.length)throw new Error('Missing Session 4C registrations: '+missing.join(','));
    gameMode='royale';newRoyaleBattle();paused=false;
-   for(const id of ids){if(!window.royaleDebug.forceEvent(id))throw new Error('Could not force '+id);stepGameFrame(1/60);royaleEndEvent();stepGameFrame(1/60);}
+   for(const id of ids){if(!window.royaleDebug.forceEvent(id))throw new Error('Could not force '+id);stepGameFrame(1/60);}
    resetRoyaleFramework();
    return {registered:ids,phaseCount:ROYALE_CONFIG.phases,config:ids.every(id=>!!ROYALE_EVENT_CONFIG[id])};
   });
