@@ -78,20 +78,15 @@ royaleRegisterEvent('lowGravity',{
   const p=c.tween>0?state.elapsed/c.tween:1;
   state.current=state.start+(state.target-state.start)*p;
   royaleSetGravity(state.current);
-  const dir=state.mode==='FLIP'?-1:1;
-  for(let i=0;i<state.motes.length;i++){
-   const m=state.motes[i];m.y-=dir*m.speed*dt;
-   if(m.y<-8)m.y=canvas.height+8;
-   else if(m.y>canvas.height+8)m.y=-8;
-   m.x+=Math.sin((window.matchTime||0)*.7+m.phase)*dt*5;
-   if(m.x<-8)m.x=canvas.width+8;else if(m.x>canvas.width+8)m.x=-8;
-  }
+  // Mote positions are derived from matchTime in drawScreen so their visual
+  // animation remains independent of the simulation time scale.
+
  },
  end(){royaleResetGravity();const s=royaleModifierState.lowGravity;s.mode=null;s.motes.length=0;s.current=1;s.target=1;s.elapsed=0;},
  drawScreen(){
-  const state=royaleModifierState.lowGravity;
+  const state=royaleModifierState.lowGravity,t=window.matchTime||0,dir=state.mode==='FLIP'?-1:1,span=canvas.height+16;
   ctx.save();ctx.globalAlpha=.24;ctx.fillStyle='#d7ecf5';
-  for(let i=0;i<state.motes.length;i++){const m=state.motes[i];ctx.beginPath();ctx.arc(m.x,m.y,m.size,0,Math.PI*2);ctx.fill();}
+  for(let i=0;i<state.motes.length;i++){const m=state.motes[i],travel=(m.speed*t*dir+m.phase*span)%span,y=((m.y-travel+span*2)%span)-8,x=m.x+Math.sin(t*.7+m.phase)*5;ctx.beginPath();ctx.arc(x,y,m.size,0,Math.PI*2);ctx.fill();}
   if(state.mode==='FLIP'){const x=canvas.width-30,y=74;ctx.globalAlpha=.65;ctx.strokeStyle='#d9efff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x,y+10);ctx.lineTo(x,y-10);ctx.moveTo(x-6,y-4);ctx.lineTo(x,y-10);ctx.lineTo(x+6,y-4);ctx.stroke();}
   ctx.restore();
  }
