@@ -31,6 +31,7 @@ const ROYALE_EVENT_LABELS={
 const ROYALE_EVENT_REGISTRY={};
 
 const ROYALE_EVENT_CONFIG={
+ gravity:{base:200},timeScale:{default:1,min:0.1,max:3,tweenSecs:0.25},
  overgrowth:{mult:1.5,tween:0.6},dwarfism:{mult:0.6,tween:0.6},
  hurricane:{strength:170,gustPeriod:3.2,gustMin:0.55,driftRate:0.35,projectileFactor:0.5,streaks:70},
  lava:{countMin:3,countMax:6,radiusMin:80,radiusMax:140,tick:0.5,dmgPct:0.03,burnSecs:1.5,fadeSecs:0.5},
