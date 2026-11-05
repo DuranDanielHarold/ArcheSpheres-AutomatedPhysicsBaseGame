@@ -31,6 +31,7 @@ function royaleStartCalm(){
 function updateRoyale(dt){
  if(!royaleState||winDone)return;
  const realDt=window._royaleRealStep||dt;
+ royaleState.realDt=realDt;
  if(typeof royaleUpdateTimeScale==='function')royaleUpdateTimeScale(realDt);
  window.matchTime=(window.matchTime||0)+realDt;
  for(let i=0;i<spheres.length;i++){
@@ -163,7 +164,8 @@ function newRoyaleBattle(){
 window.startRoyale=startRoyale;
 window.newRoyaleBattle=newRoyaleBattle;
 window.royaleDebug=Object.assign(window.royaleDebug||{}, {
- state:()=>royaleState?{phase:royaleState.phase,state:royaleState.state,stateTimer:royaleState.stateTimer,gravity:GRAVITY,timeScale:window._royaleTimeScale,spheres:spheres.map(s=>({key:s.key,dmgTakenMult:s._royaleDmgTakenMult||1,healMult:s._royaleHealMult||1})),
+ setTimeScale:x=>royaleSetTimeScale(x),
+ state:()=>royaleState?{phase:royaleState.phase,state:royaleState.state,stateTimer:royaleState.stateTimer,realDt:royaleState.realDt,gravity:GRAVITY,timeScale:window._royaleTimeScale,spheres:spheres.map(s=>({key:s.key,dmgTakenMult:s._royaleDmgTakenMult||1,healMult:s._royaleHealMult||1})),gravity:GRAVITY,timeScale:window._royaleTimeScale,spheres:spheres.map(s=>({key:s.key,dmgTakenMult:s._royaleDmgTakenMult||1,healMult:s._royaleHealMult||1})),
   currentEventId:royaleState.currentEventId,eventSequence:royaleState.eventSequence.slice(),
   bounds:royaleZone?Object.assign({},royaleZone.bounds):null,finalTimer:royaleState.finalTimer}:null,
  skipPhase:()=>{if(royaleState){royaleState.stateTimer=0;updateRoyale(0);}},
