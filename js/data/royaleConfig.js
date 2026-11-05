@@ -39,5 +39,10 @@ const ROYALE_EVENT_CONFIG={
  potions:{count:6,pickupPad:14,minSpacing:150,effectSecs:6},
  thornedWalls:{growSecs:1.0,contactCooldown:0.6,dmgPct:0.03,bleedStacks:1,thornLen:22,spacing:34},
  ghostSpheres:{count:2,hpFraction:0.35,lifeSecs:10},
- voidVortex:{countMin:2,countMax:4,pullRadius:260,pullMax:320,coreRadius:46,coreDmgPct:0.04,coreTick:0.5,growSecs:1.0,minSeparation:300}
+ voidVortex:{countMin:2,countMax:4,pullRadius:260,pullMax:320,coreRadius:46,coreDmgPct:0.04,coreTick:0.5,growSecs:1.0,minSeparation:300},
+ bloodMoon:{dmgTaken:1.3,healMult:0.5,tint:0.22},
+ lowGravity:{lowMult:0.1,flipMult:-0.6,flipChance:0.3,motes:40,tween:0.4},
+ timeWarp:{slow:0.6,fast:1.5,tween:0.4,fastChance:0.5},
+ glassCannon:{dmgTaken:1.4},
+ kingsBounty:{dmgTaken:1.25,healFrac:0.5,healCapPct:0.08}
 };
