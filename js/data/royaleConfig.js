@@ -44,5 +44,12 @@ const ROYALE_EVENT_CONFIG={
  lowGravity:{lowMult:0.1,flipMult:-0.6,flipChance:0.3,motes:40,tween:0.4},
  timeWarp:{slow:0.6,fast:1.5,tween:0.4,fastChance:0.5},
  glassCannon:{dmgTaken:1.4},
- kingsBounty:{dmgTaken:1.25,healFrac:0.5,healCapPct:0.08}
+ kingsBounty:{dmgTaken:1.25,healFrac:0.5,healCapPct:0.08},
+ meteorShower:{count:7,edgePad:100,telegraph:1.25,stagger:3.5,radius:92,damagePct:0.12},
+ earthquake:{cracks:8,edgePad:100,interval:2.2,radius:190,damagePct:0.035,knockback:34,stun:0.25,shake:2.2},
+ frostbite:{count:3,edgePad:120,radius:190,slowMult:0.68},
+ magneticStorm:{edgePad:100,radius:480,interval:2.4,impulse:34,shake:1.4},
+ supplyDrop:{count:4,edgePad:100,landingDelay:1.5,stagger:2.5,pickupRadius:35,healCap:18,guardMult:0.8,speedMult:1.18,types:3},
+ riftPortals:{edgePad:130,radius:54,minDistance:520,exitOffset:30,cooldown:2.2},
+ plagueFog:{count:3,edgePad:100,radius:170,tick:1.1,damagePct:0.025,slowMult:0.82,maxStacks:3}
 };
