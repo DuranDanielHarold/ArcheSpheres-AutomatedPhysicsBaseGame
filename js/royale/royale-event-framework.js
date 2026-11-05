@@ -27,8 +27,8 @@ function updateRoyaleFramework(dt){
  const effects=royaleState.timedEffects||[];
  for(let i=effects.length-1;i>=0;i--){const e=effects[i];e.t-=dt;if(e.tickEvery>0){e.tickT-=dt;while(e.tickT<=0&&e.t>0){if(e.onTick)e.onTick(e.s,dt);e.tickT+=e.tickEvery;}}if(e.t<=0){if(e.onEnd)e.onEnd(e.s);effects.splice(i,1);}}
 }
-function royaleClearFramework(){if(!royaleState)return;for(let i=0;i<spheres.length;i++){const s=spheres[i];delete s._royaleMoveMods;if(s._royaleSizeMods){const m=s._royaleSizeMult||1;if(m)s.radius/=m;delete s._royaleSizeMods;delete s._royaleSizeMult;}delete s._royaleDmgTaken;delete s._royaleDmgTakenMult;delete s._royaleHealMods;delete s._royaleHealMult;}royaleState.timedEffects=[];}
-function resetRoyaleFramework(){royaleClearFramework();royaleResetGravity();royaleResetTimeScale();}
+function royaleClearFramework(){for(let i=0;i<spheres.length;i++){const s=spheres[i];delete s._royaleMoveMods;if(s._royaleSizeMods){const m=s._royaleSizeMult||1;if(m)s.radius/=m;delete s._royaleSizeMods;delete s._royaleSizeMult;}delete s._royaleDmgTaken;delete s._royaleDmgTakenMult;delete s._royaleHealMods;delete s._royaleHealMult;}if(royaleState)royaleState.timedEffects=[];}
+function resetRoyaleFramework(){if(royaleState&&royaleState.currentEventId&&typeof royaleEndEvent==='function'){royaleEndEvent();royaleState.currentEventId=null;}royaleClearFramework();royaleResetGravity();royaleResetTimeScale();}
 function royaleRegisterEvent(id,entry){ROYALE_EVENT_REGISTRY[id]=entry;}
 window.royaleDebug=window.royaleDebug||{};
 window.royaleDebug.listEvents=()=>ROYALE_EVENT_IDS.map(id=>({id,label:ROYALE_EVENT_LABELS[id],implemented:!!ROYALE_EVENT_REGISTRY[id]}));
