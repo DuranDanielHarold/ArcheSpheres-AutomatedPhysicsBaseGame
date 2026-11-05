@@ -165,7 +165,7 @@ window.startRoyale=startRoyale;
 window.newRoyaleBattle=newRoyaleBattle;
 window.royaleDebug=Object.assign(window.royaleDebug||{}, {
  setTimeScale:x=>royaleSetTimeScale(x),
- state:()=>royaleState?{phase:royaleState.phase,state:royaleState.state,stateTimer:royaleState.stateTimer,realDt:royaleState.realDt,gravity:GRAVITY,timeScale:window._royaleTimeScale,spheres:spheres.map(s=>({key:s.key,dmgTakenMult:s._royaleDmgTakenMult||1,healMult:s._royaleHealMult||1})),gravity:GRAVITY,timeScale:window._royaleTimeScale,spheres:spheres.map(s=>({key:s.key,dmgTakenMult:s._royaleDmgTakenMult||1,healMult:s._royaleHealMult||1})),
+ state:()=>royaleState?{phase:royaleState.phase,state:royaleState.state,stateTimer:royaleState.stateTimer,realDt:royaleState.realDt,gravity:GRAVITY,timeScale:window._royaleTimeScale,spheres:spheres.map(s=>({key:s.key,dmgTakenMult:s._royaleDmgTakenMult||1,healMult:s._royaleHealMult||1})),
   currentEventId:royaleState.currentEventId,eventSequence:royaleState.eventSequence.slice(),
   bounds:royaleZone?Object.assign({},royaleZone.bounds):null,finalTimer:royaleState.finalTimer}:null,
  skipPhase:()=>{if(royaleState){royaleState.stateTimer=0;updateRoyale(0);}},
